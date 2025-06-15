@@ -1,8 +1,9 @@
 // runner.js
 import { resolve } from "node:path";
-import { env } from "node:process";
 
-import { createSyncFn, TsRunner } from "synckit";
+import { createSyncFn } from "synckit";
+
+import { getWorkerOptions } from "better-tailwindcss:tailwind/utils/worker.js";
 
 import { getTailwindcssVersion, isSupportedVersion } from "../utils/version.js";
 
@@ -28,12 +29,6 @@ export function getPrefix(request: GetPrefixRequest): GetPrefixResponse {
 
 function getWorkerPath() {
   return resolve(getCurrentDirectory(), "./prefix.async.js");
-}
-
-function getWorkerOptions() {
-  if(env.NODE_ENV === "test"){
-    return { execArgv: ["--import", TsRunner.TSX] };
-  }
 }
 
 function getCurrentDirectory() {

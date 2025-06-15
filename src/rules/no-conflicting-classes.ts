@@ -1,4 +1,3 @@
-import { getConflictingClasses } from "better-tailwindcss:async/conflicting-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -13,6 +12,7 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
@@ -95,9 +95,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const classes = splitClasses(literal.content);
 
-    const [conflictingClasses, warnings] = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-
-    const conflictingClassesWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
+    const { conflictingClasses, warnings } = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
     if(Object.keys(conflictingClasses).length === 0){
       continue;
@@ -126,7 +124,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           value: conflict.cssPropertyValue ?? ""
         },
         loc: getExactClassLocation(literal, conflict.tailwindClassName),
-        message: augmentMessageWithWarnings("Conflicting class detected: {{ conflicting }} -> ({{property}}: {{value}}) applies the same css property as {{ other }}", conflictingClassesWarnings)
+        message: augmentMessageWithWarnings(
+          "Conflicting class detected: {{ conflicting }} -> ({{property}}: {{value}}) applies the same css property as {{ other }}",
+          DOCUMENTATION_URL,
+          warnings
+        )
       });
     }
 

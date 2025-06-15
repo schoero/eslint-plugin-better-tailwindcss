@@ -1,4 +1,3 @@
-import { getPrefix } from "better-tailwindcss:async/prefix.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -13,6 +12,7 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -146,7 +146,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const options = getOptions(ctx);
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig } = options;
 
-  const [prefix, suffix] = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
 
   for(const literal of literals){
 
@@ -767,7 +767,7 @@ function augmentMessage(original: string, options: ReturnType<typeof getOptions>
     });
   }
 
-  return augmentMessageWithWarnings(message, warnings);
+  return augmentMessageWithWarnings(message, DOCUMENTATION_URL, warnings);
 }
 
 function isLineBreakStyleLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {

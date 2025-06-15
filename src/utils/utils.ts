@@ -46,16 +46,20 @@ export function display(classes: string): string {
 export interface Warning<Options extends Record<string, any> = Record<string, any>> {
   option: keyof Options;
   title: string;
-  url: string;
+  url?: string;
 }
 
-export function augmentMessageWithWarnings(message: string, warnings?: Warning[]) {
-  if(!warnings || warnings.length === 0){
+export function augmentMessageWithWarnings(message: string, documentationUrl: string, warnings?: (Warning | undefined)[]) {
+  const ruleWarnings = warnings
+    ?.filter(warning => warning)
+    .map(warning => ({ ...warning, url: documentationUrl }));
+
+  if(!ruleWarnings || ruleWarnings.length === 0){
     return message;
   }
 
   return [
-    warnings.flatMap(({ option, title, url }) => [
+    ruleWarnings.flatMap(({ option, title, url }) => [
       `⚠️ Warning: ${title}. Option \`${option}\` may be misconfigured.`,
       `Check documentation at ${url}`
     ]).join("\n"),

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 
-import { withCache } from "../utils/cache.js";
-import { jsonResolver } from "../utils/resolvers.js";
+import { withCache } from "./cache.js";
+import { jsonResolver } from "./resolvers.js";
 
 
 export const enum TailwindcssVersion {

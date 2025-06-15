@@ -12,9 +12,7 @@
     "target": "ES2020"
   },
   "include": [
-    "src/tailwind/v3/**/*.ts",
-    "src/tailwind/v4/**/*.ts",
-    "src/tailwind/async/**/*.ts",
+    "src/tailwindcss/**/*.ts",
     "src/configs/cjs.ts",
     "src/api/defaults.ts",
     "src/api/types.ts"

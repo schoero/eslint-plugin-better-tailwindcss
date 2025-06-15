@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.2.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.1.0...v3.2.0)
+
+### Features
+
+- Auto detect custom component layer classes ([#111](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/111))
+- Ignore prefix in groups ([#110](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/110))
+- Support prefixed groups and tags ([#115](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/115))
+
+### Fixes
+
+- Add additional tailwind variants matchers ([#116](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/116))
+
+### Chore
+
+- Fix import autocomplete ([17cd058](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/17cd058))
+- Simplify tests ([faf955d](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/faf955d))
+- Simplify caching ([8170245](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/8170245))
+
 ## v3.1.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.0.0...v3.1.0)

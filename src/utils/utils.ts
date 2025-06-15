@@ -72,7 +72,7 @@ export function getIndentation(line: string): number {
 }
 
 export function escapeForRegex(word: string) {
-  return word.replace(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+  return word.replace(/[$()*+./?[\\\]^{|}-]/g, "\\$&");
 }
 
 export function getExactClassLocation(literal: Literal, className: string, partial: boolean = false, lastIndex: boolean = false) {

@@ -17,7 +17,7 @@ import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:ta
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, display, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, display, escapeForRegex, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -676,7 +676,7 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, 
   }
 
   const suffix = tailwindcssVersion === TailwindcssVersion.V3 ? "" : ":";
-  const prefixRegex = new RegExp(`^${prefix}${suffix}`);
+  const prefixRegex = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}`);
 
   const groups = new Groups();
 

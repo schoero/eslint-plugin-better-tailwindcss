@@ -129,6 +129,7 @@ describe("tv", () => {
         ],
         compoundSlots: [
           {
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": " lint "
           }
@@ -162,6 +163,7 @@ describe("tv", () => {
         ],
         compoundSlots: [
           {
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": "lint"
           }
@@ -280,6 +282,7 @@ describe("tv", () => {
       tv(" ignore ", {
           slots: { " ignore ": " ignore " },
           compoundSlots: [{ 
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": " lint ",
             "className": " lint "
@@ -291,6 +294,7 @@ describe("tv", () => {
       tv(" ignore ", {
           slots: { " ignore ": " ignore " },
           compoundSlots: [{ 
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": "lint",
             "className": "lint"
@@ -367,6 +371,7 @@ describe("tv", () => {
       tv(" ignore ", {
           slots: { " ignore ": " ignore " },
           compoundSlots: [{ 
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": [" lint ", " lint "],
             "className": [" lint ", " lint ", " lint "]
@@ -378,6 +383,7 @@ describe("tv", () => {
       tv(" ignore ", {
           slots: { " ignore ": " ignore " },
           compoundSlots: [{ 
+            slots: [" ignore ", " ignore "],
             " ignore ": " ignore ",
             "class": ["lint", "lint"],
             "className": ["lint", "lint", "lint"]
@@ -398,6 +404,43 @@ describe("tv", () => {
 
           errors: 5,
           options: [{ callees: [TV_COMPOUND_SLOTS_CLASS] }]
+        }
+      ]
+    });
+
+  });
+
+  it("should lint string arrays inside the `base` property", () => {
+
+    const dirty = `
+      tv(" ignore ", {
+          base: [" lint ", " lint ", " lint "],
+          variants: { " ignore ": " ignore " },
+          compoundVariants: { " ignore ": " ignore " }
+        }
+      )
+    `;
+    const clean = `
+      tv(" ignore ", {
+          base: ["lint", "lint", "lint"],
+          variants: { " ignore ": " ignore " },
+          compoundVariants: { " ignore ": " ignore " }
+        }
+      )
+    `;
+
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          jsx: dirty,
+          jsxOutput: clean,
+          svelte: `<script>${dirty}</script>`,
+          svelteOutput: `<script>${clean}</script>`,
+          vue: `<script>${dirty}</script>`,
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 3,
+          options: [{ callees: [TV_BASE_VALUES] }]
         }
       ]
     });

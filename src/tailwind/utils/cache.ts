@@ -1,3 +1,5 @@
+import { env } from "node:process";
+
 import { getModifiedDate } from "../utils/fs.js";
 
 
@@ -9,7 +11,7 @@ export function withCache<Result>(key: string, callback: () => Promise<Result> |
   const modified = getModifiedDate(key);
   const cached = CACHE.get(key);
 
-  if(cached && cached.date > modified){
+  if(env.NODE_ENV !== "test" && cached && cached.date > modified){
     return cached.value;
   }
 

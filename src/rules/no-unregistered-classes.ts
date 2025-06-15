@@ -1,4 +1,5 @@
 import { getCustomComponentClasses } from "better-tailwindcss:async/custom-component-classes.sync.js";
+import { getPrefix } from "better-tailwindcss:async/prefix.sync.js";
 import { getUnregisteredClasses } from "better-tailwindcss:async/unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
@@ -19,6 +20,7 @@ import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
   augmentMessageWithWarnings,
   display,
+  escapeForRegex,
   getExactClassLocation,
   splitClasses
 } from "better-tailwindcss:utils/utils.js";
@@ -50,10 +52,7 @@ export type Options = [
   >
 ];
 
-export const DEFAULT_IGNORED_UNREGISTERED_CLASSES = [
-  "^group(?:\\/(\\S*))?$",
-  "^peer(?:\\/(\\S*))?$"
-];
+export const DEFAULT_IGNORED_UNREGISTERED_CLASSES = [];
 
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
@@ -111,6 +110,11 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const { detectComponentClasses, ignore, tailwindConfig } = getOptions(ctx);
 
+  const [prefix, suffix] = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+
+  const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
+  const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
+
   const customComponentClasses = detectComponentClasses
     ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })[0]
     : [];
@@ -130,7 +134,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     for(const unregisteredClass of unregisteredClasses){
       if(
         ignore.some(ignoredClass => unregisteredClass.match(ignoredClass)) ||
-        customComponentClasses.includes(unregisteredClass)
+        customComponentClasses.includes(unregisteredClass) ||
+        unregisteredClass.match(ignoredGroups) ||
+        unregisteredClass.match(ignoredPeers)
       ){
         continue;
       }

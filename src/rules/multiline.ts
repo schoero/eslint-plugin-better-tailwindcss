@@ -7,13 +7,16 @@ import {
 import {
   ATTRIBUTE_SCHEMA,
   CALLEE_SCHEMA,
+  ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
+  TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, display, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, display, escapeForRegex, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -36,11 +39,13 @@ export type Options = [
     VariableOption &
     {
       classesPerLine?: number;
+      entryPoint?: string;
       group?: "emptyLine" | "never" | "newLine";
       indent?: "tab" | number;
       lineBreakStyle?: "unix" | "windows";
       preferSingleLine?: boolean;
       printWidth?: number;
+      tailwindConfig?: string;
     }
   >
 ];
@@ -84,6 +89,8 @@ export const multiline: ESLintRule<Options> = {
             ...ATTRIBUTE_SCHEMA,
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
+            ...ENTRYPOINT_SCHEMA,
+            ...TAILWIND_CONFIG_SCHEMA,
             classesPerLine: {
               default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
@@ -91,7 +98,7 @@ export const multiline: ESLintRule<Options> = {
             },
             group: {
               default: defaultOptions.group,
-              description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same modifier/variant.",
+              description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same variant.",
               enum: ["emptyLine", "never", "newLine"],
               type: "string"
             },
@@ -137,7 +144,9 @@ export const multiline: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const options = getOptions(ctx);
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth } = options;
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig } = options;
+
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
 
   for(const literal of literals){
 
@@ -149,7 +158,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const literalStartPosition = literal.loc.start.column;
 
     const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks);
+    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
@@ -649,11 +658,13 @@ class Line {
   }
 }
 
-function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
+function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, suffix: string) {
 
   if(classes.length === 0){
     return;
   }
+
+  const prefixRegex = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}`);
 
   const groups = new Groups();
 
@@ -663,11 +674,15 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[]) {
     const isFirstGroup = groups.length === 1;
 
     const lastGroup = groups.at(-1);
-    const lastClass = lastGroup?.at(-1);
-    const lastModifier = lastClass?.match(/^.*?:/)?.[0];
-    const modifier = className.match(/^.*?:/)?.[0];
+    const lastClassName = lastGroup?.at(-1);
 
-    if(lastModifier !== modifier && !(isFirstClass && isFirstGroup)){
+    const unprefixedLastClassName = lastClassName?.replace(prefixRegex, "");
+    const unprefixedClassName = className.replace(prefixRegex, "");
+
+    const lastVariant = unprefixedLastClassName?.match(/^.*?:/)?.[0];
+    const variant = unprefixedClassName.match(/^.*?:/)?.[0];
+
+    if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
       groups.addGroup();
     }
 
@@ -752,7 +767,7 @@ function augmentMessage(original: string, options: ReturnType<typeof getOptions>
     });
   }
 
-  return augmentMessageWithWarnings(message, warnings);
+  return augmentMessageWithWarnings(message, DOCUMENTATION_URL, warnings);
 }
 
 function isLineBreakStyleLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {

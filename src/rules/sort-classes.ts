@@ -1,4 +1,3 @@
-import { getClassOrder } from "better-tailwindcss:async/class-order.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -13,6 +12,7 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -161,13 +161,17 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         return fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: augmentMessageWithWarnings("Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}", warnings)
+      message: augmentMessageWithWarnings(
+        "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}",
+        DOCUMENTATION_URL,
+        warnings
+      )
     });
 
   }
 }
 
-function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: Warning[]] {
+function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
   const { order, tailwindConfig } = getOptions(ctx);
 
@@ -179,9 +183,7 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
-  const [classOrder, warnings] = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-
-  const sortClassesWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
+  const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
   const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {
@@ -193,7 +195,7 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     .map(([className]) => className);
 
   if(order === "official"){
-    return [officiallySortedClasses, sortClassesWarnings];
+    return [officiallySortedClasses, warnings];
   }
 
   const groupedByVariant = new Map<string, string[]>();
@@ -203,7 +205,7 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     groupedByVariant.set(variant, [...groupedByVariant.get(variant) ?? [], className]);
   }
 
-  return [Array.from(groupedByVariant.values()).flat(), sortClassesWarnings];
+  return [Array.from(groupedByVariant.values()).flat(), warnings];
 
 }
 

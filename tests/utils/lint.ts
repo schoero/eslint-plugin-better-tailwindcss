@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, normalize } from "node:path";
-import { chdir, cwd } from "node:process";
+import { cwd } from "node:process";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
@@ -131,13 +131,13 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
 function resetTestingDirectory(testingDirectory: string = "tmp") {
   if(basename(cwd()) === testingDirectory){
-    chdir("..");
+    process.chdir("..");
   }
   if(existsSync(testingDirectory)){
     rmSync(testingDirectory, { recursive: true });
   }
   mkdirSync(testingDirectory, { recursive: true });
-  chdir(testingDirectory);
+  process.chdir(testingDirectory);
 }
 
 type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;

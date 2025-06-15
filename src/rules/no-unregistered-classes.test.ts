@@ -1,4 +1,4 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "src/async-utils/version.js";
 import { describe, it } from "vitest";
 
 import { noUnregisteredClasses } from "better-tailwindcss:rules/no-unregistered-classes.js";
@@ -180,40 +180,6 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it("should not report on tailwind utility classes that don't produce a css output", () => {
-    lint(
-      noUnregisteredClasses,
-      TEST_SYNTAXES,
-      {
-        valid: [
-          {
-            angular: `<img class="group" />`,
-            html: `<img class="group" />`,
-            jsx: `() => <img class="group" />`,
-            svelte: `<img class="group" />`,
-            vue: `<template><img class="group" /></template>`
-          }
-        ]
-      }
-    );
-
-    lint(
-      noUnregisteredClasses,
-      TEST_SYNTAXES,
-      {
-        valid: [
-          {
-            angular: `<img class="group/custom-group" />`,
-            html: `<img class="group/custom-group" />`,
-            jsx: `() => <img class="group/custom-group" />`,
-            svelte: `<img class="group/custom-group" />`,
-            vue: `<template><img class="group/custom-group" /></template>`
-          }
-        ]
-      }
-    );
-  });
-
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
@@ -240,7 +206,7 @@ describe(noUnregisteredClasses.name, () => {
                   };
                 }
               `,
-              "tailwind.config.js": ts`
+              "tailwind.config.color.js": ts`
                 import { plugin } from "./plugin.js";
 
                 export default {
@@ -258,7 +224,7 @@ describe(noUnregisteredClasses.name, () => {
               `
             },
             options: [{
-              tailwindConfig: "./tailwind.config.js"
+              tailwindConfig: "./tailwind.config.color.js"
             }]
           }
         ]
@@ -317,6 +283,380 @@ describe(noUnregisteredClasses.name, () => {
             options: [{
               entryPoint: "./tailwind.css"
             }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom classes defined in the component layer in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ],
+        valid: [
+          {
+            angular: `<img class="custom-component" />`,
+            html: `<img class="custom-component" />`,
+            jsx: `() => <img class="custom-component" />`,
+            svelte: `<img class="custom-component" />`,
+            vue: `<template><img class="custom-component" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex tw-flex hover:tw-flex"/>`,
+            html: `<img class="flex tw-flex hover:tw-flex" />`,
+            jsx: `() => <img class="flex tw-flex hover:tw-flex" />`,
+            svelte: `<img class="flex tw-flex hover:tw-flex" />`,
+            vue: `<template><img class="flex tw-flex hover:tw-flex" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.config.prefix.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.prefix.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex tw:flex tw:hover:flex"/>`,
+            html: `<img class="flex tw:flex tw:hover:flex" />`,
+            jsx: `() => <img class="flex tw:flex tw:hover:flex" />`,
+            svelte: `<img class="flex tw:flex tw:hover:flex" />`,
+            vue: `<template><img class="flex tw:flex tw:hover:flex" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report on groups and peers", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="group" />`,
+            html: `<img class="group" />`,
+            jsx: `() => <img class="group" />`,
+            svelte: `<img class="group" />`,
+            vue: `<template><img class="group" /></template>`
+          },
+          {
+            angular: `<img class="peer" />`,
+            html: `<img class="peer" />`,
+            jsx: `() => <img class="peer" />`,
+            svelte: `<img class="peer" />`,
+            vue: `<template><img class="peer" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report on named groups and peers", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="group/custom-group" />`,
+            html: `<img class="group/custom-group" />`,
+            jsx: `() => <img class="group/custom-group" />`,
+            svelte: `<img class="group/custom-group" />`,
+            vue: `<template><img class="group/custom-group" /></template>`
+          },
+          {
+            angular: `<img class="peer/custom-peer" />`,
+            html: `<img class="peer/custom-peer" />`,
+            jsx: `() => <img class="peer/custom-peer" />`,
+            svelte: `<img class="peer/custom-peer" />`,
+            vue: `<template><img class="peer/custom-peer" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="tw-group"/>`,
+            html: `<img class="tw-group" />`,
+            jsx: `() => <img class="tw-group" />`,
+            svelte: `<img class="tw-group" />`,
+            vue: `<template><img class="tw-group" /></template>`,
+
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          },
+          {
+            angular: `<img class="tw-peer"/>`,
+            html: `<img class="tw-peer" />`,
+            jsx: `() => <img class="tw-peer" />`,
+            svelte: `<img class="tw-peer" />`,
+            vue: `<template><img class="tw-peer" /></template>`,
+
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="tw-group/custom-group"/>`,
+            html: `<img class="tw-group/custom-group" />`,
+            jsx: `() => <img class="tw-group/custom-group" />`,
+            svelte: `<img class="tw-group/custom-group" />`,
+            vue: `<template><img class="tw-group/custom-group" /></template>`,
+
+            files: {
+              "tailwind.config.prefix.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.prefix.js"
+            }]
+          },
+          {
+            angular: `<img class="tw-peer/custom-peer"/>`,
+            html: `<img class="tw-peer/custom-peer" />`,
+            jsx: `() => <img class="tw-peer/custom-peer" />`,
+            svelte: `<img class="tw-peer/custom-peer" />`,
+            vue: `<template><img class="tw-peer/custom-peer" /></template>`,
+
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="tw:group"/>`,
+            html: `<img class="tw:group" />`,
+            jsx: `() => <img class="tw:group" />`,
+            svelte: `<img class="tw:group" />`,
+            vue: `<template><img class="tw:group" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="tw:peer"/>`,
+            html: `<img class="tw:peer" />`,
+            jsx: `() => <img class="tw:peer" />`,
+            svelte: `<img class="tw:peer" />`,
+            vue: `<template><img class="tw:peer" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="tw:group/custom-group"/>`,
+            html: `<img class="tw:group/custom-group" />`,
+            jsx: `() => <img class="tw:group/custom-group" />`,
+            svelte: `<img class="tw:group/custom-group" />`,
+            vue: `<template><img class="tw:group/custom-group" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="tw:peer/custom-peer"/>`,
+            html: `<img class="tw:peer/custom-peer" />`,
+            jsx: `() => <img class="tw:peer/custom-peer" />`,
+            svelte: `<img class="tw:peer/custom-peer" />`,
+            vue: `<template><img class="tw:peer/custom-peer" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report on tailwind utility classes with modifiers", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="bg-red-500/50" />`,
+            html: `<img class="bg-red-500/50" />`,
+            jsx: `() => <img class="bg-red-500/50" />`,
+            svelte: `<img class="bg-red-500/50" />`,
+            vue: `<template><img class="bg-red-500/50" /></template>`
+          },
+          {
+            angular: `<img class="hover:bg-red-500/50" />`,
+            html: `<img class="hover:bg-red-500/50" />`,
+            jsx: `() => <img class="hover:bg-red-500/50" />`,
+            svelte: `<img class="hover:bg-red-500/50" />`,
+            vue: `<template><img class="hover:bg-red-500/50" /></template>`
           }
         ]
       }

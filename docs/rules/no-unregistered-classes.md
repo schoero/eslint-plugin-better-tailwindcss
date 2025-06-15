@@ -10,12 +10,19 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
 
   List of classes that should not report an error. The entries in this list are treated as regular expressions.
   
-  The rule works, by checking the output that a given class will produce. By default, the utilities `group` and `peer` are ignored, because they don't produce any css output.
-  
-  If you want to customize the ignore list, it is recommended to add the default options to the ignore override. You can use the function `getDefaultIgnoredUnregisteredClasses()` exported from `/api/defaults` to get the original ignore list.
-
   **Type**: `string[]`  
-  **Default**: `["^group(?:\\/(\\S*))?$", "^peer(?:\\/(\\S*))?$"]`
+  **Default**: `[]`
+
+<br/>
+
+### `detectComponentClasses`
+
+  Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
+  
+  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unregistered classes.
+  
+  **Type**: `boolean`  
+  **Default**: `false`
 
 <br/>
 

@@ -1,36 +1,16 @@
-import { findDefaultConfig, findTailwindConfigPath } from "./config.js";
-import { createTailwindContextFromEntryPoint } from "./context.js";
+import { runAsWorker } from "synckit";
+
+import { createTailwindContext } from "./context.async.v4.js";
 
 import type {
-  ConfigWarning,
   ConflictingClasses,
   GetConflictingClassesRequest,
   GetConflictingClassesResponse
-} from "../api/interface.js";
+} from "./conflicting-classes.js";
 
 
-export async function getConflictingClasses({ classes, configPath, cwd }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> {
-  const warnings: ConfigWarning[] = [];
-
-  const config = findTailwindConfigPath(cwd, configPath);
-  const defaultConfig = findDefaultConfig(cwd);
-
-  if(!config){
-    warnings.push({
-      option: "entryPoint",
-      title: configPath
-        ? `No tailwind css config found at \`${configPath}\``
-        : "No tailwind css entry point configured"
-    });
-  }
-
-  const path = config ?? defaultConfig;
-
-  if(!path){
-    throw new Error("Could not find a valid Tailwind CSS configuration");
-  }
-
-  const context = await createTailwindContextFromEntryPoint(path);
+runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
+  const context = await createTailwindContext(configPath);
 
   const conflicts: ConflictingClasses = {};
 
@@ -100,8 +80,8 @@ export async function getConflictingClasses({ classes, configPath, cwd }: GetCon
     }
   }
 
-  return [conflicts, warnings];
-}
+  return conflicts;
+});
 
 export type StyleRule = {
   kind: "rule";

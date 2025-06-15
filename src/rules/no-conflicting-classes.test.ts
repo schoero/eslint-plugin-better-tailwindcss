@@ -1,4 +1,4 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "src/tailwind/utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "src/async-utils/version.js";
 import { describe, it } from "vitest";
 
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";

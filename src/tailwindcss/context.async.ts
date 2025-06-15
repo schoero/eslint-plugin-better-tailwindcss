@@ -1,4 +1,4 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "../utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "../async-utils/version.js";
 import { createTailwindContext as createTailwindContextV3 } from "./context.async.v3.js";
 import { createTailwindContext as createTailwindContextV4 } from "./context.async.v4.js";
 

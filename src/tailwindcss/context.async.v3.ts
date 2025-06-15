@@ -3,7 +3,7 @@ import * as setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
 import loadConfig from "tailwindcss3/loadConfig.js";
 import resolveConfig from "tailwindcss3/resolveConfig.js";
 
-import { withCache } from "../utils/cache.js";
+import { withCache } from "../async-utils/cache.js";
 
 
 export const createTailwindContext = async (configPath: string) => withCache(configPath, async () => {

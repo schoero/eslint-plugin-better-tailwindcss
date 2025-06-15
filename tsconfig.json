@@ -14,7 +14,7 @@
       "better-tailwindcss:rules/*": ["src/rules/*"],
       "better-tailwindcss:tests/*": ["tests/*"],
       "better-tailwindcss:types/*": ["src/types/*"],
-      "better-tailwindcss:utils/*": ["src/utils/*"],
+      "better-tailwindcss:utils/*": ["src/utils/*","src/async-utils/*"],
       "better-tailwindcss:tailwindcss/*": ["src/tailwindcss/*"]
     },
 

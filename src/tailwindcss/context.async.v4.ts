@@ -6,10 +6,10 @@ import { createJiti } from "jiti";
 import postcss from "postcss";
 import postcssImport from "postcss-import";
 
-import { withCache } from "../utils/cache.js";
-import { isESModule } from "../utils/module.js";
-import { isWindows } from "../utils/platform.js";
-import { cjsResolver, cssResolver, esmResolver } from "../utils/resolvers.js";
+import { withCache } from "../async-utils/cache.js";
+import { isESModule } from "../async-utils/module.js";
+import { isWindows } from "../async-utils/platform.js";
+import { cjsResolver, cssResolver, esmResolver } from "../async-utils/resolvers.js";
 
 
 export const createTailwindContext = async (entryPoint: string) => withCache(entryPoint, async () => {

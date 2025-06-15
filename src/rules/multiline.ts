@@ -13,7 +13,6 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:tailwind/utils/version.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -147,10 +146,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const options = getOptions(ctx);
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig } = options;
 
-  const tailwindcssVersion = getTailwindcssVersion();
-  const [prefix, warnings] = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
-
-  const prefixWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
+  const [prefix, suffix] = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
 
   for(const literal of literals){
 
@@ -162,7 +158,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const literalStartPosition = literal.loc.start.column;
 
     const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks, prefix, tailwindcssVersion.major);
+    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
@@ -417,11 +413,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           return fixer.replaceTextRange(literal.range, fixedClasses);
         },
         loc: literal.loc,
-        message: augmentMessageWithWarnings(
-          augmentMessage(literal.raw, options, "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"),
-          prefixWarnings
-        )
-
+        message: augmentMessage(literal.raw, options, "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
       });
 
       return;
@@ -509,10 +501,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           : fixer.replaceTextRange(literal.range, fixedClasses);
       },
       loc: literal.loc,
-      message: augmentMessageWithWarnings(
-        augmentMessage(literal.raw, options, "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"),
-        prefixWarnings
-      )
+      message: augmentMessage(literal.raw, options, "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
     });
 
   }
@@ -669,13 +658,12 @@ class Line {
   }
 }
 
-function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, tailwindcssVersion: TailwindcssVersion) {
+function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, suffix: string) {
 
   if(classes.length === 0){
     return;
   }
 
-  const suffix = tailwindcssVersion === TailwindcssVersion.V3 ? "" : ":";
   const prefixRegex = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}`);
 
   const groups = new Groups();

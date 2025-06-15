@@ -5,7 +5,7 @@ import { createSyncFn } from "synckit";
 
 import { getWorkerOptions } from "better-tailwindcss:tailwind/utils/worker.js";
 
-import { getTailwindcssVersion, isSupportedVersion } from "../utils/version.js";
+import { getTailwindcssVersion, isSupportedVersion, TailwindcssVersion } from "../utils/version.js";
 
 import type { GetPrefixRequest, GetPrefixResponse } from "../api/interface.js";
 import type { SupportedTailwindVersion } from "../utils/version.js";
@@ -15,15 +15,22 @@ const workerPath = getWorkerPath();
 const version = getTailwindcssVersion();
 const workerOptions = getWorkerOptions();
 
-const getPrefixSync = createSyncFn<(version: SupportedTailwindVersion, request: GetPrefixRequest) => any>(workerPath, workerOptions);
+const getPrefixSync = createSyncFn<(version: SupportedTailwindVersion, request: GetPrefixRequest) => GetPrefixResponse>(workerPath, workerOptions);
 
 
-export function getPrefix(request: GetPrefixRequest): GetPrefixResponse {
+export function getPrefix(request: GetPrefixRequest) {
   if(!isSupportedVersion(version.major)){
     throw new Error(`Unsupported Tailwind CSS version: ${version.major}`);
   }
 
-  return getPrefixSync(version.major, request) as GetPrefixResponse;
+  const [prefix] = getPrefixSync(version.major, request);
+  const suffix = prefix === ""
+    ? ""
+    : version.major === TailwindcssVersion.V3
+      ? ""
+      : ":";
+
+  return [prefix, suffix];
 }
 
 

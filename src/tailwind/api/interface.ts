@@ -38,7 +38,7 @@ export interface GetPrefixRequest {
   cwd: string;
   configPath?: string;
 }
-export type GetPrefixResponse = [prefix: string, warnings: ConfigWarning[]];
+export type GetPrefixResponse = [prefix: string, suffix: string];
 
 
 export interface GetConflictingClassesRequest {

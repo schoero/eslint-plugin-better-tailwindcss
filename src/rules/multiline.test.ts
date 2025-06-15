@@ -1293,14 +1293,14 @@ describe(multiline.name, () => {
 
             errors: 1,
             files: {
-              "tailwind.config.js": ts`
+              "tailwind.config.prefix.js": ts`
                 export default {
                   prefix: 'tw-',
                 };
               `
             },
             options: [{
-              tailwindConfig: "./tailwind.config.js"
+              tailwindConfig: "./tailwind.config.prefix.js"
             }]
           }
         ]

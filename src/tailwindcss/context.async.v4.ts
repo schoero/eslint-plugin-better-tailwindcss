@@ -12,59 +12,7 @@ import { isWindows } from "../utils/platform.js";
 import { cjsResolver, cssResolver, esmResolver } from "../utils/resolvers.js";
 
 
-function resolveJsFrom(base: string, id: string): string {
-  try {
-    return esmResolver.resolveSync({}, base, id) || id;
-  } catch (err){
-    return cjsResolver.resolveSync({}, base, id) || id;
-  }
-}
-
-function resolveCssFrom(base: string, id: string) {
-  return cssResolver.resolveSync({}, base, id) || id;
-}
-
-function createLoader<T>({
-  filepath,
-  jiti,
-  legacy,
-  onError
-}: {
-  filepath: string;
-  jiti: ReturnType<typeof createJiti>;
-  legacy: boolean;
-  onError: (id: string, error: unknown, resourceType: string) => T;
-}) {
-  const cacheKey = `${+Date.now()}`;
-
-  async function loadFile(id: string, base: string, resourceType: string) {
-    try {
-      const resolved = resolveJsFrom(base, id);
-
-      const url = pathToFileURL(resolved);
-      url.searchParams.append("t", cacheKey);
-
-      return await jiti.import(url.href, { default: true });
-    } catch (err){
-      return onError(id, err, resourceType);
-    }
-  }
-
-  if(legacy){
-    const baseDir = path.dirname(filepath);
-    return async (id: string) => loadFile(id, baseDir, "module");
-  }
-
-  return async (id: string, base: string, resourceType: string) => {
-    return {
-      base,
-      module: await loadFile(id, base, resourceType)
-    };
-  };
-}
-
-
-export const createTailwindContextFromEntryPoint = async (entryPoint: string) => withCache(entryPoint, async () => {
+export const createTailwindContext = async (entryPoint: string) => withCache(entryPoint, async () => {
 
   // Create a Jiti instance that can be used to load plugins and config files
   const jiti = createJiti(getCurrentFilename(), {
@@ -142,6 +90,57 @@ export const createTailwindContextFromEntryPoint = async (entryPoint: string) =>
 
   return design;
 });
+
+function resolveJsFrom(base: string, id: string): string {
+  try {
+    return esmResolver.resolveSync({}, base, id) || id;
+  } catch (err){
+    return cjsResolver.resolveSync({}, base, id) || id;
+  }
+}
+
+function resolveCssFrom(base: string, id: string) {
+  return cssResolver.resolveSync({}, base, id) || id;
+}
+
+function createLoader<T>({
+  filepath,
+  jiti,
+  legacy,
+  onError
+}: {
+  filepath: string;
+  jiti: ReturnType<typeof createJiti>;
+  legacy: boolean;
+  onError: (id: string, error: unknown, resourceType: string) => T;
+}) {
+  const cacheKey = `${+Date.now()}`;
+
+  async function loadFile(id: string, base: string, resourceType: string) {
+    try {
+      const resolved = resolveJsFrom(base, id);
+
+      const url = pathToFileURL(resolved);
+      url.searchParams.append("t", cacheKey);
+
+      return await jiti.import(url.href, { default: true });
+    } catch (err){
+      return onError(id, err, resourceType);
+    }
+  }
+
+  if(legacy){
+    const baseDir = path.dirname(filepath);
+    return async (id: string) => loadFile(id, baseDir, "module");
+  }
+
+  return async (id: string, base: string, resourceType: string) => {
+    return {
+      base,
+      module: await loadFile(id, base, resourceType)
+    };
+  };
+}
 
 function getCurrentFilename() {
   // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error

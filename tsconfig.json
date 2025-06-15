@@ -6,16 +6,8 @@
     "baseUrl": ".",
     "lib": ["ESNext"],
     "module": "Preserve",
-
-    // general
-    "noEmit": true,
-    "target": "ES2020",
-
-    // strictness
-    "noImplicitAny": false,
     "paths": {
       "better-tailwindcss:build/*": ["build/*"],
-      "better-tailwindcss:async/*": ["src/tailwind/async/*"],
       "better-tailwindcss:options/*": ["src/options/*"],
       "better-tailwindcss:configs/*": ["src/configs/*"],
       "better-tailwindcss:parsers/*": ["src/parsers/*"],
@@ -23,8 +15,15 @@
       "better-tailwindcss:tests/*": ["tests/*"],
       "better-tailwindcss:types/*": ["src/types/*"],
       "better-tailwindcss:utils/*": ["src/utils/*"],
-      "better-tailwindcss:tailwind/*": ["src/tailwind/*"]
+      "better-tailwindcss:tailwindcss/*": ["src/tailwindcss/*"]
     },
+
+    // general
+    "noEmit": true,
+    "target": "ES2020",
+
+    // strictness
+    "noImplicitAny": false,
 
     // imports
     "verbatimModuleSyntax": true

@@ -1,6 +1,3 @@
-import { getCustomComponentClasses } from "better-tailwindcss:async/custom-component-classes.sync.js";
-import { getPrefix } from "better-tailwindcss:async/prefix.sync.js";
-import { getUnregisteredClasses } from "better-tailwindcss:async/unregistered-classes.sync.js";
 import {
   DEFAULT_ATTRIBUTE_NAMES,
   DEFAULT_CALLEE_NAMES,
@@ -15,6 +12,9 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
+import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import {
@@ -110,22 +110,20 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const { detectComponentClasses, ignore, tailwindConfig } = getOptions(ctx);
 
-  const [prefix, suffix] = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
 
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
   const customComponentClasses = detectComponentClasses
-    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })[0]
+    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })
     : [];
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const [unregisteredClasses, warnings] = getUnregisteredClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-
-    const unregisteredClassesWarnings = warnings.map(warning => ({ ...warning, url: DOCUMENTATION_URL }));
+    const { unregisteredClasses, warnings } = getUnregisteredClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
     if(unregisteredClasses.length === 0){
       continue;
@@ -146,7 +144,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           unregistered: display(unregisteredClass)
         },
         loc: getExactClassLocation(literal, unregisteredClass),
-        message: augmentMessageWithWarnings("Unregistered class detected: {{ unregistered }}", unregisteredClassesWarnings)
+        message: augmentMessageWithWarnings(
+          "Unregistered class detected: {{ unregistered }}",
+          DOCUMENTATION_URL,
+          warnings
+        )
       });
     }
 

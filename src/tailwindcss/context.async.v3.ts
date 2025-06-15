@@ -6,16 +6,15 @@ import resolveConfig from "tailwindcss3/resolveConfig.js";
 import { withCache } from "../utils/cache.js";
 
 
-export function loadTailwindConfig(path: string) {
+export const createTailwindContext = async (configPath: string) => withCache(configPath, async () => {
+  const tailwindConfig = loadTailwindConfig(configPath);
+  return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
+});
+
+function loadTailwindConfig(path: string) {
   const config = path === "default"
     ? defaultConfig
     : loadConfig(path);
 
   return resolveConfig(config);
 }
-
-export const createTailwindContextFromConfigFile = async (path: string = "default") => withCache(path, async () => {
-  const tailwindConfig = loadTailwindConfig(path);
-
-  return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
-});

@@ -14,12 +14,6 @@
 
 - Add additional tailwind variants matchers ([#116](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/116))
 
-### Chore
-
-- Fix import autocomplete ([17cd058](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/17cd058))
-- Simplify tests ([faf955d](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/faf955d))
-- Simplify caching ([8170245](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/8170245))
-
 ## v3.1.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.0.0...v3.1.0)

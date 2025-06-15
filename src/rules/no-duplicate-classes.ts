@@ -32,10 +32,7 @@ export type Options = [
     AttributeOption &
     CalleeOption &
     TagOption &
-    VariableOption &
-    {
-      allowMultiline?: boolean;
-    }
+    VariableOption
   >
 ];
 

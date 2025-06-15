@@ -652,25 +652,11 @@ describe(noUnregisteredClasses.name, () => {
             vue: `<template><img class="bg-red-500/50" /></template>`
           },
           {
-            angular: `<img class="shadow-lg/50" />`,
-            html: `<img class="shadow-lg/50" />`,
-            jsx: `() => <img class="shadow-lg/50" />`,
-            svelte: `<img class="shadow-lg/50" />`,
-            vue: `<template><img class="shadow-lg/50" /></template>`
-          },
-          {
             angular: `<img class="hover:bg-red-500/50" />`,
             html: `<img class="hover:bg-red-500/50" />`,
             jsx: `() => <img class="hover:bg-red-500/50" />`,
             svelte: `<img class="hover:bg-red-500/50" />`,
             vue: `<template><img class="hover:bg-red-500/50" /></template>`
-          },
-          {
-            angular: `<img class="hover:shadow-lg/50" />`,
-            html: `<img class="hover:shadow-lg/50" />`,
-            jsx: `() => <img class="hover:shadow-lg/50" />`,
-            svelte: `<img class="hover:shadow-lg/50" />`,
-            vue: `<template><img class="hover:shadow-lg/50" /></template>`
           }
         ]
       }

@@ -150,3 +150,10 @@ export function isInsideLogicalExpressionLeft(node: ESNode & Partial<Rule.NodePa
   if(node.parent.type === "LogicalExpression" && node.parent.left === node){ return true; }
   return isInsideLogicalExpressionLeft(node.parent);
 }
+
+export function isInsideMemberExpression(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+  // aka indexed access: https://github.com/estree/estree/blob/master/es5.md#memberexpression
+  if(!hasESNodeParentExtension(node)){ return false; }
+  if(node.parent.type === "MemberExpression"){ return true; }
+  return isInsideMemberExpression(node.parent);
+}

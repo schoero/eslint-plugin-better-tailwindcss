@@ -4,7 +4,7 @@ import { multiline } from "better-tailwindcss:rules/multiline.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
-import { dedent, vue } from "better-tailwindcss:tests/utils/template.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
@@ -144,18 +144,14 @@ describe("vue", () => {
   });
 
   // #119
-  it("should not report on indexed access syntax", () => {
+  it("should not report inside member expressions", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
-          vue: vue`
-            <script>const ui = { " ignored ": "a b c" };</script>
-            <template><img :class="[ui[' ignored ']]" /></template>
-          `
+          vue: `<template><img :class="[ui[' ignored ']]" /></template>`
         }
       ]
     });
   });
-
 
 });

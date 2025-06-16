@@ -57,4 +57,14 @@ describe("svelte", () => {
     });
   });
 
+  it("should not report inside member expressions", () => {
+    lint(multiline, TEST_SYNTAXES, {
+      valid: [
+        {
+          svelte: `<img class={classes[" ignored "]} />`
+        }
+      ]
+    });
+  });
+
 });

@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
 
 import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
@@ -58,7 +59,7 @@ describe("svelte", () => {
   });
 
   it("should not report inside member expressions", () => {
-    lint(multiline, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
         {
           svelte: `<img class={classes[" ignored "]} />`

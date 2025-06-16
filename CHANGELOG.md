@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.2.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.2.0...v3.2.1)
+
+### Fixes
+
+- Don't report inside member expressions ([#120](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/120))
+
 ## v3.2.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.1.0...v3.2.0)

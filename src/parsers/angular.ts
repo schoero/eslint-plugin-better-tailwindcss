@@ -140,13 +140,15 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
       case MatcherType.String: {
         matcherFunctions.push((ast): ast is AST => {
 
-          if(!isAST(ast)){ return false; }
+          if(
+            !isAST(ast) ||
 
-          if(isInsideConditionalExpressionCondition(ctx, ast)){ return false; }
-          if(isInsideLogicalExpressionLeft(ctx, ast)){ return false; }
-
-          if(isObjectKey(ast)){ return false; }
-          if(isObjectValue(ast)){ return false; }
+            isInsideConditionalExpressionCondition(ctx, ast) ||
+            isInsideLogicalExpressionLeft(ctx, ast) ||
+            isObjectKey(ast) ||
+            isObjectValue(ast)){
+            return false;
+          }
 
           return (
             isStringLiteral(ast) ||
@@ -158,27 +160,43 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
       }
       case MatcherType.ObjectKey: {
         matcherFunctions.push((ast): ast is AST => {
-          if(!isAST(ast)){ return false;}
-          if(!isObjectKey(ast)){ return false; }
+          if(
+            !isAST(ast) ||
+            !isObjectKey(ast)){
+            return false;
+          }
 
           // objects inside angular templates can not be nested
           const path = ast.key;
-          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+
+          if(!path || !matcher.pathPattern){
+            return true;
+          }
+
+          return matchesPathPattern(path, matcher.pathPattern);
         });
         break;
       }
       case MatcherType.ObjectValue: {
         matcherFunctions.push((ast): ast is AST => {
-          if(!isAST(ast)){ return false;}
-          if(!isObjectValue(ast)){ return false;}
-          if(!hasParent(ast)){ return false;}
-          if(!isLiteralMap(ast.parent)){ return false;}
+          if(
+            !isAST(ast) ||
+            !isObjectValue(ast) ||
+            !hasParent(ast) ||
+            !isLiteralMap(ast.parent)){
+            return false;
+          }
 
           const index = ast.parent.values.indexOf(ast);
           const objectKey = ast.parent.keys[index];
 
           const path = objectKey.key;
-          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+
+          if(!path || !matcher.pathPattern){
+            return true;
+          }
+
+          return matchesPathPattern(path, matcher.pathPattern);
         });
         break;
       }

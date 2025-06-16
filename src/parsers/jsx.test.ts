@@ -1,5 +1,6 @@
 import { describe, it } from "vitest";
 
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
@@ -18,8 +19,17 @@ describe("jsx", () => {
       ]
     });
   });
-});
 
+  it("should not report inside member expressions", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          jsx: `<img className={classes[" ignored "]} />`
+        }
+      ]
+    });
+  });
+});
 
 describe("astro (jsx)", () => {
   it("should match astro syntactic sugar", () => {

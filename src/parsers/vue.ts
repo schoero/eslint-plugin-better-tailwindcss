@@ -18,6 +18,7 @@ import {
   isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
+  isInsideMemberExpression,
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
@@ -186,53 +187,71 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
-          if(!isESNode(node)){ return false; }
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
 
-          if(isInsideConditionalExpressionTest(node)){ return false; }
-          if(isInsideLogicalExpressionLeft(node)){ return false; }
-          if(!hasESNodeParentExtension(node)){ return false; }
+            isInsideConditionalExpressionTest(node) ||
+            isInsideLogicalExpressionLeft(node) ||
+            isInsideMemberExpression(node) ||
 
-          return (
-            !isESObjectKey(node) &&
-            !isInsideObjectValue(node) &&
-            (isESStringLike(node) || isVueLiteralNode(node))
-          );
+            isESObjectKey(node) ||
+            isInsideObjectValue(node)){
+            return false;
+          }
+
+          return isESStringLike(node) || isVueLiteralNode(node);
         });
         break;
       }
       case MatcherType.ObjectKey: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
-          if(!isESNode(node)){ return false; }
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isESObjectKey(node) ||
 
-          if(isInsideConditionalExpressionTest(node)){ return false; }
-          if(isInsideLogicalExpressionLeft(node)){ return false; }
-
-          if(!hasESNodeParentExtension(node)){ return false; }
-          if(!isESObjectKey(node)){ return false; }
+            isInsideConditionalExpressionTest(node) ||
+            isInsideLogicalExpressionLeft(node) ||
+            isInsideMemberExpression(node)){
+            return false;
+          }
 
           const path = getESObjectPath(node);
 
-          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+          if(!path || !matcher.pathPattern){
+            return true;
+          }
+
+          return matchesPathPattern(path, matcher.pathPattern);
         });
         break;
       }
       case MatcherType.ObjectValue: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
-          if(!isESNode(node)){ return false; }
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isInsideObjectValue(node) ||
 
-          if(isInsideConditionalExpressionTest(node)){ return false; }
-          if(isInsideLogicalExpressionLeft(node)){ return false; }
-          if(!hasESNodeParentExtension(node)){ return false; }
-          if(isESObjectKey(node)){ return false; }
+            isInsideConditionalExpressionTest(node) ||
+            isInsideLogicalExpressionLeft(node) ||
+            isInsideMemberExpression(node) ||
+            isESObjectKey(node) ||
 
-          if(!isInsideObjectValue(node)){ return false; }
-          if(!isESStringLike(node) && !isVueLiteralNode(node)){ return false; }
+            !isESStringLike(node) && !isVueLiteralNode(node)){
+            return false;
+          }
 
           const path = getESObjectPath(node);
 
-          return path && matcher.pathPattern ? matchesPathPattern(path, matcher.pathPattern) : true;
+          if(!path || !matcher.pathPattern){
+            return true;
+          }
+
+          return matchesPathPattern(path, matcher.pathPattern);
         });
         break;
       }

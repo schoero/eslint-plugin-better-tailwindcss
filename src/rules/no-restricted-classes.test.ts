@@ -105,4 +105,60 @@ describe(noRestrictedClasses.name, () => {
     });
   });
 
+  it("should be possible to provide custom error messages", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold text-green-500 text-lg" />`,
+          html: `<img class="font-bold text-green-500 text-lg" />`,
+          jsx: `() => <img class="font-bold text-green-500 text-lg" />`,
+          svelte: `<img class="font-bold text-green-500 text-lg" />`,
+          vue: `<template><img class="font-bold text-green-500 text-lg" /></template>`,
+
+          errors: [
+            {
+              message: "use '*-success' instead."
+            }
+          ],
+          options: [{ restrict: [{ message: "use '*-success' instead.", pattern: "^(.*)-green-(.*)$" }] }]
+        }
+      ]
+    });
+  });
+
+  it("should be possible to use matched groups in the error messages", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold text-green-500 text-lg" />`,
+          html: `<img class="font-bold text-green-500 text-lg" />`,
+          jsx: `() => <img class="font-bold text-green-500 text-lg" />`,
+          svelte: `<img class="font-bold text-green-500 text-lg" />`,
+          vue: `<template><img class="font-bold text-green-500 text-lg" /></template>`,
+
+          errors: [
+            {
+              message: "use 'text-success' instead."
+            }
+          ],
+          options: [{ restrict: [{ message: "use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
+        },
+        {
+          angular: `<img class="font-bold bg-green-500 text-lg" />`,
+          html: `<img class="font-bold bg-green-500 text-lg" />`,
+          jsx: `() => <img class="font-bold bg-green-500 text-lg" />`,
+          svelte: `<img class="font-bold bg-green-500 text-lg" />`,
+          vue: `<template><img class="font-bold bg-green-500 text-lg" /></template>`,
+
+          errors: [
+            {
+              message: "use 'bg-success' instead."
+            }
+          ],
+          options: [{ restrict: [{ message: "use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
+        }
+      ]
+    });
+  });
+
 });

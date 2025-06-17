@@ -12,7 +12,7 @@ import {
 } from "better-tailwindcss:options/descriptions.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { getExactClassLocation, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { getExactClassLocation, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -33,7 +33,12 @@ export type Options = [
     TagOption &
     VariableOption &
     {
-      restrict?: string[];
+      restrict?:
+        | {
+          pattern: string;
+          message?: string;
+        }[]
+        | string[];
     }
   >
 ];
@@ -68,7 +73,27 @@ export const noRestrictedClasses: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             restrict: {
               items: {
-                type: "string"
+                anyOf: [
+                  {
+                    additionalProperties: false,
+                    properties: {
+                      message: {
+                        default: undefined,
+                        description: "The message to report when a class is restricted.",
+                        type: "string"
+                      },
+                      pattern: {
+                        description: "The regex pattern to match restricted classes.",
+                        type: "string"
+                      }
+                    },
+                    required: ["pattern"],
+                    type: "object"
+                  },
+                  {
+                    type: "string"
+                  }
+                ]
               },
               type: "array"
             }
@@ -90,20 +115,30 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const classes = literal.content;
 
     const classNames = splitClasses(classes);
-    const restrict = classNames.filter(className => {
-      return restrictions.some(restriction => className.match(restriction));
-    });
 
-    for(const restrictedClass of restrict){
-      ctx.report({
-        data: {
-          restrictedClass
-        },
-        loc: getExactClassLocation(literal, restrictedClass),
-        message: "Restricted class: \"{{ restrictedClass }}\"."
-      });
+    for(const className of classNames){
+      for(const restriction of restrictions){
+
+        const pattern = typeof restriction === "string" ? restriction : restriction.pattern;
+        const message = typeof restriction === "string" ? undefined : restriction.message;
+
+        const matches = className.match(pattern);
+
+        if(!matches){
+          continue;
+        }
+
+        ctx.report({
+          data: {
+            className
+          },
+          loc: getExactClassLocation(literal, className),
+          message: message
+            ? replacePlaceholders(message, matches)
+            : "Restricted class: \"{{ restrictedClass }}\"."
+        });
+      }
     }
-
   }
 
 }

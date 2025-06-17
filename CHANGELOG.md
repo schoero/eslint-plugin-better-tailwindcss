@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.3.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.2.1...v3.3.0)
+
+### Features
+
+- No-restricted-classes rule to support custom error messages ([#129](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/129))
+
+### Fixes
+
+- Node version range ([b50df13](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/b50df13))
+
 ## v3.2.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.2.0...v3.2.1)

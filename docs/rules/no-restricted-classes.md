@@ -57,9 +57,9 @@ Disallow the usage of certain classes. This can be useful to disallow classes th
 ## Examples
 
 ```tsx
-// ❌ BAD: disallow the use of the `text-green-500` class with option `{ restrict: [{ pattern: "^(.*)-green-500$", message: "use '$1-success' instead." }] }`
+// ❌ BAD: disallow the use of the `text-green-500` class with option `{ restrict: [{ pattern: "^(.*)-green-500$", message: "Restricted class: Use '$1-success' instead." }] }`
 <div class="text-green-500" />;
-//          ~~~~~~~~~~~~~~ use 'text-success' instead.
+//          ~~~~~~~~~~~~~~ Restricted class: Use 'text-success' instead.
 ```
 
 ```tsx

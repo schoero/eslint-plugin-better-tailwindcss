@@ -117,10 +117,10 @@ describe(noRestrictedClasses.name, () => {
 
           errors: [
             {
-              message: "use '*-success' instead."
+              message: "Restricted class: Use '*-success' instead."
             }
           ],
-          options: [{ restrict: [{ message: "use '*-success' instead.", pattern: "^(.*)-green-(.*)$" }] }]
+          options: [{ restrict: [{ message: "Restricted class: Use '*-success' instead.", pattern: "^(.*)-green-(.*)$" }] }]
         }
       ]
     });
@@ -138,10 +138,10 @@ describe(noRestrictedClasses.name, () => {
 
           errors: [
             {
-              message: "use 'text-success' instead."
+              message: "Restricted class: Use 'text-success' instead."
             }
           ],
-          options: [{ restrict: [{ message: "use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
+          options: [{ restrict: [{ message: "Restricted class: Use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
         },
         {
           angular: `<img class="font-bold bg-green-500 text-lg" />`,
@@ -152,10 +152,10 @@ describe(noRestrictedClasses.name, () => {
 
           errors: [
             {
-              message: "use 'bg-success' instead."
+              message: "Restricted class: Use 'bg-success' instead."
             }
           ],
-          options: [{ restrict: [{ message: "use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
+          options: [{ restrict: [{ message: "Restricted class: Use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
         }
       ]
     });

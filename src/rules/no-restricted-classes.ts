@@ -135,7 +135,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           loc: getExactClassLocation(literal, className),
           message: message
             ? replacePlaceholders(message, matches)
-            : "Restricted class: \"{{ restrictedClass }}\"."
+            : "Restricted class: \"{{ className }}\"."
         });
       }
     }

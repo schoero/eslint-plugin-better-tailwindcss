@@ -60,6 +60,7 @@ Disallow the usage of certain classes. This can be useful to disallow classes th
 // ❌ BAD: disallow the use of the `text-green-500` class with option `{ restrict: [{ pattern: "^(.*)-green-500$", message: "use '$1-success' instead." }] }`
 <div class="text-green-500" />;
 //          ~~~~~~~~~~~~~~ use 'text-success' instead.
+```
 
 ```tsx
 // ❌ BAD: disallow the use of the child variants with option `{ restrict: ["^\\*+:.*"] }`

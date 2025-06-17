@@ -46,7 +46,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
       } & {
         [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
       } & {
-        errors: number;
+        errors: { message: string; type?: string; }[] | number;
       } & {
         files?: Record<string, string>;
         options?: Rule["options"];

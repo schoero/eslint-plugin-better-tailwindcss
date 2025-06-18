@@ -1,5 +1,6 @@
 import {
   hasESNodeParentExtension,
+  isESArrowFunctionExpression,
   isESCallExpression,
   isESNode,
   isESVariableDeclarator
@@ -44,7 +45,7 @@ export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unk
 function findMatchingNestedNodes<Node>(
   node: GenericNodeWithParent,
   matcherFunctions: MatcherFunctions<Node>,
-  deadEnd: (node: unknown) => boolean = value => isESNode(value) && (isESCallExpression(value) || isESVariableDeclarator(value))
+  deadEnd: (node: unknown) => boolean = value => isESNode(value) && (isESCallExpression(value) || isESArrowFunctionExpression(value) || isESVariableDeclarator(value))
 ): Node[] {
   return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){

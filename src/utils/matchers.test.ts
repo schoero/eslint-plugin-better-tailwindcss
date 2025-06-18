@@ -352,6 +352,21 @@ describe("matchers", () => {
 
     });
 
+    it("should not cross arrow function boundaries", () => {
+      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+        valid: [
+          {
+            jsx: `const defined = () => " b a ";`,
+            svelte: `<script>const defined = () => " b a ";</script>`,
+            vue: `<script>const defined = () => " b a ";</script>`,
+
+            options: [{
+              variables: [["defined", [{ match: MatcherType.String }]]]
+            }]
+          }
+        ]
+      });
+    });
   });
 
   describe("attributes", () => {

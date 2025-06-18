@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.3.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.3.0...v3.3.1)
+
+### Fixes
+
+- Prevent variable matchers from crossing arrow function boundaries ([#131](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/131))
+- Sorting order with unregistered class with variant ([#132](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/132))
+
 ## v3.3.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.2.1...v3.3.0)

@@ -38,7 +38,6 @@ const getStylisticRules = (severity: "error" | "warn" = "warn") => {
   return {
     [`${plugin.meta.name}/${enforceConsistentClassOrder.name}`]: severity,
     [`${plugin.meta.name}/${enforceConsistentLineWrapping.name}`]: severity,
-    [`${plugin.meta.name}/${enforceConsistentLineWrapping.name}`]: severity,
     [`${plugin.meta.name}/${noDuplicateClasses.name}`]: severity,
     [`${plugin.meta.name}/${noUnnecessaryWhitespace.name}`]: severity
   };

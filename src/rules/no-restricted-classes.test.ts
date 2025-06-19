@@ -2,6 +2,7 @@ import { describe, it } from "vitest";
 
 import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noRestrictedClasses.name, () => {
@@ -116,9 +117,7 @@ describe(noRestrictedClasses.name, () => {
           vue: `<template><img class="font-bold text-green-500 text-lg" /></template>`,
 
           errors: [
-            {
-              message: "Restricted class: Use '*-success' instead."
-            }
+            { message: "Restricted class: Use '*-success' instead." }
           ],
           options: [{ restrict: [{ message: "Restricted class: Use '*-success' instead.", pattern: "^(.*)-green-(.*)$" }] }]
         }
@@ -137,9 +136,7 @@ describe(noRestrictedClasses.name, () => {
           vue: `<template><img class="font-bold text-green-500 text-lg" /></template>`,
 
           errors: [
-            {
-              message: "Restricted class: Use 'text-success' instead."
-            }
+            { message: "Restricted class: Use 'text-success' instead." }
           ],
           options: [{ restrict: [{ message: "Restricted class: Use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
         },
@@ -151,11 +148,222 @@ describe(noRestrictedClasses.name, () => {
           vue: `<template><img class="font-bold bg-green-500 text-lg" /></template>`,
 
           errors: [
-            {
-              message: "Restricted class: Use 'bg-success' instead."
-            }
+            { message: "Restricted class: Use 'bg-success' instead." }
           ],
           options: [{ restrict: [{ message: "Restricted class: Use '$1-success' instead.", pattern: "^(.*)-green-500$" }] }]
+        }
+      ]
+    });
+  });
+
+  it("should fix the classes when a fix is provided", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold bg-green-500 text-green-500 text-lg" />`,
+          angularOutput: `<img class="font-bold bg-success text-success text-lg" />`,
+          html: `<img class="font-bold bg-green-500 text-green-500 text-lg" />`,
+          htmlOutput: `<img class="font-bold bg-success text-success text-lg" />`,
+          jsx: `() => <img class="font-bold bg-green-500 text-green-500 text-lg" />`,
+          jsxOutput: `() => <img class="font-bold bg-success text-success text-lg" />`,
+          svelte: `<img class="font-bold bg-green-500 text-green-500 text-lg" />`,
+          svelteOutput: `<img class="font-bold bg-success text-success text-lg" />`,
+          vue: `<template><img class="font-bold bg-green-500 text-green-500 text-lg" /></template>`,
+          vueOutput: `<template><img class="font-bold bg-success text-success text-lg" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use 'bg-success' instead." },
+            { message: "Restricted class: Use 'text-success' instead." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$1-success",
+              message: "Restricted class: Use '$1-success' instead.",
+              pattern: "^(text|bg)-green-500$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should fix only the class name when a variant is used", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold lg:text-green-500 text-lg" />`,
+          angularOutput: `<img class="font-bold lg:text-success text-lg" />`,
+          html: `<img class="font-bold lg:text-green-500 text-lg" />`,
+          htmlOutput: `<img class="font-bold lg:text-success text-lg" />`,
+          jsx: `() => <img class="font-bold lg:text-green-500 text-lg" />`,
+          jsxOutput: `() => <img class="font-bold lg:text-success text-lg" />`,
+          svelte: `<img class="font-bold lg:text-green-500 text-lg" />`,
+          svelteOutput: `<img class="font-bold lg:text-success text-lg" />`,
+          vue: `<template><img class="font-bold lg:text-green-500 text-lg" /></template>`,
+          vueOutput: `<template><img class="font-bold lg:text-success text-lg" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use 'lg:text-success' instead." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$1$2-success",
+              message: "Restricted class: Use '$1$2-success' instead.",
+              pattern: "^([a-zA-Z0-9:/_-]*:)?(text|bg)-green-500$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should fix classes with multiple variants", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold lg:hover:text-green-500 text-lg" />`,
+          angularOutput: `<img class="font-bold lg:hover:text-success text-lg" />`,
+          html: `<img class="font-bold lg:hover:text-green-500 text-lg" />`,
+          htmlOutput: `<img class="font-bold lg:hover:text-success text-lg" />`,
+          jsx: `() => <img class="font-bold lg:hover:text-green-500 text-lg" />`,
+          jsxOutput: `() => <img class="font-bold lg:hover:text-success text-lg" />`,
+          svelte: `<img class="font-bold lg:hover:text-green-500 text-lg" />`,
+          svelteOutput: `<img class="font-bold lg:hover:text-success text-lg" />`,
+          vue: `<template><img class="font-bold lg:hover:text-green-500 text-lg" /></template>`,
+          vueOutput: `<template><img class="font-bold lg:hover:text-success text-lg" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use 'lg:hover:text-success' instead." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$1$2-success",
+              message: "Restricted class: Use '$1$2-success' instead.",
+              pattern: "^([a-zA-Z0-9:/_-]*:)?(text|bg)-green-500$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match modifiers", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold lg:hover:text-green-500/50 text-lg" />`,
+          angularOutput: `<img class="font-bold lg:hover:text-success/50 text-lg" />`,
+          html: `<img class="font-bold lg:hover:text-green-500/50 text-lg" />`,
+          htmlOutput: `<img class="font-bold lg:hover:text-success/50 text-lg" />`,
+          jsx: `() => <img class="font-bold lg:hover:text-green-500/50 text-lg" />`,
+          jsxOutput: `() => <img class="font-bold lg:hover:text-success/50 text-lg" />`,
+          svelte: `<img class="font-bold lg:hover:text-green-500/50 text-lg" />`,
+          svelteOutput: `<img class="font-bold lg:hover:text-success/50 text-lg" />`,
+          vue: `<template><img class="font-bold lg:hover:text-green-500/50 text-lg" /></template>`,
+          vueOutput: `<template><img class="font-bold lg:hover:text-success/50 text-lg" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use 'lg:hover:text-success/50' instead." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$1$2-success$3",
+              message: "Restricted class: Use '$1$2-success$3' instead.",
+              pattern: "^([a-zA-Z0-9:/_-]*:)?(text|bg)-green-500(\\/[0-9]{1,3})?$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should work on multiline literals", () => {
+    const dirty = dedent`
+      bg-green-500
+      hover:text-green-500
+    `;
+
+    const clean = dedent`
+      bg-success
+      hover:text-success
+    `;
+
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="${dirty}" />`,
+          angularOutput: `<img class="${clean}" />`,
+          html: `<img class="${dirty}" />`,
+          htmlOutput: `<img class="${clean}" />`,
+          jsx: `() => <img class="${dirty}" />`,
+          jsxOutput: `() => <img class="${clean}" />`,
+          svelte: `<img class="${dirty}" />`,
+          svelteOutput: `<img class="${clean}" />`,
+          vue: `<template><img class="${dirty}" /></template>`,
+          vueOutput: `<template><img class="${clean}" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use 'bg-success' instead." },
+            { message: "Restricted class: Use 'hover:text-success' instead." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$1$2-success",
+              message: "Restricted class: Use '$1$2-success' instead.",
+              pattern: "^([a-zA-Z0-9:/_-]*:)?(text|bg)-green-500$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not report on classes with the same name but different variants", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      valid: [
+        {
+          angular: `<img class="font-bold text-green-500" />`,
+          html: `<img class="font-bold text-green-500" />`,
+          jsx: `() => <img class="font-bold text-green-500" />`,
+          svelte: `<img class="font-bold text-green-500" />`,
+          vue: `<template><img class="font-bold text-green-500" /></template>`,
+
+          options: [{
+            restrict: [{
+              message: "Restricted class: Use 'hover:text-success' instead.",
+              pattern: "^hover:text-green-500$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should be possible to remove classes with a fix", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="font-bold text-green-500" />`,
+          angularOutput: `<img class="font-bold " />`,
+          html: `<img class="font-bold text-green-500" />`,
+          htmlOutput: `<img class="font-bold " />`,
+          jsx: `() => <img class="font-bold text-green-500" />`,
+          jsxOutput: `() => <img class="font-bold " />`,
+          svelte: `<img class="font-bold text-green-500" />`,
+          svelteOutput: `<img class="font-bold " />`,
+          vue: `<template><img class="font-bold text-green-500" /></template>`,
+          vueOutput: `<template><img class="font-bold " /></template>`,
+
+          errors: [
+            { message: "Restricted class: text-green-500 is not allowed." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "",
+              message: "Restricted class: text-green-500 is not allowed.",
+              pattern: "^text-green-500$"
+            }]
+          }]
         }
       ]
     });

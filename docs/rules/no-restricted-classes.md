@@ -9,10 +9,22 @@ Disallow the usage of certain classes. This can be useful to disallow classes th
 ### `restrict`
 
   The classes that should be disallowed. The patterns in this list are treated as regular expressions.
-  Matched groups of the regular expression can be used in the error message by using the `$1`, `$2`, etc. syntax.
+  Matched groups of the regular expression can be used in the error message or fix by using the `$1`, `$2`, etc. syntax.
 
-  **Type**: `string[] | { pattern: string, message?: string }[]`  
+  **Type**: `string[] | { pattern: string, message?: string, fix?: string }[]`  
   **Default**: `[]`
+
+  Make sure to match possible variants and modifiers of the class names as well:
+
+  ```json
+  {
+    "restrict": [{
+      "fix": "$1$2-success$3",
+      "message": "Restricted class: Use '$1$2-success$3' instead.",
+      "pattern": "^([a-zA-Z0-9:/_-]*:)?(text|bg)-green-500(\\/[0-9]{1,3})?$"
+    }]
+  }
+  ```
 
 <br/>
 

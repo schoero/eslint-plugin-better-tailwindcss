@@ -12,7 +12,12 @@ import {
 } from "better-tailwindcss:options/descriptions.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { getExactClassLocation, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
+import {
+  getExactClassLocation,
+  replacePlaceholders,
+  splitClasses,
+  splitWhitespaces
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -36,6 +41,7 @@ export type Options = [
       restrict?:
         | {
           pattern: string;
+          fix?: string;
           message?: string;
         }[]
         | string[];
@@ -63,6 +69,7 @@ export const noRestrictedClasses: ESLintRule<Options> = {
         recommended: false,
         url: DOCUMENTATION_URL
       },
+      fixable: "code",
       schema: [
         {
           additionalProperties: false,
@@ -77,6 +84,10 @@ export const noRestrictedClasses: ESLintRule<Options> = {
                   {
                     additionalProperties: false,
                     properties: {
+                      fix: {
+                        description: "A replacement class",
+                        type: "string"
+                      },
                       message: {
                         default: undefined,
                         description: "The message to report when a class is restricted.",
@@ -114,9 +125,27 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   for(const literal of literals){
     const classes = literal.content;
 
-    const classNames = splitClasses(classes);
+    const classChunks = splitClasses(classes);
+    const whitespaceChunks = splitWhitespaces(classes);
 
-    for(const className of classNames){
+    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
+
+    for(let classIndex = 0, literalIndex = 0; classIndex < classChunks.length; classIndex++){
+
+      const className = classChunks[classIndex];
+
+      if(startsWithWhitespace){
+        literalIndex += whitespaceChunks[classIndex].length;
+      }
+
+      const classStart = literalIndex;
+
+      literalIndex += className.length;
+
+      if(!startsWithWhitespace){
+        literalIndex += whitespaceChunks[classIndex + 1].length;
+      }
+
       for(const restriction of restrictions){
 
         const pattern = typeof restriction === "string" ? restriction : restriction.pattern;
@@ -128,6 +157,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           continue;
         }
 
+        const [literalStart] = literal.range;
+
         ctx.report({
           data: {
             className
@@ -135,7 +166,20 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           loc: getExactClassLocation(literal, className),
           message: message
             ? replacePlaceholders(message, matches)
-            : "Restricted class: \"{{ className }}\"."
+            : "Restricted class: \"{{ className }}\".",
+
+          ...typeof restriction === "object" && restriction.fix !== undefined
+            ? {
+              fix: fixer => fixer.replaceTextRange(
+                [
+                  literalStart + classStart + 1,
+                  literalStart + classStart + className.length + 1
+                ],
+                replacePlaceholders(restriction.fix!, matches)
+              )
+            }
+            : {}
+
         });
       }
     }

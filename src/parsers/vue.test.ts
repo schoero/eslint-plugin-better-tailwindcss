@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
+import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";

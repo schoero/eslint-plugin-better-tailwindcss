@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
-import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 

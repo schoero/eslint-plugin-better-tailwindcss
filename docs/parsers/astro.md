@@ -40,7 +40,7 @@ export default [
       ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
 
       // or configure rules individually
-      "better-tailwindcss/multiline": ["warn", { printWidth: 100 }]
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
     }
   }
 ];
@@ -65,7 +65,7 @@ export default [
   "plugins": ["better-tailwindcss"],
   "rules": {
     // or configure rules individually
-    "better-tailwindcss/multiline": ["warn", { "printWidth": 100 }]
+    "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
   }
 }
 ```

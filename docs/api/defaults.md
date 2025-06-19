@@ -26,7 +26,19 @@ export default [
       "better-tailwindcss": eslintPluginBetterTailwindcss
     },
     rules: {
-      "better-tailwindcss/multiline": ["warn", {
+      "better-tailwindcss/enforce-consistent-class-order": ["warn", {
+        attributes: [
+          ...getDefaultTags(),
+          [
+            "myTag", [
+              {
+                match: MatcherType.String
+              }
+            ]
+          ]
+        ]
+      }],
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
         callees: [
           ...getDefaultCallees(),
           [
@@ -55,18 +67,6 @@ export default [
           ...getDefaultVariables(),
           [
             "myVariable", [
-              {
-                match: MatcherType.String
-              }
-            ]
-          ]
-        ]
-      }],
-      "better-tailwindcss/sort-classes": ["warn", {
-        attributes: [
-          ...getDefaultTags(),
-          [
-            "myTag", [
               {
                 match: MatcherType.String
               }

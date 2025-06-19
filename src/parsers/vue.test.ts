@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
@@ -11,7 +11,7 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 describe("vue", () => {
 
   it("should match attribute names via regex", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img customAttribute="b a" /></template>`,
@@ -25,7 +25,7 @@ describe("vue", () => {
   });
 
   it("should work in objects in bound classes", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img v-bind:class="{ 'c b a': condition === 'c b a' }" /></template>`,
@@ -46,7 +46,7 @@ describe("vue", () => {
   });
 
   it("should work in arrays in bound classes", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img v-bind:class="[condition === 'c b a' ? 'c b a' : 'f e d']" /></template>`,
@@ -67,7 +67,7 @@ describe("vue", () => {
   });
 
   it("should evaluate bound classes", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img v-bind:class="defined('c b a')" /></template>`,
@@ -88,7 +88,7 @@ describe("vue", () => {
   });
 
   it("should automatically prefix bound classes", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img v-bind:custom-class="['c b a']" /></template>`,
@@ -109,7 +109,7 @@ describe("vue", () => {
   });
 
   it("should match bound classes via regex", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img v-bind:testStyles="['c b a']" /></template>`,
@@ -130,7 +130,7 @@ describe("vue", () => {
       d e f
     `;
 
-    lint(multiline, TEST_SYNTAXES, {
+    lint(enforceConsistentLineWrapping, TEST_SYNTAXES, {
       invalid: [
         {
           vue: `<template><img :class="[true ? '${singleLine}' : '${singleLine}']" /></template>`,

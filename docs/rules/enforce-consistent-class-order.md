@@ -1,4 +1,4 @@
-# better-tailwindcss/sort-classes
+# better-tailwindcss/enforce-consistent-class-order
 
 Enforce the order of tailwind classes. It is possible to sort classes alphabetically or logically.
 

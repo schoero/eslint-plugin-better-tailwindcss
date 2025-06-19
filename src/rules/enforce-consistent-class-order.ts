@@ -58,10 +58,10 @@ const defaultOptions = {
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/sort-classes.md";
+const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-class-order.md";
 
-export const sortClasses: ESLintRule<Options> = {
-  name: "sort-classes" as const,
+export const enforceConsistentClassOrder: ESLintRule<Options> = {
+  name: "enforce-consistent-class-order" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {

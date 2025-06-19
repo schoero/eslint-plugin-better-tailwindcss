@@ -147,9 +147,9 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 | Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| [multiline](docs/rules/multiline.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [enforce-consistent-line-wrapping](docs/rules/enforce-consistent-line-wrapping.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
-| [sort-classes](docs/rules/sort-classes.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [enforce-consistent-class-order](docs/rules/enforce-consistent-class-order.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
 | [enforce-consistent-variable-syntax](docs/rules/enforce-consistent-variable-syntax.md) | Enforce consistent variable syntax. | ✔ | ✔ |  | ✔ |
 

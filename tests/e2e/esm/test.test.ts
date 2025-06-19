@@ -20,9 +20,9 @@ describe("e2e/esm", async () => {
     expect(json.warningCount).toBe(4);
 
     expect(json.messages.map(({ ruleId }) => ruleId)).toEqual([
+      "better-tailwindcss/enforce-consistent-class-order",
       "better-tailwindcss/enforce-consistent-line-wrapping",
       "better-tailwindcss/no-unnecessary-whitespace",
-      "better-tailwindcss/enforce-consistent-class-order",
       "better-tailwindcss/no-duplicate-classes"
     ]);
 

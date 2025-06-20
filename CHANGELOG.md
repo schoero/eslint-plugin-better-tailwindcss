@@ -1,5 +1,22 @@
 # Changelog
 
+## v3.4.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.3.1...v3.4.0)
+
+### Features
+
+- Add customizable autofix option to `no-restricted-classes` ([#133](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/133))
+
+### Refactors
+
+- Rename rules for better consistency ([#134](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/134))
+
+  - better-tailwindcss/multiline -> better-tailwindcss/enforce-consistent-line-wrapping
+  - better-tailwindcss/sort-classes -> better-tailwindcss/enforce-consistent-class-order
+
+  The old names will still work for now, but will be removed in the next major version.
+
 ## v3.3.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.3.0...v3.3.1)

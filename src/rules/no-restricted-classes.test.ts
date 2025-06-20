@@ -369,4 +369,33 @@ describe(noRestrictedClasses.name, () => {
     });
   });
 
+  it("should work with mixed string and object restrictions", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500 bg-red-500" />`,
+          angularOutput: `<img class="text-success bg-red-500" />`,
+          html: `<img class="text-green-500 bg-red-500" />`,
+          htmlOutput: `<img class="text-success bg-red-500" />`,
+          jsx: `() => <img class="text-green-500 bg-red-500" />`,
+          jsxOutput: `() => <img class="text-success bg-red-500" />`,
+          svelte: `<img class="text-green-500 bg-red-500" />`,
+          svelteOutput: `<img class="text-success bg-red-500" />`,
+          vue: `<template><img class="text-green-500 bg-red-500" /></template>`,
+          vueOutput: `<template><img class="text-success bg-red-500" /></template>`,
+
+          errors: [
+            { message: "Custom message for green" },
+            { message: "Restricted class: \"bg-red-500\"." }
+          ],
+          options: [{
+            restrict: [
+              { fix: "text-success", message: "Custom message for green", pattern: "^text-green-500$" },
+              "^bg-red-500$"
+            ]
+          }]
+        }
+      ]
+    });
+  });
 });

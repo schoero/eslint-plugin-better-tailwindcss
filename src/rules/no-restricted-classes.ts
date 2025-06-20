@@ -38,13 +38,11 @@ export type Options = [
     TagOption &
     VariableOption &
     {
-      restrict?:
-        | {
-          pattern: string;
-          fix?: string;
-          message?: string;
-        }[]
-        | string[];
+      restrict?: (string | {
+        pattern: string;
+        fix?: string;
+        message?: string;
+      })[];
     }
   >
 ];

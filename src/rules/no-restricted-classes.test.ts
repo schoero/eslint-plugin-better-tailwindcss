@@ -398,4 +398,127 @@ describe(noRestrictedClasses.name, () => {
       ]
     });
   });
+
+  it("should fallback to empty string for invalid capture groups in messages", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500" />`,
+          html: `<img class="text-green-500" />`,
+          jsx: `() => <img class="text-green-500" />`,
+          svelte: `<img class="text-green-500" />`,
+          vue: `<template><img class="text-green-500" /></template>`,
+
+          errors: [
+            { message: "Restricted class: Use '' instead of 'text-green-500'." }
+          ],
+          options: [{
+            restrict: [{
+              message: "Restricted class: Use '$10' instead of '$1'.",
+              pattern: "^(text-green-500)$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should fallback to empty string for invalid capture groups in fixes", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500" />`,
+          angularOutput: `<img class="" />`,
+          html: `<img class="text-green-500" />`,
+          htmlOutput: `<img class="" />`,
+          jsx: `() => <img class="text-green-500" />`,
+          jsxOutput: `() => <img class="" />`,
+          svelte: `<img class="text-green-500" />`,
+          svelteOutput: `<img class="" />`,
+          vue: `<template><img class="text-green-500" /></template>`,
+          vueOutput: `<template><img class="" /></template>`,
+
+          errors: [
+            { message: "Restricted class: \"text-green-500\"." }
+          ],
+          options: [{
+            restrict: [{
+              fix: "$10",
+              pattern: "^(text-green-500)$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should handle multiple overlapping patterns", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500" />`,
+          html: `<img class="text-green-500" />`,
+          jsx: `() => <img class="text-green-500" />`,
+          svelte: `<img class="text-green-500" />`,
+          vue: `<template><img class="text-green-500" /></template>`,
+
+          errors: [
+            { message: `Restricted class: "text-green-500".` },
+            { message: "Restricted class: Use 'text-success' instead." },
+            { message: "Match any green color class" }
+          ],
+          options: [{
+            restrict: [
+              "^text-green-500$",
+              { message: "Restricted class: Use 'text-success' instead.", pattern: "^text-green-500$" },
+              { message: "Match any green color class", pattern: ".*green.*" }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should work with restriction objects without fix and message", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500" />`,
+          html: `<img class="text-green-500" />`,
+          jsx: `() => <img class="text-green-500" />`,
+          svelte: `<img class="text-green-500" />`,
+          vue: `<template><img class="text-green-500" /></template>`,
+
+          errors: [
+            { message: "Restricted class: \"text-green-500\"." }
+          ],
+          options: [{
+            restrict: [{ pattern: "^text-green-500$" }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should fallback to the default message when empty", () => {
+    lint(noRestrictedClasses, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img class="text-green-500" />`,
+          html: `<img class="text-green-500" />`,
+          jsx: `() => <img class="text-green-500" />`,
+          svelte: `<img class="text-green-500" />`,
+          vue: `<template><img class="text-green-500" /></template>`,
+
+          errors: [
+            { message: "Restricted class: \"text-green-500\"." }
+          ],
+          options: [{
+            restrict: [{ message: "", pattern: "^text-green-500$" }]
+          }]
+        }
+      ]
+    });
+  });
+
 });

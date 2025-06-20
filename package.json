@@ -85,8 +85,8 @@
     "tailwind-csstree": "^0.1.1"
   },
   "devDependencies": {
-    "@angular/compiler": "^20.0.3",
-    "@angular-eslint/template-parser": "^20.1.0",
+    "@angular/compiler": "^20.0.4",
+    "@angular-eslint/template-parser": "^20.1.1",
     "@html-eslint/parser": "^0.41.0",
     "@schoero/configs": "^1.5.2",
     "@types/estree-jsx": "^1.0.5",
@@ -98,10 +98,10 @@
     "es-html-parser": "^0.2.0",
     "eslint": "^9.29.0",
     "eslint-plugin-better-tailwindcss": "file:./",
-    "eslint-plugin-eslint-plugin": "^6.4.0",
+    "eslint-plugin-eslint-plugin": "^6.5.0",
     "json-schema": "^0.4.0",
     "markdownlint": "^0.38.0",
-    "svelte": "^5.34.4",
+    "svelte": "^5.34.7",
     "svelte-eslint-parser": "^1.2.0",
     "tailwindcss": "^4.1.10",
     "tailwindcss3": "npm:tailwindcss@^3.0.0",

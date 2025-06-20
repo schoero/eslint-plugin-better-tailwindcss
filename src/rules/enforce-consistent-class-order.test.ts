@@ -1,14 +1,14 @@
 import { describe, it } from "vitest";
 
-import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
-describe(sortClasses.name, () => {
+describe(enforceConsistentClassOrder.name, () => {
 
   it("should sort simple class names in string literals by the defined order", () => {
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -92,7 +92,7 @@ describe(sortClasses.name, () => {
   });
 
   it("should group all classes with the same variant together", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
@@ -115,7 +115,7 @@ describe(sortClasses.name, () => {
 
   it("should keep the quotes as they are", () => {
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -178,7 +178,7 @@ describe(sortClasses.name, () => {
   });
 
   it("should keep expressions as they are", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       valid: [
         {
           jsx: `() => <img class={true ? "b a" : "c b"} />`,
@@ -189,7 +189,7 @@ describe(sortClasses.name, () => {
   });
 
   it("should keep expressions where they are", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           jsx: `() => <img class={\`c a \${true ? "e" : "f"} d b \`} />`,
@@ -217,7 +217,7 @@ describe(sortClasses.name, () => {
     const dirty = `c b a${expression}f e d`;
     const clean = `b c a${expression}f d e`;
 
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirty}\`} />`,
@@ -244,7 +244,7 @@ describe(sortClasses.name, () => {
     `;
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -319,7 +319,7 @@ describe(sortClasses.name, () => {
     const dirtyUndefined = "notDefined(\"b a d c\");";
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -348,7 +348,7 @@ describe(sortClasses.name, () => {
     );
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -422,7 +422,7 @@ describe(sortClasses.name, () => {
     );`;
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -483,7 +483,7 @@ describe(sortClasses.name, () => {
     `;
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -528,7 +528,7 @@ describe(sortClasses.name, () => {
     \`;`;
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -604,7 +604,7 @@ describe(sortClasses.name, () => {
     \`;`;
 
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -682,7 +682,7 @@ describe(sortClasses.name, () => {
 
   it("should sort simple class names in tagged template literals", () => {
     lint(
-      sortClasses,
+      enforceConsistentClassOrder,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -712,7 +712,7 @@ describe(sortClasses.name, () => {
   });
 
   it("should always put classes without variants first, even if unregistered classes are available", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="hover:unregistered flex hover:text-red-500" />`,

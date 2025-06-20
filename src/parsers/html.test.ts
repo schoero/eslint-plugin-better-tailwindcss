@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
-import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
+import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("html", () => {
 
   it("should match attribute names via regex", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           html: `<img customAttribute="b a" />`,

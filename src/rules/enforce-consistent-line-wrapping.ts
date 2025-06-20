@@ -69,8 +69,8 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/multiline.md";
 
-export const multiline: ESLintRule<Options> = {
-  name: "multiline" as const,
+export const enforceConsistentLineWrapping: ESLintRule<Options> = {
+  name: "enforce-consistent-line-wrapping" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
     meta: {

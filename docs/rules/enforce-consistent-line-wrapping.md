@@ -1,4 +1,4 @@
-# better-tailwindcss/multiline
+# better-tailwindcss/enforce-consistent-line-wrapping
 
 Enforce tailwind classes to be broken up into multiple lines. It is possible to break at a certain print width or a certain number of classes per line.
 

@@ -1,17 +1,17 @@
 import { getTailwindcssVersion, TailwindcssVersion } from "src/async-utils/version.js";
 import { describe, it } from "vitest";
 
-import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
-describe(multiline.name, () => {
+describe(enforceConsistentLineWrapping.name, () => {
 
   it("should not wrap empty strings", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -48,7 +48,7 @@ describe(multiline.name, () => {
 
   it("should not wrap short lines", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -92,7 +92,7 @@ describe(multiline.name, () => {
     const clean = "a b";
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -118,7 +118,7 @@ describe(multiline.name, () => {
 
   it("should not clean up whitespace in single line strings", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -150,7 +150,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -179,7 +179,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -211,7 +211,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -237,7 +237,7 @@ describe(multiline.name, () => {
 
   it("should disable the `printWidth` limit when set to `0`", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -268,7 +268,7 @@ describe(multiline.name, () => {
     const dirtyUndefined = "notDefined('a b c d e f g h')";
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -294,7 +294,7 @@ describe(multiline.name, () => {
     );
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -334,7 +334,7 @@ describe(multiline.name, () => {
     const dirtyUndefined = `const notDefined = "a b c d e f g h"`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -367,7 +367,7 @@ describe(multiline.name, () => {
     const cleanConditionalExpression = `true ? \`\n  1 2 3\n  4 5 6\n  7 8\n\` : \`\n  9 10 11\n  12 13 14\n  15 16\n\``;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -392,7 +392,7 @@ describe(multiline.name, () => {
     const cleanLogicalExpression = `true && \`\n  1 2 3\n  4 5 6\n  7 8\n\``;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -417,7 +417,7 @@ describe(multiline.name, () => {
     const cleanArray = `[\`\n  1 2 3\n  4 5 6\n  7 8\n\`, \`\n  9 10 11\n  12 13 14\n  15 16\n\`]`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -493,7 +493,7 @@ describe(multiline.name, () => {
     );`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -537,7 +537,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -609,7 +609,7 @@ describe(multiline.name, () => {
       g h
     `;
 
-    lint(multiline, TEST_SYNTAXES, {
+    lint(enforceConsistentLineWrapping, TEST_SYNTAXES, {
       invalid: [
         {
           angular: `<img class="${singleLine}" />`,
@@ -709,7 +709,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -792,7 +792,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -847,7 +847,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -874,7 +874,7 @@ describe(multiline.name, () => {
     \`;`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -940,7 +940,7 @@ describe(multiline.name, () => {
     };`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1012,7 +1012,7 @@ describe(multiline.name, () => {
     };`;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1045,7 +1045,7 @@ describe(multiline.name, () => {
     const clean = "\r\n  a b c\r\n  d e f\r\n  g h\r\n";
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1076,7 +1076,7 @@ describe(multiline.name, () => {
     const clean = "\n\ta b c\n\td e f\n\tg h\n";
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1112,7 +1112,7 @@ describe(multiline.name, () => {
     `;
 
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         valid: [
@@ -1130,7 +1130,7 @@ describe(multiline.name, () => {
 
   it("should be possible to change group separation by emptyLines", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1156,7 +1156,7 @@ describe(multiline.name, () => {
 
   it("should be possible to change group separation to emptyLine", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1182,7 +1182,7 @@ describe(multiline.name, () => {
 
   it("should be wrap groups according to preferSingleLine", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1235,7 +1235,7 @@ describe(multiline.name, () => {
 
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1275,7 +1275,7 @@ describe(multiline.name, () => {
 
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should ignore prefixed variants in tailwind <= 3", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [
@@ -1310,7 +1310,7 @@ describe(multiline.name, () => {
 
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore prefixed variants in tailwind >= 4", () => {
     lint(
-      multiline,
+      enforceConsistentLineWrapping,
       TEST_SYNTAXES,
       {
         invalid: [

@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
 
-import { multiline } from "better-tailwindcss:rules/multiline.js";
+import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { sortClasses } from "better-tailwindcss:rules/sort-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
@@ -10,7 +10,7 @@ import { dedent } from "better-tailwindcss:tests/utils/template.js";
 describe("svelte", () => {
 
   it("should match attribute names via regex", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           svelte: `<img customAttribute="b a" />`,
@@ -25,7 +25,7 @@ describe("svelte", () => {
 
   // #42
   it("should work with shorthand attributes", () => {
-    lint(sortClasses, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {
           svelte: `<script>let disabled = true;</script><img class="c b a" {disabled} />`,
@@ -45,7 +45,7 @@ describe("svelte", () => {
       d e f
     `;
 
-    lint(multiline, TEST_SYNTAXES, {
+    lint(enforceConsistentLineWrapping, TEST_SYNTAXES, {
       invalid: [
         {
           svelte: `<img class={true ? '${singleLine}' : '${singleLine}'} />`,

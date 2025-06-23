@@ -41,8 +41,6 @@ runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promi
         continue otherClassLoop;
       }
 
-      const potentialConflicts: ConflictingClasses[string] = [];
-
       for(const path of paths){
         for(const otherPath of otherPaths){
           if(path !== otherPath){
@@ -54,28 +52,20 @@ runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promi
           }
 
           for(const classRuleProperty of classRule[path]){
-            for(const otherClassRuleProperty of otherClassRule[otherPath]){
-              if(
-                classRuleProperty.cssPropertyName !== otherClassRuleProperty.cssPropertyName ||
-                classRuleProperty.important !== otherClassRuleProperty.important
-              ){
-                continue otherClassLoop;
-              }
-
-              potentialConflicts.push({
-                ...classRuleProperty,
-                tailwindClassName: className
-              }, {
-                ...otherClassRuleProperty,
-                tailwindClassName: otherClassName
-              });
+            if(!otherClassRule[otherPath].find(otherProp => {
+              return otherProp.cssPropertyName === classRuleProperty.cssPropertyName;
+            })){
+              continue otherClassLoop;
             }
+          }
+
+          for(const otherClassRuleProperty of otherClassRule[otherPath]){
+            conflicts[className] ??= {};
+            conflicts[className][otherClassName] ??= [];
+            conflicts[className][otherClassName].push(otherClassRuleProperty);
           }
         }
       }
-
-      conflicts[className] ??= [];
-      conflicts[className].push(...potentialConflicts);
 
     }
   }

@@ -80,7 +80,7 @@ Disallow conflicting classes in tailwindcss class strings. Conflicting classes a
 ## Examples
 
 ```tsx
-// ❌ BAD: Conflicting class detected: flex -> (display: flex) applies the same css property as grid -> (display: grid)
+// ❌ BAD: Conflicting class detected: "flex" and "grid" apply the same css properties: "display"
 <div class="flex grid" />;
 ```
 

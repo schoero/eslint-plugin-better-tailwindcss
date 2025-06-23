@@ -15,12 +15,7 @@ import {
 import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import {
-  augmentMessageWithWarnings,
-  display,
-  getExactClassLocation,
-  splitClasses
-} from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, getExactClassLocation, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -101,31 +96,32 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       continue;
     }
 
-    for(const conflictingClass in conflictingClasses){
-      const conflicts = conflictingClasses[conflictingClass];
+    for(const className in conflictingClasses){
+      const conflicts = Object.entries(conflictingClasses[className]);
 
-      const otherConflicts = conflicts.filter(conflict => conflict.tailwindClassName !== conflictingClass);
-      const conflict = conflicts.find(conflict => conflict.tailwindClassName === conflictingClass);
-
-      if(!conflict || otherConflicts.length === 0){
+      if(conflicts.length === 0){
         continue;
       }
 
+      const conflictingClassNames = conflicts.map(([conflictingClassName]) => conflictingClassName);
+      const conflictingProperties = conflicts.reduce<string[]>((acc, [, properties]) => {
+        for(const property of properties){
+          if(!acc.includes(property.cssPropertyName)){
+            acc.push(property.cssPropertyName);
+          }
+        }
+        return acc;
+      }, []);
+
       ctx.report({
         data: {
-          conflicting: display(conflict.tailwindClassName),
-          other: otherConflicts.reduce<string[]>((otherConflicts, otherConflict) => {
-            if(otherConflict.tailwindClassName !== conflict.tailwindClassName){
-              otherConflicts.push(`${otherConflict.tailwindClassName} -> (${otherConflict.cssPropertyName}: ${otherConflict.cssPropertyValue})`);
-            }
-            return otherConflicts;
-          }, []).join(", "),
-          property: conflict.cssPropertyName,
-          value: conflict.cssPropertyValue ?? ""
+          className,
+          conflictingClassNames: conflictingClassNames.join(", "),
+          conflictingProperties: conflictingProperties.map(conflictingProperty => `"${conflictingProperty}"`).join(", ")
         },
-        loc: getExactClassLocation(literal, conflict.tailwindClassName),
+        loc: getExactClassLocation(literal, className),
         message: augmentMessageWithWarnings(
-          "Conflicting class detected: {{ conflicting }} -> ({{property}}: {{value}}) applies the same css property as {{ other }}",
+          "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassNames }}\" apply the same CSS properties: {{ conflictingProperties }}.",
           DOCUMENTATION_URL,
           warnings
         )
@@ -134,6 +130,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   }
 }
+
 
 export function getOptions(ctx: Rule.RuleContext) {
   return getCommonOptions(ctx);

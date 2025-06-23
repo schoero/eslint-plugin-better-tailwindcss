@@ -19,11 +19,12 @@ export type GetConflictingClassesResponse = ConflictingClasses;
 
 export type ConflictingClasses = {
   [className: string]: {
-    cssPropertyName: string;
-    important: boolean;
-    tailwindClassName: string;
-    cssPropertyValue?: string;
-  }[];
+    [conflictingClassName: string]: {
+      cssPropertyName: string;
+      important: boolean;
+      cssPropertyValue?: string;
+    }[];
+  };
 };
 
 

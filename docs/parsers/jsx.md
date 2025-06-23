@@ -10,7 +10,7 @@ To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins se
 
 ### Flat config
 
-Read more about the new [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
 
 ```js
 // eslint.config.js
@@ -36,6 +36,14 @@ export default [
 
       // or configure rules individually
       "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
+    },
+    settings: {
+      "better-tailwindcss": {
+        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+        entryPoint: "src/global.css",
+        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+        tailwindConfig: "tailwind.config.js"
+      }
     }
   }
 ];
@@ -43,27 +51,40 @@ export default [
 
 <br/>
 
-### Legacy config
+<details>
+  <summary>Legacy config</summary>
 
-```jsonc
-// .eslintrc.json
-{
-  "extends": [
-    // enable all recommended rules to report a warning
-    "plugin:better-tailwindcss/recommended-warn",
-    // enable all recommended rules to report an error
-    "plugin:better-tailwindcss/recommended-error"
-  ],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
+  <br/>
+
+  ```jsonc
+  // .eslintrc.json
+  {
+    "extends": [
+      // enable all recommended rules to report a warning
+      "plugin:better-tailwindcss/recommended-warn",
+      // enable all recommended rules to report an error
+      "plugin:better-tailwindcss/recommended-error"
+    ],
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": "latest"
     },
-    "ecmaVersion": "latest"
-  },
-  "plugins": ["better-tailwindcss"],
-  "rules": {
-    // or configure rules individually
-    "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
+    "plugins": ["better-tailwindcss"],
+    "rules": {
+      // or configure rules individually
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
+    },
+    "settings": {
+      "better-tailwindcss": {
+        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+        "entryPoint": "src/global.css",
+        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+        "tailwindConfig": "tailwind.config.js"
+      }
+    }
   }
-}
-```
+  ```
+
+</details>

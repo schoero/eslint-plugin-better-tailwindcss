@@ -101,18 +101,20 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
     );
   });
 
-  it("should not report on classes if one of them has an important flag", () => {
+  it("should even report on classes if one of them has an important flag", () => {
     lint(
       noConflictingClasses,
       TEST_SYNTAXES,
       {
-        valid: [
+        invalid: [
           {
             angular: `<div class="flex block!"></div>`,
             html: `<div class="flex block!"></div>`,
             jsx: `() => <div class="flex block!"></div>`,
             svelte: `<div class="flex block!"></div>`,
-            vue: `<template><div class="flex block!"></div></template>`
+            vue: `<template><div class="flex block!"></div></template>`,
+
+            errors: 2
           }
         ]
       }
@@ -137,4 +139,24 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
     );
   });
 
+  // #135
+  it("should report errors when multiple properties apply the same styles", () => {
+    lint(
+      noConflictingClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<div class="outline outline-1"></div>`,
+            html: `<div class="outline outline-1"></div>`,
+            jsx: `() => <div class="outline outline-1"></div>`,
+            svelte: `<div class="outline outline-1"></div>`,
+            vue: `<template><div class="outline outline-1"></div></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
 });

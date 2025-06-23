@@ -17,53 +17,64 @@ Disallow conflicting classes in tailwindcss class strings. Conflicting classes a
 
 ## Options
 
+<br/>
+
+<details>
+  <summary>Common options</summary>
+
+  <br/>
+
+  These options are common to all rules and can also be set globally via the [`settings` object](../settings/settings.md).
+
+  <br/>
+
 ### `attributes`
 
-  The name of the attribute that contains the tailwind classes. This can also be set globally via the [`settings` object](../settings/settings.md#attributes).  
+  The name of the attribute that contains the tailwind classes.  
 
   **Type**: Array of [Matchers](../configuration/advanced.md)  
   **Default**: [Name](../configuration/advanced.md#name-based-matching) for `"class"` and [strings Matcher](../configuration/advanced.md#types-of-matchers) for `"class", "className"`
 
-<br/>
+  <br/>
 
 ### `callees`
 
-  List of function names which arguments should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#callees).  
+  List of function names which arguments should also get linted.
   
   **Type**: Array of [Matchers](../configuration/advanced.md)  
   **Default**: [Matchers](../configuration/advanced.md#types-of-matchers) for `"cc", "clb", "clsx", "cn", "cnb", "ctl", "cva", "cx", "dcnb", "objstr", "tv", "twJoin", "twMerge"`
 
-<br/>
+  <br/>
 
 ### `variables`
 
-  List of variable names whose initializer should also get linted. This can also be set globally via the [`settings` object](../settings/settings.md#variables).  
+  List of variable names whose initializer should also get linted.  
   
   **Type**: Array of [Matchers](../configuration/advanced.md)  
   **Default**:  [strings Matcher](../configuration/advanced.md#types-of-matchers) for `"className", "classNames", "classes", "style", "styles"`
 
-<br/>
+  <br/>
 
 ### `tags`
 
-  List of template literal tag names whose content should get linted. This can also be set globally via the [`settings` object](../settings/settings.md#tags).  
+  List of template literal tag names whose content should get linted.  
   
   **Type**: Array of [Matchers](../configuration/advanced.md)  
   **Default**: None
 
   Note: When using the `tags` option, it is recommended to use the [strings Matcher](../configuration/advanced.md#types-of-matchers) for your tag names. This will ensure that nested expressions get linted correctly.
 
-<br/>
+  <br/>
 
 ### `entryPoint`
 
-  The path to the entry file of the css based tailwind config (eg: `src/global.css`). This can also be set globally via the [`settings` object](../settings/settings.md#entrypoint).  
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`).  
   If not specified, the plugin will fall back to the default configuration.  
 
   **Type**: `string`  
   **Default**: `undefined`
 
-<br/>
+  <br/>
 
 ### `tailwindConfig`
 
@@ -74,6 +85,8 @@ Disallow conflicting classes in tailwindcss class strings. Conflicting classes a
 
   **Type**: `string`  
   **Default**: `undefined`
+
+</details>
 
 <br/>
 

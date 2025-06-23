@@ -106,7 +106,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       const conflictingClassNames = conflicts.map(([conflictingClassName]) => conflictingClassName);
       const conflictingProperties = conflicts.reduce<string[]>((acc, [, properties]) => {
         for(const property of properties){
-          if(!acc[property.cssPropertyName]){
+          if(!acc.includes(property.cssPropertyName)){
             acc.push(property.cssPropertyName);
           }
         }

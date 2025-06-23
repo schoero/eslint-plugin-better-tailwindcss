@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.4.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.0...v3.4.1)
+
+### Fixes
+
+- Detect conflicts with multiple properties ([#137](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/137))
+
 ## v3.4.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.3.1...v3.4.0)

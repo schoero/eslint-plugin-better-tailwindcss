@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.4.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.1...v3.4.2)
+
+### Fixes
+
+- Template literals resulting in `undefined` path in getESObjectPath causing false positives ([#142](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/142))
+
+### ❤️ Contributors
+
+- Long Zheng ([@longzheng](https://github.com/longzheng))
+
 ## v3.4.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.0...v3.4.1)

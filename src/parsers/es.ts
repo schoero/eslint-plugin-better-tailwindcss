@@ -375,7 +375,8 @@ export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>
     node.type !== "ObjectExpression" &&
     node.type !== "ArrayExpression" &&
     node.type !== "Identifier" &&
-    node.type !== "Literal"
+    node.type !== "Literal" &&
+    node.type !== "TemplateElement"
   ){
     return;
   }
@@ -405,7 +406,7 @@ export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>
     return getESObjectPath(property);
   }
 
-  if(node.parent.type === "ArrayExpression" && node.type !== "Property"){
+  if(node.parent.type === "ArrayExpression" && node.type !== "Property" && node.type !== "TemplateElement"){
     const index = node.parent.elements.indexOf(node);
     paths.unshift(`[${index}]`);
   }

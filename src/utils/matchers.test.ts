@@ -70,6 +70,29 @@ describe("matchers", () => {
 
       });
 
+      it("should return the correct object path for template literal values", () => {
+
+        const code = `const obj = {
+          root: {
+            nested: {
+              value: \`value\`
+            }
+          }
+        };`;
+
+        const ast = withParentNodeExtension(parse(code, { ecmaVersion: "latest" }) as ESNode);
+
+        const value = findNode(ast, (node): node is ESNode => {
+          return isESNode(node) && isESStringLike(node) && isInsideObjectValue(node);
+        });
+
+        assert(value);
+
+        const path = getESObjectPath(value);
+        expect(path).toBe("root.nested.value");
+
+      });
+
       it("should put names in quotes if they are not valid identifiers", () => {
 
         const code = `const obj = {

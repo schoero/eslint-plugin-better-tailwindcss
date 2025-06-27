@@ -22,7 +22,7 @@ import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
-    files: ["*.astro"],
+    files: ["**/*.astro"],
     languageOptions: {
       parser: eslintParserAstro,
       parserOptions: {

@@ -711,7 +711,7 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
-  it.only("should always put classes without variants first, even if unregistered classes are available", () => {
+  it("should always put classes without variants first, even if unregistered classes are available", () => {
     lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [
         {

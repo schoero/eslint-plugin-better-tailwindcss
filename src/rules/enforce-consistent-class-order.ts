@@ -13,6 +13,7 @@ import {
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
+import { getClassVariants } from "better-tailwindcss:tailwindcss/class-variants.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -184,6 +185,7 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
   }
 
   const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+  const { classVariants } = getClassVariants({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
   const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {
@@ -201,8 +203,8 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
   const groupedByVariant = new Map<string, string[]>();
 
   for(const className of officiallySortedClasses){
-    const variant = className.match(/^.*?:/)?.[0] ?? "";
-    groupedByVariant.set(variant, [...groupedByVariant.get(variant) ?? [], className]);
+    const variants = classVariants.find(([name]) => name === className)?.[1]?.join(":") ?? "";
+    groupedByVariant.set(variants, [...groupedByVariant.get(variants) ?? [], className]);
   }
 
   return [

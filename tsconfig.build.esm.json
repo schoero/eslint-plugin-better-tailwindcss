@@ -15,5 +15,8 @@
     "src/configs/esm.ts",
     "src/api/defaults.ts",
     "src/api/types.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts"
   ]
 }

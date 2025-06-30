@@ -711,25 +711,4 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
-  it("should always put classes without variants first, even if unregistered classes are available", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
-      invalid: [
-        {
-          angular: `<img class="hover:unregistered flex hover:text-red-500" />`,
-          angularOutput: `<img class="flex hover:unregistered hover:text-red-500" />`,
-          html: `<img class="hover:unregistered flex hover:text-red-500" />`,
-          htmlOutput: `<img class="flex hover:unregistered hover:text-red-500" />`,
-          jsx: `() => <img class="hover:unregistered flex hover:text-red-500" />`,
-          jsxOutput: `() => <img class="flex hover:unregistered hover:text-red-500" />`,
-          svelte: `<img class="hover:unregistered flex hover:text-red-500" />`,
-          svelteOutput: `<img class="flex hover:unregistered hover:text-red-500" />`,
-          vue: `<template><img class="hover:unregistered flex hover:text-red-500" /></template>`,
-          vueOutput: `<template><img class="flex hover:unregistered hover:text-red-500" /></template>`,
-
-          errors: 1
-        }
-      ]
-    });
-  });
-
 });

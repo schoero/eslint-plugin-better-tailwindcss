@@ -207,13 +207,8 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     groupedByVariant.set(variants, [...groupedByVariant.get(variants) ?? [], className]);
   }
 
-  return [
-    Array.from(groupedByVariant.entries())
-      .sort(([a], [b]) => a === "" ? -1 : b === "" ? 1 : 0)
-      .map(([, classes]) => classes)
-      .flat(),
-    warnings
-  ];
+  return [Array.from(groupedByVariant.values()).flat(), warnings];
+
 }
 
 

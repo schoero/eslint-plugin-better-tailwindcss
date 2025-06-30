@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.4.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.2...v3.4.3)
+
+### Fixes
+
+- Prevent removal of whitespace between template literals ([#147](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/147))
+- Extract class variants via tailwind ([#146](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/146))
+
 ## v3.4.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.1...v3.4.2)

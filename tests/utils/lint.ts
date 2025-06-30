@@ -1,6 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname, normalize } from "node:path";
-import { cwd } from "node:process";
+import { readdirSync } from "node:fs";
+import { normalize } from "node:path";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
 import eslintParserHTML from "@html-eslint/parser";
@@ -8,6 +7,8 @@ import eslintParserAstro from "astro-eslint-parser";
 import { RuleTester } from "eslint";
 import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
+
+import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 
 import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
@@ -71,9 +72,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
     for(const file in invalid.files ?? {}){
       invalid.settings ??= { "better-tailwindcss": {} };
-
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, invalid.files![file]);
+      createTestFile(file, invalid.files![file]);
     }
 
     for(const syntax of Object.keys(syntaxes)){
@@ -103,8 +102,7 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
     for(const file in valid.files ?? {}){
       valid.settings ??= { "better-tailwindcss": {} };
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(file, valid.files![file]);
+      createTestFile(file, valid.files![file]);
     }
 
     for(const syntax of Object.keys(syntaxes)){
@@ -129,16 +127,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
 
 }
 
-function resetTestingDirectory(testingDirectory: string = "tmp") {
-  if(basename(cwd()) === testingDirectory){
-    process.chdir("..");
-  }
-  if(existsSync(testingDirectory)){
-    rmSync(testingDirectory, { recursive: true });
-  }
-  mkdirSync(testingDirectory, { recursive: true });
-  process.chdir(testingDirectory);
-}
 
 type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;
 

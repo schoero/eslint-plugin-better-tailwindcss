@@ -16,5 +16,8 @@
     "src/configs/cjs.ts",
     "src/api/defaults.ts",
     "src/api/types.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts"
   ]
 }

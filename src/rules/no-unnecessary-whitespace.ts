@@ -152,7 +152,8 @@ function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): 
       } else {
         if(!isFirstChunk && !isLastChunk ||
           literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk){
+          literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk ||
+          literal.type === "TemplateLiteral" && literal.closingBraces && literal.openingBraces){
           mixedChunks.push(" ");
         }
       }

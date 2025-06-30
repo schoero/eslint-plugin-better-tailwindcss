@@ -9,6 +9,11 @@ runAsWorker(async ({ classes, configPath }: GetClassVariantsRequest): Promise<Ge
   const context = await createTailwindContext(configPath);
   return classes.map(className => {
     const [parsed] = context.parseCandidate(className);
+
+    if(!parsed?.variants){
+      return [className, []];
+    }
+
     const variants = parsed.variants.reverse().map(variant => context.printVariant(variant));
     return [className, variants];
   });

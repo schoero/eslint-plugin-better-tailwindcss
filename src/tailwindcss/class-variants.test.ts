@@ -54,4 +54,10 @@ describe("getClassVariants", () => {
   it("should work with compound variants", () => {
     expect(getVariants("has-[&_p]:text-red-500")).toEqual(["has-[&_p]"]);
   });
+
+  it("should not crash on unregistered classes", () => {
+    expect(getVariants("unregistered-class")).toEqual(expect.any(Array));
+    expect(getVariants("hover:unregistered-class")).toEqual(expect.any(Array));
+    expect(getVariants("lg:hover:unregistered-class")).toEqual(expect.any(Array));
+  });
 });

@@ -925,4 +925,30 @@ describe(noUnnecessaryWhitespace.name, () => {
     );
   });
 
+  // #144
+  it("should not remove the whitespace between two template literals", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          angular: "<img class=\"{{`${'a'} ${'b'}`}}\" />",
+          jsx: "() => <img class={`${'a'} ${'b'}`} />",
+          svelte: "<img class={`${'a'} ${'b'}`} />",
+          vue: "<template><img :class=\"`${'a'} ${'b'}`\" /></template>"
+        },
+        {
+          angular: "<img class=\"{{`a ${'b'} ${'c'} d`}}\" />",
+          jsx: "() => <img class={`a ${'b'} ${'c'} d`} />",
+          svelte: "<img class={`a ${'b'} ${'c'} d`} />",
+          vue: "<template><img class=\"`a ${'b'} ${'c'} d`\" /></template>"
+        },
+        {
+          angular: "<img class=\"{{`a ${'b'} c ${'d'} e`}}\" />",
+          jsx: "() => <img class={`a ${'b'} c ${'d'} e`} />",
+          svelte: "<img class={`a ${'b'} c ${'d'} e`} />",
+          vue: "<template><img class=\"`a ${'b'} c ${'d'} e`\" /></template>"
+        }
+      ]
+    });
+  });
+
 });

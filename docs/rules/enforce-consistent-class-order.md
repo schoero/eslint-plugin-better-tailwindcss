@@ -4,10 +4,6 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
-> [!NOTE]
-> In order to sort classes logically, the plugin needs to know the order of the tailwind classes.
-> This is done by providing the [`configPath`](#tailwindconfig) to the tailwind config file or the [`entryPoint`](#entrypoint) of the css based tailwind config.
-
 ## Options
 
 ### `order`

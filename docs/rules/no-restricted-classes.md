@@ -1,6 +1,6 @@
 # better-tailwindcss/no-restricted-classes
 
-Disallow the usage of certain classes. This can be useful to disallow classes that are not recommended to be used in your project. For example, you can enforce the use of semantic color names or disallow features like child variants (`*:`) or the `!important` modifier (`!`) in your project.
+Disallow the usage of certain classes. This can be useful to disallow classes that are not recommended to be used in your project. For example, you can enforce the use of semantic color names or disallow features like arbitrary values (text-[#fff]), child variants (`*:`) or the `!important` modifier (`!`) in your project.
 
 It is also possible to provide a custom error message and a fix for the disallowed class. The fix can be used to automatically replace the disallowed class with a recommended one.
 
@@ -83,8 +83,14 @@ It is also possible to provide a custom error message and a fix for the disallow
 
 ```tsx
 // ❌ BAD: disallow the use of the `text-green-500` class with option `{ restrict: [{ pattern: "^(.*)-green-500$", message: "Restricted class: Use '$1-success' instead." }] }`
-<div class="text-green-500" />;
-//          ~~~~~~~~~~~~~~ Restricted class: Use 'text-success' instead.
+<div class="rounded text-green-500" />;
+//                  ~~~~~~~~~~~~~~ Restricted class: Use 'text-success' instead.
+```
+
+```tsx
+// ❌ BAD: disallow the use of the arbitrary values with option `{ restrict: ["\\[([^\\[\\]]*?)\\](?!:)"] }`
+<div class="rounded text-[#fff]" />;
+//                        ~~~~~~~
 ```
 
 ```tsx

@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.4.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.3...v3.4.4)
+
+### Fixes
+
+- Altering variant order in tailwindcss cache ([#151](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/151))
+
+### Documentation
+
+- Add example for arbitrary values ([ef6faa2](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/ef6faa2))
+
 ## v3.4.3
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.2...v3.4.3)

@@ -14,7 +14,7 @@ runAsWorker(async ({ classes, configPath }: GetClassVariantsRequest): Promise<Ge
       return [className, []];
     }
 
-    const variants = parsed.variants.reverse().map(variant => context.printVariant(variant));
+    const variants = parsed.variants.toReversed().map(variant => context.printVariant(variant));
     return [className, variants];
   });
 });

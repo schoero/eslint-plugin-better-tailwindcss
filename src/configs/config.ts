@@ -32,6 +32,7 @@ const plugin = {
 } satisfies ESLint.Plugin;
 
 const plugins = [plugin.meta.name];
+const flatPlugins = { [plugin.meta.name]: plugin };
 
 
 const getStylisticRules = (severity: "error" | "warn" = "warn") => {
@@ -65,6 +66,18 @@ const createConfig = (
     [`${name}-warn`]: {
       plugins,
       rules: getRulesFunction("warn")
+    },
+    [`flat/${name}-error`]: {
+      plugins: flatPlugins,
+      rules: getRulesFunction("error")
+    },
+    [`flat/${name}-warn`]: {
+      plugins: flatPlugins,
+      rules: getRulesFunction("warn")
+    },
+    [`flat/${name}`]: {
+      plugins: flatPlugins,
+      rules: getRulesFunction()
     },
     [name]: {
       plugins,

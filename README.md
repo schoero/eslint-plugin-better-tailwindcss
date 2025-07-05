@@ -125,7 +125,10 @@ The plugin offers three recommended configurations to help you get started quick
 - `stylistic`: Enforces stylistic rules for tailwind classes.
 - `correctness`: Enforces correctness rules for tailwind classes.
 - `recommended`: Enforces both stylistic and correctness rules.
-  
+- `flat/stylistic`: same as `stylistic` but for ESLint v9 Flat Config.
+- `flat/correctness`: same as `correctness` but for ESLint v9 Flat Config.
+- `flat/recommended`: same as `recommended` but for ESLint v9 Flat Config.
+
 By default:
 
 - `stylistic` rules are reported as warnings

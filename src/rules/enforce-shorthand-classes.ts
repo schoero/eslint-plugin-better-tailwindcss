@@ -113,7 +113,6 @@ export const shorthandGroups = [
     [["(.*)gap-x-(.*)", "(.*)gap-y-(.*)"], ["$1gap-$2"]]
   ],
   [
-    [["(.*)translate-x-(.*)", "(.*)translate-y-(.*)", "(.*)translate-z-(.*)"], ["$1translate-$2", "$1translate-3d"]],
     [["(.*)translate-x-(.*)", "(.*)translate-y-(.*)"], ["$1translate-$2"]]
   ],
   [

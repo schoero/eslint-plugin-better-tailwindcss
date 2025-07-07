@@ -1,7 +1,5 @@
 # better-tailwindcss/enforce-shorthand-classes
 
-Enforce shorthand class names instead of longhand class names.
-
 This rule identifies when multiple longhand Tailwind CSS classes can be replaced with a single shorthand class, improving code readability and reducing bundle size.
 
 <br/>
@@ -60,8 +58,6 @@ This rule identifies when multiple longhand Tailwind CSS classes can be replaced
 <br/>
 
 ## Examples
-
-### Size Classes
 
 ```tsx
 // ❌ BAD: using separate padding classes

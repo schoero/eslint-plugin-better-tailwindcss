@@ -196,4 +196,97 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
+  it("should handle arbitrary values correctly", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-[10px] h-[10px]" />`,
+            angularOutput: `<img class="size-[10px]" />`,
+            html: `<img class="w-[10px] h-[10px]" />`,
+            htmlOutput: `<img class="size-[10px]" />`,
+            jsx: `() => <img class="w-[10px] h-[10px]" />`,
+            jsxOutput: `() => <img class="size-[10px]" />`,
+            svelte: `<img class="w-[10px] h-[10px]" />`,
+            svelteOutput: `<img class="size-[10px]" />`,
+            vue: `<template><img class="w-[10px] h-[10px]" /></template>`,
+            vueOutput: `<template><img class="size-[10px]" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not collapse arbitrary values with different values", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-[10px] h-[20px]" />`,
+            html: `<img class="w-[10px] h-[20px]" />`,
+            jsx: `() => <img class="w-[10px] h-[20px]" />`,
+            svelte: `<img class="w-[10px] h-[20px]" />`,
+            vue: `<template><img class="w-[10px] h-[20px]" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should handle complex variants correctly", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
+            angularOutput: `<img class="sm:hover:size-4" />`,
+            html: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
+            htmlOutput: `<img class="sm:hover:size-4" />`,
+            jsx: `() => <img class="sm:hover:w-4 sm:hover:h-4" />`,
+            jsxOutput: `() => <img class="sm:hover:size-4" />`,
+            svelte: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
+            svelteOutput: `<img class="sm:hover:size-4" />`,
+            vue: `<template><img class="sm:hover:w-4 sm:hover:h-4" /></template>`,
+            vueOutput: `<template><img class="sm:hover:size-4" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should handle mixed positive and negative values correctly", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
+            angularOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            html: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
+            htmlOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            jsx: `() => <img class="ml-4 -mr-4 mt-4 mb-4" />`,
+            jsxOutput: `() => <img class="ml-4 -mr-4 my-4" />`,
+            svelte: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
+            svelteOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            vue: `<template><img class="ml-4 -mr-4 mt-4 mb-4" /></template>`,
+            vueOutput: `<template><img class="ml-4 -mr-4 my-4" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
 });

@@ -7,7 +7,6 @@ import { createSyncFn } from "synckit";
 
 import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
 import { invalidateByModifiedDate, withCache } from "better-tailwindcss:utils/cache.js";
-import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Async } from "better-tailwindcss:types/async.js";
@@ -32,8 +31,7 @@ const getCustomComponentClassesSync = createSyncFn<
 >(getWorkerPath(), getWorkerOptions());
 
 function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./custom-component-classes.async.worker.v${major}.js`);
+  return resolve(getCurrentDirectory(), "./custom-component-classes.async.worker.js");
 }
 
 function getCurrentDirectory() {

@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.5.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.4...v3.5.0)
+
+### Features
+
+- New Rule: Enforce shorthand classes ([#153](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/153))
+
+### Fixes
+
+- Bump tailwindcss peer dependency ([#157](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/157))
+- Regex deprecation warning ([#161](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/161))
+
 ## v3.4.4
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.3...v3.4.4)

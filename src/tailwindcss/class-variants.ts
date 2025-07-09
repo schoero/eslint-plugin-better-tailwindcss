@@ -29,7 +29,7 @@ const getClassVariantsSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./class-variants.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./class-variants.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

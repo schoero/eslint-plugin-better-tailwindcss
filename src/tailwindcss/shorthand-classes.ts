@@ -32,7 +32,7 @@ const getShorthandClassesSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./shorthand-classes.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./shorthand-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

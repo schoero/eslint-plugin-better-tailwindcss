@@ -44,7 +44,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.only("should collapse multiple classes into their shorthand", () => {
+  it("should collapse multiple classes into their shorthand", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -266,7 +266,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it("should handle mixed positive and negative values correctly", () => {
+  it("should not shorten mixed positive and negative values", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -291,7 +291,93 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not shorten mixed important and non important classes in tailwind <= 3", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="!w-4 h-4" />`,
+            html: `<img class="!w-4 h-4" />`,
+            jsx: `() => <img class="!w-4 h-4" />`,
+            svelte: `<img class="!w-4 h-4" />`,
+            vue: `<template><img class="!w-4 h-4" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not shorten mixed important and non important classes in tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-4! h-4" />`,
+            html: `<img class="w-4! h-4" />`,
+            jsx: `() => <img class="w-4! h-4" />`,
+            svelte: `<img class="w-4! h-4" />`,
+            vue: `<template><img class="w-4! h-4" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-4 !h-4" />`,
+            angularOutput: `<img class="!size-4" />`,
+            html: `<img class="!w-4 !h-4" />`,
+            htmlOutput: `<img class="!size-4" />`,
+            jsx: `() => <img class="!w-4 !h-4" />`,
+            jsxOutput: `() => <img class="!size-4" />`,
+            svelte: `<img class="!w-4 !h-4" />`,
+            svelteOutput: `<img class="!size-4" />`,
+            vue: `<template><img class="!w-4 !h-4" /></template>`,
+            vueOutput: `<template><img class="!size-4" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should shorten when all classes are important in tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-4! h-4!" />`,
+            angularOutput: `<img class="size-4!" />`,
+            html: `<img class="w-4! h-4!" />`,
+            htmlOutput: `<img class="size-4!" />`,
+            jsx: `() => <img class="w-4! h-4!" />`,
+            jsxOutput: `() => <img class="size-4!" />`,
+            svelte: `<img class="w-4! h-4!" />`,
+            svelteOutput: `<img class="size-4!" />`,
+            vue: `<template><img class="w-4! h-4!" /></template>`,
+            vueOutput: `<template><img class="size-4!" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -326,7 +412,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -389,6 +475,31 @@ describe(enforceShorthandClasses.name, () => {
             jsx: `() => <img class="w-screen h-screen" />`,
             svelte: `<img class="w-screen h-screen" />`,
             vue: `<template><img class="w-screen h-screen" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not add an additional class if the shorthand class is already present", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="size-4 w-4 h-4" />`,
+            angularOutput: `<img class="size-4" />`,
+            html: `<img class="size-4 w-4 h-4" />`,
+            htmlOutput: `<img class="size-4" />`,
+            jsx: `() => <img class="size-4 w-4 h-4" />`,
+            jsxOutput: `() => <img class="size-4" />`,
+            svelte: `<img class="size-4 w-4 h-4" />`,
+            svelteOutput: `<img class="size-4" />`,
+            vue: `<template><img class="size-4 w-4 h-4" /></template>`,
+            vueOutput: `<template><img class="size-4" /></template>`,
+
+            errors: 1
           }
         ]
       }

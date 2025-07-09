@@ -29,7 +29,7 @@ const getClassOrderSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./class-order.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./class-order.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

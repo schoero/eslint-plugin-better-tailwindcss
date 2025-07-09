@@ -29,7 +29,7 @@ const getUnregisteredClassesSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./unregistered-classes.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./unregistered-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

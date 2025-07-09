@@ -37,7 +37,7 @@ const getPrefixSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./prefix.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./prefix.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

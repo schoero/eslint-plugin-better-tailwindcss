@@ -1,14 +1,5 @@
-import { runAsWorker } from "synckit";
+import type { GetPrefixResponse } from "./prefix.js";
 
-import { createTailwindContext } from "./context.async.v4.js";
-
-import type { GetPrefixRequest, GetPrefixResponse } from "./prefix.js";
-
-
-runAsWorker(async ({ configPath }: GetPrefixRequest) => {
-  const context = await createTailwindContext(configPath);
-  return getPrefix(context);
-});
 
 export function getPrefix(context: any): GetPrefixResponse {
   return context.theme.prefix ?? "";

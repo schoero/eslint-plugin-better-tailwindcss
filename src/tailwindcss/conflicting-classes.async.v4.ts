@@ -1,18 +1,5 @@
-import { runAsWorker } from "synckit";
+import type { ConflictingClasses, GetConflictingClassesResponse } from "./conflicting-classes.js";
 
-import { createTailwindContext } from "./context.async.v4.js";
-
-import type {
-  ConflictingClasses,
-  GetConflictingClassesRequest,
-  GetConflictingClassesResponse
-} from "./conflicting-classes.js";
-
-
-runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest) => {
-  const context = await createTailwindContext(configPath);
-  return getConflictingClasses(context, classes);
-});
 
 export async function getConflictingClasses(context: any, classes: string[]): Promise<GetConflictingClassesResponse> {
   const conflicts: ConflictingClasses = {};

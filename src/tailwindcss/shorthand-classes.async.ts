@@ -111,12 +111,25 @@ export function getShorthands(classes: string[]): GetShorthandClassesResponse {
         const longhands: string[] = [];
         const groups: string[] = [];
 
+        let important: boolean;
+        let negative: boolean;
+
         for(const classPattern of classPatterns){
           classNameLoop: for(const className of classes){
             const match = className.match(new RegExp(classPattern));
 
             if(!match){
               continue classNameLoop;
+            }
+
+            const isNegative = (/^!?-/).test(className);
+            const isImportant = (/^!|!$/).test(className);
+
+            important ??= isImportant;
+            negative ??= isNegative;
+
+            if(important !== isImportant || negative !== isNegative){
+              continue shorthandLoop;
             }
 
             for(let m = 0; m < match.length; m++){

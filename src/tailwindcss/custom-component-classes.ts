@@ -33,7 +33,7 @@ const getCustomComponentClassesSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./custom-component-classes.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./custom-component-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

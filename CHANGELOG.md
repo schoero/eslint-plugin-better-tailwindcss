@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.5.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.0...v3.5.1)
+
+### Fixes
+
+- False reports of shorthand classes ([c5f14ab](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/c5f14ab))
+
 ## v3.5.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.4.4...v3.5.0)

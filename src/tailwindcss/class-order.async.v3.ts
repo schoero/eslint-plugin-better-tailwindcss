@@ -5,7 +5,11 @@ import { createTailwindContext } from "./context.async.v3.js";
 import type { GetClassOrderRequest, GetClassOrderResponse } from "./class-order.js";
 
 
-runAsWorker(async ({ classes, configPath }: GetClassOrderRequest): Promise<GetClassOrderResponse> => {
+runAsWorker(async ({ classes, configPath }: GetClassOrderRequest) => {
   const context = await createTailwindContext(configPath);
-  return context.getClassOrder(classes);
+  return getClassOrder(context, classes);
 });
+
+export async function getClassOrder(context: any, classes: string[]): Promise<GetClassOrderResponse> {
+  return context.getClassOrder(classes);
+}

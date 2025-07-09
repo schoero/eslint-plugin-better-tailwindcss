@@ -2,6 +2,8 @@ import { describe, it } from "vitest";
 
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { css, ts } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 
 describe(enforceShorthandClasses.name, () => {
@@ -42,7 +44,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it("should collapse multiple classes into their shorthand", () => {
+  it.only("should collapse multiple classes into their shorthand", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -283,6 +285,110 @@ describe(enforceShorthandClasses.name, () => {
             vueOutput: `<template><img class="ml-4 -mr-4 my-4" /></template>`,
 
             errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="tw-w-full tw-h-full" />`,
+            angularOutput: `<img class="tw-size-full" />`,
+            html: `<img class="tw-w-full tw-h-full" />`,
+            htmlOutput: `<img class="tw-size-full" />`,
+            jsx: `() => <img class="tw-w-full tw-h-full" />`,
+            jsxOutput: `() => <img class="tw-size-full" />`,
+            svelte: `<img class="tw-w-full tw-h-full" />`,
+            svelteOutput: `<img class="tw-size-full" />`,
+            vue: `<template><img class="tw-w-full tw-h-full" /></template>`,
+            vueOutput: `<template><img class="tw-size-full" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="tw:w-full tw:h-full" />`,
+            angularOutput: `<img class="tw:size-full" />`,
+            html: `<img class="tw:w-full tw:h-full" />`,
+            htmlOutput: `<img class="tw:size-full" />`,
+            jsx: `() => <img class="tw:w-full tw:h-full" />`,
+            jsxOutput: `() => <img class="tw:size-full" />`,
+            svelte: `<img class="tw:w-full tw:h-full" />`,
+            svelteOutput: `<img class="tw:size-full" />`,
+            vue: `<template><img class="tw:w-full tw:h-full" /></template>`,
+            vueOutput: `<template><img class="tw:size-full" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not work if the shorthand class doesn't actually exist <= 3", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-screen h-screen" />`,
+            html: `<img class="w-screen h-screen" />`,
+            jsx: `() => <img class="w-screen h-screen" />`,
+            svelte: `<img class="w-screen h-screen" />`,
+            vue: `<template><img class="w-screen h-screen" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not work if the shorthand class doesn't actually exist in tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-screen h-screen" />`,
+            html: `<img class="w-screen h-screen" />`,
+            jsx: `() => <img class="w-screen h-screen" />`,
+            svelte: `<img class="w-screen h-screen" />`,
+            vue: `<template><img class="w-screen h-screen" /></template>`
           }
         ]
       }

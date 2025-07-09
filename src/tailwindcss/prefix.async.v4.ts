@@ -5,7 +5,11 @@ import { createTailwindContext } from "./context.async.v4.js";
 import type { GetPrefixRequest, GetPrefixResponse } from "./prefix.js";
 
 
-runAsWorker(async ({ configPath }: GetPrefixRequest): Promise<GetPrefixResponse> => {
+runAsWorker(async ({ configPath }: GetPrefixRequest) => {
   const context = await createTailwindContext(configPath);
-  return context.theme.prefix ?? "";
+  return getPrefix(context);
 });
+
+export function getPrefix(context: any): GetPrefixResponse {
+  return context.theme.prefix ?? "";
+}

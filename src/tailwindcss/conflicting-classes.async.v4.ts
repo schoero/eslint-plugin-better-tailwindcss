@@ -9,9 +9,12 @@ import type {
 } from "./conflicting-classes.js";
 
 
-runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
+runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest) => {
   const context = await createTailwindContext(configPath);
+  return getConflictingClasses(context, classes);
+});
 
+export async function getConflictingClasses(context: any, classes: string[]): Promise<GetConflictingClassesResponse> {
   const conflicts: ConflictingClasses = {};
 
   const classRules = classes.reduce<Record<string, RuleContext>>((classRules, className) => ({
@@ -71,7 +74,7 @@ runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promi
   }
 
   return conflicts;
-});
+}
 
 export type StyleRule = {
   kind: "rule";

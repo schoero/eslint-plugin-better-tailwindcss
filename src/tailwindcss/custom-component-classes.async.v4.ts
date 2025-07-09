@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { fork } from "@eslint/css-tree";
+import { runAsWorker } from "synckit";
 import { tailwind4 } from "tailwind-csstree";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -10,6 +11,8 @@ import type {
   GetCustomComponentClassesResponse
 } from "./custom-component-classes.js";
 
+
+runAsWorker(getCustomComponentClasses);
 
 const { findAll, generate, parse } = fork(tailwind4);
 

@@ -12,12 +12,8 @@ import {
 } from "better-tailwindcss:options/descriptions.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import {
-  getExactClassLocation,
-  replacePlaceholders,
-  splitClasses,
-  splitWhitespaces
-} from "better-tailwindcss:utils/utils.js";
+import { replacePlaceholders } from "better-tailwindcss:utils/string.js";
+import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 

@@ -41,7 +41,7 @@ const getConflictingClassesSync = createSyncFn<
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./conflicting-classes.async.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./conflicting-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

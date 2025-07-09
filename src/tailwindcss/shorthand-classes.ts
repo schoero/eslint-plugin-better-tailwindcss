@@ -9,27 +9,30 @@ import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 import type { Async } from "better-tailwindcss:types/async.js";
 
 
-export interface GetUnregisteredClassesRequest {
+export type Shorthands = [classes: string[], shorthand: string[]][][];
+
+export interface GetShorthandClassesRequest {
   classes: string[];
   configPath: string;
 }
 
-export type GetUnregisteredClassesResponse = string[];
+export type GetShorthandClassesResponse = [classNames: string[], shorthands: string[]][];
 
-export function getUnregisteredClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
+
+export function getShorthandClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
   const { path, warning } = getTailwindConfigPath({ configPath, cwd });
-  const unregisteredClasses = getUnregisteredClassesSync({ classes, configPath: path });
+  const shorthandClasses = getShorthandClassesSync({ classes, configPath: path });
 
-  return { unregisteredClasses, warnings: [warning] };
+  return { shorthandClasses, warnings: [warning] };
 }
 
-const getUnregisteredClassesSync = createSyncFn<
-  Async<GetUnregisteredClassesRequest, GetUnregisteredClassesResponse>
+const getShorthandClassesSync = createSyncFn<
+  Async<GetShorthandClassesRequest, GetShorthandClassesResponse>
 >(getWorkerPath(), getWorkerOptions());
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./unregistered-classes.async.worker.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./shorthand-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

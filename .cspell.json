@@ -16,6 +16,7 @@
     "classnames",
     "clsx",
     "cnbuilder",
+    "csstree",
     "dcnb",
     "DCNB",
     "Declarators",
@@ -26,13 +27,13 @@
     "jiti",
     "linebreak",
     "linebreakstyle",
+    "longhands",
     "memfs",
     "objstr",
     "OBJSTR",
     "quasis",
     "shadcn",
     "synckit",
-    "Tmpl",
-    "csstree"
+    "Tmpl"
   ]
 }

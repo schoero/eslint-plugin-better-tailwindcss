@@ -1,11 +1,6 @@
-import { runAsWorker } from "synckit";
-
-import { createTailwindContext } from "./context.async.v3.js";
-
-import type { GetClassOrderRequest, GetClassOrderResponse } from "./class-order.js";
+import type { GetClassOrderResponse } from "./class-order.js";
 
 
-runAsWorker(async ({ classes, configPath }: GetClassOrderRequest): Promise<GetClassOrderResponse> => {
-  const context = await createTailwindContext(configPath);
+export function getClassOrder(context: any, classes: string[]): GetClassOrderResponse {
   return context.getClassOrder(classes);
-});
+}

@@ -43,13 +43,6 @@ export function display(classes: string): string {
     .replaceAll("\t", "→");
 }
 
-export function replacePlaceholders(template: string, match: RegExpMatchArray): string {
-  return template.replace(/\$(\d+)/g, (_, groupIndex) => {
-    const index = Number(groupIndex);
-    return match[index] ?? "";
-  });
-}
-
 export interface Warning<Options extends Record<string, any> = Record<string, any>> {
   option: keyof Options;
   title: string;

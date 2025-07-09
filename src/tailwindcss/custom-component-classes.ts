@@ -31,7 +31,7 @@ const getCustomComponentClassesSync = createSyncFn<
 >(getWorkerPath(), getWorkerOptions());
 
 function getWorkerPath() {
-  return resolve(getCurrentDirectory(), "./custom-component-classes.async.js");
+  return resolve(getCurrentDirectory(), "./custom-component-classes.async.worker.js");
 }
 
 function getCurrentDirectory() {

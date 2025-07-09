@@ -1,17 +1,7 @@
-import { runAsWorker } from "synckit";
-
-import { createTailwindContext } from "./context.async.v4.js";
-
-import type {
-  ConflictingClasses,
-  GetConflictingClassesRequest,
-  GetConflictingClassesResponse
-} from "./conflicting-classes.js";
+import type { ConflictingClasses, GetConflictingClassesResponse } from "./conflicting-classes.js";
 
 
-runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
-  const context = await createTailwindContext(configPath);
-
+export async function getConflictingClasses(context: any, classes: string[]): Promise<GetConflictingClassesResponse> {
   const conflicts: ConflictingClasses = {};
 
   const classRules = classes.reduce<Record<string, RuleContext>>((classRules, className) => ({
@@ -71,7 +61,7 @@ runAsWorker(async ({ classes, configPath }: GetConflictingClassesRequest): Promi
   }
 
   return conflicts;
-});
+}
 
 export type StyleRule = {
   kind: "rule";

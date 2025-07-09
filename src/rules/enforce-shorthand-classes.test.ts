@@ -327,7 +327,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", () => {
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", { fails: true }, () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,

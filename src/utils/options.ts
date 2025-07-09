@@ -9,6 +9,8 @@ import { isAttributesRegex, isCalleeRegex, isVariableRegex } from "better-tailwi
 import type { Rule } from "eslint";
 
 
+let warningShown = false;
+
 export function getCommonOptions(ctx: Rule.RuleContext) {
 
   const attributes = getOption(ctx, "attributes") ?? DEFAULT_ATTRIBUTE_NAMES;
@@ -17,8 +19,14 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
   const tags = getOption(ctx, "tags") ?? DEFAULT_TAG_NAMES;
   const tailwindConfig = getOption(ctx, "entryPoint") ?? getOption(ctx, "tailwindConfig");
 
-  if(isAttributesRegex(attributes) || isCalleeRegex(callees) || isVariableRegex(variables)){
-    console.warn("⚠️ Warning: Regex matching is deprecated and will be removed in the next major version. Please use matchers instead.");
+  if(
+    !warningShown &&
+    Array.isArray(attributes) && attributes.some(attributes => isAttributesRegex(attributes)) ||
+    Array.isArray(callees) && callees.some(callees => isCalleeRegex(callees)) ||
+    Array.isArray(variables) && variables.some(variables => isVariableRegex(variables))
+  ){
+    console.warn("⚠️ Warning: Regex matching is deprecated and will be removed in the next major version. Please use matchers instead. See: https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/configuration/advanced.md#matchers");
+    warningShown = true;
   }
 
   return {

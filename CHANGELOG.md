@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.5.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.1...v3.5.2)
+
+### Fixes
+
+- Tailwind 3 shorthand classes with important modifier ([#162](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/162))
+
 ## v3.5.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.0...v3.5.1)

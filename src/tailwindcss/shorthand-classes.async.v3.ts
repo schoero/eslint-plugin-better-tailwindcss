@@ -11,40 +11,60 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
   const prefix = getPrefix(context);
   const separator = context.tailwindConfig.separator ?? ":";
 
-  const rawMap = classes.reduce<{ [className: string]: string; }>((acc, className) => {
+  const rawMap = classes.reduce<{ [base: string]: { className: string; isImportant: boolean; isNegative: boolean; variants: string[]; }; }>((acc, className) => {
     const classVariants = variants.find(([name]) => name === className)?.[1] ?? [];
-    const rawClassName = className
+
+    let base = className
       .replace(classVariants.join(separator), "")
       .replace(prefix, "")
       .replace(/^:/, "");
 
-    acc[rawClassName] = className;
+    const isNegative = base.startsWith("-");
+    base = base.replace(/^-/, "");
+
+    const isImportant = base.startsWith("!");
+    base = base.replace(/^!/, "");
+
+    acc[base] = { className, isImportant, isNegative, variants: classVariants };
+
     return acc;
   }, {});
 
   return getShorthands(Object.keys(rawMap))
-    .map<GetShorthandClassesResponse[number]>(([longhands, shorthands]) => {
-      const classVariants = variants.find(([name]) => name === rawMap[longhands[0]])?.[1] ?? [];
+    .reduce<GetShorthandClassesResponse>((acc, shorthandGroups) => {
+      for(const [longhands, shorthands] of shorthandGroups){
+        const { isImportant, isNegative, variants } = rawMap[longhands[0]];
 
-      const isNegative = (/^!?-/).test(rawMap[longhands[0]]);
-      const isImportant = (/^!|!$/).test(rawMap[longhands[0]]);
+        const important = isImportant ? "!" : "";
+        const negative = isNegative ? "-" : "";
 
-      const negative = isNegative ? "-" : "";
-      const important = isImportant ? "!" : "";
+        const longhandClasses = longhands.map(longhand => rawMap[longhand].className);
+        const shorthandClasses = shorthands.map(shorthand => [
+          ...variants,
+          [
+            prefix,
+            important,
+            negative,
+            shorthand
+          ].join("")
+        ].filter(chunk => !!chunk).join(separator));
 
-      return [
-        longhands.map(longhand => rawMap[longhand]),
-        shorthands.map(shorthand => `${[...classVariants, prefix].join(separator)}${important}${negative}${shorthand}`)
-      ];
-    })
-    .filter(([longhands, shorthands]) => {
-      const longhandVariants = getClassVariants(context, longhands)
-        .map(([, variants]) => variants.join(separator))
-        .filter((variants, index, arr) => arr.indexOf(variants) === index);
+        if(
+          longhands.some(longhand => rawMap[longhand].isImportant !== isImportant) ||
+          longhands.some(longhand => rawMap[longhand].isNegative !== isNegative) ||
+          longhands.some(longhand => rawMap[longhand].variants.join(separator) !== variants.join(separator)) ||
+          shorthandClasses.length === 0 ||
+          getUnregisteredClasses(context, shorthandClasses).length > 0
+        ){
+          continue;
+        }
 
-      return (
-        longhandVariants.length <= 1 &&
-        getUnregisteredClasses(context, shorthands).length === 0
-      );
-    });
+        acc.push([longhandClasses, shorthandClasses]);
+
+        break;
+
+      }
+
+      return acc;
+    }, []);
 }

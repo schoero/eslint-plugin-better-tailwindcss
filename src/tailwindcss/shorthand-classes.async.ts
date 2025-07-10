@@ -88,84 +88,59 @@ export const shorthands = [
   ]
 ] satisfies Shorthands;
 
-export function getShorthands(classes: string[]): GetShorthandClassesResponse {
+export function getShorthands(classes: string[]): GetShorthandClassesResponse[] {
 
-  let finalShorthandClasses: GetShorthandClassesResponse = [];
+  const possibleShorthandClassesGroups: GetShorthandClassesResponse[] = [];
 
-  const maxIterations = shorthands.reduce((acc, shortHandGroups) => {
-    if(acc >= shortHandGroups.length){
-      return acc;
-    }
-    return shortHandGroups.length;
-  }, 0);
 
-  for(let i = 0; i < maxIterations; i++){
-    const shorthandClasses: GetShorthandClassesResponse = [];
+  for(const shorthandGroup of shorthands){
 
-    shorthandGroupLoop: for(const shorthandGroup of shorthands){
+    const sortedShorthandGroup = shorthandGroup.sort((a, b) => b[0].length - a[0].length);
 
-      const sortedShorthandGroup = shorthandGroup.sort((a, b) => b[0].length - a[0].length);
+    const possibleShorthandClasses: GetShorthandClassesResponse = [];
 
-      shorthandLoop: for(const [classPatterns, substitutes] of sortedShorthandGroup){
+    shorthandLoop: for(const [classPatterns, substitutes] of sortedShorthandGroup){
 
-        const longhands: string[] = [];
-        const groups: string[] = [];
+      const longhands: string[] = [];
+      const groups: string[] = [];
 
-        let important: boolean;
-        let negative: boolean;
+      for(const classPattern of classPatterns){
+        classNameLoop: for(const className of classes){
+          const match = className.match(new RegExp(classPattern));
 
-        for(const classPattern of classPatterns){
-          classNameLoop: for(const className of classes){
-            const match = className.match(new RegExp(classPattern));
+          if(!match){
+            continue classNameLoop;
+          }
 
-            if(!match){
-              continue classNameLoop;
+          for(let m = 0; m < match.length; m++){
+            if(groups[m] === undefined){
+              groups[m] = match[m];
+              continue;
             }
 
-            const isNegative = (/^!?-/).test(className);
-            const isImportant = (/^!|!$/).test(className);
+            if(m === 0){
+              continue;
+            }
 
-            important ??= isImportant;
-            negative ??= isNegative;
-
-            if(important !== isImportant || negative !== isNegative){
+            if(groups[m] !== match[m]){
               continue shorthandLoop;
             }
-
-            for(let m = 0; m < match.length; m++){
-              if(groups[m] === undefined){
-                groups[m] = match[m];
-                continue;
-              }
-
-              if(m === 0){
-                continue;
-              }
-
-              if(groups[m] !== match[m]){
-                continue shorthandLoop;
-              }
-            }
-
-            longhands.push(className);
           }
-        }
 
-        if(longhands.length === classPatterns.length){
-          shorthandClasses.push([longhands, substitutes.map(substitute => replacePlaceholders(substitute, groups))]);
-          continue shorthandGroupLoop;
+          longhands.push(className);
         }
       }
 
+      if(longhands.length === classPatterns.length){
+        possibleShorthandClasses.push([longhands, substitutes.map(substitute => replacePlaceholders(substitute, groups))]);
+      }
     }
 
-    if(shorthandClasses.length === finalShorthandClasses.length && shorthandClasses.every((shorthand, index) => shorthand[0].length === finalShorthandClasses[index][0].length &&
-      shorthand[1].length === finalShorthandClasses[index][1].length)){
-      break;
+    if(possibleShorthandClasses.length > 0){
+      possibleShorthandClassesGroups.push(possibleShorthandClasses.sort((a, b) => b[0].length - a[0].length));
     }
 
-    finalShorthandClasses = structuredClone(shorthandClasses);
   }
 
-  return finalShorthandClasses;
+  return possibleShorthandClassesGroups;
 }

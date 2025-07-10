@@ -19,17 +19,16 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
       .replace(prefix, "")
       .replace(/^:/, "");
 
-    const negative = base.startsWith("-");
+    const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
 
-    const important = base.startsWith("!");
+    const isImportant = base.startsWith("!");
     base = base.replace(/^!/, "");
 
-    acc[base] = { className, isImportant: important, isNegative: negative, variants: classVariants };
+    acc[base] = { className, isImportant, isNegative, variants: classVariants };
 
     return acc;
   }, {});
-
 
   return getShorthands(Object.keys(rawMap))
     .reduce<GetShorthandClassesResponse>((acc, shorthandGroups) => {

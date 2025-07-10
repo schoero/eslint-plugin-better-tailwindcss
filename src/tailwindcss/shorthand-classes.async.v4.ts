@@ -19,13 +19,13 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
       .replace(prefix, "")
       .replace(/^:/, "");
 
-    const negative = base.startsWith("-");
+    const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
 
-    const important = base.endsWith("!");
+    const isImportant = base.endsWith("!");
     base = base.replace(/!$/, "");
 
-    acc[base] = { className, isImportant: important, isNegative: negative, variants: classVariants };
+    acc[base] = { className, isImportant, isNegative, variants: classVariants };
 
     return acc;
   }, {});

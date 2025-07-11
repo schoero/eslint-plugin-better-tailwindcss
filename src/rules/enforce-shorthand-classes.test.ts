@@ -327,6 +327,56 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should still shorten mixed starting and ending important classes in tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-4! !h-4" />`,
+            angularOutput: `<img class="size-4!" />`,
+            html: `<img class="w-4! !h-4" />`,
+            htmlOutput: `<img class="size-4!" />`,
+            jsx: `() => <img class="w-4! !h-4" />`,
+            jsxOutput: `() => <img class="size-4!" />`,
+            svelte: `<img class="w-4! !h-4" />`,
+            svelteOutput: `<img class="size-4!" />`,
+            vue: `<template><img class="w-4! !h-4" /></template>`,
+            vueOutput: `<template><img class="size-4!" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should keep important at the start if all classes have important at the start in tailwind >= 4", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-4 !h-4" />`,
+            angularOutput: `<img class="!size-4" />`,
+            html: `<img class="!w-4 !h-4" />`,
+            htmlOutput: `<img class="!size-4" />`,
+            jsx: `() => <img class="!w-4 !h-4" />`,
+            jsxOutput: `() => <img class="!size-4" />`,
+            svelte: `<img class="!w-4 !h-4" />`,
+            svelteOutput: `<img class="!size-4" />`,
+            vue: `<template><img class="!w-4 !h-4" /></template>`,
+            vueOutput: `<template><img class="!size-4" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,

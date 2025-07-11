@@ -11,7 +11,7 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
   const prefix = getPrefix(context);
   const separator = ":";
 
-  const rawMap = classes.reduce<{ [base: string]: { className: string; isImportant: boolean; isNegative: boolean; variants: string[]; }; }>((acc, className) => {
+  const rawMap = classes.reduce<{ [base: string]: { className: string; isImportantAtEnd: boolean; isImportantAtStart: boolean; isNegative: boolean; variants: string[]; }; }>((acc, className) => {
     const classVariants = variants.find(([name]) => name === className)?.[1] ?? [];
 
     let base = className
@@ -22,10 +22,13 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
 
-    const isImportant = base.endsWith("!");
+    const isImportantAtStart = base.startsWith("!");
+    base = base.replace(/^!/, "");
+
+    const isImportantAtEnd = base.endsWith("!");
     base = base.replace(/!$/, "");
 
-    acc[base] = { className, isImportant, isNegative, variants: classVariants };
+    acc[base] = { className, isImportantAtEnd, isImportantAtStart, isNegative, variants: classVariants };
 
     return acc;
   }, {});
@@ -33,9 +36,13 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
   return getShorthands(Object.keys(rawMap))
     .reduce<GetShorthandClassesResponse>((acc, shorthandGroups) => {
       for(const [longhands, shorthands] of shorthandGroups){
-        const { isImportant, isNegative, variants } = rawMap[longhands[0]];
+        const { isNegative, variants } = rawMap[longhands[0]];
 
-        const important = isImportant ? "!" : "";
+        const isImportantAtEnd = longhands.some(longhand => rawMap[longhand].isImportantAtEnd);
+        const isImportantAtStart = !isImportantAtEnd && longhands.some(longhand => rawMap[longhand].isImportantAtStart);
+
+        const importantAtStart = isImportantAtStart ? "!" : "";
+        const importantAtEnd = isImportantAtEnd ? "!" : "";
         const negative = isNegative ? "-" : "";
 
         const longhandClasses = longhands.map(longhand => rawMap[longhand].className);
@@ -43,14 +50,15 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
           prefix,
           ...variants,
           [
+            importantAtStart,
             negative,
             shorthand,
-            important
+            importantAtEnd
           ].join("")
         ].filter(chunk => !!chunk).join(separator));
 
         if(
-          longhands.some(longhand => rawMap[longhand].isImportant !== isImportant) ||
+          longhands.some(longhand => (rawMap[longhand].isImportantAtStart || rawMap[longhand].isImportantAtEnd) !== (isImportantAtStart || isImportantAtEnd)) ||
           longhands.some(longhand => rawMap[longhand].isNegative !== isNegative) ||
           longhands.some(longhand => rawMap[longhand].variants.join(separator) !== variants.join(separator)) ||
           shorthandClasses.length === 0 ||

@@ -16,7 +16,7 @@ export function getShorthandClasses(context: any, classes: string[]): GetShortha
 
     let base = className
       .replace(classVariants.join(separator), "")
-      .replace(prefix, "")
+      .replace(prefix + separator, "")
       .replace(/^:/, "");
 
     const isNegative = base.startsWith("-");

@@ -456,6 +456,30 @@ describe(enforceShorthandClasses.name, () => {
             options: [{
               tailwindConfig: "./tailwind.config.js"
             }]
+          },
+          {
+            angular: `<img class="hover:tw-w-full hover:tw-h-full" />`,
+            angularOutput: `<img class="hover:tw-size-full " />`,
+            html: `<img class="hover:tw-w-full hover:tw-h-full" />`,
+            htmlOutput: `<img class="hover:tw-size-full " />`,
+            jsx: `() => <img class="hover:tw-w-full hover:tw-h-full" />`,
+            jsxOutput: `() => <img class="hover:tw-size-full " />`,
+            svelte: `<img class="hover:tw-w-full hover:tw-h-full" />`,
+            svelteOutput: `<img class="hover:tw-size-full " />`,
+            vue: `<template><img class="hover:tw-w-full hover:tw-h-full" /></template>`,
+            vueOutput: `<template><img class="hover:tw-size-full " /></template>`,
+
+            errors: 2,
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
           }
         ]
       }
@@ -479,6 +503,28 @@ describe(enforceShorthandClasses.name, () => {
             svelteOutput: `<img class="tw:size-full " />`,
             vue: `<template><img class="tw:w-full tw:h-full" /></template>`,
             vueOutput: `<template><img class="tw:size-full " /></template>`,
+
+            errors: 2,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="tw:hover:w-full tw:hover:h-full" />`,
+            angularOutput: `<img class="tw:hover:size-full " />`,
+            html: `<img class="tw:hover:w-full tw:hover:h-full" />`,
+            htmlOutput: `<img class="tw:hover:size-full " />`,
+            jsx: `() => <img class="tw:hover:w-full tw:hover:h-full" />`,
+            jsxOutput: `() => <img class="tw:hover:size-full " />`,
+            svelte: `<img class="tw:hover:w-full tw:hover:h-full" />`,
+            svelteOutput: `<img class="tw:hover:size-full " />`,
+            vue: `<template><img class="tw:hover:w-full tw:hover:h-full" /></template>`,
+            vueOutput: `<template><img class="tw:hover:size-full " /></template>`,
 
             errors: 2,
             files: {

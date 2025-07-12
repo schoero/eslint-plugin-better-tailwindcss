@@ -79,26 +79,23 @@ export function escapeForRegex(word: string) {
   return word.replace(/[$()*+./?[\\\]^{|}-]/g, "\\$&");
 }
 
-export function getExactClassLocation(literal: Literal, className: string, partial: boolean = false, lastIndex: boolean = false) {
-  const escapedClass = escapeForRegex(className);
+export function isClassSticky(literal: Literal, classIndex: number): boolean {
+  const classes = literal.content;
 
-  const regex = partial
-    ? new RegExp(`(${escapedClass})`, "g")
-    : new RegExp(`(?:^|\\s+)(${escapedClass})(?=\\s+|$)`, "g");
+  const classChunks = splitClasses(classes);
+  const whitespaceChunks = splitWhitespaces(classes);
 
-  const [...matches] = literal.content.matchAll(regex);
+  const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
+  const endsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[whitespaceChunks.length - 1] !== "";
 
-  const match = lastIndex ? matches.at(-1) : matches.at(0);
+  return (
+    !startsWithWhitespace && classIndex === 0 && !!literal.closingBraces ||
+    !endsWithWhitespace && classIndex === classChunks.length - 1 && !!literal.openingBraces
+  );
+}
 
-  if(match?.index === undefined){
-    return literal.loc;
-  }
-
-  const fullMatchIndex = match.index;
-  const word = match?.[1];
-  const indexOfClass = fullMatchIndex + match[0].indexOf(word);
-
-  const linesUpToStartIndex = literal.content.slice(0, indexOfClass).split("\n");
+export function getExactClassLocation(literal: Literal, stringIndex: number, className: string) {
+  const linesUpToStartIndex = literal.content.slice(0, stringIndex).split("\n");
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
 

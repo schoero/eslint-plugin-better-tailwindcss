@@ -13,9 +13,10 @@ import {
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, getExactClassLocation, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -96,11 +97,15 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       continue;
     }
 
-    for(const className in conflictingClasses){
+    lintClasses(ctx, literal, className => {
+      if(!conflictingClasses[className]){
+        return;
+      }
+
       const conflicts = Object.entries(conflictingClasses[className]);
 
       if(conflicts.length === 0){
-        continue;
+        return;
       }
 
       const conflictingClassNames = conflicts.map(([conflictingClassName]) => conflictingClassName);
@@ -113,20 +118,19 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         return acc;
       }, []);
 
-      ctx.report({
-        data: {
-          className,
-          conflictingClassNames: conflictingClassNames.join(", "),
-          conflictingProperties: conflictingProperties.map(conflictingProperty => `"${conflictingProperty}"`).join(", ")
-        },
-        loc: getExactClassLocation(literal, className),
+      const conflictingClassString = conflictingClassNames.join(", ");
+      const conflictingPropertiesString = conflictingProperties.map(conflictingProperty => `"${conflictingProperty}"`).join(", ");
+
+      return {
         message: augmentMessageWithWarnings(
-          "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassNames }}\" apply the same CSS properties: {{ conflictingProperties }}.",
+          `Conflicting class detected: "${className}" and "${conflictingClassString}" apply the same CSS properties: ${conflictingPropertiesString}.`,
           DOCUMENTATION_URL,
           warnings
         )
-      });
-    }
+
+      };
+
+    });
 
   }
 }

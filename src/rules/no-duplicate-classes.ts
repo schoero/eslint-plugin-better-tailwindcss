@@ -10,10 +10,10 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { isClassSticky, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -82,79 +82,23 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       ? getClassesFromLiteralNodes(literal.priorLiterals)
       : [];
 
-    const duplicates: string[] = [];
+    lintClasses(ctx, literal, (className, index, after) => {
 
-    const classes = literal.content;
+      const duplicateClassIndex = after.findIndex((afterClass, afterIndex) => afterClass === className && afterIndex < index);
 
-    const classChunks = splitClasses(classes);
-    const whitespaceChunks = splitWhitespaces(classes);
-
-    const finalChunks: string[] = [];
-
-    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
-    const endsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[whitespaceChunks.length - 1] !== "";
-
-    for(let i = 0; i < whitespaceChunks.length; i++){
-
-      if(whitespaceChunks[i]){
-        finalChunks.push(whitespaceChunks[i]);
+      // always keep sticky classes
+      if(isClassSticky(literal, index) || isClassSticky(literal, duplicateClassIndex)){
+        return;
       }
 
-      if(classChunks[i]){
-
-        // always push sticky classes without adding to the register
-        if(
-          !startsWithWhitespace && i === 0 && literal.closingBraces ||
-          !endsWithWhitespace && i === classChunks.length - 1 && literal.openingBraces
-        ){
-          finalChunks.push(classChunks[i]);
-          continue;
-        }
-
-        if(parentClasses.includes(classChunks[i])){
-          if(!duplicates.includes(classChunks[i])){
-            duplicates.push(classChunks[i]);
-          }
-        } else {
-          finalChunks.push(classChunks[i]);
-          parentClasses.push(classChunks[i]);
-        }
+      if(parentClasses.includes(className) || duplicateClassIndex !== -1){
+        return {
+          fix: "",
+          message: `Duplicate classname: "${className}}".`
+        };
       }
-
-    }
-
-    const escapedClasses = escapeNestedQuotes(
-      finalChunks.join(""),
-      literal.openingQuote ?? literal.closingQuote ?? "\""
-    );
-
-    const fixedClasses = [
-      literal.openingQuote ?? "",
-      literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-      escapedClasses,
-      literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-      literal.closingQuote ?? ""
-    ].join("");
-
-    if(literal.raw === fixedClasses){
-      continue;
-    }
-
-    for(const className of duplicates){
-      ctx.report({
-        data: {
-          duplicateClassname: className
-        },
-        fix(fixer) {
-          return fixer.replaceTextRange(literal.range, fixedClasses);
-        },
-        loc: getExactClassLocation(literal, className, false, true),
-        message: "Duplicate classname: \"{{ duplicateClassname }}\"."
-      });
-    }
-
+    });
   }
-
 }
 
 function getClassesFromLiteralNodes(literals: Literal[]) {

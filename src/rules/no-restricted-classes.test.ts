@@ -452,7 +452,7 @@ describe(noRestrictedClasses.name, () => {
     });
   });
 
-  it("should handle multiple overlapping patterns", () => {
+  it("should report the first matching restrictions", () => {
     lint(noRestrictedClasses, TEST_SYNTAXES, {
       invalid: [
         {
@@ -463,15 +463,13 @@ describe(noRestrictedClasses.name, () => {
           vue: `<template><img class="text-green-500" /></template>`,
 
           errors: [
-            { message: `Restricted class: "text-green-500".` },
-            { message: "Restricted class: Use 'text-success' instead." },
-            { message: "Match any green color class" }
+            { message: "Restricted class: Use 'text-success' instead." }
           ],
           options: [{
             restrict: [
-              "^text-green-500$",
               { message: "Restricted class: Use 'text-success' instead.", pattern: "^text-green-500$" },
-              { message: "Match any green color class", pattern: ".*green.*" }
+              { message: "Match any green color class", pattern: ".*green.*" },
+              "^text-green-500$"
             ]
           }]
         }

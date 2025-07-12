@@ -13,10 +13,10 @@ import {
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getShorthandClasses } from "better-tailwindcss:tailwindcss/shorthand-classes.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, display, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -93,57 +93,29 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const { shorthandClasses, warnings } = getShorthandClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
-    for(const [longhands, shorthands] of shorthandClasses){
-      const finalClasses: string[] = [];
-
-      for(const className of classes){
-
+    lintClasses(ctx, literal, (className, index, after) => {
+      for(const [longhands, shorthands] of shorthandClasses){
         if(!longhands.includes(className)){
-          finalClasses.push(className);
-          continue;
+          return;
         }
 
-        if(shorthands.some(shorthand => finalClasses.includes(shorthand))){
-          continue;
+        if(shorthands.every(shorthand => after.includes(shorthand))){
+          return {
+            fix: ""
+          };
         }
 
-        finalClasses.push(...shorthands);
+        return {
+          fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
+          message: augmentMessageWithWarnings(
+            `Non shorthand class detected. Expected ${longhands.join(" ")} to be ${shorthands.join(" ")}}`,
+            DOCUMENTATION_URL,
+            warnings
+          )
+        };
       }
+    });
 
-      const escapedClasses = escapeNestedQuotes(
-        finalClasses.join(" "),
-        literal.openingQuote ?? literal.closingQuote ?? "`"
-      );
-
-      const fixedClasses =
-      [
-        literal.openingQuote ?? "",
-        literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-        escapedClasses,
-        literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-        literal.closingQuote ?? ""
-      ].join("");
-
-      if(literal.raw === fixedClasses){
-        continue;
-      }
-
-      ctx.report({
-        data: {
-          longhand: display(longhands.join(", ")),
-          shorthand: display(shorthands.join(", "))
-        },
-        fix(fixer) {
-          return fixer.replaceTextRange(literal.range, fixedClasses);
-        },
-        loc: literal.loc,
-        message: augmentMessageWithWarnings(
-          "Non shorthand class detected. Expected {{ longhand }} to be {{ shorthand }}",
-          DOCUMENTATION_URL,
-          warnings
-        )
-      });
-    }
   }
 }
 

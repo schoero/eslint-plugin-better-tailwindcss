@@ -10,9 +10,9 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -87,29 +87,8 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const { syntax } = getOptions(ctx);
-
-    const classChunks = splitClasses(literal.content);
-    const whitespaceChunks = splitWhitespaces(literal.content);
-
-    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
-
-
-    for(let classIndex = 0, literalIndex = 0; classIndex < classChunks.length; classIndex++){
-
-      const className = classChunks[classIndex];
-
-      if(startsWithWhitespace){
-        literalIndex += whitespaceChunks[classIndex].length;
-      }
-
-      const classStart = literalIndex;
-
-      literalIndex += className.length;
-
-      if(!startsWithWhitespace){
-        literalIndex += whitespaceChunks[classIndex + 1].length;
-      }
+    lintClasses(ctx, literal, className => {
+      const { syntax } = getOptions(ctx);
 
       for(
         let i = 0,
@@ -125,7 +104,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           if(isInsideVar){
             continue;
           }
-          // text-red-500 bg-(--brand)
+
           if(isBeginningOfParenthesizedVariable(characters)){
             isInsideVar = true;
 
@@ -139,23 +118,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const end = start + balancedContent.length + 2;
 
-            const fixedVariable = `[var(${balancedContent})]`;
+            const fixedVariable = `${className.slice(0, start)}[var(${balancedContent})]${className.slice(end)}`;
 
-            const [literalStart] = literal.range;
+            return {
+              fix: fixedVariable,
+              message: `Incorrect variable syntax: "${balancedContent}".`
+            };
 
-            ctx.report({
-              data: {
-                incorrectSyntax: balancedContent
-              },
-              fix(fixer) {
-                return fixer.replaceTextRange([
-                  literalStart + classStart + start + 1,
-                  literalStart + classStart + end + 1
-                ], fixedVariable);
-              },
-              loc: getExactClassLocation(literal, balancedContent),
-              message: "Incorrect variable syntax: \"{{ incorrectSyntax }}\"."
-            });
           }
         }
 
@@ -176,30 +145,18 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const end = start + balancedArbitraryContent.length + 2;
 
-            const fixedVariable = `(${balancedVariableContent})`;
+            const fixedVariable = `${className.slice(0, start)}(${balancedVariableContent})${className.slice(end)}`;
 
-            const incorrectSyntax = `[${balancedArbitraryContent}]`;
+            return {
+              fix: fixedVariable,
+              message: `Incorrect variable syntax: "${balancedArbitraryContent}".`
+            };
 
-            const [literalStart] = literal.range;
-
-            ctx.report({
-              data: {
-                incorrectSyntax
-              },
-              fix(fixer) {
-                return fixer.replaceTextRange([
-                  literalStart + classStart + start + 1,
-                  literalStart + classStart + end + 1
-                ], fixedVariable);
-              },
-              loc: getExactClassLocation(literal, incorrectSyntax, true),
-              message: "Incorrect variable syntax: \"{{ incorrectSyntax }}\"."
-            });
           }
         }
-      }
-    }
 
+      }
+    });
   }
 }
 

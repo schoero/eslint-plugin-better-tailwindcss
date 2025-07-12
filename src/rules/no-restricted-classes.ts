@@ -10,10 +10,10 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders } from "better-tailwindcss:utils/string.js";
-import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -117,33 +117,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const { restrict: restrictions } = getOptions(ctx);
 
   for(const literal of literals){
-    const classes = literal.content;
-
-    const classChunks = splitClasses(classes);
-    const whitespaceChunks = splitWhitespaces(classes);
-
-    const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
-
-    for(let classIndex = 0, literalIndex = 0; classIndex < classChunks.length; classIndex++){
-
-      const className = classChunks[classIndex];
-
-      if(startsWithWhitespace){
-        literalIndex += whitespaceChunks[classIndex].length;
-      }
-
-      const classStart = literalIndex;
-
-      literalIndex += className.length;
-
-      if(!startsWithWhitespace){
-        literalIndex += whitespaceChunks[classIndex + 1].length;
-      }
+    lintClasses(ctx, literal, (className, classes) => {
 
       for(const restriction of restrictions){
-
-        const pattern = typeof restriction === "string" ? restriction : restriction.pattern;
-        const message = typeof restriction === "string" ? undefined : restriction.message;
+        const pattern = typeof restriction === "string"
+          ? restriction
+          : restriction.pattern;
 
         const matches = className.match(pattern);
 
@@ -151,34 +130,29 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           continue;
         }
 
-        const [literalStart] = literal.range;
+        const message = typeof restriction === "string" || !restriction.message
+          ? `Restricted class: "${className}".`
+          : replacePlaceholders(restriction.message, matches);
 
-        ctx.report({
-          data: {
-            className
-          },
-          loc: getExactClassLocation(literal, className),
-          message: message
-            ? replacePlaceholders(message, matches)
-            : "Restricted class: \"{{ className }}\".",
+        if(typeof restriction === "string"){
+          return {
+            message
+          };
+        }
 
-          ...typeof restriction === "object" && restriction.fix !== undefined
-            ? {
-              fix: fixer => fixer.replaceTextRange(
-                [
-                  literalStart + classStart + 1,
-                  literalStart + classStart + className.length + 1
-                ],
-                replacePlaceholders(restriction.fix!, matches)
-              )
-            }
-            : {}
+        if(restriction.fix !== undefined){
+          return {
+            fix: replacePlaceholders(restriction.fix, matches),
+            message
+          };
+        }
 
-        });
+        return {
+          message
+        };
       }
-    }
+    });
   }
-
 }
 
 export function getOptions(ctx: Rule.RuleContext) {

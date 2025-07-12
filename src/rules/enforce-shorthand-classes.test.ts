@@ -52,17 +52,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="w-4 h-4" />`,
-            angularOutput: `<img class="size-4" />`,
+            angularOutput: `<img class="size-4 " />`,
             html: `<img class="w-4 h-4" />`,
-            htmlOutput: `<img class="size-4" />`,
+            htmlOutput: `<img class="size-4 " />`,
             jsx: `() => <img class="w-4 h-4" />`,
-            jsxOutput: `() => <img class="size-4" />`,
+            jsxOutput: `() => <img class="size-4 " />`,
             svelte: `<img class="w-4 h-4" />`,
-            svelteOutput: `<img class="size-4" />`,
+            svelteOutput: `<img class="size-4 " />`,
             vue: `<template><img class="w-4 h-4" /></template>`,
-            vueOutput: `<template><img class="size-4" /></template>`,
+            vueOutput: `<template><img class="size-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -95,17 +95,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="pt-4 pr-4 pb-4 pl-4" />`,
-            angularOutput: `<img class="p-4" />`,
+            angularOutput: `<img class="p-4   " />`,
             html: `<img class="pt-4 pr-4 pb-4 pl-4" />`,
-            htmlOutput: `<img class="p-4" />`,
+            htmlOutput: `<img class="p-4   " />`,
             jsx: `() => <img class="pt-4 pr-4 pb-4 pl-4" />`,
-            jsxOutput: `() => <img class="p-4" />`,
+            jsxOutput: `() => <img class="p-4   " />`,
             svelte: `<img class="pt-4 pr-4 pb-4 pl-4" />`,
-            svelteOutput: `<img class="p-4" />`,
+            svelteOutput: `<img class="p-4   " />`,
             vue: `<template><img class="pt-4 pr-4 pb-4 pl-4" /></template>`,
-            vueOutput: `<template><img class="p-4" /></template>`,
+            vueOutput: `<template><img class="p-4   " /></template>`,
 
-            errors: 1
+            errors: 4
           }
         ]
       }
@@ -120,17 +120,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="pt-4 pr-2 pb-4 pl-4" />`,
-            angularOutput: `<img class="py-4 pr-2 pl-4" />`,
+            angularOutput: `<img class="py-4 pr-2  pl-4" />`,
             html: `<img class="pt-4 pr-2 pb-4 pl-4" />`,
-            htmlOutput: `<img class="py-4 pr-2 pl-4" />`,
+            htmlOutput: `<img class="py-4 pr-2  pl-4" />`,
             jsx: `() => <img class="pt-4 pr-2 pb-4 pl-4" />`,
-            jsxOutput: `() => <img class="py-4 pr-2 pl-4" />`,
+            jsxOutput: `() => <img class="py-4 pr-2  pl-4" />`,
             svelte: `<img class="pt-4 pr-2 pb-4 pl-4" />`,
-            svelteOutput: `<img class="py-4 pr-2 pl-4" />`,
+            svelteOutput: `<img class="py-4 pr-2  pl-4" />`,
             vue: `<template><img class="pt-4 pr-2 pb-4 pl-4" /></template>`,
-            vueOutput: `<template><img class="py-4 pr-2 pl-4" /></template>`,
+            vueOutput: `<template><img class="py-4 pr-2  pl-4" /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -145,17 +145,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="hover:w-4 hover:h-4" />`,
-            angularOutput: `<img class="hover:size-4" />`,
+            angularOutput: `<img class="hover:size-4 " />`,
             html: `<img class="hover:w-4 hover:h-4" />`,
-            htmlOutput: `<img class="hover:size-4" />`,
+            htmlOutput: `<img class="hover:size-4 " />`,
             jsx: `() => <img class="hover:w-4 hover:h-4" />`,
-            jsxOutput: `() => <img class="hover:size-4" />`,
+            jsxOutput: `() => <img class="hover:size-4 " />`,
             svelte: `<img class="hover:w-4 hover:h-4" />`,
-            svelteOutput: `<img class="hover:size-4" />`,
+            svelteOutput: `<img class="hover:size-4 " />`,
             vue: `<template><img class="hover:w-4 hover:h-4" /></template>`,
-            vueOutput: `<template><img class="hover:size-4" /></template>`,
+            vueOutput: `<template><img class="hover:size-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -206,17 +206,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="w-[10px] h-[10px]" />`,
-            angularOutput: `<img class="size-[10px]" />`,
+            angularOutput: `<img class="size-[10px] " />`,
             html: `<img class="w-[10px] h-[10px]" />`,
-            htmlOutput: `<img class="size-[10px]" />`,
+            htmlOutput: `<img class="size-[10px] " />`,
             jsx: `() => <img class="w-[10px] h-[10px]" />`,
-            jsxOutput: `() => <img class="size-[10px]" />`,
+            jsxOutput: `() => <img class="size-[10px] " />`,
             svelte: `<img class="w-[10px] h-[10px]" />`,
-            svelteOutput: `<img class="size-[10px]" />`,
+            svelteOutput: `<img class="size-[10px] " />`,
             vue: `<template><img class="w-[10px] h-[10px]" /></template>`,
-            vueOutput: `<template><img class="size-[10px]" /></template>`,
+            vueOutput: `<template><img class="size-[10px] " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -249,17 +249,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
-            angularOutput: `<img class="sm:hover:size-4" />`,
+            angularOutput: `<img class="sm:hover:size-4 " />`,
             html: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
-            htmlOutput: `<img class="sm:hover:size-4" />`,
+            htmlOutput: `<img class="sm:hover:size-4 " />`,
             jsx: `() => <img class="sm:hover:w-4 sm:hover:h-4" />`,
-            jsxOutput: `() => <img class="sm:hover:size-4" />`,
+            jsxOutput: `() => <img class="sm:hover:size-4 " />`,
             svelte: `<img class="sm:hover:w-4 sm:hover:h-4" />`,
-            svelteOutput: `<img class="sm:hover:size-4" />`,
+            svelteOutput: `<img class="sm:hover:size-4 " />`,
             vue: `<template><img class="sm:hover:w-4 sm:hover:h-4" /></template>`,
-            vueOutput: `<template><img class="sm:hover:size-4" /></template>`,
+            vueOutput: `<template><img class="sm:hover:size-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -274,17 +274,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
-            angularOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            angularOutput: `<img class="ml-4 -mr-4 my-4 " />`,
             html: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
-            htmlOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            htmlOutput: `<img class="ml-4 -mr-4 my-4 " />`,
             jsx: `() => <img class="ml-4 -mr-4 mt-4 mb-4" />`,
-            jsxOutput: `() => <img class="ml-4 -mr-4 my-4" />`,
+            jsxOutput: `() => <img class="ml-4 -mr-4 my-4 " />`,
             svelte: `<img class="ml-4 -mr-4 mt-4 mb-4" />`,
-            svelteOutput: `<img class="ml-4 -mr-4 my-4" />`,
+            svelteOutput: `<img class="ml-4 -mr-4 my-4 " />`,
             vue: `<template><img class="ml-4 -mr-4 mt-4 mb-4" /></template>`,
-            vueOutput: `<template><img class="ml-4 -mr-4 my-4" /></template>`,
+            vueOutput: `<template><img class="ml-4 -mr-4 my-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -335,17 +335,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="w-4! !h-4" />`,
-            angularOutput: `<img class="size-4!" />`,
+            angularOutput: `<img class="size-4! " />`,
             html: `<img class="w-4! !h-4" />`,
-            htmlOutput: `<img class="size-4!" />`,
+            htmlOutput: `<img class="size-4! " />`,
             jsx: `() => <img class="w-4! !h-4" />`,
-            jsxOutput: `() => <img class="size-4!" />`,
+            jsxOutput: `() => <img class="size-4! " />`,
             svelte: `<img class="w-4! !h-4" />`,
-            svelteOutput: `<img class="size-4!" />`,
+            svelteOutput: `<img class="size-4! " />`,
             vue: `<template><img class="w-4! !h-4" /></template>`,
-            vueOutput: `<template><img class="size-4!" /></template>`,
+            vueOutput: `<template><img class="size-4! " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -360,17 +360,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="!w-4 !h-4" />`,
-            angularOutput: `<img class="!size-4" />`,
+            angularOutput: `<img class="!size-4 " />`,
             html: `<img class="!w-4 !h-4" />`,
-            htmlOutput: `<img class="!size-4" />`,
+            htmlOutput: `<img class="!size-4 " />`,
             jsx: `() => <img class="!w-4 !h-4" />`,
-            jsxOutput: `() => <img class="!size-4" />`,
+            jsxOutput: `() => <img class="!size-4 " />`,
             svelte: `<img class="!w-4 !h-4" />`,
-            svelteOutput: `<img class="!size-4" />`,
+            svelteOutput: `<img class="!size-4 " />`,
             vue: `<template><img class="!w-4 !h-4" /></template>`,
-            vueOutput: `<template><img class="!size-4" /></template>`,
+            vueOutput: `<template><img class="!size-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -385,17 +385,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="!w-4 !h-4" />`,
-            angularOutput: `<img class="!size-4" />`,
+            angularOutput: `<img class="!size-4 " />`,
             html: `<img class="!w-4 !h-4" />`,
-            htmlOutput: `<img class="!size-4" />`,
+            htmlOutput: `<img class="!size-4 " />`,
             jsx: `() => <img class="!w-4 !h-4" />`,
-            jsxOutput: `() => <img class="!size-4" />`,
+            jsxOutput: `() => <img class="!size-4 " />`,
             svelte: `<img class="!w-4 !h-4" />`,
-            svelteOutput: `<img class="!size-4" />`,
+            svelteOutput: `<img class="!size-4 " />`,
             vue: `<template><img class="!w-4 !h-4" /></template>`,
-            vueOutput: `<template><img class="!size-4" /></template>`,
+            vueOutput: `<template><img class="!size-4 " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -410,17 +410,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="w-4! h-4!" />`,
-            angularOutput: `<img class="size-4!" />`,
+            angularOutput: `<img class="size-4! " />`,
             html: `<img class="w-4! h-4!" />`,
-            htmlOutput: `<img class="size-4!" />`,
+            htmlOutput: `<img class="size-4! " />`,
             jsx: `() => <img class="w-4! h-4!" />`,
-            jsxOutput: `() => <img class="size-4!" />`,
+            jsxOutput: `() => <img class="size-4! " />`,
             svelte: `<img class="w-4! h-4!" />`,
-            svelteOutput: `<img class="size-4!" />`,
+            svelteOutput: `<img class="size-4! " />`,
             vue: `<template><img class="w-4! h-4!" /></template>`,
-            vueOutput: `<template><img class="size-4!" /></template>`,
+            vueOutput: `<template><img class="size-4! " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }
@@ -435,17 +435,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="tw-w-full tw-h-full" />`,
-            angularOutput: `<img class="tw-size-full" />`,
+            angularOutput: `<img class="tw-size-full " />`,
             html: `<img class="tw-w-full tw-h-full" />`,
-            htmlOutput: `<img class="tw-size-full" />`,
+            htmlOutput: `<img class="tw-size-full " />`,
             jsx: `() => <img class="tw-w-full tw-h-full" />`,
-            jsxOutput: `() => <img class="tw-size-full" />`,
+            jsxOutput: `() => <img class="tw-size-full " />`,
             svelte: `<img class="tw-w-full tw-h-full" />`,
-            svelteOutput: `<img class="tw-size-full" />`,
+            svelteOutput: `<img class="tw-size-full " />`,
             vue: `<template><img class="tw-w-full tw-h-full" /></template>`,
-            vueOutput: `<template><img class="tw-size-full" /></template>`,
+            vueOutput: `<template><img class="tw-size-full " /></template>`,
 
-            errors: 1,
+            errors: 2,
             files: {
               "tailwind.config.js": ts`
                 export default {
@@ -470,17 +470,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="tw:w-full tw:h-full" />`,
-            angularOutput: `<img class="tw:size-full" />`,
+            angularOutput: `<img class="tw:size-full " />`,
             html: `<img class="tw:w-full tw:h-full" />`,
-            htmlOutput: `<img class="tw:size-full" />`,
+            htmlOutput: `<img class="tw:size-full " />`,
             jsx: `() => <img class="tw:w-full tw:h-full" />`,
-            jsxOutput: `() => <img class="tw:size-full" />`,
+            jsxOutput: `() => <img class="tw:size-full " />`,
             svelte: `<img class="tw:w-full tw:h-full" />`,
-            svelteOutput: `<img class="tw:size-full" />`,
+            svelteOutput: `<img class="tw:size-full " />`,
             vue: `<template><img class="tw:w-full tw:h-full" /></template>`,
-            vueOutput: `<template><img class="tw:size-full" /></template>`,
+            vueOutput: `<template><img class="tw:size-full " /></template>`,
 
-            errors: 1,
+            errors: 2,
             files: {
               "tailwind.css": css`
                 @import "tailwindcss" prefix(tw);
@@ -539,17 +539,17 @@ describe(enforceShorthandClasses.name, () => {
         invalid: [
           {
             angular: `<img class="size-4 w-4 h-4" />`,
-            angularOutput: `<img class="size-4" />`,
+            angularOutput: `<img class="size-4  " />`,
             html: `<img class="size-4 w-4 h-4" />`,
-            htmlOutput: `<img class="size-4" />`,
+            htmlOutput: `<img class="size-4  " />`,
             jsx: `() => <img class="size-4 w-4 h-4" />`,
-            jsxOutput: `() => <img class="size-4" />`,
+            jsxOutput: `() => <img class="size-4  " />`,
             svelte: `<img class="size-4 w-4 h-4" />`,
-            svelteOutput: `<img class="size-4" />`,
+            svelteOutput: `<img class="size-4  " />`,
             vue: `<template><img class="size-4 w-4 h-4" /></template>`,
-            vueOutput: `<template><img class="size-4" /></template>`,
+            vueOutput: `<template><img class="size-4  " /></template>`,
 
-            errors: 1
+            errors: 2
           }
         ]
       }

@@ -15,15 +15,10 @@ import {
 import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import {
-  augmentMessageWithWarnings,
-  display,
-  escapeForRegex,
-  getExactClassLocation,
-  splitClasses
-} from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, escapeForRegex, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -129,29 +124,30 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       continue;
     }
 
-    for(const unregisteredClass of unregisteredClasses){
-      if(
-        ignore.some(ignoredClass => unregisteredClass.match(ignoredClass)) ||
-        customComponentClasses.includes(unregisteredClass) ||
-        unregisteredClass.match(ignoredGroups) ||
-        unregisteredClass.match(ignoredPeers)
-      ){
-        continue;
+    lintClasses(ctx, literal, className => {
+
+      if(!unregisteredClasses.includes(className)){
+        return;
       }
 
-      ctx.report({
-        data: {
-          unregistered: display(unregisteredClass)
-        },
-        loc: getExactClassLocation(literal, unregisteredClass),
+      if(
+        ignore.some(ignoredClass => className.match(ignoredClass)) ||
+        customComponentClasses.includes(className) ||
+        className.match(ignoredGroups) ||
+        className.match(ignoredPeers)
+      ){
+        return;
+      }
+
+      return {
         message: augmentMessageWithWarnings(
-          "Unregistered class detected: {{ unregistered }}",
+          `Unregistered class detected: ${className}`,
           DOCUMENTATION_URL,
           warnings
         )
-      });
-    }
+      };
 
+    });
   }
 }
 

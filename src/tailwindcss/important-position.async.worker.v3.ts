@@ -6,7 +6,7 @@ import { getImportantPosition } from "./important-position.async.v3.js";
 import type { GetImportantPositionRequest } from "./important-position.js";
 
 
-runAsWorker(async ({ classes, configPath }: GetImportantPositionRequest) => {
+runAsWorker(async ({ classes, configPath, position }: GetImportantPositionRequest) => {
   const context = await createTailwindContext(configPath);
-  return getImportantPosition(context, classes);
+  return getImportantPosition(context, classes, position);
 });

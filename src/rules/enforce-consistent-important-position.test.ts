@@ -1,0 +1,505 @@
+import { describe, it } from "vitest";
+
+import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
+import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { css, ts } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+
+
+describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(enforceConsistentImportantPosition.name, () => {
+
+  it(`should move the important modifier to the end when position is set to "recommended"`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-4" />`,
+            angularOutput: `<img class="w-4!" />`,
+            html: `<img class="!w-4" />`,
+            htmlOutput: `<img class="w-4!" />`,
+            jsx: `() => <img class="!w-4" />`,
+            jsxOutput: `() => <img class="w-4!" />`,
+            svelte: `<img class="!w-4" />`,
+            svelteOutput: `<img class="w-4!" />`,
+            vue: `<template><img class="!w-4" /></template>`,
+            vueOutput: `<template><img class="w-4!" /></template>`,
+
+            errors: 1,
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should move the important modifier to the beginning when position is set to "legacy"`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-4!" />`,
+            angularOutput: `<img class="!w-4" />`,
+            html: `<img class="w-4!" />`,
+            htmlOutput: `<img class="!w-4" />`,
+            jsx: `() => <img class="w-4!" />`,
+            jsxOutput: `() => <img class="!w-4" />`,
+            svelte: `<img class="w-4!" />`,
+            svelteOutput: `<img class="!w-4" />`,
+            vue: `<template><img class="w-4!" /></template>`,
+            vueOutput: `<template><img class="!w-4" /></template>`,
+
+            errors: 1,
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle classes with variants correctly for "recommended" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="hover:!text-red-500" />`,
+            angularOutput: `<img class="hover:text-red-500!" />`,
+            html: `<img class="hover:!text-red-500" />`,
+            htmlOutput: `<img class="hover:text-red-500!" />`,
+            jsx: `() => <img class="hover:!text-red-500" />`,
+            jsxOutput: `() => <img class="hover:text-red-500!" />`,
+            svelte: `<img class="hover:!text-red-500" />`,
+            svelteOutput: `<img class="hover:text-red-500!" />`,
+            vue: `<template><img class="hover:!text-red-500" /></template>`,
+            vueOutput: `<template><img class="hover:text-red-500!" /></template>`,
+
+            errors: 1,
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle classes with variants correctly for "legacy" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="hover:text-red-500!" />`,
+            angularOutput: `<img class="hover:!text-red-500" />`,
+            html: `<img class="hover:text-red-500!" />`,
+            htmlOutput: `<img class="hover:!text-red-500" />`,
+            jsx: `() => <img class="hover:text-red-500!" />`,
+            jsxOutput: `() => <img class="hover:!text-red-500" />`,
+            svelte: `<img class="hover:text-red-500!" />`,
+            svelteOutput: `<img class="hover:!text-red-500" />`,
+            vue: `<template><img class="hover:text-red-500!" /></template>`,
+            vueOutput: `<template><img class="hover:!text-red-500" /></template>`,
+
+            errors: 1,
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle multiple variants correctly for "recommended" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="sm:hover:!bg-blue-500" />`,
+            angularOutput: `<img class="sm:hover:bg-blue-500!" />`,
+            html: `<img class="sm:hover:!bg-blue-500" />`,
+            htmlOutput: `<img class="sm:hover:bg-blue-500!" />`,
+            jsx: `() => <img class="sm:hover:!bg-blue-500" />`,
+            jsxOutput: `() => <img class="sm:hover:bg-blue-500!" />`,
+            svelte: `<img class="sm:hover:!bg-blue-500" />`,
+            svelteOutput: `<img class="sm:hover:bg-blue-500!" />`,
+            vue: `<template><img class="sm:hover:!bg-blue-500" /></template>`,
+            vueOutput: `<template><img class="sm:hover:bg-blue-500!" /></template>`,
+
+            errors: 1,
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle multiple variants correctly for "legacy" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="sm:hover:bg-blue-500!" />`,
+            angularOutput: `<img class="sm:hover:!bg-blue-500" />`,
+            html: `<img class="sm:hover:bg-blue-500!" />`,
+            htmlOutput: `<img class="sm:hover:!bg-blue-500" />`,
+            jsx: `() => <img class="sm:hover:bg-blue-500!" />`,
+            jsxOutput: `() => <img class="sm:hover:!bg-blue-500" />`,
+            svelte: `<img class="sm:hover:bg-blue-500!" />`,
+            svelteOutput: `<img class="sm:hover:!bg-blue-500" />`,
+            vue: `<template><img class="sm:hover:bg-blue-500!" /></template>`,
+            vueOutput: `<template><img class="sm:hover:!bg-blue-500" /></template>`,
+
+            errors: 1,
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle multiple classes with mixed important positions for "recommended"`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-4 hover:text-red-500! normal-class" />`,
+            angularOutput: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            html: `<img class="!w-4 hover:text-red-500! normal-class" />`,
+            htmlOutput: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            jsx: `() => <img class="!w-4 hover:text-red-500! normal-class" />`,
+            jsxOutput: `() => <img class="w-4! hover:text-red-500! normal-class" />`,
+            svelte: `<img class="!w-4 hover:text-red-500! normal-class" />`,
+            svelteOutput: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            vue: `<template><img class="!w-4 hover:text-red-500! normal-class" /></template>`,
+            vueOutput: `<template><img class="w-4! hover:text-red-500! normal-class" /></template>`,
+
+            errors: 1,
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle multiple classes with mixed important positions for "legacy"`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-4! hover:!text-red-500 normal-class" />`,
+            angularOutput: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            html: `<img class="w-4! hover:!text-red-500 normal-class" />`,
+            htmlOutput: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            jsx: `() => <img class="w-4! hover:!text-red-500 normal-class" />`,
+            jsxOutput: `() => <img class="!w-4 hover:!text-red-500 normal-class" />`,
+            svelte: `<img class="w-4! hover:!text-red-500 normal-class" />`,
+            svelteOutput: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            vue: `<template><img class="w-4! hover:!text-red-500 normal-class" /></template>`,
+            vueOutput: `<template><img class="!w-4 hover:!text-red-500 normal-class" /></template>`,
+
+            errors: 1,
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle arbitrary values correctly for "recommended" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-[100px]" />`,
+            angularOutput: `<img class="w-[100px]!" />`,
+            html: `<img class="!w-[100px]" />`,
+            htmlOutput: `<img class="w-[100px]!" />`,
+            jsx: `() => <img class="!w-[100px]" />`,
+            jsxOutput: `() => <img class="w-[100px]!" />`,
+            svelte: `<img class="!w-[100px]" />`,
+            svelteOutput: `<img class="w-[100px]!" />`,
+            vue: `<template><img class="!w-[100px]" /></template>`,
+            vueOutput: `<template><img class="w-[100px]!" /></template>`,
+
+            errors: 1,
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should handle arbitrary values correctly for "legacy" position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-[100px]!" />`,
+            angularOutput: `<img class="!w-[100px]" />`,
+            html: `<img class="w-[100px]!" />`,
+            htmlOutput: `<img class="!w-[100px]" />`,
+            jsx: `() => <img class="w-[100px]!" />`,
+            jsxOutput: `() => <img class="!w-[100px]" />`,
+            svelte: `<img class="w-[100px]!" />`,
+            svelteOutput: `<img class="!w-[100px]" />`,
+            vue: `<template><img class="w-[100px]!" /></template>`,
+            vueOutput: `<template><img class="!w-[100px]" /></template>`,
+
+            errors: 1,
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should not report errors for correctly positioned important modifiers in "recommended" mode`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            html: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            jsx: `() => <img class="w-4! hover:text-red-500! normal-class" />`,
+            svelte: `<img class="w-4! hover:text-red-500! normal-class" />`,
+            vue: `<template><img class="w-4! hover:text-red-500! normal-class" /></template>`,
+
+            options: [{ position: "recommended" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should not report errors for correctly positioned important modifiers in "legacy" mode`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            html: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            jsx: `() => <img class="!w-4 hover:!text-red-500 normal-class" />`,
+            svelte: `<img class="!w-4 hover:!text-red-500 normal-class" />`,
+            vue: `<template><img class="!w-4 hover:!text-red-500 normal-class" /></template>`,
+
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should not report errors for classes without important modifiers`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            html: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            jsx: `() => <img class="w-4 hover:text-red-500 normal-class" />`,
+            svelte: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            vue: `<template><img class="w-4 hover:text-red-500 normal-class" /></template>`,
+
+            options: [{ position: "recommended" }]
+          },
+          {
+            angular: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            html: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            jsx: `() => <img class="w-4 hover:text-red-500 normal-class" />`,
+            svelte: `<img class="w-4 hover:text-red-500 normal-class" />`,
+            vue: `<template><img class="w-4 hover:text-red-500 normal-class" /></template>`,
+
+            options: [{ position: "legacy" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should use "recommended" as default position when no option is provided`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!w-4" />`,
+            angularOutput: `<img class="w-4!" />`,
+            html: `<img class="!w-4" />`,
+            htmlOutput: `<img class="w-4!" />`,
+            jsx: `() => <img class="!w-4" />`,
+            jsxOutput: `() => <img class="w-4!" />`,
+            svelte: `<img class="!w-4" />`,
+            svelteOutput: `<img class="w-4!" />`,
+            vue: `<template><img class="!w-4" /></template>`,
+            vueOutput: `<template><img class="w-4!" /></template>`,
+
+            errors: 1
+            // No options provided - should default to "recommended"
+          }
+        ]
+      }
+    );
+  });
+
+  it(`should keep modifiers in the correct position when changing the important position`, () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!bg-red-500/50" />`,
+            angularOutput: `<img class="bg-red-500/50!" />`,
+            html: `<img class="!bg-red-500/50" />`,
+            htmlOutput: `<img class="bg-red-500/50!" />`,
+            jsx: `() => <img class="!bg-red-500/50" />`,
+            jsxOutput: `() => <img class="bg-red-500/50!" />`,
+            svelte: `<img class="!bg-red-500/50" />`,
+            svelteOutput: `<img class="bg-red-500/50!" />`,
+            vue: `<template><img class="!bg-red-500/50" /></template>`,
+            vueOutput: `<template><img class="bg-red-500/50!" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should prefixed tailwind classes in tailwind <= 3", () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="!tw-w-4" />`,
+            angularOutput: `<img class="!tw-w-4!" />`,
+            html: `<img class="!tw-w-4" />`,
+            htmlOutput: `<img class="!tw-w-4!" />`,
+            jsx: `() => <img class="!tw-w-4" />`,
+            jsxOutput: `() => <img class="!tw-w-4!" />`,
+            svelte: `<img class="!tw-w-4" />`,
+            svelteOutput: `<img class="!tw-w-4!" />`,
+            vue: `<template><img class="!tw-w-4" /></template>`,
+            vueOutput: `<template><img class="!tw-w-4!" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          },
+          {
+            angular: `<img class="hover:!tw-w-4" />`,
+            angularOutput: `<img class="hover:!tw-w-4!" />`,
+            html: `<img class="hover:!tw-w-4" />`,
+            htmlOutput: `<img class="hover:!tw-w-4!" />`,
+            jsx: `() => <img class="hover:!tw-w-4" />`,
+            jsxOutput: `() => <img class="hover:!tw-w-4!" />`,
+            svelte: `<img class="hover:!tw-w-4" />`,
+            svelteOutput: `<img class="hover:!tw-w-4!" />`,
+            vue: `<template><img class="hover:!tw-w-4" /></template>`,
+            vueOutput: `<template><img class="hover:!tw-w-4!" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.config.js": ts`
+                export default {
+                  prefix: 'tw-',
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
+    lint(
+      enforceConsistentImportantPosition,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="tw:!w-4" />`,
+            angularOutput: `<img class="tw:w-4!" />`,
+            html: `<img class="tw:!w-4" />`,
+            htmlOutput: `<img class="tw:w-4!" />`,
+            jsx: `() => <img class="tw:!w-4" />`,
+            jsxOutput: `() => <img class="tw:w-4!" />`,
+            svelte: `<img class="tw:!w-4" />`,
+            svelteOutput: `<img class="tw:w-4!" />`,
+            vue: `<template><img class="tw:!w-4" /></template>`,
+            vueOutput: `<template><img class="tw:w-4!" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="tw:hover:!w-4" />`,
+            angularOutput: `<img class="tw:hover:w-4!" />`,
+            html: `<img class="tw:hover:!w-4" />`,
+            htmlOutput: `<img class="tw:hover:w-4!" />`,
+            jsx: `() => <img class="tw:hover:!w-4" />`,
+            jsxOutput: `() => <img class="tw:hover:w-4!" />`,
+            svelte: `<img class="tw:hover:!w-4" />`,
+            svelteOutput: `<img class="tw:hover:w-4!" />`,
+            vue: `<template><img class="tw:hover:!w-4" /></template>`,
+            vueOutput: `<template><img class="tw:hover:w-4!" /></template>`,
+
+            errors: 1,
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+});

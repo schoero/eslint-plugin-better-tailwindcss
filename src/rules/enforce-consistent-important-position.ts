@@ -12,15 +12,16 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getImportantPosition } from "better-tailwindcss:tailwindcss/important-position.js";
+import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
 import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 import type { Rule } from "eslint";
 
-import type { Position } from "better-tailwindcss:tailwindcss/important-position.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeOption,
@@ -39,7 +40,7 @@ export type Options = [
     VariableOption &
     {
       entryPoint?: string;
-      position?: Position;
+      position?: "legacy" | "recommended";
       tailwindConfig?: string;
     }
   >
@@ -94,22 +95,45 @@ export const enforceConsistentImportantPosition: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const { position, tailwindConfig } = getOptions(ctx);
+  const { major } = getTailwindcssVersion();
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { importantPosition, warnings } = getImportantPosition({ classes, configPath: tailwindConfig, cwd: ctx.cwd, position });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
     lintClasses(ctx, literal, (className, index, after) => {
-      if(!(className in importantPosition)){
+      const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
+
+      if(!dissectedClass){
         return;
       }
 
+      const [importantAtStart, importantAtEnd] = dissectedClass.important;
+
+      if(!importantAtStart && !importantAtEnd ||
+        position === "legacy" && importantAtStart ||
+        position === "recommended" && importantAtEnd
+      ){
+        return;
+      }
+
+      if(major <= TailwindcssVersion.V3 && position === "recommended"){
+        warnings.push({
+          option: "position",
+          title: `The "${position}" position is not supported in Tailwind CSS v3`
+        });
+      }
+
+      const fix = position === "recommended"
+        ? buildClass({ ...dissectedClass, important: [false, true] })
+        : buildClass({ ...dissectedClass, important: [true, false] });
+
       return {
-        fix: importantPosition[className],
+        fix,
         message: augmentMessageWithWarnings(
-          `Incorrect important position. "${className}" should be "${importantPosition[className]}".`,
+          `Incorrect important position. "${className}" should be "${fix}".`,
           DOCUMENTATION_URL,
           warnings
         )
@@ -124,7 +148,7 @@ export function getOptions(ctx: Rule.RuleContext) {
 
   const common = getCommonOptions(ctx);
 
-  const position = options.position;
+  const position = options.position ?? (getTailwindcssVersion().major === TailwindcssVersion.V3 ? "legacy" : "recommended");
 
   return {
     ...common,

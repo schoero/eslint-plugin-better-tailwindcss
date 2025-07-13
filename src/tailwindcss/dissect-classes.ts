@@ -9,30 +9,37 @@ import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 import type { Async } from "better-tailwindcss:types/async.js";
 
 
-export type Shorthands = [classes: string[], shorthand: string[]][][];
-
-export interface GetShorthandClassesRequest {
+export interface GetDissectedClassRequest {
   classes: string[];
   configPath: string;
 }
 
-export type GetShorthandClassesResponse = [classNames: string[], shorthands: string[]][];
-
-
-export function getShorthandClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
-  const { path, warning } = getTailwindConfigPath({ configPath, cwd });
-  const shorthandClasses = getShorthandClassesSync({ classes, configPath: path });
-
-  return { shorthandClasses, warnings: [warning] };
+export interface DissectedClass {
+  base: string;
+  className: string;
+  important: [start: boolean, end: boolean];
+  negative: boolean;
+  prefix: string;
+  separator: string;
+  variants: string[];
 }
 
-const getShorthandClassesSync = createSyncFn<
-  Async<GetShorthandClassesRequest, GetShorthandClassesResponse>
+export type GetDissectedClassResponse = DissectedClass[];
+
+export function getDissectedClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
+  const { path, warning } = getTailwindConfigPath({ configPath, cwd });
+  const dissectedClasses = getDissectedClassesSync({ classes, configPath: path });
+
+  return { dissectedClasses, warnings: [warning] };
+}
+
+const getDissectedClassesSync = createSyncFn<
+  Async<GetDissectedClassRequest, GetDissectedClassResponse>
 >(getWorkerPath(), getWorkerOptions());
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./shorthand-classes.async.worker.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./dissect-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

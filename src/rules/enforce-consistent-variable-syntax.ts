@@ -85,10 +85,11 @@ export const enforceConsistentVariableSyntax: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
+  const { syntax } = getOptions(ctx);
+
   for(const literal of literals){
 
     lintClasses(ctx, literal, className => {
-      const { syntax } = getOptions(ctx);
 
       for(
         let i = 0,

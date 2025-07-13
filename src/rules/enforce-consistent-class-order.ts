@@ -13,7 +13,7 @@ import {
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
-import { getClassVariants } from "better-tailwindcss:tailwindcss/class-variants.js";
+import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -185,7 +185,7 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
   }
 
   const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-  const { classVariants } = getClassVariants({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+  const { dissectedClasses } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
   const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {
@@ -203,7 +203,8 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
   const groupedByVariant = new Map<string, string[]>();
 
   for(const className of officiallySortedClasses){
-    const variants = classVariants.find(([name]) => name === className)?.[1]?.join(":") ?? "";
+    const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
+    const variants = dissectedClass?.variants.join(":") ?? "";
     groupedByVariant.set(variants, [...groupedByVariant.get(variants) ?? [], className]);
   }
 

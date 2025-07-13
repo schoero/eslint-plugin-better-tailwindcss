@@ -13,7 +13,7 @@ import {
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { replacePlaceholders } from "better-tailwindcss:utils/string.js";
+import { replacePlaceholders } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 

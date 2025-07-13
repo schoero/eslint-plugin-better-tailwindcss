@@ -12,11 +12,12 @@ import {
   TAILWIND_CONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getDeprecatedClasses } from "better-tailwindcss:tailwindcss/deprecated-classes.js";
+import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -83,6 +84,29 @@ export const noDeprecatedClasses: ESLintRule<Options> = {
   }
 };
 
+const deprecations = [
+  [/^shadow$/, "shadow-sm"],
+  [/^drop-shadow$/, "drop-shadow-sm"],
+  [/^blur$/, "blur-sm"],
+  [/^backdrop-blur$/, "backdrop-blur-sm"],
+  [/^rounded$/, "rounded-sm"],
+
+  [/^bg-opacity-(.*)$/],
+  [/^text-opacity-(.*)$/],
+  [/^border-opacity-(.*)$/],
+  [/^divide-opacity-(.*)$/],
+  [/^ring-opacity-(.*)$/],
+  [/^placeholder-opacity-(.*)$/],
+
+  [/^flex-shrink-(.*)$/, "shrink-$1"],
+  [/^flex-grow-(.*)$/, "grow-$1"],
+
+  [/^overflow-ellipsis$/, "text-ellipsis"],
+
+  [/^decoration-slice$/, "box-decoration-slice"],
+  [/^decoration-clone$/, "box-decoration-clone"]
+] satisfies [before: RegExp, after?: string][];
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const { tailwindConfig } = getOptions(ctx);
@@ -91,35 +115,44 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const classes = splitClasses(literal.content);
 
-    const { deprecatedClasses, warnings } = getDeprecatedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
-    lintClasses(ctx, literal, (className, index, after) => {
-      if(!(className in deprecatedClasses)){
+    lintClasses(ctx, literal, className => {
+      const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
+
+      if(!dissectedClass){
         return;
       }
 
-      const replacement = deprecatedClasses[className];
+      for(const [pattern, replacement] of deprecations){
+        const match = dissectedClass.base.match(pattern);
 
-      if(!replacement){
+        if(!match){
+          continue;
+        }
+
+        if(!replacement){
+          return {
+            message: augmentMessageWithWarnings(
+              `Class "${className}" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities`,
+              DOCUMENTATION_URL,
+              warnings
+            )
+          };
+        }
+
+        const fix = buildClass({ ...dissectedClass, base: replacePlaceholders(replacement, match) });
+
         return {
+          fix,
           message: augmentMessageWithWarnings(
-            `Class "${className}" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities`,
+            `Deprecated class detected. Replace "${className}" with ${fix}.`,
             DOCUMENTATION_URL,
             warnings
           )
         };
-      }
 
-      return {
-        message: augmentMessageWithWarnings(
-          `Deprecated class detected. Replace "${className}" with ${replacement}.`,
-          DOCUMENTATION_URL,
-          warnings
-        ),
-        ...replacement && {
-          fix: replacement
-        }
-      };
+      }
     });
 
   }

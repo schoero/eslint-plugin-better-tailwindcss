@@ -29,7 +29,6 @@ The following classes will be reported as deprecated:
 | `blur`                   | `blur-sm`                |
 | `backdrop-blur`          | `backdrop-blur-sm`       |
 | `rounded`                | `rounded-sm`             |
-| `outline-none`           | `outline-hidden`         |
 
 <br/>
 

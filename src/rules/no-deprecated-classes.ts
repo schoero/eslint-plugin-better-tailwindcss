@@ -91,12 +91,12 @@ const deprecations = [
   [/^backdrop-blur$/, "backdrop-blur-sm"],
   [/^rounded$/, "rounded-sm"],
 
-  [/^bg-opacity-(.*)/],
-  [/^text-opacity-(.*)/],
-  [/^border-opacity-(.*)/],
-  [/^divide-opacity-(.*)/],
-  [/^ring-opacity-(.*)/],
-  [/^placeholder-opacity-(.*)/],
+  [/^bg-opacity-(.*)$/],
+  [/^text-opacity-(.*)$/],
+  [/^border-opacity-(.*)$/],
+  [/^divide-opacity-(.*)$/],
+  [/^ring-opacity-(.*)$/],
+  [/^placeholder-opacity-(.*)$/],
 
   [/^flex-shrink-(.*)$/, "shrink-$1"],
   [/^flex-grow-(.*)$/, "grow-$1"],

@@ -48,32 +48,27 @@ export function getDeprecatedClasses(context: any, classes: string[]): GetDeprec
     const isImportantAtEnd = base.endsWith("!");
     base = base.replace(/!$/, "");
 
-    const deprecations = getDeprecations(base);
-
     const importantAtStart = isImportantAtStart && "!";
     const importantAtEnd = isImportantAtEnd && "!";
 
-    acc[className] = deprecations
-      ? [
-        prefix,
-        ...classVariants,
-        [importantAtStart, deprecations, importantAtEnd].filter(Boolean).join("")
-      ].filter(Boolean).join(separator)
-      : undefined;
+    for(const [classPattern, replacement] of deprecated){
+      const match = base.match(new RegExp(classPattern));
+
+      if(!match){
+        continue;
+      }
+
+      acc[className] = replacement
+        ? [
+          prefix,
+          ...classVariants,
+          [importantAtStart, replacePlaceholders(replacement, match), importantAtEnd].filter(Boolean).join("")
+        ].filter(Boolean).join(separator)
+        : undefined;
+
+      break;
+    }
 
     return acc;
   }, {});
-}
-
-
-function getDeprecations(className: string) {
-  for(const [classPattern, replacement] of deprecated){
-    const match = className.match(new RegExp(classPattern));
-
-    if(!match){
-      continue;
-    }
-
-    return replacement && replacePlaceholders(replacement, match);
-  }
 }

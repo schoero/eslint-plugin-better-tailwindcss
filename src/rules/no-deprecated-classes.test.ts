@@ -8,6 +8,24 @@ import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:ut
 
 describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDeprecatedClasses.name, () => {
 
+  it("should not report valid classes", () => {
+    lint(
+      noDeprecatedClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="shadow-sm font-bold bg-black/50 shrink-1 text-ellipsis" />`,
+            html: `<img class="shadow-sm font-bold bg-black/50 shrink-1 text-ellipsis" />`,
+            jsx: `() => <img class="shadow-sm font-bold bg-black/50 shrink-1 text-ellipsis" />`,
+            svelte: `<img class="shadow-sm font-bold bg-black/50 shrink-1 text-ellipsis" />`,
+            vue: `<template><img class="shadow-sm font-bold bg-black/50 shrink-1 text-ellipsis" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
   it("should fix replaceable deprecated classes", () => {
     lint(
       noDeprecatedClasses,

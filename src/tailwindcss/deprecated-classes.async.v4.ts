@@ -54,9 +54,11 @@ export function getDeprecatedClasses(context: any, classes: string[]): GetDeprec
     const importantAtEnd = isImportantAtEnd && "!";
 
     acc[className] = deprecations
-      ? [prefix,
+      ? [
+        prefix,
         ...classVariants,
-        [importantAtStart, deprecations, importantAtEnd].filter(Boolean).join("")].filter(Boolean).join(separator)
+        [importantAtStart, deprecations, importantAtEnd].filter(Boolean).join("")
+      ].filter(Boolean).join(separator)
       : undefined;
 
     return acc;

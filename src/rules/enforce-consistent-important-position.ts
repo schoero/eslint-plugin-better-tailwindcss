@@ -20,6 +20,7 @@ import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:uti
 
 import type { Rule } from "eslint";
 
+import type { Position } from "better-tailwindcss:tailwindcss/important-position.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeOption,
@@ -30,8 +31,6 @@ import type {
 } from "better-tailwindcss:types/rule.js";
 
 
-export type ImportantPosition = "legacy" | "recommended";
-
 export type Options = [
   Partial<
     AttributeOption &
@@ -40,7 +39,7 @@ export type Options = [
     VariableOption &
     {
       entryPoint?: string;
-      position?: ImportantPosition;
+      position?: Position;
       tailwindConfig?: string;
     }
   >

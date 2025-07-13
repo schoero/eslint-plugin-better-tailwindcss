@@ -1,10 +1,10 @@
 import { getClassVariants } from "./class-variants.async.v4.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
-import type { GetImportantPositionResponse } from "./important-position.js";
+import type { GetImportantPositionResponse, Position } from "./important-position.js";
 
 
-export function getImportantPosition(context: any, classes: string[], position: "legacy" | "recommended"): GetImportantPositionResponse {
+export function getImportantPosition(context: any, classes: string[], position: Position): GetImportantPositionResponse {
   const variants = getClassVariants(context, classes);
   const prefix = getPrefix(context);
   const separator = ":";

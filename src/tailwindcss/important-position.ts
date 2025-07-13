@@ -10,18 +10,18 @@ import type { Async } from "better-tailwindcss:types/async.js";
 import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
-export type Shorthands = [classes: string[], shorthand: string[]][][];
+export type Position = "legacy" | "recommended";
 
 export interface GetImportantPositionRequest {
   classes: string[];
   configPath: string;
-  position: "legacy" | "recommended";
+  position: Position;
 }
 
 export type GetImportantPositionResponse = { [className: string]: string; };
 
 
-export function getImportantPosition({ classes, configPath, cwd, position }: { classes: string[]; configPath: string | undefined; cwd: string; position?: "legacy" | "recommended"; }) {
+export function getImportantPosition({ classes, configPath, cwd, position }: { classes: string[]; configPath: string | undefined; cwd: string; position?: Position; }) {
   const { path, warning } = getTailwindConfigPath({ configPath, cwd });
   const defaultPosition = getDefaultPosition();
   const positionWarning = getPositionWarning(position ?? defaultPosition);
@@ -34,7 +34,7 @@ const getImportantPositionSync = createSyncFn<
   Async<GetImportantPositionRequest, GetImportantPositionResponse>
 >(getWorkerPath(), getWorkerOptions());
 
-function getPositionWarning(position: "legacy" | "recommended"): Warning | undefined {
+function getPositionWarning(position: Position): Warning | undefined {
   const { major } = getTailwindcssVersion();
   if(major === 3 && position === "recommended"){
     return {
@@ -44,7 +44,7 @@ function getPositionWarning(position: "legacy" | "recommended"): Warning | undef
   }
 }
 
-function getDefaultPosition(): "legacy" | "recommended" {
+function getDefaultPosition(): Position {
   const { major } = getTailwindcssVersion();
   return major === 3 ? "legacy" : "recommended";
 }

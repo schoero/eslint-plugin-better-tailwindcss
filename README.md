@@ -153,6 +153,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 | [enforce-consistent-important-position](docs/rules/enforce-consistent-important-position.md) | Enforce consistent position of the important modifier. | ✔ | ✔ |  | ✔ |
 | [enforce-shorthand-classes](docs/rules/enforce-shorthand-classes.md) | Enforce shorthand class names. | ✔ | ✔ |  | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
+| [no-deprecated-classes](docs/rules/no-deprecated-classes.md) | Remove deprecated classes. |  | ✔ |  | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 
 #### Correctness rules

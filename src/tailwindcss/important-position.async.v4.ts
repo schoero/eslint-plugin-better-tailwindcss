@@ -32,11 +32,19 @@ export function getImportantPosition(context: any, classes: string[], position: 
     }
 
     if(isImportantAtStart && position === "recommended"){
-      acc[className] = [[prefix, ...classVariants, base].filter(Boolean).join(separator), "!"].join("");
+      acc[className] = [
+        prefix,
+        ...classVariants,
+        [base, "!"].join("")
+      ].filter(Boolean).join(separator);
     }
 
     if(isImportantAtEnd && position === "legacy"){
-      acc[className] = [[prefix, ...classVariants, "!"].filter(Boolean).join(separator), base].join("");
+      acc[className] = [
+        prefix,
+        ...classVariants,
+        ["!", base].join("")
+      ].filter(Boolean).join(separator);
     }
 
     return acc;

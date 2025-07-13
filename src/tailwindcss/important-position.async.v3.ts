@@ -36,7 +36,10 @@ export function getImportantPosition(context: any, classes: string[], position: 
     }
 
     if(isImportantAtEnd && position === "legacy"){
-      acc[className] = [[...classVariants, "!"].filter(Boolean).join(separator), prefix, base].join("");
+      acc[className] = [
+        ...classVariants,
+        ["!", prefix, base].join("")
+      ].filter(Boolean).join(separator);
     }
 
     return acc;

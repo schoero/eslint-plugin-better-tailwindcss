@@ -217,7 +217,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           return {
             fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
             message: augmentMessageWithWarnings(
-              `Non shorthand class detected. Expected ${longhandClasses.join(" ")} to be ${shorthands.join(" ")}}`,
+              `Non shorthand class detected. Expected ${longhandClasses.join(" ")} to be ${shorthands.join(" ")}`,
               DOCUMENTATION_URL,
               warnings
             )

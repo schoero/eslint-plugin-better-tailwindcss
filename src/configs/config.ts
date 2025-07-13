@@ -1,10 +1,12 @@
 import { multiline } from "better-tailwindcss:rules/deprecated/multiline.js";
 import { sortClasses } from "better-tailwindcss:rules/deprecated/sort-classes.js";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforce-consistent-variable-syntax.js";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
+import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
 import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
@@ -22,10 +24,12 @@ const plugin = {
     [sortClasses.name]: sortClasses.rule,
 
     [enforceConsistentClassOrder.name]: enforceConsistentClassOrder.rule,
+    [enforceConsistentImportantPosition.name]: enforceConsistentImportantPosition.rule,
     [enforceConsistentLineWrapping.name]: enforceConsistentLineWrapping.rule,
     [enforceConsistentVariableSyntax.name]: enforceConsistentVariableSyntax.rule,
     [enforceShorthandClasses.name]: enforceShorthandClasses.rule,
     [noConflictingClasses.name]: noConflictingClasses.rule,
+    [noDeprecatedClasses.name]: noDeprecatedClasses.rule,
     [noDuplicateClasses.name]: noDuplicateClasses.rule,
     [noRestrictedClasses.name]: noRestrictedClasses.rule,
     [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule,

@@ -33,7 +33,7 @@ import type {
 } from "better-tailwindcss:types/rule.js";
 
 
-export type Shorthands = [classes: string[], shorthand: string[]][];
+export type Shorthands = [RegExp[], string[]][][];
 
 export type Options = [
   Partial<
@@ -171,7 +171,7 @@ export const shorthands = [
   [
     [[/^overflow-hidden/, /^text-ellipsis/, /^whitespace-nowrap/], ["truncate"]]
   ]
-] satisfies [RegExp[], string[]][][];
+] satisfies Shorthands;
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 

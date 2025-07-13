@@ -32,9 +32,6 @@ export const shorthands = [
     [["^border-spacing-x-(.*)", "^border-spacing-y-(.*)"], ["border-spacing-$1"]]
   ],
   [
-    [["^outline-(.*)", "^outline$"], ["outline-$1"]]
-  ],
-  [
     [["^rounded-tl-(.*)", "^rounded-tr-(.*)", "^rounded-bl-(.*)", "^rounded-br-(.*)"], ["rounded-$1"]],
     [["^rounded-tl-(.*)", "^rounded-tr-(.*)"], ["rounded-t-$1"]],
     [["^rounded-bl-(.*)", "^rounded-br-(.*)"], ["rounded-b-$1"]],

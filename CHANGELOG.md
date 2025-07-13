@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.6.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.2...v3.6.0)
+
+### Features
+
+- New rule `enforce-consistent-important-position` ([#167](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/167))
+- New rule `no-deprecated-classes` ([#169](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/169))
+
+### Fixes
+
+- Support starting important in `enforce-shorthand-classes` ([#164](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/164))
+- Error position ([a55a6cc](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a55a6cc))
+
+### Chore
+
+- Update dependencies ([15367b0](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/15367b0))
+
 ## v3.5.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.1...v3.5.2)

@@ -50,7 +50,6 @@ export type Options = [
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
   callees: DEFAULT_CALLEE_NAMES,
-  position: "recommended",
   tags: DEFAULT_TAG_NAMES,
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
@@ -80,7 +79,6 @@ export const enforceConsistentImportantPosition: ESLintRule<Options> = {
             ...TAILWIND_CONFIG_SCHEMA,
 
             position: {
-              default: defaultOptions.position,
               description: "Preferred position for important classes. 'legacy' places the important modifier (!) at the start of the class name, 'recommended' places it at the end.",
               enum: ["legacy", "recommended"],
               type: "string"
@@ -127,7 +125,7 @@ export function getOptions(ctx: Rule.RuleContext) {
 
   const common = getCommonOptions(ctx);
 
-  const position = options.position ?? defaultOptions.position;
+  const position = options.position;
 
   return {
     ...common,

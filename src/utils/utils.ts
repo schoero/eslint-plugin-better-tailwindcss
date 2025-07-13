@@ -95,14 +95,14 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
 }
 
 export function getExactClassLocation(literal: Literal, stringIndex: number, className: string) {
-  const linesUpToStartIndex = literal.content.slice(0, stringIndex).split("\n");
+  const linesUpToStartIndex = literal.content.slice(0, stringIndex - className.length).split(/\r?\n/);
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
 
   const line = literal.loc.start.line + linesUpToStartIndex.length - 1;
   const column = (
     isOnFirstLine
-      ? literal.loc.start.column + (literal.openingQuote?.length ?? 0)
+      ? literal.loc.start.column
       : 0
   ) + (containingLine?.length ?? 0);
 

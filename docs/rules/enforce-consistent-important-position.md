@@ -12,8 +12,8 @@ Tailwind CSS v4 introduces the "recommended" position as the new standard. This 
 
 Controls where the important modifier (`!`) should be placed in class names.
 
-- `legacy`: Places the important modifier at the beginning of the class name (e.g., `!text-red-500`, `hover:!bg-blue-500`)
-- `recommended`: Places the important modifier at the end of the class name (e.g., `text-red-500!`, `hover:bg-blue-500!`)
+- `legacy`: Places the important modifier at the beginning of the class name.
+- `recommended`: Places the important modifier at the end of the class name.
 
   **Type**: `"legacy" | "recommended"`  
   **Default**: `"recommended"` in Tailwind CSS v4, `"legacy"` in Tailwind CSS v3 and earlier.

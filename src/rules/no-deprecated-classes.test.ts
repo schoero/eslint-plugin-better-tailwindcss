@@ -1,13 +1,12 @@
 import { describe, it } from "vitest";
 
-import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 
-describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(enforceShorthandClasses.name, () => {
+describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDeprecatedClasses.name, () => {
 
   it("should fix replaceable deprecated classes", () => {
     lint(

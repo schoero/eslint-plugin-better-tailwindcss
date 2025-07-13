@@ -17,7 +17,7 @@ export interface GetDissectedClassRequest {
 export interface DissectedClass {
   base: string;
   className: string;
-  important: [boolean, boolean];
+  important: [start: boolean, end: boolean];
   negative: boolean;
   prefix: string;
   separator: string;

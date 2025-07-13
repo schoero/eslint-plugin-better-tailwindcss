@@ -22,6 +22,7 @@ import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "b
 
 import type { Rule } from "eslint";
 
+import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeOption,
@@ -181,117 +182,71 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     const classes = splitClasses(literal.content);
     const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
-    const classBases = dissectedClasses.map(dissectedClass => dissectedClass.base);
-    const shorthandGroups = getShorthands(classBases);
+    const shorthandGroups = getShorthands(dissectedClasses);
 
-    const potentialShorthands = shorthandGroups.reduce<Shorthands>((potentialShorthands, shorthandGroup) => {
-      for(const [longhands, shorthands] of shorthandGroup){
-
-        const dissectedLonghands = longhands.map(longhand => dissectedClasses.find(dissectedClass => dissectedClass.base === longhand));
-
-        if(dissectedLonghands.some(dissectedLonghand => !dissectedLonghand)){
-          continue;
-        }
-
-        const prefix = dissectedLonghands[0]?.prefix ?? "";
-        const variants = dissectedLonghands[0]?.variants ?? [];
-        const separator = dissectedLonghands[0]?.separator ?? ":";
-
-        const negative = dissectedLonghands.some(longhand => longhand?.negative);
-
-        const isImportantAtEnd = dissectedLonghands.some(longhand => longhand?.important[1]);
-        const isImportantAtStart = !isImportantAtEnd && dissectedLonghands.some(longhand => longhand?.important[0]);
-
-        const longhandClasses = longhands.map(longhand => dissectedClasses.find(dissectedClass => dissectedClass.base === longhand)!.className);
-        const shorthandClasses = shorthands.map(shorthand => buildClass({
-          base: shorthand,
-          important: [isImportantAtStart, isImportantAtEnd],
-          negative,
-          prefix,
-          separator,
-          variants
-        }));
-
-        if(
-          dissectedLonghands.some(longhand => (longhand?.important[0] || longhand?.important[1]) !== (isImportantAtStart || isImportantAtEnd)) ||
-          dissectedLonghands.some(longhand => longhand?.negative !== negative) ||
-          dissectedLonghands.some(longhand => longhand?.variants.join(separator) !== variants.join(separator)) ||
-          shorthandClasses.length === 0
-        ){
-          continue;
-        }
-
-        potentialShorthands.push([longhandClasses, shorthandClasses]);
-
-        break;
-
-      }
-
-      return potentialShorthands;
-    }, []);
 
     const { unregisteredClasses } = getUnregisteredClasses({
-      classes: potentialShorthands
+      classes: shorthandGroups
+        .flat()
         .map(([, shorthands]) => shorthands)
         .flat(),
       configPath: tailwindConfig,
       cwd: ctx.cwd
     });
 
-    const validShorthands = potentialShorthands.filter(([, shorthands]) => {
-      return (
-        shorthands.length > 0 &&
-        !unregisteredClasses.some(unregisteredClass => shorthands.includes(unregisteredClass))
-      );
-    });
-
     lintClasses(ctx, literal, (className, index, after) => {
-      const shorthand = validShorthands.find(([longhands]) => longhands.includes(className));
+      for(const shorthandGroup of shorthandGroups){
+        for(const [longhands, shorthands] of shorthandGroup){
 
-      if(!shorthand){
-        return;
+          const longhandClasses = longhands.map(longhand => buildClass(longhand));
+
+          if(!longhandClasses.includes(className)){
+            continue;
+          }
+
+          if(shorthands.some(shorthand => unregisteredClasses.includes(shorthand))){
+            continue;
+          }
+
+          if(shorthands.every(shorthand => after.includes(shorthand))){
+            return {
+              fix: ""
+            };
+          }
+
+          return {
+            fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
+            message: augmentMessageWithWarnings(
+              `Non shorthand class detected. Expected ${longhandClasses.join(" ")} to be ${shorthands.join(" ")}}`,
+              DOCUMENTATION_URL,
+              warnings
+            )
+          };
+        }
       }
-
-      const [longhands, shorthands] = shorthand;
-
-      if(shorthands.every(shorthand => after.includes(shorthand))){
-        return {
-          fix: ""
-        };
-      }
-
-      return {
-        fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
-        message: augmentMessageWithWarnings(
-          `Non shorthand class detected. Expected ${longhands.join(" ")} to be ${shorthands.join(" ")}}`,
-          DOCUMENTATION_URL,
-          warnings
-        )
-      };
-
     });
 
   }
 }
 
-function getShorthands(classes: string[]) {
+function getShorthands(dissectedClasses: DissectedClass[]) {
 
-  const possibleShorthandClassesGroups: [classNames: string[], shorthands: string[]][][] = [];
+  const possibleShorthandClassesGroups: [longhands: DissectedClass[], shorthands: string[]][][] = [];
 
   for(const shorthandGroup of shorthands){
 
     const sortedShorthandGroup = shorthandGroup.sort((a, b) => b[0].length - a[0].length);
 
-    const possibleShorthandClasses: [classNames: string[], shorthands: string[]][] = [];
+    const possibleShorthandClasses: [longhands: DissectedClass[], shorthands: string[]][] = [];
 
     shorthandLoop: for(const [classPatterns, substitutes] of sortedShorthandGroup){
 
-      const longhands: string[] = [];
+      const longhands: DissectedClass[] = [];
       const groups: string[] = [];
 
       for(const classPattern of classPatterns){
-        classNameLoop: for(const className of classes){
-          const match = className.match(new RegExp(classPattern));
+        classNameLoop: for(const dissectedClass of dissectedClasses){
+          const match = dissectedClass.base.match(new RegExp(classPattern));
 
           if(!match){
             continue classNameLoop;
@@ -312,12 +267,37 @@ function getShorthands(classes: string[]) {
             }
           }
 
-          longhands.push(className);
+          longhands.push(dissectedClass);
         }
       }
 
+      const isImportantAtEnd = longhands.some(longhand => longhand.important[1]);
+      const isImportantAtStart = !isImportantAtEnd && longhands.some(longhand => longhand.important[0]);
+
+      const negative = longhands.some(longhand => longhand.negative);
+
+      const prefix = longhands[0]?.prefix ?? "";
+      const variants = longhands[0]?.variants ?? [];
+      const separator = longhands[0]?.separator ?? ":";
+
+      if(
+        longhands.length !== classPatterns.length ||
+        longhands.some(longhand => (longhand?.important[0] || longhand?.important[1]) !== (isImportantAtStart || isImportantAtEnd)) ||
+        longhands.some(longhand => longhand?.negative !== negative) ||
+        longhands.some(longhand => longhand?.variants.join(separator) !== variants.join(separator))
+      ){
+        continue;
+      }
+
       if(longhands.length === classPatterns.length){
-        possibleShorthandClasses.push([longhands, substitutes.map(substitute => replacePlaceholders(substitute, groups))]);
+        possibleShorthandClasses.push([longhands, substitutes.map(substitute => buildClass({
+          base: replacePlaceholders(substitute, groups),
+          important: [isImportantAtStart, isImportantAtEnd],
+          negative,
+          prefix,
+          separator,
+          variants
+        }))]);
       }
     }
 

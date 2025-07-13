@@ -14,7 +14,7 @@ export interface GetDissectedClassRequest {
   configPath: string;
 }
 
-export type GetDissectedClassResponse = {
+export interface DissectedClass {
   base: string;
   className: string;
   important: [boolean, boolean];
@@ -22,7 +22,9 @@ export type GetDissectedClassResponse = {
   prefix: string;
   separator: string;
   variants: string[];
-}[];
+}
+
+export type GetDissectedClassResponse = DissectedClass[];
 
 export function getDissectedClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
   const { path, warning } = getTailwindConfigPath({ configPath, cwd });

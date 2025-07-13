@@ -106,10 +106,6 @@ The following classes will be reported as deprecated:
 
 ## Examples
 
-### Replaceable deprecated classes
-
-These deprecated classes have direct replacements and will be automatically fixed:
-
 ```tsx
 // ❌ BAD: using deprecated shadow class
 <div class="shadow" />;

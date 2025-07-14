@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.6.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.0...v3.6.1)
+
+### Fixes
+
+- Recursively reading imports ([#175](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/175))
+
 ## v3.6.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.5.2...v3.6.0)

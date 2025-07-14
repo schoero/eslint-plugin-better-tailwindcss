@@ -350,6 +350,74 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom classes defined in imported files in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,

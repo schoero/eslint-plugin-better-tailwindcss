@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
@@ -14,9 +15,49 @@ import type {
 const { findAll, generate, parse } = fork(tailwind4);
 
 export function getCustomComponentClasses({ configPath }: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
-  const entryFile = readFileSync(configPath, "utf-8");
-  const ast = parse(entryFile);
-  return getCustomComponentUtilities(ast);
+  const files = parseCssFile(dirname(configPath), configPath);
+
+  const utilities = Object.values(files).reduce<string[]>((customComponentClasses, ast) => {
+    customComponentClasses.push(...getCustomComponentUtilities(ast));
+    return customComponentClasses;
+  }, []);
+
+  return utilities;
+}
+
+function parseCssFile(configDir: string, filePath: string): { [filePath: string]: CssNode; } {
+  const content = readFileSync(filePath, "utf-8");
+
+  const files: { [filePath: string]: CssNode; } = {
+    [filePath]: parse(content)
+  };
+
+  const importNodes = findAll(files[filePath], node => node.type === "Atrule" &&
+    node.name === "import" &&
+    node.prelude?.type === "AtrulePrelude");
+
+  for(const importNode of importNodes){
+    if(importNode.type !== "Atrule" || !importNode.prelude){
+      continue;
+    }
+
+    const importPath = generate(importNode.prelude).trim()
+      .replace(/["']/g, "");
+
+    const resolvedPath = resolve(configDir, importPath);
+
+    if(!resolvedPath.endsWith(".css")){
+      continue;
+    }
+
+    const importFiles = parseCssFile(configDir, resolvedPath);
+
+    for(const importFilePath in importFiles){
+      files[importFilePath] = importFiles[importFilePath];
+    }
+  }
+
+  return files;
 }
 
 function getCustomComponentUtilities(ast: CssNode) {

@@ -382,25 +382,30 @@ describe(noUnregisteredClasses.name, () => {
               detectComponentClasses: true,
               entryPoint: "./tailwind.css"
             }]
-          }
-        ],
-        valid: [
+          },
           {
-            angular: `<img class="custom-component" />`,
-            html: `<img class="custom-component" />`,
-            jsx: `() => <img class="custom-component" />`,
-            svelte: `<img class="custom-component" />`,
-            vue: `<template><img class="custom-component" /></template>`,
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
 
             files: {
-              "tailwind.css": css`
-                @import "tailwindcss";
-
+              "nested/dir/components.css": css`
                 @layer components {
                   .custom-component {
                     @apply font-bold;
                   }
                 }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
               `
             },
             options: [{

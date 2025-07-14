@@ -15,7 +15,7 @@ import type {
 const { findAll, generate, parse } = fork(tailwind4);
 
 export function getCustomComponentClasses({ configPath }: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
-  const files = parseCssFile(dirname(configPath), configPath);
+  const files = parseCssFile(configPath);
 
   const utilities = Object.values(files).reduce<string[]>((customComponentClasses, ast) => {
     customComponentClasses.push(...getCustomComponentUtilities(ast));
@@ -25,7 +25,7 @@ export function getCustomComponentClasses({ configPath }: GetCustomComponentClas
   return utilities;
 }
 
-function parseCssFile(configDir: string, filePath: string): { [filePath: string]: CssNode; } {
+function parseCssFile(filePath: string): { [filePath: string]: CssNode; } {
   const content = readFileSync(filePath, "utf-8");
 
   const files: { [filePath: string]: CssNode; } = {
@@ -44,13 +44,11 @@ function parseCssFile(configDir: string, filePath: string): { [filePath: string]
     const importPath = generate(importNode.prelude).trim()
       .replace(/["']/g, "");
 
-    const resolvedPath = resolve(configDir, importPath);
-
-    if(!resolvedPath.endsWith(".css")){
+    if(!importPath.endsWith(".css")){
       continue;
     }
 
-    const importFiles = parseCssFile(configDir, resolvedPath);
+    const importFiles = parseCssFile(resolve(dirname(filePath), importPath));
 
     for(const importFilePath in importFiles){
       files[importFilePath] = importFiles[importFilePath];

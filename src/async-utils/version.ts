@@ -23,23 +23,21 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
   return version === TailwindcssVersion.V4;
 }
 
-export function getTailwindcssVersion() {
-  const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");
+export const getTailwindcssVersion = (cwd: string = process.cwd()) => withCache(`${cwd}-tailwindcss-version`, () => {
+  const packageJsonPath = jsonResolver.resolveSync({}, cwd, "tailwindcss/package.json");
 
   if(!packageJsonPath){
     throw new Error("Could not find a Tailwind CSS package.json");
   }
 
-  return withCache(packageJsonPath, () => {
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 
-    if(!packageJson){
-      throw new Error("Error reading Tailwind CSS package.json");
-    }
+  if(!packageJson){
+    throw new Error("Error reading Tailwind CSS package.json");
+  }
 
-    return parseSemanticVersion(packageJson.version);
-  });
-}
+  return parseSemanticVersion(packageJson.version);
+});
 
 function parseSemanticVersion(version: string): { major: number; minor: number; patch: number; identifier?: string; } {
   const [major, minor, patchString] = version.split(".");

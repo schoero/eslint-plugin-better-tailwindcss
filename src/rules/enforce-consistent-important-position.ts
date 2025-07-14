@@ -93,9 +93,8 @@ export const enforceConsistentImportantPosition: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-
-  const { position, tailwindConfig } = getOptions(ctx);
   const { major } = getTailwindcssVersion();
+  const { position = major <= TailwindcssVersion.V3 ? "legacy" : "recommended", tailwindConfig } = getOptions(ctx);
 
   for(const literal of literals){
 
@@ -103,7 +102,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
 
-    lintClasses(ctx, literal, (className, index, after) => {
+    lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
 
       if(!dissectedClass){
@@ -148,7 +147,7 @@ export function getOptions(ctx: Rule.RuleContext) {
 
   const common = getCommonOptions(ctx);
 
-  const position = options.position ?? (getTailwindcssVersion().major === TailwindcssVersion.V3 ? "legacy" : "recommended");
+  const position = options.position;
 
   return {
     ...common,

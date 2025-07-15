@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import path, { dirname } from "node:path";
+import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
@@ -9,7 +9,7 @@ import postcssImport from "postcss-import";
 import { withCache } from "../async-utils/cache.js";
 import { isESModule } from "../async-utils/module.js";
 import { isWindows } from "../async-utils/platform.js";
-import { cjsResolver, cssResolver, esmResolver } from "../async-utils/resolvers.js";
+import { cjsResolver, esmResolver, resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
 
 export const createTailwindContext = async (entryPoint: string) => withCache(entryPoint, async () => {
@@ -79,29 +79,24 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
     }),
 
     loadStylesheet: async (id: string, base: string) => {
-      const resolved = resolveCssFrom(base, id);
+      try {
+        const resolved = resolveCss(base, id);
 
-      return {
-        base: path.dirname(resolved),
-        content: await readFile(resolved, "utf-8")
-      };
+        return {
+          base: dirname(resolved),
+          content: await readFile(resolved, "utf-8")
+        };
+      } catch {
+        return {
+          base: "",
+          content: ""
+        };
+      }
     }
   });
 
   return design;
 });
-
-function resolveJsFrom(base: string, id: string): string {
-  try {
-    return esmResolver.resolveSync({}, base, id) || id;
-  } catch (err){
-    return cjsResolver.resolveSync({}, base, id) || id;
-  }
-}
-
-function resolveCssFrom(base: string, id: string) {
-  return cssResolver.resolveSync({}, base, id) || id;
-}
 
 function createLoader<T>({
   filepath,
@@ -118,7 +113,7 @@ function createLoader<T>({
 
   async function loadFile(id: string, base: string, resourceType: string) {
     try {
-      const resolved = resolveJsFrom(base, id);
+      const resolved = resolveJs(base, id);
 
       const url = pathToFileURL(resolved);
       url.searchParams.append("t", cacheKey);
@@ -130,7 +125,7 @@ function createLoader<T>({
   }
 
   if(legacy){
-    const baseDir = path.dirname(filepath);
+    const baseDir = dirname(filepath);
     return async (id: string) => loadFile(id, baseDir, "module");
   }
 

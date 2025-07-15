@@ -35,3 +35,20 @@ export const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
   fileSystem,
   useSyncFileSystemCalls: true
 });
+
+
+export function resolveJs(base: string, id: string): string {
+  try {
+    return esmResolver.resolveSync({}, base, id) || id;
+  } catch {
+    return cjsResolver.resolveSync({}, base, id) || id;
+  }
+}
+
+export function resolveCss(base: string, id: string): string {
+  try {
+    return cssResolver.resolveSync({}, base, id) || id;
+  } catch {
+    return id;
+  }
+}

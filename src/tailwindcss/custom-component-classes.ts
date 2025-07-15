@@ -14,6 +14,7 @@ import type { Async } from "better-tailwindcss:types/async.js";
 
 export interface GetCustomComponentClassesRequest {
   configPath: string;
+  cwd: string;
 }
 
 export type GetCustomComponentClassesResponse = string[];
@@ -22,7 +23,7 @@ export function getCustomComponentClasses({ configPath, cwd }: { configPath: str
   const { path } = getTailwindConfigPath({ configPath, cwd });
 
   return withCache("custom-components", () => {
-    return getCustomComponentClassesSync({ configPath: path });
+    return getCustomComponentClassesSync({ configPath: path, cwd });
   }, date => invalidateByModifiedDate(date, path));
 }
 

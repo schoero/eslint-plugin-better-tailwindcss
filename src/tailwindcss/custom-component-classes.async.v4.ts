@@ -1,8 +1,11 @@
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
+
+import { withCache } from "../async-utils/cache.js";
+import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
 
@@ -14,8 +17,8 @@ import type {
 
 const { findAll, generate, parse } = fork(tailwind4);
 
-export function getCustomComponentClasses({ configPath }: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
-  const files = parseCssFile(configPath);
+export function getCustomComponentClasses({ configPath, cwd }: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
+  const files = parseCssFile(cwd, configPath);
 
   const utilities = Object.values(files).reduce<string[]>((customComponentClasses, ast) => {
     customComponentClasses.push(...getCustomComponentUtilities(ast));
@@ -25,37 +28,46 @@ export function getCustomComponentClasses({ configPath }: GetCustomComponentClas
   return utilities;
 }
 
-function parseCssFile(filePath: string): { [filePath: string]: CssNode; } {
-  const content = readFileSync(filePath, "utf-8");
+function parseCssFile(cwd: string, filePath: string): { [filePath: string]: CssNode; } {
+  const resolvedPath = resolveCss(cwd, filePath);
 
-  const files: { [filePath: string]: CssNode; } = {
-    [filePath]: parse(content)
-  };
+  return withCache(resolvedPath, () => {
+    try {
+      const content = readFileSync(resolvedPath, "utf-8");
 
-  const importNodes = findAll(files[filePath], node => node.type === "Atrule" &&
-    node.name === "import" &&
-    node.prelude?.type === "AtrulePrelude");
+      const files: { [resolvedPath: string]: CssNode; } = {
+        [resolvedPath]: parse(content)
+      };
 
-  for(const importNode of importNodes){
-    if(importNode.type !== "Atrule" || !importNode.prelude){
-      continue;
+      const importNodes = findAll(files[resolvedPath], node => node.type === "Atrule" &&
+        node.name === "import" &&
+        node.prelude?.type === "AtrulePrelude");
+
+      for(const importNode of importNodes){
+        if(importNode.type !== "Atrule" || !importNode.prelude){
+          continue;
+        }
+
+        const importPath = generate(importNode.prelude).trim()
+          .replace(/["']/g, "");
+
+        if(!importPath.endsWith(".css")){
+          continue;
+        }
+
+        const cwd = dirname(resolvedPath);
+        const importFiles = parseCssFile(cwd, importPath);
+
+        for(const importFilePath in importFiles){
+          files[importFilePath] = importFiles[importFilePath];
+        }
+      }
+
+      return files;
+    } catch {
+      return {};
     }
-
-    const importPath = generate(importNode.prelude).trim()
-      .replace(/["']/g, "");
-
-    if(!importPath.endsWith(".css")){
-      continue;
-    }
-
-    const importFiles = parseCssFile(resolve(dirname(filePath), importPath));
-
-    for(const importFilePath in importFiles){
-      files[importFilePath] = importFiles[importFilePath];
-    }
-  }
-
-  return files;
+  });
 }
 
 function getCustomComponentUtilities(ast: CssNode) {

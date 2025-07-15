@@ -6,7 +6,6 @@ import { resolve } from "node:path";
 import { createSyncFn } from "synckit";
 
 import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
-import { invalidateByModifiedDate, withCache } from "better-tailwindcss:utils/cache.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Async } from "better-tailwindcss:types/async.js";
@@ -22,9 +21,7 @@ export type GetCustomComponentClassesResponse = string[];
 export function getCustomComponentClasses({ configPath, cwd }: { configPath: string | undefined; cwd: string; }) {
   const { path } = getTailwindConfigPath({ configPath, cwd });
 
-  return withCache("custom-components", () => {
-    return getCustomComponentClassesSync({ configPath: path, cwd });
-  }, date => invalidateByModifiedDate(date, path));
+  return getCustomComponentClassesSync({ configPath: path, cwd });
 }
 
 const getCustomComponentClassesSync = createSyncFn<

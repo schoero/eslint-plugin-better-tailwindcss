@@ -28,14 +28,14 @@ export function getCustomComponentClasses({ configPath, cwd }: GetCustomComponen
   return utilities;
 }
 
-function parseCssFile(cwd: string, filePath: string): { [filePath: string]: CssNode; } {
+export function parseCssFile(cwd: string, filePath: string): { [filePath: string]: CssNode; } {
   const resolvedPath = resolveCss(cwd, filePath);
 
   return withCache(resolvedPath, () => {
     try {
       const content = readFileSync(resolvedPath, "utf-8");
 
-      const files: { [resolvedPath: string]: CssNode; } = {
+      const files: { [filePath: string]: CssNode; } = {
         [resolvedPath]: parse(content)
       };
 
@@ -48,12 +48,13 @@ function parseCssFile(cwd: string, filePath: string): { [filePath: string]: CssN
           continue;
         }
 
-        const importPath = generate(importNode.prelude).trim()
-          .replace(/["']/g, "");
+        const importStatement = generate(importNode.prelude).match(/["'](?<importPath>[^"']+)["']/);
 
-        if(!importPath.endsWith(".css")){
+        if(!importStatement){
           continue;
         }
+
+        const { importPath } = importStatement.groups || {};
 
         const cwd = dirname(resolvedPath);
         const importFiles = parseCssFile(cwd, importPath);

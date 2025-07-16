@@ -4,6 +4,7 @@ import type { Rule } from "eslint";
 
 
 const STRING_MATCHER_SCHEMA = {
+  additionalProperties: false,
   properties: {
     match: {
       description: "Matcher type that will be applied.",
@@ -15,6 +16,7 @@ const STRING_MATCHER_SCHEMA = {
 } satisfies Rule.RuleMetaData["schema"];
 
 const OBJECT_KEY_MATCHER_SCHEMA = {
+  additionalProperties: false,
   properties: {
     match: {
       description: "Matcher type that will be applied.",
@@ -30,6 +32,7 @@ const OBJECT_KEY_MATCHER_SCHEMA = {
 } satisfies Rule.RuleMetaData["schema"];
 
 const OBJECT_VALUE_MATCHER_SCHEMA = {
+  additionalProperties: false,
   properties: {
     match: {
       description: "Matcher type that will be applied.",

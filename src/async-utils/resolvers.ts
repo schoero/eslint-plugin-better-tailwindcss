@@ -37,18 +37,26 @@ export const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
 });
 
 
-export function resolveJs(base: string, id: string): string {
+export function resolveJs(cwd: string, path: string): string {
   try {
-    return esmResolver.resolveSync({}, base, id) || id;
+    return esmResolver.resolveSync({}, cwd, path) || path;
   } catch {
-    return cjsResolver.resolveSync({}, base, id) || id;
+    return cjsResolver.resolveSync({}, cwd, path) || path;
   }
 }
 
-export function resolveCss(base: string, id: string): string {
+export function resolveCss(cwd: string, path: string): string {
   try {
-    return cssResolver.resolveSync({}, base, id) || id;
+    return cssResolver.resolveSync({}, cwd, path) || path;
   } catch {
-    return id;
+    return path;
+  }
+}
+
+export function resolveJson(cwd: string, path: string): string {
+  try {
+    return jsonResolver.resolveSync({}, cwd, path) || path;
+  } catch {
+    return path;
   }
 }

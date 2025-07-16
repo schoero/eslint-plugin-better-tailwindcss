@@ -1,5 +1,19 @@
 # Changelog
 
+## v3.6.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.1...v3.6.2)
+
+### Fixes
+
+- Fixes crash when importing css files via tsconfig path alias and [`detectComponentClasses`](https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md#detectcomponentclasses) enabled ([#178](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/178))
+- Fixes component classes not getting updated when inside an imported file ([#178](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/178))
+- Disallow extra properties in rule options ([#180](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/180))
+
+### ❤️ Contributors
+
+- Andrew Kazakov ([@andreww2012](https://github.com/andreww2012))
+
 ## v3.6.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.0...v3.6.1)
@@ -21,10 +35,6 @@
 
 - Support starting important in `enforce-shorthand-classes` ([#164](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/164))
 - Error position ([a55a6cc](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a55a6cc))
-
-### Chore
-
-- Update dependencies ([15367b0](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/15367b0))
 
 ## v3.5.2
 

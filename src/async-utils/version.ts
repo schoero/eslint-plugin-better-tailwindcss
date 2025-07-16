@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
+import { cwd } from "node:process";
 
 import { withCache } from "./cache.js";
-import { jsonResolver } from "./resolvers.js";
+import { resolveJson } from "./resolvers.js";
 
 
 export const enum TailwindcssVersion {
@@ -24,7 +25,7 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
 }
 
 export function getTailwindcssVersion() {
-  const packageJsonPath = jsonResolver.resolveSync({}, process.cwd(), "tailwindcss/package.json");
+  const packageJsonPath = resolveJson(cwd(), "tailwindcss/package.json");
 
   if(!packageJsonPath){
     throw new Error("Could not find a Tailwind CSS package.json");

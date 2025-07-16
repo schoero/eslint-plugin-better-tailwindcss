@@ -289,7 +289,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom classes defined in the component layer in tailwind >= 4", () => {
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -350,7 +350,7 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom classes defined in imported files in tailwind >= 4", () => {
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
       TEST_SYNTAXES,
@@ -406,6 +406,37 @@ describe(noUnregisteredClasses.name, () => {
               "tailwind.css": css`
                 @import "tailwindcss";
                 @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./does-not-exist.css";
               `
             },
             options: [{

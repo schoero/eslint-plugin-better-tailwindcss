@@ -6,6 +6,40 @@ import { css } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 
+const testCases = [
+  ["shadow", "shadow-sm"],
+  ["inset-shadow", "inset-shadow-sm"],
+  ["drop-shadow", "drop-shadow-sm"],
+  ["blur", "blur-sm"],
+  ["backdrop-blur", "backdrop-blur-sm"],
+  ["rounded", "rounded-sm"],
+
+  ["bg-opacity-70", undefined],
+  ["text-opacity-70", undefined],
+  ["border-opacity-70", undefined],
+  ["divide-opacity-70", undefined],
+  ["ring-opacity-70", undefined],
+  ["placeholder-opacity-70", undefined],
+
+  ["flex-shrink-1", "shrink-1"],
+  ["flex-grow-1", "grow-1"],
+
+  ["overflow-ellipsis", "text-ellipsis"],
+
+  ["decoration-slice", "box-decoration-slice"],
+  ["decoration-clone", "box-decoration-clone"],
+
+  // 4.1 deprecations
+  ["bg-left-top", "bg-top-left"],
+  ["bg-left-bottom", "bg-bottom-left"],
+  ["bg-right-top", "bg-top-right"],
+  ["bg-right-bottom", "bg-bottom-right"],
+  ["object-left-top", "object-top-left"],
+  ["object-left-bottom", "object-bottom-left"],
+  ["object-right-top", "object-top-right"],
+  ["object-right-bottom", "object-bottom-right"]
+] satisfies [string, string | undefined][];
+
 describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDeprecatedClasses.name, () => {
 
   it("should not report valid classes", () => {
@@ -227,6 +261,55 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
         ]
       }
     );
+
+  });
+
+  it.each(testCases)(`should report "%s"`, (input, output) => {
+
+    const hasFix = output !== undefined;
+
+    if(hasFix){
+      lint(
+        noDeprecatedClasses,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              angular: `<img class="${input}" />`,
+              angularOutput: `<img class="${output}" />`,
+              html: `<img class="${input}" />`,
+              htmlOutput: `<img class="${output}" />`,
+              jsx: `() => <img class="${input}" />`,
+              jsxOutput: `() => <img class="${output}" />`,
+              svelte: `<img class="${input}" />`,
+              svelteOutput: `<img class="${output}" />`,
+              vue: `<template><img class="${input}" /></template>`,
+              vueOutput: `<template><img class="${output}" /></template>`,
+
+              errors: 1
+            }
+          ]
+        }
+      );
+    } else {
+      lint(
+        noDeprecatedClasses,
+        TEST_SYNTAXES,
+        {
+          invalid: [
+            {
+              angular: `<img class="${input}" />`,
+              html: `<img class="${input}" />`,
+              jsx: `() => <img class="${input}" />`,
+              svelte: `<img class="${input}" />`,
+              vue: `<template><img class="${input}" /></template>`,
+
+              errors: 1
+            }
+          ]
+        }
+      );
+    }
 
   });
 

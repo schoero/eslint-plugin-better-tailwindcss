@@ -46,7 +46,7 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
       data: {
         className
       },
-      loc: getExactClassLocation(literal, stringIndex, className),
+      loc: getExactClassLocation(literal, classStart, className),
       message: typeof result === "object" && result.message
         ? result.message
         : "Expected {{ before }} to be {{ after }}.",

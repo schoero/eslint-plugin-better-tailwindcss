@@ -256,6 +256,21 @@ describe("angular", () => {
           ]
         });
       });
+
+      // #177 // TODO also "someCondition" && "otherCondition" should not be linted in object values
+      it("should not lint literals in binary comparisons", () => {
+        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+          invalid: [
+            {
+              angular: `<img [class]="{'b a': 'd c' === 'f e'}" />`,
+              angularOutput: `<img [class]="{'a b': 'd c' === 'f e'}" />`,
+
+              errors: 1,
+              options: [{ order: "asc" }]
+            }
+          ]
+        });
+      });
     });
 
     describe("object values", () => {
@@ -476,6 +491,23 @@ describe("angular", () => {
 
     });
 
+  });
+
+  // #177
+  it.todo("should lint classes in tests", () => {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      valid: [
+        // {
+        //   angular: `<img [class]="{'hidden': 'someCondition' === 'popover'}" />`
+        // },
+        {
+          angular: `<img [class]="{
+            'lg:rounded-r-lg': renderMode() === 'modal',
+            'rounded-r-lg': renderMode() === 'popover',
+          }" />`
+        }
+      ]
+    });
   });
 
 });

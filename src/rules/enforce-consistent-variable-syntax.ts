@@ -13,6 +13,7 @@ import {
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 import type { Rule } from "eslint";
 
@@ -33,7 +34,7 @@ export type Options = [
     TagOption &
     VariableOption &
     {
-      syntax?: "arbitrary" | "parentheses";
+      syntax?: "arbitrary" | "parentheses" | "shorthand" | "variable";
     }
   >
 ];
@@ -42,7 +43,7 @@ export type Options = [
 const defaultOptions = {
   attributes: DEFAULT_ATTRIBUTE_NAMES,
   callees: DEFAULT_CALLEE_NAMES,
-  syntax: "parentheses",
+  syntax: "shorthand",
   tags: DEFAULT_TAG_NAMES,
   variables: DEFAULT_VARIABLE_NAMES
 } as const satisfies Options[0];
@@ -69,9 +70,9 @@ export const enforceConsistentVariableSyntax: ESLintRule<Options> = {
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
             syntax: {
-              default: "parentheses",
-              description: "Preferred syntax for CSS variables. 'arbitrary' uses [var(--foo)], 'parentheses' uses (--foo).",
-              enum: ["arbitrary", "parentheses"],
+              default: "shorthand",
+              description: "Preferred syntax for CSS variables. 'variable' uses [var(--foo)], 'shorthand' uses (--foo) in Tailwind CSS v4 or [--foo] in Tailwind CSS v3.",
+              enum: ["arbitrary", "parentheses", "shorthand", "variable"],
               type: "string"
             }
           },
@@ -86,6 +87,7 @@ export const enforceConsistentVariableSyntax: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const { syntax } = getOptions(ctx);
+  const { major } = getTailwindcssVersion();
 
   for(const literal of literals){
 
@@ -100,7 +102,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         i++){
         characters.push(className[i]);
 
-        if(syntax === "arbitrary"){
+        if(syntax === "arbitrary" || syntax === "variable"){
 
           if(isInsideVar){
             continue;
@@ -127,9 +129,29 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             };
 
           }
+
+          if(isBeginningOfArbitraryShorthand(characters)){
+            const start = i + 1 - (findOpeningBracketOffset(characters) ?? 0);
+
+            const [balancedArbitraryContent] = extractBalanced(className.slice(start), "[", "]");
+
+            if(!balancedArbitraryContent){
+              continue;
+            }
+
+            const end = start + balancedArbitraryContent.length + 2;
+
+            const fixedVariable = `${className.slice(0, start)}[var(${balancedArbitraryContent})]${className.slice(end)}`;
+
+            return {
+              fix: fixedVariable,
+              message: `Incorrect variable syntax: "[${balancedArbitraryContent}]".`
+            };
+
+          }
         }
 
-        if(syntax === "parentheses"){
+        if(syntax === "parentheses" || syntax === "shorthand"){
           if(isBeginningOfArbitraryVariable(characters)){
             if(isInsideBrackets){
               continue;
@@ -146,7 +168,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
             const end = start + balancedArbitraryContent.length + 2;
 
-            const fixedVariable = `${className.slice(0, start)}(${balancedVariableContent})${className.slice(end)}`;
+            const fixedVariable = major >= TailwindcssVersion.V4
+              ? `${className.slice(0, start)}(${balancedVariableContent})${className.slice(end)}`
+              : `${className.slice(0, start)}[${balancedVariableContent}]${className.slice(end)}`;
 
             return {
               fix: fixedVariable,
@@ -154,19 +178,54 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             };
 
           }
-        }
 
+          if(isBeginningOfArbitraryShorthand(characters)){
+            if(major <= TailwindcssVersion.V3){
+              continue;
+            }
+
+            const start = i + 1 - (findOpeningBracketOffset(characters) ?? 0);
+
+            const [balancedArbitraryContent] = extractBalanced(className.slice(start), "[", "]");
+
+            if(!balancedArbitraryContent){
+              continue;
+            }
+
+            const end = start + balancedArbitraryContent.length + 2;
+
+            const fixedVariable = `${className.slice(0, start)}(${balancedArbitraryContent})${className.slice(end)}`;
+
+            return {
+              fix: fixedVariable,
+              message: `Incorrect variable syntax: "[${balancedArbitraryContent}]".`
+            };
+
+          }
+
+        }
       }
     });
   }
 }
 
 function isBeginningOfParenthesizedVariable(characters: string[]): boolean {
-  return characters.slice(-6).join("") !== "var(--" && characters.slice(-3).join("") === "(--";
+  return (
+    isBeginningOfArbitrarySyntax(characters, "(--") &&
+    !isBeginningOfArbitrarySyntax(characters, "[var(--")
+  );
+}
+
+function isBeginningOfArbitraryShorthand(characters: string[]): boolean {
+  return isBeginningOfArbitrarySyntax(characters, "[--");
 }
 
 function isBeginningOfArbitraryVariable(characters: string[]): boolean {
-  const toBe = "[var(--".split("");
+  return isBeginningOfArbitrarySyntax(characters, "[var(--");
+}
+
+function isBeginningOfArbitrarySyntax(characters: string[], syntax: string): boolean {
+  const toBe = syntax.split("");
 
   for(let i = characters.length - 1; i >= 0; i--){
 
@@ -182,7 +241,7 @@ function isBeginningOfArbitraryVariable(characters: string[]): boolean {
     }
 
     if(character !== expectedChar){
-      if(expectedChar === "[" && character === "_"){
+      if(character === "_"){
         continue;
       }
 

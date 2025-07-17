@@ -94,6 +94,6 @@ Enforce consistent css variable syntax in tailwindcss class strings.
 ```
 
 ```tsx
-// ✅ GOOD: With option `syntax: "arbitrary"`
+// ✅ GOOD: With option `syntax: "variable"`
 <div class="bg-[var(--primary)]" />;
 ```

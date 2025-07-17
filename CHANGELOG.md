@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.6.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.2...v3.6.3)
+
+### Fixes
+
+- Error position ([7b699ee](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/7b699ee))
+
+### Refactors
+
+- Add missing deprecations ([#181](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/181))
+- Variable syntax tailwindcss3 shorthand ([#183](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/183))
+
 ## v3.6.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.1...v3.6.2)

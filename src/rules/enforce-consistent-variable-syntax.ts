@@ -178,6 +178,31 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             };
 
           }
+
+          if(isBeginningOfArbitraryShorthand(characters)){
+            if(major <= TailwindcssVersion.V3){
+              continue;
+            }
+
+            const start = i + 1 - (findOpeningBracketOffset(characters) ?? 0);
+
+            const [balancedArbitraryContent] = extractBalanced(className.slice(start), "[", "]");
+
+            if(!balancedArbitraryContent){
+              continue;
+            }
+
+            const end = start + balancedArbitraryContent.length + 2;
+
+            const fixedVariable = `${className.slice(0, start)}(${balancedArbitraryContent})${className.slice(end)}`;
+
+            return {
+              fix: fixedVariable,
+              message: `Incorrect variable syntax: "[${balancedArbitraryContent}]".`
+            };
+
+          }
+
         }
       }
     });

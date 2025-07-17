@@ -133,7 +133,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
-
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should convert variables to arbitrary shorthands in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
@@ -582,7 +581,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
-
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should preserve css functions in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
@@ -965,6 +963,32 @@ describe(enforceConsistentVariableSyntax.name, () => {
             vueOutput: `<template><img class="${multilineShorthand}" /></template>`,
 
             errors: 2,
+            options: [{ syntax: "shorthand" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should convert arbitrary shorthands to parenthesized shorthands in tailwind >= 4", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="bg-[--brand]" />`,
+            angularOutput: `<img class="bg-(--brand)" />`,
+            html: `<img class="bg-[--brand]" />`,
+            htmlOutput: `<img class="bg-(--brand)" />`,
+            jsx: `() => <img class="bg-[--brand]" />`,
+            jsxOutput: `() => <img class="bg-(--brand)" />`,
+            svelte: `<img class="bg-[--brand]" />`,
+            svelteOutput: `<img class="bg-(--brand)" />`,
+            vue: `<template><img class="bg-[--brand]" /></template>`,
+            vueOutput: `<template><img class="bg-(--brand)" /></template>`,
+
+            errors: 1,
             options: [{ syntax: "shorthand" }]
           }
         ]

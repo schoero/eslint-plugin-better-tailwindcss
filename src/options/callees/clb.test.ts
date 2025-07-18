@@ -38,7 +38,7 @@ describe("clb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [CLB_BASE_VALUES] }]
         }
       ]
@@ -73,7 +73,7 @@ describe("clb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [CLB_VARIANT_VALUES] }]
         }
       ]
@@ -114,7 +114,7 @@ describe("clb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [CLB_COMPOUND_VARIANTS_CLASSES] }]
         }
       ]
@@ -181,7 +181,7 @@ describe("clb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 5
+          errors: 10
         }
       ]
     });

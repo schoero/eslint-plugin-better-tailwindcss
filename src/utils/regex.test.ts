@@ -59,7 +59,7 @@ describe("regex", () => {
               vue: `<script>${dirtyDefined}</script>`,
               vueOutput: `<script>${cleanDefined}</script>`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 callees: [
                   [
@@ -130,7 +130,7 @@ describe("regex", () => {
               vue: `<script>${dirtyDefined}</script>`,
               vueOutput: `<script>${cleanDefined}</script>`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 variables: [
                   [
@@ -199,7 +199,7 @@ describe("regex", () => {
               svelte: `<img defined={${dirtyDefined}} />`,
               svelteOutput: `<img defined={${cleanDefined}} />`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 attributes: [
                   [
@@ -233,7 +233,7 @@ describe("regex", () => {
               vue: `defined\`  a  b  \``,
               vueOutput: `defined\`a b\``,
 
-              errors: 1,
+              errors: 3,
               options: [{
                 tags: [
                   [

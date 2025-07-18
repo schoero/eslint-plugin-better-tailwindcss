@@ -17,7 +17,7 @@ describe("es", () => {
           vue: `<script>testStyles(" lint ");</script>`,
           vueOutput: `<script>testStyles("lint");</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{
             callees: ["^.*Styles$"]
           }]
@@ -37,7 +37,7 @@ describe("es", () => {
           vue: `<script>const testStyles = " lint ";</script>`,
           vueOutput: `<script>const testStyles = "lint";</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{
             variables: ["^.*Styles$"]
           }]
@@ -57,7 +57,7 @@ describe("es", () => {
           vue: `<template><img testStyles=" lint " /> </template>`,
           vueOutput: `<template><img testStyles="lint" /> </template>`,
 
-          errors: 1,
+          errors: 2,
           options: [{
             attributes: ["^.*Styles$"]
           }]

@@ -218,7 +218,7 @@ describe("matchers", () => {
               vue: `<script>${dirtyDefined}</script>`,
               vueOutput: `<script>${cleanDefined}</script>`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 callees: [
                   [
@@ -250,7 +250,7 @@ describe("matchers", () => {
             vue: `<script>testStyles(" lint ");</script>`,
             vueOutput: `<script>testStyles("lint");</script>`,
 
-            errors: 1,
+            errors: 2,
             options: [{
               callees: [["^.*Styles$", [{ match: MatcherType.String }]]]
             }]
@@ -270,7 +270,7 @@ describe("matchers", () => {
             vue: `<script>const testStyles = " lint ";</script>`,
             vueOutput: `<script>const testStyles = "lint";</script>`,
 
-            errors: 1,
+            errors: 2,
             options: [{
               variables: [["^.*Styles$", [{ match: MatcherType.String }]]]
             }]
@@ -290,7 +290,7 @@ describe("matchers", () => {
             vue: `<template><img testStyles=" lint " /> </template>`,
             vueOutput: `<template><img testStyles="lint" /> </template>`,
 
-            errors: 1,
+            errors: 2,
             options: [{
               attributes: [["^.*Styles$", [{ match: MatcherType.String }]]]
             }]
@@ -354,7 +354,7 @@ describe("matchers", () => {
               vue: `<script>${dirtyDefined}</script>`,
               vueOutput: `<script>${cleanDefined}</script>`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 variables: [
                   [
@@ -443,7 +443,7 @@ describe("matchers", () => {
               svelte: `<img defined={${dirtyDefined}} />`,
               svelteOutput: `<img defined={${cleanDefined}} />`,
 
-              errors: 3,
+              errors: 8,
               options: [{
                 attributes: [
                   [
@@ -482,7 +482,7 @@ describe("matchers", () => {
               vue: "defined`  lint  lint  `",
               vueOutput: "defined`lint lint`",
 
-              errors: 1,
+              errors: 3,
               options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }]
             }
           ]
@@ -491,7 +491,6 @@ describe("matchers", () => {
     });
 
     it("should lint class names in nested literal expressions inside tagged template literals when matched using the strings matcher", () => {
-      // eslint thinks the fixes are conflicting so it only applies the first iteration
       lint(
         noUnnecessaryWhitespace,
         TEST_SYNTAXES,
@@ -499,13 +498,13 @@ describe("matchers", () => {
           invalid: [
             {
               jsx: "defined` lint ${\"  lint  lint  \"} lint `",
-              jsxOutput: "defined`lint ${\"  lint  lint  \"} lint`",
+              jsxOutput: "defined`lint ${\"lint lint\"} lint`",
               svelte: "<script>defined` lint ${\"  lint  lint  \"} lint `</script>",
-              svelteOutput: "<script>defined`lint ${\"  lint  lint  \"} lint`</script>",
+              svelteOutput: "<script>defined`lint ${\"lint lint\"} lint`</script>",
               vue: "defined` lint ${\"  lint  lint  \"} lint `",
-              vueOutput: "defined`lint ${\"  lint  lint  \"} lint`",
+              vueOutput: "defined`lint ${\"lint lint\"} lint`",
 
-              errors: 3,
+              errors: 5,
               options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }]
             }
           ],
@@ -533,7 +532,7 @@ describe("matchers", () => {
               vue: "defined`lint ${\"  lint  lint  \"} lint`",
               vueOutput: "defined`lint ${\"lint lint\"} lint`",
 
-              errors: 1,
+              errors: 3,
               options: [{ tags: [["defined", [{ match: MatcherType.String }]]] }]
             }
           ],
@@ -563,7 +562,7 @@ describe("matchers", () => {
           vue: "defined({ \" lint \": \" ignore \" })",
           vueOutput: "defined({ \"lint\": \" ignore \" })",
 
-          errors: 1,
+          errors: 2,
           options: [{
             callees: [["defined", [{ match: MatcherType.ObjectKey }]]]
           }]
@@ -583,7 +582,7 @@ describe("matchers", () => {
           vue: "defined({ \" ignore \": \" lint \" })",
           vueOutput: "defined({ \" ignore \": \"lint\" })",
 
-          errors: 1,
+          errors: 2,
           options: [{
             callees: [["defined", [{ match: MatcherType.ObjectValue }]]]
           }]
@@ -603,7 +602,7 @@ describe("matchers", () => {
           vue: "defined(\" lint \", { \" ignore \": \" ignore \" }, [\" lint \"])",
           vueOutput: "defined(\"lint\", { \" ignore \": \" ignore \" }, [\"lint\"])",
 
-          errors: 2,
+          errors: 4,
           options: [{
             callees: [["defined", [{ match: MatcherType.String }]]]
           }]
@@ -613,35 +612,17 @@ describe("matchers", () => {
   });
 
   it("should lint strings inside template literal expressions when matched using the strings matcher", () => {
-    // eslint thinks the fixes are conflicting so it only applies the first iteration
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       invalid: [
         {
           jsx: "defined(` lint ${\" lint \"} lint `)",
-          jsxOutput: "defined(`lint ${\" lint \"} lint`)",
-          svelte: "<script>defined(` lint ${\" lint \"} lint `)</script>",
-          svelteOutput: "<script>defined(`lint ${\" lint \"} lint`)</script>",
-          vue: "defined(` lint ${\" lint \"} lint `)",
-          vueOutput: "defined(`lint ${\" lint \"} lint`)",
-
-          errors: 3,
-          options: [{
-            callees: [["defined", [{ match: MatcherType.String }]]]
-          }]
-        }
-      ]
-    });
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
-      invalid: [
-        {
-          jsx: "defined(`lint ${\" lint \"} lint`)",
           jsxOutput: "defined(`lint ${\"lint\"} lint`)",
-          svelte: "<script>defined(`lint ${\" lint \"} lint`)</script>",
+          svelte: "<script>defined(` lint ${\" lint \"} lint `)</script>",
           svelteOutput: "<script>defined(`lint ${\"lint\"} lint`)</script>",
-          vue: "defined(`lint ${\" lint \"} lint`)",
+          vue: "defined(` lint ${\" lint \"} lint `)",
           vueOutput: "defined(`lint ${\"lint\"} lint`)",
 
-          errors: 1,
+          errors: 4,
           options: [{
             callees: [["defined", [{ match: MatcherType.String }]]]
           }]
@@ -657,7 +638,7 @@ describe("matchers", () => {
           jsx: "defined({ \" lint \": \" lint \" })",
           jsxOutput: "defined({ \"lint\": \"lint\" })",
 
-          errors: 2,
+          errors: 4,
           options: [{
             callees: [["defined", [{ match: MatcherType.ObjectKey }, { match: MatcherType.ObjectValue }]]]
           }]
@@ -673,7 +654,7 @@ describe("matchers", () => {
           jsx: "<img class={{ key: defined('  a b c  ')}} />",
           jsxOutput: "<img class={{ key: defined('a b c')}} />",
 
-          errors: 1,
+          errors: 2,
           options: [{
             attributes: [["class", [{ match: MatcherType.ObjectValue }]]],
             callees: [["defined", [{ match: MatcherType.String }]]]

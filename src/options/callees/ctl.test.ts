@@ -22,7 +22,7 @@ describe("ctl", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [CTL_STRINGS] }]
         }
       ]

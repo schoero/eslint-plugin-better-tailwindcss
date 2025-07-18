@@ -55,7 +55,7 @@ export const noUnnecessaryWhitespace: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Disallow unnecessary whitespace between tailwind classes.",
+        description: "Disallow unnecessary whitespace between Tailwind CSS classes.",
         recommended: true,
         url: DOCUMENTATION_URL
       },

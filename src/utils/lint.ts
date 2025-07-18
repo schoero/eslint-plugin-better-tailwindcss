@@ -56,7 +56,7 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
         fix: fixer => fixer.replaceTextRange(
           [
             literalStart + startIndex + 1,
-            literalStart + startIndex + className.length + 1
+            literalStart + endIndex + 1
           ],
           result.fix!
         )

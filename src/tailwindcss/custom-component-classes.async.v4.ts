@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
@@ -26,7 +26,8 @@ const { findAll, generate, parse } = fork(tailwind4);
 
 export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
 
-  const resolvedPath = await resolveCss(ctx, ctx.tailwindConfigPath);
+  const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
+
   const files = await parseCssFilesDeep(ctx, resolvedPath);
 
   const utilities = Object.values(files).reduce<string[]>((customComponentClasses, { ast }) => {
@@ -60,37 +61,39 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promi
 
 const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache(resolvedPath, async () => {
   try {
-    const content = readFileSync(resolvedPath, "utf-8");
+    const content = await readFile(resolvedPath, "utf-8");
     const ast = parse(content);
 
     const importNodes = findAll(ast, node => node.type === "Atrule" &&
       node.name === "import" &&
       node.prelude?.type === "AtrulePrelude");
 
-    const importPromises = importNodes.reduce<Promise<string>[]>((importPromises, importNode) => {
+    const imports = importNodes.reduce<string[]>((imports, importNode) => {
       if(importNode.type !== "Atrule" || !importNode.prelude){
-        return importPromises;
+        return imports;
       }
 
       const importStatement = generate(importNode.prelude).match(/["'](?<importPath>[^"']+)["']/);
 
       if(!importStatement){
-        return importPromises;
+        return imports;
       }
 
       const { importPath } = importStatement.groups || {};
 
       const cwd = dirname(resolvedPath);
-      importPromises.push(resolveCss(ctx, importPath, cwd));
+      const resolvedImportPath = resolveCss(ctx, importPath, cwd);
 
-      return importPromises;
+      if(resolvedImportPath){
+        imports.push(resolvedImportPath);
+      }
+
+      return imports;
     }, []);
-
-    const imports = await Promise.all(importPromises);
 
     return {
       ast,
-      imports: imports.filter(Boolean)
+      imports
     } satisfies CssFile;
 
   } catch {}

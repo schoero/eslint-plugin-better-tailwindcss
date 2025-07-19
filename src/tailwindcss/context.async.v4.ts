@@ -22,7 +22,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache(ctx.
 
   const importBasePath = dirname(ctx.tailwindConfigPath);
 
-  const tailwindPath = await resolveJs(ctx, "tailwindcss", importBasePath);
+  const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
 
   if(!tailwindPath){
     throw new Error("Could not find Tailwind CSS");
@@ -75,7 +75,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache(ctx.
 
     loadStylesheet: async (id: string, base: string) => {
       try {
-        const resolved = await resolveCss(ctx, id, base);
+        const resolved = resolveCss(ctx, id, base);
 
         return {
           base: dirname(resolved),
@@ -106,7 +106,7 @@ function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>,
 
   async function loadFile(id: string, base: string, resourceType: string) {
     try {
-      const resolved = await resolveJs(ctx, id, base);
+      const resolved = resolveJs(ctx, id, base);
 
       const url = pathToFileURL(resolved);
       url.searchParams.append("t", cacheKey);

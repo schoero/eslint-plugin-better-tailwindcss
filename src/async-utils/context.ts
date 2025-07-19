@@ -30,7 +30,7 @@ export async function getAsyncContext({ configPath, cwd, tsconfigPath }: GetAsyn
   const { context, warnings } = await withCache("async-context", async () => {
     const version = getTailwindcssVersion();
 
-    const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = await getTailwindConfigPath({ configPath, cwd, version });
+    const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = getTailwindConfigPath({ configPath, cwd, version });
     const { path: resolvedTSConfigPath, warnings: tsconfigWarnings } = getTSConfigPath({ configPath: tsconfigPath, cwd });
 
 

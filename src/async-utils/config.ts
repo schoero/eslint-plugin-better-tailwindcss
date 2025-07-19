@@ -1,8 +1,8 @@
 import { resolve } from "node:path";
 
-import { resolveCss } from "../async-utils/resolvers.js";
 import { withCache } from "./cache.js";
 import { findFileRecursive } from "./fs.js";
+import { resolveCss } from "./resolvers.js";
 import { TailwindcssVersion } from "./version.js";
 
 import type { Warning } from "../types/async.js";
@@ -19,7 +19,7 @@ export interface GetTailwindConfigResponse {
   warnings: (Warning | undefined)[];
 }
 
-export const getTailwindConfigPath = async ({ configPath, cwd, version }: GetTailwindConfigRequest): Promise<GetTailwindConfigResponse> => withCache(configPath ?? "tailwind-config", async () => {
+export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindConfigRequest): GetTailwindConfigResponse => withCache(configPath ?? "tailwind-config", () => {
   const { major } = version;
 
   if(major >= TailwindcssVersion.V4){
@@ -37,7 +37,7 @@ export const getTailwindConfigPath = async ({ configPath, cwd, version }: GetTai
       };
     }
 
-    const defaultConfigPath = await resolveCss("tailwindcss/theme.css", cwd);
+    const defaultConfigPath = resolveCss("tailwindcss/theme.css", cwd);
 
     if(!defaultConfigPath){
       throw new Error("No default tailwind config found. Please ensure you have Tailwind CSS installed.");

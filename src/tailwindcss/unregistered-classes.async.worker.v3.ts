@@ -7,8 +7,8 @@ import { getUnregisteredClasses } from "./unregistered-classes.async.v3.js";
 import type { GetUnregisteredClassesRequest, GetUnregisteredClassesResponse } from "./unregistered-classes.js";
 
 
-runAsWorker(async ({ classes, configPath, cwd }: GetUnregisteredClassesRequest): Promise<GetUnregisteredClassesResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ classes, configPath, cwd, tsconfigPath }: GetUnregisteredClassesRequest): Promise<GetUnregisteredClassesResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
   const context = await createTailwindContext(ctx);
 
   const unregisteredClasses = getUnregisteredClasses(context, classes);

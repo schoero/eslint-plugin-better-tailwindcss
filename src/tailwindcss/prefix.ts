@@ -14,6 +14,7 @@ export type Suffix = string;
 export interface GetPrefixRequest {
   configPath: string | undefined;
   cwd: string;
+  tsconfigPath: string | undefined;
 }
 
 export interface GetPrefixResponse { prefix: Prefix; suffix: Suffix; warnings: (Warning | undefined)[]; }

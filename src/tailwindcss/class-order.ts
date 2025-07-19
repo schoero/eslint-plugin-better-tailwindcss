@@ -14,6 +14,7 @@ export interface GetClassOrderRequest {
   classes: string[];
   configPath: string | undefined;
   cwd: string;
+  tsconfigPath: string | undefined;
 }
 
 export type GetClassOrderResponse = { classOrder: ClassOrder; warnings: (Warning | undefined)[]; };

@@ -7,8 +7,8 @@ import { getDissectedClasses } from "./dissect-classes.async.v3.js";
 import type { GetDissectedClassRequest } from "./dissect-classes.js";
 
 
-runAsWorker(async ({ classes, configPath, cwd }: GetDissectedClassRequest) => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ classes, configPath, cwd, tsconfigPath }: GetDissectedClassRequest) => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
   const context = await createTailwindContext(ctx);
 
   const dissectedClasses = getDissectedClasses(context, classes);

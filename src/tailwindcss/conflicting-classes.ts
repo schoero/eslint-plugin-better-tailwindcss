@@ -23,6 +23,7 @@ export interface GetConflictingClassesRequest {
   classes: string[];
   configPath: string | undefined;
   cwd: string;
+  tsconfigPath: string | undefined;
 }
 
 export type GetConflictingClassesResponse = { conflictingClasses: ConflictingClasses; warnings: (Warning | undefined)[]; };

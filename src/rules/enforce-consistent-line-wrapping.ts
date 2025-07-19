@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
@@ -46,6 +47,7 @@ export type Options = [
       preferSingleLine?: boolean;
       printWidth?: number;
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -91,6 +93,7 @@ export const enforceConsistentLineWrapping: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA,
             classesPerLine: {
               default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
@@ -144,9 +147,9 @@ export const enforceConsistentLineWrapping: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const options = getOptions(ctx);
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig } = options;
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig, tsconfig } = options;
 
-  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   for(const literal of literals){
 

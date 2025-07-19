@@ -14,6 +14,7 @@ export interface GetUnregisteredClassesRequest {
   classes: string[];
   configPath: string | undefined;
   cwd: string;
+  tsconfigPath: string | undefined;
 }
 
 export type GetUnregisteredClassesResponse = { unregisteredClasses: UnregisteredClass[]; warnings: (Warning | undefined)[]; };

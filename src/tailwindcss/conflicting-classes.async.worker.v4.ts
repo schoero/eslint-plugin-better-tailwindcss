@@ -7,8 +7,8 @@ import { createTailwindContext } from "./context.async.v4.js";
 import type { GetConflictingClassesRequest, GetConflictingClassesResponse } from "./conflicting-classes.js";
 
 
-runAsWorker(async ({ classes, configPath, cwd }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ classes, configPath, cwd, tsconfigPath }: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
 
   const context = await createTailwindContext(ctx);
   const conflictingClasses = await getConflictingClasses(context, classes);

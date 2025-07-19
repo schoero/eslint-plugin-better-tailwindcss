@@ -12,6 +12,7 @@ export interface GetDissectedClassRequest {
   classes: string[];
   configPath: string | undefined;
   cwd: string;
+  tsconfigPath: string | undefined;
 }
 
 export interface DissectedClass {

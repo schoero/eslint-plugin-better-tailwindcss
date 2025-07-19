@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
@@ -47,6 +48,7 @@ export type Options = [
       entryPoint?: string;
       order?: "asc" | "desc" | "improved" | "official";
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -83,6 +85,7 @@ export const enforceConsistentClassOrder: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA,
             order: {
               default: defaultOptions.order,
               description: "The algorithm to use when sorting classes.",
@@ -174,7 +177,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
 function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { order, tailwindConfig } = getOptions(ctx);
+  const { order, tailwindConfig, tsconfig } = getOptions(ctx);
 
   if(order === "asc"){
     return [classes.toSorted((a, b) => a.localeCompare(b))];
@@ -184,8 +187,8 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
-  const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
-  const { dissectedClasses } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+  const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { dissectedClasses } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {

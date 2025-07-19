@@ -7,8 +7,8 @@ import { getPrefix, getSuffix } from "./prefix.async.v4.js";
 import type { GetPrefixRequest, GetPrefixResponse } from "./prefix.js";
 
 
-runAsWorker(async ({ configPath, cwd }: GetPrefixRequest): Promise<GetPrefixResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ configPath, cwd, tsconfigPath }: GetPrefixRequest): Promise<GetPrefixResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
   const context = await createTailwindContext(ctx);
 
   const prefix = getPrefix(context);

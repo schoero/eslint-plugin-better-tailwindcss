@@ -7,8 +7,8 @@ import { createTailwindContext } from "./context.async.v4.js";
 import type { GetClassOrderRequest, GetClassOrderResponse } from "./class-order.js";
 
 
-runAsWorker(async ({ classes, configPath, cwd }: GetClassOrderRequest): Promise<GetClassOrderResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ classes, configPath, cwd, tsconfigPath }: GetClassOrderRequest): Promise<GetClassOrderResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
   const context = await createTailwindContext(ctx);
 
   const classOrder = getClassOrder(context, classes);

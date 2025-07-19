@@ -8,8 +8,8 @@ import type {
 } from "./custom-component-classes.js";
 
 
-runAsWorker(async ({ configPath, cwd }: GetCustomComponentClassesRequest): Promise<GetCustomComponentClassesResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+runAsWorker(async ({ configPath, cwd, tsconfigPath }: GetCustomComponentClassesRequest): Promise<GetCustomComponentClassesResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
   const { getCustomComponentClasses } = await import(`./custom-component-classes.async.v${ctx.version.major}.js`);
 
   const customComponentClasses = await getCustomComponentClasses(ctx);

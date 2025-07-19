@@ -827,4 +827,57 @@ describe(noUnregisteredClasses.name, () => {
       }
     );
   });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="unregistered custom-utility"/>`,
+            html: `<img class="unregistered custom-utility" />`,
+            jsx: `() => <img class="unregistered custom-utility" />`,
+            svelte: `<img class="unregistered custom-utility" />`,
+            vue: `<template><img class="unregistered custom-utility" /></template>`,
+
+            errors: 1,
+            files: {
+              "correct/custom-utilities.css": css`
+                @utility custom-utility {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss"; 
+                @import "@correct/custom-utilities.css";
+              `,
+              "tsconfig-custom.json": ts`
+                {
+                  "compilerOptions": {
+                    "paths": {
+                      "@correct/*": ["./correct/*"],
+                    }
+                  }
+                }
+              `,
+              "tsconfig.json": ts`
+                {
+                  "compilerOptions": {
+                    "paths": {
+                      "@unused/*": ["./unused/*"]
+                    }
+                  }
+                }
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css",
+              tsconfig: "./tsconfig-custom.json"
+            }]
+          }
+        ]
+      }
+    );
+  });
 });

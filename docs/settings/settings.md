@@ -4,6 +4,7 @@
 
 - [entryPoint](#entrypoint)
 - [tailwindConfig](#tailwindconfig)
+- [tsconfig](#tsconfig)
 - [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)

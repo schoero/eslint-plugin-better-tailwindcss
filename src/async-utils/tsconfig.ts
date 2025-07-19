@@ -20,7 +20,8 @@ export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSC
 
   const potentialPaths = [
     ...configPath ? [configPath] : [],
-    "tsconfig.json"
+    "tsconfig.json",
+    "jsconfig.json"
   ];
 
   const foundConfigPath = findFileRecursive(cwd, potentialPaths);

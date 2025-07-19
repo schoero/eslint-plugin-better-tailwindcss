@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
@@ -43,6 +44,7 @@ export type Options = [
       entryPoint?: string;
       ignore?: string[];
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -81,6 +83,7 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA,
             detectComponentClasses: {
               default: defaultOptions.detectComponentClasses,
               description: "Whether to automatically detect custom component classes from the tailwindcss config.",
@@ -103,22 +106,22 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
 };
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-  const { detectComponentClasses, ignore, tailwindConfig } = getOptions(ctx);
+  const { detectComponentClasses, ignore, tailwindConfig, tsconfig } = getOptions(ctx);
 
-  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
-  const customComponentClasses = detectComponentClasses
-    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })
-    : [];
+  const { customComponentClasses } = detectComponentClasses
+    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig })
+    : {};
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { unregisteredClasses, warnings } = getUnregisteredClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const { unregisteredClasses, warnings } = getUnregisteredClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     if(unregisteredClasses.length === 0){
       continue;
@@ -132,7 +135,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       if(
         ignore.some(ignoredClass => className.match(ignoredClass)) ||
-        customComponentClasses.includes(className) ||
+        customComponentClasses?.includes(className) ||
         className.match(ignoredGroups) ||
         className.match(ignoredPeers)
       ){

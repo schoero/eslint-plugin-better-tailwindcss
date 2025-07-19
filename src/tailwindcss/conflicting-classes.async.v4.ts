@@ -1,7 +1,7 @@
-import type { ConflictingClasses, GetConflictingClassesResponse } from "./conflicting-classes.js";
+import type { ConflictingClasses } from "./conflicting-classes.js";
 
 
-export async function getConflictingClasses(context: any, classes: string[]): Promise<GetConflictingClassesResponse> {
+export async function getConflictingClasses(context: any, classes: string[]): Promise<ConflictingClasses> {
   const conflicts: ConflictingClasses = {};
 
   const classRules = classes.reduce<Record<string, RuleContext>>((classRules, className) => ({

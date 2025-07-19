@@ -2,10 +2,10 @@ import * as utils from "tailwindcss3/lib/util/splitAtTopLevelOnly.js";
 
 import { getPrefix } from "./prefix.async.v3.js";
 
-import type { GetDissectedClassResponse } from "./dissect-classes.js";
+import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): GetDissectedClassResponse {
+export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
   const prefix = getPrefix(context);
   const separator = context.tailwindConfig.separator ?? ":";
 
@@ -35,6 +35,6 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
       prefix,
       separator,
       variants
-    } satisfies GetDissectedClassResponse[number];
+    };
   });
 }

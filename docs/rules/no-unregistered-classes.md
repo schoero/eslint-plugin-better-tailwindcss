@@ -93,6 +93,18 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
   **Type**: `string`  
   **Default**: `undefined`
 
+<br/>
+
+### `tsconfig`
+
+  The path to the `tsconfig.json` file. If not specified, the plugin will try to find it automatically.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tsconfig).  
+
+  The tsconfig is used to resolve tsconfig [`path`](https://www.typescriptlang.org/tsconfig/#paths) aliases.
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
 </details>
 
 <br/>

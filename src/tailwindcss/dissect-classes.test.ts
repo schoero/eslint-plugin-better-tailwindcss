@@ -7,7 +7,7 @@ import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:ut
 
 
 function dissectClass(className: string) {
-  const { dissectedClasses: classVariants } = getDissectedClasses({ classes: [className], configPath: undefined, cwd: process.cwd() });
+  const { dissectedClasses: classVariants } = getDissectedClasses({ classes: [className], configPath: undefined, cwd: process.cwd(), tsconfigPath: undefined });
 
   return classVariants[0];
 }

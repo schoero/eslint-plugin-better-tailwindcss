@@ -1,9 +1,7 @@
-import type {
-  GetCustomComponentClassesRequest,
-  GetCustomComponentClassesResponse
-} from "./custom-component-classes.js";
+import type { AsyncContext } from "../async-utils/context.js";
+import type { CustomComponentClasses } from "./custom-component-classes.js";
 
 
-export function getCustomComponentClasses(_: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
+export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentClasses {
   return [];
 }

@@ -1,4 +1,5 @@
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export function getWhitespace(classes: string) {
@@ -43,11 +44,6 @@ export function display(classes: string): string {
     .replaceAll("\t", "→");
 }
 
-export interface Warning<Options extends Record<string, any> = Record<string, any>> {
-  option: keyof Options;
-  title: string;
-  url?: string;
-}
 
 export function augmentMessageWithWarnings(message: string, documentationUrl: string, warnings?: (Warning | undefined)[]) {
   const ruleWarnings = warnings

@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
@@ -39,6 +40,7 @@ export type Options = [
     {
       entryPoint?: string;
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -73,7 +75,8 @@ export const noConflictingClasses: ESLintRule<Options> = {
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA
+            ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA
           },
           type: "object"
         }
@@ -87,11 +90,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const { tailwindConfig } = getOptions(ctx);
+    const { tailwindConfig, tsconfig } = getOptions(ctx);
 
     const classes = splitClasses(literal.content);
 
-    const { conflictingClasses, warnings } = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const { conflictingClasses, warnings } = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     if(Object.keys(conflictingClasses).length === 0){
       continue;

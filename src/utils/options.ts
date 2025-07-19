@@ -18,6 +18,7 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
   const variables = getOption(ctx, "variables") ?? DEFAULT_VARIABLE_NAMES;
   const tags = getOption(ctx, "tags") ?? DEFAULT_TAG_NAMES;
   const tailwindConfig = getOption(ctx, "entryPoint") ?? getOption(ctx, "tailwindConfig");
+  const tsconfig = getOption(ctx, "tsconfig");
 
   if(
     !warningShown && (
@@ -35,6 +36,7 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
     callees,
     tags,
     tailwindConfig,
+    tsconfig,
     variables
   };
 }

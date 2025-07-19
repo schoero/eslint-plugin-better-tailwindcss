@@ -289,3 +289,10 @@ export const TAILWIND_CONFIG_SCHEMA = {
     type: "string"
   }
 };
+
+export const TSCONFIG_SCHEMA = {
+  tsconfig: {
+    description: "The path to the tsconfig file. Is used to resolve path aliases in the tsconfig.",
+    type: "string"
+  }
+};

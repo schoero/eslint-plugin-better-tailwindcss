@@ -2,36 +2,24 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
-import { invalidateByModifiedDate, withCache } from "better-tailwindcss:utils/cache.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async } from "better-tailwindcss:types/async.js";
+import type { Async, Warning } from "better-tailwindcss:types/async.js";
 
+
+export type Prefix = string;
+export type Suffix = string;
 
 export interface GetPrefixRequest {
-  configPath: string;
+  configPath: string | undefined;
+  cwd: string;
+  tsconfigPath: string | undefined;
 }
 
-export type GetPrefixResponse = string;
+export interface GetPrefixResponse { prefix: Prefix; suffix: Suffix; warnings: (Warning | undefined)[]; }
 
-export function getPrefix({ configPath, cwd }: { configPath: string | undefined; cwd: string; }) {
-  const version = getTailwindcssVersion();
-  const { path, warning } = getTailwindConfigPath({ configPath, cwd });
-
-  return withCache("prefix", () => {
-    const prefix = getPrefixSync({ configPath: path });
-
-    const suffix = version.major === TailwindcssVersion.V3 || prefix === ""
-      ? ""
-      : ":";
-
-    return { prefix, suffix, warnings: [warning] };
-  }, date => invalidateByModifiedDate(date, path));
-}
-
-const getPrefixSync = createSyncFn<
+export const getPrefix = createSyncFn<
   Async<GetPrefixRequest, GetPrefixResponse>
 >(getWorkerPath(), getWorkerOptions());
 

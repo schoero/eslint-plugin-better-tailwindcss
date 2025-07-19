@@ -83,6 +83,16 @@ The following classes will be reported as deprecated:
 
   <br/>
 
+### `entryPoint`
+
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`).  
+  If not specified, the plugin will fall back to the default configuration.  
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+  <br/>
+
 ### `tailwindConfig`
 
   Tailwind config file path.  
@@ -92,12 +102,15 @@ The following classes will be reported as deprecated:
 
   <br/>
 
-### `entryPoint`
+### `tsconfig`
 
-  Main CSS file that imports Tailwind CSS.  
-  
-  **Type**: string  
-  **Default**: Default CSS lookup
+  The path to the `tsconfig.json` file. If not specified, the plugin will try to find it automatically.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tsconfig).  
+
+  The tsconfig is used to resolve tsconfig [`path`](https://www.typescriptlang.org/tsconfig/#paths) aliases.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
 </details>
 

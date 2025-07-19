@@ -25,7 +25,7 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
 }
 
 export function getTailwindcssVersion() {
-  const packageJsonPath = resolveJson(cwd(), "tailwindcss/package.json");
+  const packageJsonPath = resolveJson("tailwindcss/package.json", cwd());
 
   if(!packageJsonPath){
     throw new Error("Could not find a Tailwind CSS package.json");

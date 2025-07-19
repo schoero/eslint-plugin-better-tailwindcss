@@ -2,13 +2,15 @@ import { getTailwindcssVersion, TailwindcssVersion } from "../async-utils/versio
 import { createTailwindContext as createTailwindContextV3 } from "./context.async.v3.js";
 import { createTailwindContext as createTailwindContextV4 } from "./context.async.v4.js";
 
+import type { AsyncContext } from "../async-utils/context.js";
 
-export async function createTailwindContext(configPath: string) {
+
+export async function createTailwindContext(ctx: AsyncContext) {
   const version = getTailwindcssVersion();
 
   if(version.major === TailwindcssVersion.V3){
-    return createTailwindContextV3(configPath);
+    return createTailwindContextV3(ctx);
   } else {
-    return createTailwindContextV4(configPath);
+    return createTailwindContextV4(ctx);
   }
 }

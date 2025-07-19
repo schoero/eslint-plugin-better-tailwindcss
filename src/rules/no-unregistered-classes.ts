@@ -110,9 +110,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
-  const customComponentClasses = detectComponentClasses
+  const { customComponentClasses } = detectComponentClasses
     ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd })
-    : [];
+    : {};
 
   for(const literal of literals){
 
@@ -132,7 +132,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       if(
         ignore.some(ignoredClass => className.match(ignoredClass)) ||
-        customComponentClasses.includes(className) ||
+        customComponentClasses?.includes(className) ||
         className.match(ignoredGroups) ||
         className.match(ignoredPeers)
       ){

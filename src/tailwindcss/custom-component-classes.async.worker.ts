@@ -1,6 +1,6 @@
 import { runAsWorker } from "synckit";
 
-import { getTailwindcssVersion } from "../async-utils/version.js";
+import { getAsyncContext } from "../async-utils/context.js";
 
 import type {
   GetCustomComponentClassesRequest,
@@ -8,8 +8,10 @@ import type {
 } from "./custom-component-classes.js";
 
 
-runAsWorker(async (request: GetCustomComponentClassesRequest): Promise<GetCustomComponentClassesResponse> => {
-  const version = getTailwindcssVersion();
-  const { getCustomComponentClasses } = await import(`./custom-component-classes.async.v${version.major}.js`);
-  return getCustomComponentClasses(request);
+runAsWorker(async ({ configPath, cwd }: GetCustomComponentClassesRequest): Promise<GetCustomComponentClassesResponse> => {
+  const { ctx, warnings } = await getAsyncContext({ configPath, cwd });
+  const { getCustomComponentClasses } = await import(`./custom-component-classes.async.v${ctx.version.major}.js`);
+
+  const customComponentClasses = await getCustomComponentClasses(ctx);
+  return { customComponentClasses, warnings: [...warnings] };
 });

@@ -2,28 +2,23 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
 import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async } from "better-tailwindcss:types/async.js";
+import type { Async, Warning } from "better-tailwindcss:types/async.js";
 
+
+export type UnregisteredClass = string;
 
 export interface GetUnregisteredClassesRequest {
   classes: string[];
-  configPath: string;
+  configPath: string | undefined;
+  cwd: string;
 }
 
-export type GetUnregisteredClassesResponse = string[];
+export type GetUnregisteredClassesResponse = { unregisteredClasses: UnregisteredClass[]; warnings: (Warning | undefined)[]; };
 
-export function getUnregisteredClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
-  const { path, warning } = getTailwindConfigPath({ configPath, cwd });
-  const unregisteredClasses = getUnregisteredClassesSync({ classes, configPath: path });
-
-  return { unregisteredClasses, warnings: [warning] };
-}
-
-const getUnregisteredClassesSync = createSyncFn<
+export const getUnregisteredClasses = createSyncFn<
   Async<GetUnregisteredClassesRequest, GetUnregisteredClassesResponse>
 >(getWorkerPath(), getWorkerOptions());
 

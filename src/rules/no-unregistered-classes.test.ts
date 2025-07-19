@@ -762,4 +762,69 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support tsconfig paths in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="unregistered custom-component custom-utility custom-plugin"/>`,
+            html: `<img class="unregistered custom-component custom-utility custom-plugin" />`,
+            jsx: `() => <img class="unregistered custom-component custom-utility custom-plugin" />`,
+            svelte: `<img class="unregistered custom-component custom-utility custom-plugin" />`,
+            vue: `<template><img class="unregistered custom-component custom-utility custom-plugin" /></template>`,
+
+            errors: 1,
+            files: {
+              "nested/components/custom-components.css": css`
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `,
+              "nested/plugins/custom-plugin.js": ts`
+                import createPlugin from "tailwindcss/plugin";
+
+                export default createPlugin(({ addUtilities }) => {
+                  addUtilities({
+                    ".custom-plugin": {
+                      fontWeight: "bold"
+                    }
+                  });
+                });
+              `,
+              "nested/utilities/custom-utilities.css": css`
+                @utility custom-utility {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss"; 
+                @import "@components/custom-components.css";
+                @import "@utilities/custom-utilities.css";
+                @plugin "@plugins/custom-plugin.js";
+              `,
+              "tsconfig.json": ts`
+                {
+                  "compilerOptions": {
+                    "paths": {
+                      "@components/*": ["./nested/components/*"],
+                      "@utilities/*": ["./nested/utilities/*"],
+                      "@plugins/*": ["./nested/plugins/*"]
+                    }
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
 });

@@ -5,26 +5,21 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async } from "better-tailwindcss:types/async.js";
+import type { Async, Warning } from "better-tailwindcss:types/async.js";
 
+
+export type CustomComponentClasses = string[];
 
 export interface GetCustomComponentClassesRequest {
-  configPath: string;
+  configPath: string | undefined;
   cwd: string;
 }
 
-export type GetCustomComponentClassesResponse = string[];
+export type GetCustomComponentClassesResponse = { customComponentClasses: CustomComponentClasses; warnings: (Warning | undefined)[]; };
 
-export function getCustomComponentClasses({ configPath, cwd }: { configPath: string | undefined; cwd: string; }) {
-  const { path } = getTailwindConfigPath({ configPath, cwd });
-
-  return getCustomComponentClassesSync({ configPath: path, cwd });
-}
-
-const getCustomComponentClassesSync = createSyncFn<
+export const getCustomComponentClasses = createSyncFn<
   Async<GetCustomComponentClassesRequest, GetCustomComponentClassesResponse>
 >(getWorkerPath(), getWorkerOptions());
 

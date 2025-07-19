@@ -27,6 +27,7 @@ import {
 import type { Rule } from "eslint";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 import type {
   AttributeOption,
   CalleeOption,
@@ -34,7 +35,6 @@ import type {
   TagOption,
   VariableOption
 } from "better-tailwindcss:types/rule.js";
-import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
 export type Options = [

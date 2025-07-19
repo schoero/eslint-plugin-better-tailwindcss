@@ -3,19 +3,11 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindConfigPath } from "better-tailwindcss:tailwindcss/config.js";
 import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async } from "better-tailwindcss:types/async.js";
+import type { Async, Warning } from "better-tailwindcss:types/async.js";
 
-
-export interface GetConflictingClassesRequest {
-  classes: string[];
-  configPath: string;
-}
-
-export type GetConflictingClassesResponse = ConflictingClasses;
 
 export type ConflictingClasses = {
   [className: string]: {
@@ -27,15 +19,15 @@ export type ConflictingClasses = {
   };
 };
 
-
-export function getConflictingClasses({ classes, configPath, cwd }: { classes: string[]; configPath: string | undefined; cwd: string; }) {
-  const { path, warning } = getTailwindConfigPath({ configPath, cwd });
-  const conflictingClasses = getConflictingClassesSync({ classes, configPath: path });
-
-  return { conflictingClasses, warnings: [warning] };
+export interface GetConflictingClassesRequest {
+  classes: string[];
+  configPath: string | undefined;
+  cwd: string;
 }
 
-const getConflictingClassesSync = createSyncFn<
+export type GetConflictingClassesResponse = { conflictingClasses: ConflictingClasses; warnings: (Warning | undefined)[]; };
+
+export const getConflictingClasses = createSyncFn<
   Async<GetConflictingClassesRequest, GetConflictingClassesResponse>
 >(getWorkerPath(), getWorkerOptions());
 

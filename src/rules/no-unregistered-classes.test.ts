@@ -507,6 +507,68 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on DaisyUI classes in tailwind <= 3", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            html: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            jsx: `() => <div><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></div>`,
+            svelte: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            vue: `<template><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></template>`,
+
+            files: {
+              "tailwind.config.ts": ts`
+                import daisyui from "daisyui";
+
+                export default {
+                  plugins: [
+                    daisyui
+                  ],
+                };
+              `
+            },
+            options: [{
+              tailwindConfig: "./tailwind.config.ts"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on DaisyUI classes in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            html: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            jsx: `() => <div><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></div>`,
+            svelte: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
+            vue: `<template><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @plugin 'daisyui';
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should not report on groups and peers", () => {
     lint(
       noUnregisteredClasses,

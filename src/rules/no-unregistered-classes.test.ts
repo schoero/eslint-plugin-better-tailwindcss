@@ -561,8 +561,8 @@ describe(noUnregisteredClasses.name, () => {
               `
             },
             options: [{
-              entryPoint: "./tailwind.css"
-              // ignore: ["dropdown-hover"]
+              entryPoint: "./tailwind.css",
+              ignore: ["dropdown-hover"]
             }]
           }
         ]

@@ -22,7 +22,7 @@ describe("cn", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [CN_STRINGS] }]
         }
       ]
@@ -55,7 +55,7 @@ describe("cn", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 2,
+          errors: 4,
           options: [{ callees: [CN_OBJECT_KEYS] }]
         }
       ]

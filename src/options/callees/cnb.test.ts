@@ -22,7 +22,7 @@ describe("cnb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [CNB_STRINGS] }]
         }
       ]
@@ -55,7 +55,7 @@ describe("cnb", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 2,
+          errors: 4,
           options: [{ callees: [CNB_OBJECT_KEYS] }]
         }
       ]

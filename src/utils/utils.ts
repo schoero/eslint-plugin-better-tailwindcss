@@ -94,8 +94,8 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
   );
 }
 
-export function getExactClassLocation(literal: Literal, stringIndex: number, className: string) {
-  const linesUpToStartIndex = literal.content.slice(0, stringIndex).split(/\r?\n/);
+export function getExactClassLocation(literal: Literal, startIndex: number, endIndex: number) {
+  const linesUpToStartIndex = literal.content.slice(0, startIndex).split(/\r?\n/);
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
 
@@ -108,7 +108,7 @@ export function getExactClassLocation(literal: Literal, stringIndex: number, cla
 
   return {
     end: {
-      column: column + className.length,
+      column: column + (endIndex - startIndex),
       line
     },
     start: {

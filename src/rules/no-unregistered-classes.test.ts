@@ -514,11 +514,11 @@ describe(noUnregisteredClasses.name, () => {
       {
         valid: [
           {
-            angular: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            html: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            jsx: `() => <div><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></div>`,
-            svelte: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            vue: `<template><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></template>`,
+            angular: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            html: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            jsx: `() => <details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            svelte: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            vue: `<template><details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details></template>`,
 
             files: {
               "tailwind.config.ts": ts`
@@ -547,11 +547,11 @@ describe(noUnregisteredClasses.name, () => {
       {
         valid: [
           {
-            angular: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            html: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            jsx: `() => <div><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></div>`,
-            svelte: `<div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div>`,
-            vue: `<template><div class="dropdown-hover dropdown"><label>title</label><ul><button class="btn btn-circle btn-ghost btn-primary">one</button></ul></div></template>`,
+            angular: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            html: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            jsx: `() => <details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            svelte: `<details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details>`,
+            vue: `<template><details class="dropdown-hover dropdown"><summary><button class="btn btn-circle btn-ghost btn-primary btn-xl btn-active">open</button></summary><ul><li>a</li></ul></details></template>`,
 
             files: {
               "tailwind.css": css`
@@ -562,6 +562,7 @@ describe(noUnregisteredClasses.name, () => {
             },
             options: [{
               entryPoint: "./tailwind.css"
+              // ignore: ["dropdown-hover"]
             }]
           }
         ]

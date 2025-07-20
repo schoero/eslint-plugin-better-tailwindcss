@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.7.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.3...v3.7.0)
+
+### Features
+
+- Support tsconfig paths ([#185](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/185))
+
+### Refactors
+
+- Exact unnecessary whitespace fixes ([#184](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/184))
+
 ## v3.6.3
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.2...v3.6.3)

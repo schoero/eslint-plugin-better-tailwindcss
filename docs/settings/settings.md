@@ -4,6 +4,7 @@
 
 - [entryPoint](#entrypoint)
 - [tailwindConfig](#tailwindconfig)
+- [tsconfig](#tsconfig)
 - [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)
@@ -55,6 +56,18 @@ To set the settings object, add a `settings` key to the eslint config.
   For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`
+  
+<br/>
+
+### `tsconfig`
+
+  The path to the `tsconfig.json` file. If not specified, the plugin will try to find it automatically.  
+  This can also be set globally via the [`settings` object](../settings/settings.md#tsconfig).  
+
+  The tsconfig is used to resolve tsconfig [`path`](https://www.typescriptlang.org/tsconfig/#paths) aliases.
+
+  **Type**: `string`  
+  **Default**: `undefined`
 
 <br/>
 

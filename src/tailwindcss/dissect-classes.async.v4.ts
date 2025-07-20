@@ -1,9 +1,9 @@
 import { getPrefix } from "./prefix.async.v4.js";
 
-import type { GetDissectedClassResponse } from "./dissect-classes.js";
+import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): GetDissectedClassResponse {
+export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
   const prefix = getPrefix(context);
   const separator = ":";
 
@@ -34,6 +34,6 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
       prefix,
       separator,
       variants
-    } satisfies GetDissectedClassResponse[number];
+    };
   });
 }

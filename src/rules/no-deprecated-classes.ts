@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
@@ -41,6 +42,7 @@ export type Options = [
     {
       entryPoint?: string;
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -75,7 +77,8 @@ export const noDeprecatedClasses: ESLintRule<Options> = {
             ...VARIABLE_SCHEMA,
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA
+            ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA
           },
           type: "object"
         }
@@ -126,14 +129,14 @@ const deprecations = [
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { tailwindConfig } = getOptions(ctx);
+  const { tailwindConfig, tsconfig } = getOptions(ctx);
   const { major, minor } = getTailwindcssVersion();
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);

@@ -557,7 +557,7 @@ describe(noUnregisteredClasses.name, () => {
               "tailwind.css": css`
                 @import "tailwindcss";
 
-                @plugin 'daisyui';
+                @plugin "daisyui";
               `
             },
             options: [{

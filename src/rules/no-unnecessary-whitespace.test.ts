@@ -49,6 +49,20 @@ describe(noUnnecessaryWhitespace.name, () => {
     });
   });
 
+  it("should not report on empty strings", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          angular: `<img class="" />`,
+          html: `<img class="" />`,
+          jsx: `() => <img class="" />`,
+          svelte: `<img class="" />`,
+          vue: `<template><img class="" /></template>`
+        }
+      ]
+    });
+  });
+
   it("should collapse empty multiline strings", () => {
     const dirtyEmptyMultilineString = `
 

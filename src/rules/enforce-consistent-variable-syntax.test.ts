@@ -996,4 +996,62 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it("should not convert variable definitions", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="[--green:#00ff00]" />`,
+            html: `<img class="[--green:#00ff00]" />`,
+            jsx: `() => <img class="[--green:#00ff00]" />`,
+            svelte: `<img class="[--green:#00ff00]" />`,
+            vue: `<template><img class="[--green:#00ff00]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          },
+          {
+            angular: `<img class="hover:[--green:#00ff00]" />`,
+            html: `<img class="hover:[--green:#00ff00]" />`,
+            jsx: `() => <img class="hover:[--green:#00ff00]" />`,
+            svelte: `<img class="hover:[--green:#00ff00]" />`,
+            vue: `<template><img class="hover:[--green:#00ff00]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          },
+          {
+            angular: `<img class="tw:[--green:#00ff00]" />`,
+            html: `<img class="tw:[--green:#00ff00]" />`,
+            jsx: `() => <img class="tw:[--green:#00ff00]" />`,
+            svelte: `<img class="tw:[--green:#00ff00]" />`,
+            vue: `<template><img class="tw:[--green:#00ff00]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not convert arbitrary variables in arbitrary classes", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="[background-color:var(--secondary)]" />`,
+            html: `<img class="[background-color:var(--secondary)]" />`,
+            jsx: `() => <img class="[background-color:var(--secondary)]" />`,
+            svelte: `<img class="[background-color:var(--secondary)]" />`,
+            vue: `<template><img class="[background-color:var(--secondary)]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          }
+        ]
+      }
+    );
+  });
+
 });

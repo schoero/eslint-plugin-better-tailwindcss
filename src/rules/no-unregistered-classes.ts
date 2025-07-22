@@ -16,10 +16,11 @@ import {
 import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, escapeForRegex, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 

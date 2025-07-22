@@ -71,10 +71,6 @@ export function getIndentation(line: string): number {
   return line.match(/^[\t ]*/)?.[0].length ?? 0;
 }
 
-export function escapeForRegex(word: string) {
-  return word.replace(/[$()*+./?[\\\]^{|}-]/g, "\\$&");
-}
-
 export function isClassSticky(literal: Literal, classIndex: number): boolean {
   const classes = literal.content;
 

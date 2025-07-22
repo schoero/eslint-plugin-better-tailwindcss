@@ -1,5 +1,6 @@
 import * as utils from "tailwindcss3/lib/util/splitAtTopLevelOnly.js";
 
+import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
 import type { DissectedClass } from "./dissect-classes.js";
@@ -14,8 +15,8 @@ export function getDissectedClasses(context: any, classes: string[]): DissectedC
     const variants = splitChunks.slice(0, -1);
 
     let base = className
-      .replace(new RegExp(`^${variants.join(separator)}${separator}`), "")
-      .replace(new RegExp(`^${prefix}`), "");
+      .replace(new RegExp(`^${escapeForRegex(variants.join(separator) + separator)}`), "")
+      .replace(new RegExp(`^${escapeForRegex(prefix)}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");

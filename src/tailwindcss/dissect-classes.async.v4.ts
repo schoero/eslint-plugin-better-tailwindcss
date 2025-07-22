@@ -1,3 +1,4 @@
+import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
 import type { DissectedClass } from "./dissect-classes.js";
@@ -13,8 +14,8 @@ export function getDissectedClasses(context: any, classes: string[]): DissectedC
     const variants = parsed?.variants?.map(variant => context.printVariant(variant)).reverse() ?? [];
 
     let base = className
-      .replace(new RegExp(`^${prefix}${separator}`), "")
-      .replace(new RegExp(`^${variants.join(separator)}${separator}`), "");
+      .replace(new RegExp(`^${escapeForRegex(prefix + separator)}`), "")
+      .replace(new RegExp(`^${escapeForRegex(variants.join(separator) + separator)}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");

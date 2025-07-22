@@ -98,7 +98,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       const startIndex = stringIndex;
 
-      stringIndex += whitespaceChunks[whitespaceIndex].length;
+      const whitespace = whitespaceChunks[whitespaceIndex];
+
+      stringIndex += whitespace.length;
 
       const endIndex = stringIndex;
 
@@ -108,7 +110,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       const [literalStart] = literal.range;
 
+      // whitespaces only
       if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
+        if(whitespace === ""){
+          continue;
+        }
+
         ctx.report({
           fix: fixer => fixer.replaceTextRange(
             [
@@ -123,10 +130,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         continue;
       }
 
-      if(whitespaceChunks[whitespaceIndex].includes("\n") && allowMultiline === true){
-        const whitespaceWithoutLeadingSpaces = whitespaceChunks[whitespaceIndex].replace(/^ +/, "");
+      // trailing whitespace before multiline string
+      if(whitespace.includes("\n") && allowMultiline === true){
+        const whitespaceWithoutLeadingSpaces = whitespace.replace(/^ +/, "");
 
-        if(whitespaceChunks[whitespaceIndex] === whitespaceWithoutLeadingSpaces){
+        if(whitespace === whitespaceWithoutLeadingSpaces){
           continue;
         }
 
@@ -145,6 +153,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         continue;
       }
 
+      // whitespace between template literal expression
       if(
         !isFirstChunk && !isLastChunk ||
         (
@@ -153,7 +162,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           literal.type === "TemplateLiteral" && literal.closingBraces && literal.openingBraces
         )
       ){
-        if(whitespaceChunks[whitespaceIndex].length <= 1){
+        if(whitespace.length <= 1){
           continue;
         }
 
@@ -172,8 +181,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         continue;
       }
 
+      // leading or trailing whitespace
       if(isFirstChunk || isLastChunk){
-        if(whitespaceChunks[whitespaceIndex] === ""){
+        if(whitespace === ""){
           continue;
         }
 

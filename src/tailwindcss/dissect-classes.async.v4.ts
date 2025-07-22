@@ -14,8 +14,7 @@ export function getDissectedClasses(context: any, classes: string[]): DissectedC
 
     let base = className
       .replace(new RegExp(`^${prefix}${separator}`), "")
-      .replace(new RegExp(`^${variants.join(separator)}`), "")
-      .replace(new RegExp(`^${separator}`), "");
+      .replace(new RegExp(`^${variants.join(separator)}${separator}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");

@@ -137,7 +137,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           return {
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${fixedClass}".`
+            message: `Incorrect variable syntax: "${className}".`
           };
 
         }
@@ -154,7 +154,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           return {
             fix: fixedClass,
-            message: `Incorrect variable syntax: "[${fixedClass}]".`
+            message: `Incorrect variable syntax: "${className}".`
           };
 
         }
@@ -175,7 +175,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           return {
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${fixedClass}".`
+            message: `Incorrect variable syntax: "${className}".`
           };
         }
 
@@ -192,7 +192,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           return {
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${fixedClass}".`
+            message: `Incorrect variable syntax: "${className}".`
           };
 
         }

@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.7.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.0...v3.7.1)
+
+### Fixes
+
+- `no-unnecessary-whitespace` false positive on empty string ([#191](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/191))
+- Don't convert variable definitions ([#192](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/192))
+
+### Chore
+
+- Update dependencies ([#193](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/193))
+
 ## v3.7.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.6.3...v3.7.0)

@@ -13,9 +13,8 @@ export function getDissectedClasses(context: any, classes: string[]): DissectedC
     const variants = parsed?.variants?.map(variant => context.printVariant(variant)).reverse() ?? [];
 
     let base = className
-      .replace(variants.join(separator), "")
-      .replace(prefix + separator, "")
-      .replace(new RegExp(`^${separator}`), "");
+      .replace(new RegExp(`^${prefix}${separator}`), "")
+      .replace(new RegExp(`^${variants.join(separator)}${separator}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");

@@ -187,7 +187,6 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     const shorthandGroups = getShorthands(dissectedClasses);
 
-
     const { unregisteredClasses } = getUnregisteredClasses({
       classes: shorthandGroups
         .flat()

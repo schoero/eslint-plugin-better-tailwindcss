@@ -168,7 +168,7 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
 
 }
 
-function getMultilineQuotes(node: (ESBaseNode & Rule.NodeParentExtension) | SvelteLiteral): MultilineMeta {
+function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | SvelteLiteral): MultilineMeta {
   const surroundingBraces = SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES.includes(node.parent.type);
   const multilineQuotes: LiteralValueQuotes[] = SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES.includes(node.parent.type)
     ? ["'", "\"", "`"]

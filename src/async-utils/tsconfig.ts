@@ -16,7 +16,7 @@ export interface GetTSConfigResponse {
   warnings: (Warning | undefined)[];
 }
 
-export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => withCache(configPath ?? "tsconfig", () => {
+export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => withCache("tsconfig-path", configPath, () => {
 
   const potentialPaths = [
     ...configPath ? [configPath] : [],

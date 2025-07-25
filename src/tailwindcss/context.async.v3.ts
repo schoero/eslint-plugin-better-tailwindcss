@@ -8,7 +8,7 @@ import { withCache } from "../async-utils/cache.js";
 import type { AsyncContext } from "../async-utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => withCache(ctx.tailwindConfigPath, async () => {
+export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
   const tailwindConfig = loadTailwindConfig(ctx.tailwindConfigPath);
   return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
 });

@@ -31,7 +31,7 @@ export function getTailwindcssVersion() {
     throw new Error("Could not find a Tailwind CSS package.json");
   }
 
-  return withCache(packageJsonPath, () => {
+  return withCache("version", packageJsonPath, () => {
     const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 
     if(!packageJson){

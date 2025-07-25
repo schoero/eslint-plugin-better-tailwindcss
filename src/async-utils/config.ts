@@ -19,7 +19,7 @@ export interface GetTailwindConfigResponse {
   warnings: (Warning | undefined)[];
 }
 
-export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindConfigRequest): GetTailwindConfigResponse => withCache(configPath ?? "tailwind-config", () => {
+export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindConfigRequest): GetTailwindConfigResponse => withCache("config-path", configPath, () => {
   const { major } = version;
 
   if(major >= TailwindcssVersion.V4){

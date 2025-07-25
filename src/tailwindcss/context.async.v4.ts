@@ -14,7 +14,7 @@ import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 import type { AsyncContext } from "../async-utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => withCache(ctx.tailwindConfigPath, async () => {
+export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
   const jiti = createJiti(getCurrentFilename(), {
     fsCache: false,
     moduleCache: false

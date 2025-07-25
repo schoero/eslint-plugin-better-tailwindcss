@@ -59,7 +59,7 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promi
   return cssFiles;
 }
 
-const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache(resolvedPath, async () => {
+const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache("css-file", resolvedPath, async () => {
   try {
     const content = await readFile(resolvedPath, "utf-8");
     const ast = parse(content);

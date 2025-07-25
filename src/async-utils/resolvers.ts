@@ -10,7 +10,7 @@ import type { AsyncContext } from "../async-utils/context.js";
 
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
 
-const getESMResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `esm-resolver-${ctx.tsconfigPath}` : "esm-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getESMResolver = (ctx: AsyncContext | undefined) => withCache("esm-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["node", "import"],
   extensions: [".mjs", ".js"],
   fileSystem,
@@ -19,7 +19,7 @@ const getESMResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `esm-r
   useSyncFileSystemCalls: true
 }));
 
-const getCJSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `cjs-resolver-${ctx.tsconfigPath}` : "cjs-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getCJSResolver = (ctx: AsyncContext | undefined) => withCache("cjs-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["node", "require"],
   extensions: [".js", ".cjs"],
   fileSystem,
@@ -28,7 +28,7 @@ const getCJSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `cjs-r
   useSyncFileSystemCalls: true
 }));
 
-const getCSSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `css-resolver-${ctx.tsconfigPath}` : "css-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getCSSResolver = (ctx: AsyncContext | undefined) => withCache("css-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["style"],
   extensions: [".css"],
   fileSystem,

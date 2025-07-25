@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.7.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.1...v3.7.2)
+
+### Fixes
+
+- Error when no tsconfig is available ([#195](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/195))
+
+### Refactors
+
+- Refine cache ([#196](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/196))
+
 ## v3.7.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.0...v3.7.1)

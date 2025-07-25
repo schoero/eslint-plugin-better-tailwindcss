@@ -1,4 +1,5 @@
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export function getWhitespace(classes: string) {
@@ -43,11 +44,6 @@ export function display(classes: string): string {
     .replaceAll("\t", "→");
 }
 
-export interface Warning<Options extends Record<string, any> = Record<string, any>> {
-  option: keyof Options;
-  title: string;
-  url?: string;
-}
 
 export function augmentMessageWithWarnings(message: string, documentationUrl: string, warnings?: (Warning | undefined)[]) {
   const ruleWarnings = warnings
@@ -75,10 +71,6 @@ export function getIndentation(line: string): number {
   return line.match(/^[\t ]*/)?.[0].length ?? 0;
 }
 
-export function escapeForRegex(word: string) {
-  return word.replace(/[$()*+./?[\\\]^{|}-]/g, "\\$&");
-}
-
 export function isClassSticky(literal: Literal, classIndex: number): boolean {
   const classes = literal.content;
 
@@ -94,21 +86,21 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
   );
 }
 
-export function getExactClassLocation(literal: Literal, stringIndex: number, className: string) {
-  const linesUpToStartIndex = literal.content.slice(0, stringIndex - className.length).split(/\r?\n/);
+export function getExactClassLocation(literal: Literal, startIndex: number, endIndex: number) {
+  const linesUpToStartIndex = literal.content.slice(0, startIndex).split(/\r?\n/);
   const isOnFirstLine = linesUpToStartIndex.length === 1;
   const containingLine = linesUpToStartIndex.at(-1);
 
   const line = literal.loc.start.line + linesUpToStartIndex.length - 1;
   const column = (
     isOnFirstLine
-      ? literal.loc.start.column
+      ? literal.loc.start.column + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0)
       : 0
   ) + (containingLine?.length ?? 0);
 
   return {
     end: {
-      column: column + className.length,
+      column: column + (endIndex - startIndex),
       line
     },
     start: {

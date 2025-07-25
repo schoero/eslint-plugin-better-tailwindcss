@@ -22,9 +22,10 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
       stringIndex += whitespaceChunks[classIndex].length;
     }
 
-    const classStart = stringIndex;
+    const startIndex = stringIndex;
+    const endIndex = stringIndex + className.length;
 
-    stringIndex += className.length;
+    stringIndex = endIndex;
 
     if(!startsWithWhitespace){
       stringIndex += whitespaceChunks[classIndex + 1].length;
@@ -46,7 +47,7 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
       data: {
         className
       },
-      loc: getExactClassLocation(literal, stringIndex, className),
+      loc: getExactClassLocation(literal, startIndex, endIndex),
       message: typeof result === "object" && result.message
         ? result.message
         : "Expected {{ before }} to be {{ after }}.",
@@ -54,8 +55,8 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
       {
         fix: fixer => fixer.replaceTextRange(
           [
-            literalStart + classStart + 1,
-            literalStart + classStart + className.length + 1
+            literalStart + startIndex + 1,
+            literalStart + endIndex + 1
           ],
           result.fix!
         )

@@ -1,11 +1,12 @@
 import * as utils from "tailwindcss3/lib/util/splitAtTopLevelOnly.js";
 
+import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
-import type { GetDissectedClassResponse } from "./dissect-classes.js";
+import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): GetDissectedClassResponse {
+export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
   const prefix = getPrefix(context);
   const separator = context.tailwindConfig.separator ?? ":";
 
@@ -14,9 +15,8 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
     const variants = splitChunks.slice(0, -1);
 
     let base = className
-      .replace(variants.join(separator), "")
-      .replace(prefix, "")
-      .replace(new RegExp(`^${separator}`), "");
+      .replace(new RegExp(`^${escapeForRegex(variants.join(separator) + separator)}`), "")
+      .replace(new RegExp(`^${escapeForRegex(prefix)}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
@@ -35,6 +35,6 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
       prefix,
       separator,
       variants
-    } satisfies GetDissectedClassResponse[number];
+    };
   });
 }

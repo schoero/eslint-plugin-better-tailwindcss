@@ -10,6 +10,7 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
@@ -42,6 +43,7 @@ export type Options = [
       entryPoint?: string;
       position?: "legacy" | "recommended";
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -77,7 +79,7 @@ export const enforceConsistentImportantPosition: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
-
+            ...TSCONFIG_SCHEMA,
             position: {
               description: "Preferred position for important classes. 'legacy' places the important modifier (!) at the start of the class name, 'recommended' places it at the end.",
               enum: ["legacy", "recommended"],
@@ -94,14 +96,14 @@ export const enforceConsistentImportantPosition: ESLintRule<Options> = {
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { position, tailwindConfig } = getOptions(ctx);
+  const { position, tailwindConfig, tsconfig } = getOptions(ctx);
   const { major } = getTailwindcssVersion();
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     lintClasses(ctx, literal, (className, index, after) => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);

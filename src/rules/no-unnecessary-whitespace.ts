@@ -11,9 +11,8 @@ import {
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
@@ -56,7 +55,7 @@ export const noUnnecessaryWhitespace: ESLintRule<Options> = {
     meta: {
       docs: {
         category: "Stylistic Issues",
-        description: "Disallow unnecessary whitespace in tailwind classes.",
+        description: "Disallow unnecessary whitespace between Tailwind CSS classes.",
         recommended: true,
         url: DOCUMENTATION_URL
       },
@@ -89,83 +88,122 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const classes = splitClassesKeepWhitespace(literal, allowMultiline);
+    const classChunks = splitClasses(literal.content);
+    const whitespaceChunks = splitWhitespaces(literal.content);
 
-    const escapedClasses = escapeNestedQuotes(
-      classes.join(""),
-      literal.openingQuote ?? literal.closingQuote ?? "`"
-    );
+    for(let whitespaceIndex = 0, stringIndex = 0; whitespaceIndex < whitespaceChunks.length; whitespaceIndex++){
 
-    const fixedClasses = [
-      literal.openingQuote ?? "",
-      literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
-      escapedClasses,
-      literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
-      literal.closingQuote ?? ""
-    ].join("");
+      const isFirstChunk = whitespaceIndex === 0;
+      const isLastChunk = whitespaceIndex === whitespaceChunks.length - 1;
 
-    if(literal.raw === fixedClasses){
-      continue;
-    }
+      const startIndex = stringIndex;
 
-    ctx.report({
-      data: {
-        fixedClasses: display(fixedClasses),
-        unnecessaryWhitespace: display(literal.raw)
-      },
-      fix(fixer) {
-        return fixer.replaceTextRange(literal.range, fixedClasses);
-      },
-      loc: literal.loc,
-      message: "Unnecessary whitespace. Expected\n\n{{ unnecessaryWhitespace }}\n\nto be\n\n{{ fixedClasses }}"
-    });
+      const whitespace = whitespaceChunks[whitespaceIndex];
 
-  }
+      stringIndex += whitespace.length;
 
-}
+      const endIndex = stringIndex;
 
-function splitClassesKeepWhitespace(literal: Literal, allowMultiline: boolean): string[] {
+      const className = classChunks[whitespaceIndex] ?? "";
 
-  const classes = literal.content;
+      stringIndex += className.length;
 
-  const classChunks = splitClasses(classes);
-  const whitespaceChunks = splitWhitespaces(classes);
+      const [literalStart] = literal.range;
 
-  const mixedChunks: string[] = [];
+      // whitespaces only
+      if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
+        if(whitespace === ""){
+          continue;
+        }
 
-  if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
-    return [];
-  }
+        ctx.report({
+          fix: fixer => fixer.replaceTextRange(
+            [
+              literalStart + 1 + startIndex,
+              literalStart + 1 + endIndex
+            ],
+            ""
+          ),
+          loc: getExactClassLocation(literal, startIndex, endIndex),
+          message: "Unnecessary whitespace."
+        });
+        continue;
+      }
 
-  while(whitespaceChunks.length > 0 || classChunks.length > 0){
+      // trailing whitespace before multiline string
+      if(whitespace.includes("\n") && allowMultiline === true){
+        const whitespaceWithoutLeadingSpaces = whitespace.replace(/^ +/, "");
 
-    const whitespaceChunk = whitespaceChunks.shift();
-    const classChunk = classChunks.shift();
+        if(whitespace === whitespaceWithoutLeadingSpaces){
+          continue;
+        }
 
-    const isFirstChunk = mixedChunks.length === 0;
-    const isLastChunk = whitespaceChunks.length === 0 && classChunks.length === 0;
+        ctx.report({
+          fix: fixer => fixer.replaceTextRange(
+            [
+              literalStart + 1 + startIndex,
+              literalStart + 1 + endIndex
+            ],
+            whitespaceWithoutLeadingSpaces
+          ),
+          loc: getExactClassLocation(literal, startIndex, endIndex),
+          message: "Unnecessary whitespace."
+        });
 
-    if(whitespaceChunk){
-      if(whitespaceChunk.includes("\n") && allowMultiline === true){
-        const whitespaceWithoutLeadingSpaces = whitespaceChunk.replace(/^ +/, "");
-        mixedChunks.push(whitespaceWithoutLeadingSpaces);
-      } else {
-        if(!isFirstChunk && !isLastChunk ||
+        continue;
+      }
+
+      // whitespace between template literal expression
+      if(
+        !isFirstChunk && !isLastChunk ||
+        (
           literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
           literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk ||
-          literal.type === "TemplateLiteral" && literal.closingBraces && literal.openingBraces){
-          mixedChunks.push(" ");
+          literal.type === "TemplateLiteral" && literal.closingBraces && literal.openingBraces
+        )
+      ){
+        if(whitespace.length <= 1){
+          continue;
         }
+
+        ctx.report({
+          fix: fixer => fixer.replaceTextRange(
+            [
+              literalStart + 1 + startIndex,
+              literalStart + 1 + endIndex
+            ],
+            " "
+          ),
+          loc: getExactClassLocation(literal, startIndex, endIndex),
+          message: "Unnecessary whitespace."
+        });
+
+        continue;
+      }
+
+      // leading or trailing whitespace
+      if(isFirstChunk || isLastChunk){
+        if(whitespace === ""){
+          continue;
+        }
+
+        ctx.report({
+          fix: fixer => fixer.replaceTextRange(
+            [
+              literalStart + 1 + startIndex,
+              literalStart + 1 + endIndex
+            ],
+            ""
+          ),
+          loc: getExactClassLocation(literal, startIndex, endIndex),
+          message: "Unnecessary whitespace."
+        });
+
+        continue;
       }
     }
 
-    if(classChunk){
-      mixedChunks.push(classChunk);
-    }
-
   }
-
-  return mixedChunks;
 
 }
 

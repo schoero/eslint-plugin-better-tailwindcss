@@ -1,9 +1,10 @@
+import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
-import type { GetDissectedClassResponse } from "./dissect-classes.js";
+import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): GetDissectedClassResponse {
+export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
   const prefix = getPrefix(context);
   const separator = ":";
 
@@ -13,9 +14,8 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
     const variants = parsed?.variants?.map(variant => context.printVariant(variant)).reverse() ?? [];
 
     let base = className
-      .replace(variants.join(separator), "")
-      .replace(prefix + separator, "")
-      .replace(new RegExp(`^${separator}`), "");
+      .replace(new RegExp(`^${escapeForRegex(prefix + separator)}`), "")
+      .replace(new RegExp(`^${escapeForRegex(variants.join(separator) + separator)}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
@@ -34,6 +34,6 @@ export function getDissectedClasses(context: any, classes: string[]): GetDissect
       prefix,
       separator,
       variants
-    } satisfies GetDissectedClassResponse[number];
+    };
   });
 }

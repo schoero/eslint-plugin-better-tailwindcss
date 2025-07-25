@@ -10,17 +10,20 @@ import {
   ENTRYPOINT_SCHEMA,
   TAG_SCHEMA,
   TAILWIND_CONFIG_SCHEMA,
+  TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
 import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, display, escapeForRegex, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, display, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 
 import type { BracesMeta, Literal, QuoteMeta, WhitespaceMeta } from "better-tailwindcss:types/ast.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 import type {
   AttributeOption,
   CalleeOption,
@@ -28,7 +31,6 @@ import type {
   TagOption,
   VariableOption
 } from "better-tailwindcss:types/rule.js";
-import type { Warning } from "better-tailwindcss:utils/utils.js";
 
 
 export type Options = [
@@ -46,6 +48,7 @@ export type Options = [
       preferSingleLine?: boolean;
       printWidth?: number;
       tailwindConfig?: string;
+      tsconfig?: string;
     }
   >
 ];
@@ -91,6 +94,7 @@ export const enforceConsistentLineWrapping: ESLintRule<Options> = {
             ...TAG_SCHEMA,
             ...ENTRYPOINT_SCHEMA,
             ...TAILWIND_CONFIG_SCHEMA,
+            ...TSCONFIG_SCHEMA,
             classesPerLine: {
               default: defaultOptions.classesPerLine,
               description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
@@ -144,9 +148,9 @@ export const enforceConsistentLineWrapping: ESLintRule<Options> = {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const options = getOptions(ctx);
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig } = options;
+  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig, tsconfig } = options;
 
-  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   for(const literal of literals){
 

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
@@ -9,10 +9,8 @@ import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
 
-import type {
-  GetCustomComponentClassesRequest,
-  GetCustomComponentClassesResponse
-} from "./custom-component-classes.js";
+import type { AsyncContext } from "../async-utils/context.js";
+import type { CustomComponentClasses } from "./custom-component-classes.js";
 
 
 interface CssFile {
@@ -26,10 +24,11 @@ interface CssFiles {
 
 const { findAll, generate, parse } = fork(tailwind4);
 
-export function getCustomComponentClasses({ configPath, cwd }: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
+export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
 
-  const resolvedPath = resolveCss(cwd, configPath);
-  const files = parseCssFilesDeep(resolvedPath);
+  const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
+
+  const files = await parseCssFilesDeep(ctx, resolvedPath);
 
   const utilities = Object.values(files).reduce<string[]>((customComponentClasses, { ast }) => {
     customComponentClasses.push(...getCustomComponentUtilities(ast));
@@ -39,10 +38,10 @@ export function getCustomComponentClasses({ configPath, cwd }: GetCustomComponen
   return utilities;
 }
 
-function parseCssFilesDeep(resolvedPath: string): CssFiles {
+async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
   const cssFiles: CssFiles = {};
 
-  const cssFile = parseCssFile(resolvedPath);
+  const cssFile = await parseCssFile(ctx, resolvedPath);
 
   if(!cssFile){
     return cssFiles;
@@ -51,7 +50,7 @@ function parseCssFilesDeep(resolvedPath: string): CssFiles {
   cssFiles[resolvedPath] = cssFile;
 
   for(const importPath of cssFile.imports){
-    const importedFiles = parseCssFilesDeep(importPath);
+    const importedFiles = await parseCssFilesDeep(ctx, importPath);
 
     for(const importedFile in importedFiles){
       cssFiles[importedFile] = importedFiles[importedFile];
@@ -60,9 +59,9 @@ function parseCssFilesDeep(resolvedPath: string): CssFiles {
   return cssFiles;
 }
 
-const parseCssFile = (resolvedPath: string): CssFile | undefined => withCache(resolvedPath, () => {
+const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache("css-file", resolvedPath, async () => {
   try {
-    const content = readFileSync(resolvedPath, "utf-8");
+    const content = await readFile(resolvedPath, "utf-8");
     const ast = parse(content);
 
     const importNodes = findAll(ast, node => node.type === "Atrule" &&
@@ -83,7 +82,7 @@ const parseCssFile = (resolvedPath: string): CssFile | undefined => withCache(re
       const { importPath } = importStatement.groups || {};
 
       const cwd = dirname(resolvedPath);
-      const resolvedImportPath = resolveCss(cwd, importPath);
+      const resolvedImportPath = resolveCss(ctx, importPath, cwd);
 
       if(resolvedImportPath){
         imports.push(resolvedImportPath);

@@ -29,7 +29,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [TV_STRINGS] }]
         }
       ]
@@ -64,7 +64,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [TV_VARIANT_VALUES] }]
         }
       ]
@@ -106,7 +106,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 2,
+          errors: 4,
           options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
@@ -193,7 +193,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 10
+          errors: 20
         }
       ]
     });
@@ -229,7 +229,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [TV_BASE_VALUES] }]
         }
       ]
@@ -269,7 +269,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [TV_SLOTS_VALUES] }]
         }
       ]
@@ -313,7 +313,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 2,
+          errors: 4,
           options: [{ callees: [TV_COMPOUND_SLOTS_CLASS] }]
         }
       ]
@@ -357,7 +357,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 5,
+          errors: 10,
           options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
@@ -402,7 +402,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 5,
+          errors: 10,
           options: [{ callees: [TV_COMPOUND_SLOTS_CLASS] }]
         }
       ]
@@ -439,7 +439,7 @@ describe("tv", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [TV_BASE_VALUES] }]
         }
       ]

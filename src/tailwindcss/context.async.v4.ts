@@ -9,24 +9,20 @@ import postcssImport from "postcss-import";
 import { withCache } from "../async-utils/cache.js";
 import { isESModule } from "../async-utils/module.js";
 import { isWindows } from "../async-utils/platform.js";
-import { cjsResolver, esmResolver, resolveCss, resolveJs } from "../async-utils/resolvers.js";
+import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
+
+import type { AsyncContext } from "../async-utils/context.js";
 
 
-export const createTailwindContext = async (entryPoint: string) => withCache(entryPoint, async () => {
-
-  // Create a Jiti instance that can be used to load plugins and config files
+export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
   const jiti = createJiti(getCurrentFilename(), {
     fsCache: false,
     moduleCache: false
   });
 
-  const importBasePath = dirname(entryPoint);
+  const importBasePath = dirname(ctx.tailwindConfigPath);
 
-  const tailwindPath = (
-    isESModule()
-      ? esmResolver
-      : cjsResolver
-  ).resolveSync({}, importBasePath, "tailwindcss");
+  const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
 
   if(!tailwindPath){
     throw new Error("Could not find Tailwind CSS");
@@ -37,7 +33,7 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(tailwindUrl);
 
-  let css = await readFile(entryPoint, "utf-8");
+  let css = await readFile(ctx.tailwindConfigPath, "utf-8");
 
   // Determine if the v4 API supports resolving `@import`
   let supportsImports = false;
@@ -55,7 +51,7 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
 
   if(!supportsImports){
     const resolveImports = postcss([postcssImport()]);
-    const result = await resolveImports.process(css, { from: entryPoint });
+    const result = await resolveImports.process(css, { from: ctx.tailwindConfigPath });
     css = result.css;
   }
 
@@ -63,9 +59,8 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
   // usable by the rest of the plugin
   const design = await __unstable__loadDesignSystem(css, {
     base: importBasePath,
-    loadModule: createLoader({
-      filepath: entryPoint,
-      jiti,
+    loadModule: createLoader(ctx, jiti, {
+      filepath: ctx.tailwindConfigPath,
       legacy: false,
       onError: (id, err, resourceType) => {
         console.error(`Unable to load ${resourceType}: ${id}`, err);
@@ -80,7 +75,7 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
 
     loadStylesheet: async (id: string, base: string) => {
       try {
-        const resolved = resolveCss(base, id);
+        const resolved = resolveCss(ctx, id, base);
 
         return {
           base: dirname(resolved),
@@ -98,14 +93,12 @@ export const createTailwindContext = async (entryPoint: string) => withCache(ent
   return design;
 });
 
-function createLoader<T>({
+function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {
   filepath,
-  jiti,
   legacy,
   onError
 }: {
   filepath: string;
-  jiti: ReturnType<typeof createJiti>;
   legacy: boolean;
   onError: (id: string, error: unknown, resourceType: string) => T;
 }) {
@@ -113,7 +106,7 @@ function createLoader<T>({
 
   async function loadFile(id: string, base: string, resourceType: string) {
     try {
-      const resolved = resolveJs(base, id);
+      const resolved = resolveJs(ctx, id, base);
 
       const url = pathToFileURL(resolved);
       url.searchParams.append("t", cacheKey);

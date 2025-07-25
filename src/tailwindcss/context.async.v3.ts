@@ -5,9 +5,11 @@ import resolveConfig from "tailwindcss3/resolveConfig.js";
 
 import { withCache } from "../async-utils/cache.js";
 
+import type { AsyncContext } from "../async-utils/context.js";
 
-export const createTailwindContext = async (configPath: string) => withCache(configPath, async () => {
-  const tailwindConfig = loadTailwindConfig(configPath);
+
+export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
+  const tailwindConfig = loadTailwindConfig(ctx.tailwindConfigPath);
   return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
 });
 

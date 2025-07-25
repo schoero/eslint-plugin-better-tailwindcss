@@ -26,7 +26,7 @@ describe("cva", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 3,
+          errors: 6,
           options: [{ callees: [CVA_STRINGS] }]
         }
       ]
@@ -61,7 +61,7 @@ describe("cva", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 1,
+          errors: 2,
           options: [{ callees: [CVA_VARIANT_VALUES] }]
         }
       ]
@@ -103,7 +103,7 @@ describe("cva", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 2,
+          errors: 4,
           options: [{ callees: [CVA_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
@@ -168,7 +168,7 @@ describe("cva", () => {
           vue: `<script>${dirty}</script>`,
           vueOutput: `<script>${clean}</script>`,
 
-          errors: 7
+          errors: 14
         }
       ]
     });

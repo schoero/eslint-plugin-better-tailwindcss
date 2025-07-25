@@ -10,8 +10,10 @@ Enforce consistent css variable syntax in tailwindcss class strings.
 
   The syntax to enforce for css variables in tailwindcss class strings.
 
-  **Type**: `"arbitrary"` | `"parentheses"`  
-  **Default**: `"parentheses"`
+  The `shorthand` syntax uses the `(--variable)` syntax in Tailwind CSS v4 and `[--variable]` syntax in Tailwind CSS v3.
+
+  **Type**: `"variable"` | `"shorthand"`  
+  **Default**: `"shorthand"`
 
 <br/>
 
@@ -67,21 +69,31 @@ Enforce consistent css variable syntax in tailwindcss class strings.
 ## Examples
 
 ```tsx
-// ❌ BAD: Incorrect css variable syntax with option `syntax: "parentheses"`
+// ❌ BAD: Incorrect css variable syntax with option `syntax: "shorthand"`
 <div class="bg-[var(--primary)]" />;
 ```
 
 ```tsx
-// ✅ GOOD: With option `syntax: "parentheses"`
+// ✅ GOOD: With option `syntax: "shorthand"` in Tailwind CSS v4
 <div class="bg-(--primary)" />;
 ```
 
 ```tsx
-// ❌ BAD: Incorrect css variable syntax with option `syntax: "arbitrary"`
+// ✅ GOOD: With option `syntax: "shorthand"` in Tailwind CSS v3
+<div class="bg-[--primary]" />;
+```
+
+```tsx
+// ❌ BAD: Incorrect css variable syntax with option `syntax: "variable"` in Tailwind CSS v4
 <div class="bg-(--primary)" />;
 ```
 
 ```tsx
-// ✅ GOOD: With option `syntax: "arbitrary"`
+// ❌ BAD: Incorrect css variable syntax with option `syntax: "variable"` in Tailwind CSS v3
+<div class="bg-[--primary]" />;
+```
+
+```tsx
+// ✅ GOOD: With option `syntax: "variable"`
 <div class="bg-[var(--primary)]" />;
 ```

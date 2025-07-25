@@ -10,34 +10,34 @@ import type { AsyncContext } from "../async-utils/context.js";
 
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
 
-export const getESMResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `esm-resolver-${ctx.tsconfigPath}` : "esm-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getESMResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `esm-resolver-${ctx.tsconfigPath}` : "esm-resolver", () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["node", "import"],
   extensions: [".mjs", ".js"],
   fileSystem,
   mainFields: ["module"],
-  plugins: ctx ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
+  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
   useSyncFileSystemCalls: true
 }));
 
-export const getCJSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `cjs-resolver-${ctx.tsconfigPath}` : "cjs-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getCJSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `cjs-resolver-${ctx.tsconfigPath}` : "cjs-resolver", () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["node", "require"],
   extensions: [".js", ".cjs"],
   fileSystem,
   mainFields: ["main"],
-  plugins: ctx ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
+  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
   useSyncFileSystemCalls: true
 }));
 
-export const getCSSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `css-resolver-${ctx.tsconfigPath}` : "css-resolver", () => enhancedResolve.ResolverFactory.createResolver({
+const getCSSResolver = (ctx: AsyncContext | undefined) => withCache(ctx ? `css-resolver-${ctx.tsconfigPath}` : "css-resolver", () => enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["style"],
   extensions: [".css"],
   fileSystem,
   mainFields: ["style"],
-  plugins: ctx ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
+  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
   useSyncFileSystemCalls: true
 }));
 
-export const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
+const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["json"],
   extensions: [".json"],
   fileSystem,

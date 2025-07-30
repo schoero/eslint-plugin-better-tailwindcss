@@ -129,7 +129,11 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
         if(isBeginningOfArbitraryVariable(charactersSquareBrackets)){
 
-          const { characters } = extractBalanced(charactersSquareBrackets);
+          const { after, characters } = extractBalanced(charactersSquareBrackets);
+
+          if(trimTailwindWhitespace(after).length > 0){
+            return;
+          }
 
           const fixedClass = major >= TailwindcssVersion.V4
             ? buildClass({ ...dissectedClass, base: [...beforeSquareBrackets, `(${characters})`, ...afterSquareBrackets].join("") })
@@ -252,6 +256,10 @@ function extractBalanced(className: string, start = "(", end = ")") {
     before: before.join(""),
     characters: characters.join("")
   };
+}
+
+function trimTailwindWhitespace(className: string): string {
+  return className.replace(/^_+|_+$/g, "");
 }
 
 export function getOptions(ctx: Rule.RuleContext) {

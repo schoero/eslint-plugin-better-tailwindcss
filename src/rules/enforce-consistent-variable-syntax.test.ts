@@ -1054,4 +1054,24 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it("should not convert if multiple variables are used in the same class", () => {
+    lint(
+      enforceConsistentVariableSyntax,
+      TEST_SYNTAXES,
+      {
+        valid: [
+          {
+            angular: `<img class="object-[var(--x)_var(--y)]" />`,
+            html: `<img class="object-[var(--x)_var(--y)]" />`,
+            jsx: `() => <img class="object-[var(--x)_var(--y)]" />`,
+            svelte: `<img class="object-[var(--x)_var(--y)]" />`,
+            vue: `<template><img class="object-[var(--x)_var(--y)]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          }
+        ]
+      }
+    );
+  });
+
 });

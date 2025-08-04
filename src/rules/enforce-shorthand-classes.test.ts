@@ -602,4 +602,29 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
+  it("should shorten multiple variants separately", () => {
+    lint(
+      enforceShorthandClasses,
+      TEST_SYNTAXES,
+      {
+        invalid: [
+          {
+            angular: `<img class="w-4 h-4 hover:w-8 hover:h-8" />`,
+            angularOutput: `<img class="size-4  hover:size-8 " />`,
+            html: `<img class="w-4 h-4 hover:w-8 hover:h-8" />`,
+            htmlOutput: `<img class="size-4  hover:size-8 " />`,
+            jsx: `() => <img class="w-4 h-4 hover:w-8 hover:h-8" />`,
+            jsxOutput: `() => <img class="size-4  hover:size-8 " />`,
+            svelte: `<img class="w-4 h-4 hover:w-8 hover:h-8" />`,
+            svelteOutput: `<img class="size-4  hover:size-8 " />`,
+            vue: `<template><img class="w-4 h-4 hover:w-8 hover:h-8" /></template>`,
+            vueOutput: `<template><img class="size-4  hover:size-8 " /></template>`,
+
+            errors: 4
+          }
+        ]
+      }
+    );
+  });
+
 });

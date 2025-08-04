@@ -244,63 +244,75 @@ function getShorthands(dissectedClasses: DissectedClass[]) {
 
     shorthandLoop: for(const [patterns, substitutes] of sortedShorthandGroup){
 
-      const longhands: DissectedClass[] = [];
-      const groups: string[] = [];
+      const groupedByVariants = dissectedClasses.reduce<Record<string, DissectedClass[]>>((acc, dissectedClass) => {
+        const variants = dissectedClass.variants.join(dissectedClass.separator);
 
-      for(const pattern of patterns){
-        classNameLoop: for(const dissectedClass of dissectedClasses){
-          const match = dissectedClass.base.match(pattern);
+        acc[variants] ??= [];
+        acc[variants].push(dissectedClass);
 
-          if(!match){
-            continue classNameLoop;
+        return acc;
+      }, {});
+
+      for(const variantGroup in groupedByVariants){
+
+        const longhands: DissectedClass[] = [];
+        const groups: string[] = [];
+
+        for(const pattern of patterns){
+          classNameLoop: for(const dissectedClass of groupedByVariants[variantGroup]){
+            const match = dissectedClass.base.match(pattern);
+
+            if(!match){
+              continue classNameLoop;
+            }
+
+            for(let m = 0; m < match.length; m++){
+              if(groups[m] === undefined){
+                groups[m] = match[m];
+                continue;
+              }
+
+              if(m === 0){
+                continue;
+              }
+
+              if(groups[m] !== match[m]){
+                continue shorthandLoop;
+              }
+            }
+
+            longhands.push(dissectedClass);
           }
-
-          for(let m = 0; m < match.length; m++){
-            if(groups[m] === undefined){
-              groups[m] = match[m];
-              continue;
-            }
-
-            if(m === 0){
-              continue;
-            }
-
-            if(groups[m] !== match[m]){
-              continue shorthandLoop;
-            }
-          }
-
-          longhands.push(dissectedClass);
         }
-      }
 
-      const isImportantAtEnd = longhands.some(longhand => longhand.important[1]);
-      const isImportantAtStart = !isImportantAtEnd && longhands.some(longhand => longhand.important[0]);
+        const isImportantAtEnd = longhands.some(longhand => longhand.important[1]);
+        const isImportantAtStart = !isImportantAtEnd && longhands.some(longhand => longhand.important[0]);
 
-      const negative = longhands.some(longhand => longhand.negative);
+        const negative = longhands.some(longhand => longhand.negative);
 
-      const prefix = longhands[0]?.prefix ?? "";
-      const variants = longhands[0]?.variants ?? [];
-      const separator = longhands[0]?.separator ?? ":";
+        const prefix = longhands[0]?.prefix ?? "";
+        const variants = longhands[0]?.variants ?? [];
+        const separator = longhands[0]?.separator ?? ":";
 
-      if(
-        longhands.length !== patterns.length ||
-        longhands.some(longhand => (longhand?.important[0] || longhand?.important[1]) !== (isImportantAtStart || isImportantAtEnd)) ||
-        longhands.some(longhand => longhand?.negative !== negative) ||
-        longhands.some(longhand => longhand?.variants.join(separator) !== variants.join(separator))
-      ){
-        continue;
-      }
+        if(
+          longhands.length !== patterns.length ||
+          longhands.some(longhand => (longhand?.important[0] || longhand?.important[1]) !== (isImportantAtStart || isImportantAtEnd)) ||
+          longhands.some(longhand => longhand?.negative !== negative) ||
+          longhands.some(longhand => longhand?.variants.join(separator) !== variants.join(separator))
+        ){
+          continue;
+        }
 
-      if(longhands.length === patterns.length){
-        possibleShorthandClasses.push([longhands, substitutes.map(substitute => buildClass({
-          base: replacePlaceholders(substitute, groups),
-          important: [isImportantAtStart, isImportantAtEnd],
-          negative,
-          prefix,
-          separator,
-          variants
-        }))]);
+        if(longhands.length === patterns.length){
+          possibleShorthandClasses.push([longhands, substitutes.map(substitute => buildClass({
+            base: replacePlaceholders(substitute, groups),
+            important: [isImportantAtStart, isImportantAtEnd],
+            negative,
+            prefix,
+            separator,
+            variants
+          }))]);
+        }
       }
     }
 

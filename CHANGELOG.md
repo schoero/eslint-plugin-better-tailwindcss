@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.7.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.3...v3.7.4)
+
+### Fixes
+
+- Error in no-conflicting-classes when used in tailwindcss 3 ([#205](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/205))
+- Invalid config warning when config was actually found ([#206](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/206))
+- Differentiate shorthands for the same classes with different variants ([#207](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/207))
+
 ## v3.7.3
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.2...v3.7.3)

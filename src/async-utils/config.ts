@@ -1,5 +1,3 @@
-import { resolve } from "node:path";
-
 import { withCache } from "./cache.js";
 import { findFileRecursive } from "./fs.js";
 import { resolveCss } from "./resolvers.js";
@@ -23,11 +21,8 @@ export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindC
   const { major } = version;
 
   if(major >= TailwindcssVersion.V4){
-    const potentialPaths = [
-      ...configPath ? [configPath] : []
-    ];
 
-    const foundConfigPath = findFileRecursive(cwd, potentialPaths);
+    const foundConfigPath = configPath && findFileRecursive(cwd, [configPath]);
     const warning = getEntryPointWarning(configPath, foundConfigPath);
 
     if(foundConfigPath){
@@ -50,19 +45,20 @@ export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindC
   }
 
   if(major <= TailwindcssVersion.V3){
-    const potentialPaths = [
-      ...configPath ? [configPath] : [],
+    const defaultPaths = [
       "tailwind.config.js",
       "tailwind.config.cjs",
       "tailwind.config.mjs",
       "tailwind.config.ts"
     ];
 
-    const foundConfigPath = findFileRecursive(cwd, potentialPaths);
+    const foundConfigPath = configPath && findFileRecursive(cwd, [configPath]);
+
+    const foundDefaultPath = findFileRecursive(cwd, defaultPaths);
     const warning = getConfigPathWarning(configPath, foundConfigPath);
 
     return {
-      path: foundConfigPath ?? "default",
+      path: foundConfigPath ?? foundDefaultPath ?? "default",
       warnings: [warning]
     };
   }
@@ -71,11 +67,7 @@ export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindC
 });
 
 function getConfigPathWarning(configPath: string | undefined, foundConfigPath: string | undefined): Warning | undefined {
-  if(!configPath){
-    return;
-  }
-
-  if(foundConfigPath && resolve(configPath) === resolve(foundConfigPath)){
+  if(!!configPath && !!foundConfigPath){
     return;
   }
 
@@ -86,11 +78,7 @@ function getConfigPathWarning(configPath: string | undefined, foundConfigPath: s
 }
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {
-  if(!entryPoint){
-    return;
-  }
-
-  if(foundEntryPoint && resolve(entryPoint) === resolve(foundEntryPoint)){
+  if(!!entryPoint && !!foundEntryPoint){
     return;
   }
 

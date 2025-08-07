@@ -18,6 +18,7 @@ import {
 } from "better-tailwindcss:utils/matchers.js";
 import { getLiteralsByNodeAndRegex } from "better-tailwindcss:utils/regex.js";
 import {
+  createObjectPathElement,
   deduplicateLiterals,
   getContent,
   getIndentation,
@@ -428,15 +429,6 @@ export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>
   }, []).join("");
 
 }
-
-function createObjectPathElement(path?: string): string {
-  if(!path){ return ""; }
-
-  return path.match(/^[A-Z_a-z]\w*$/)
-    ? path
-    : `["${path}"]`;
-}
-
 
 export interface ESSimpleStringLiteral extends Rule.NodeParentExtension, ESSimpleLiteral {
   value: string;

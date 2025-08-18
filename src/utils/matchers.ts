@@ -155,6 +155,6 @@ export function isInsideLogicalExpressionLeft(node: ESNode & Partial<Rule.NodePa
 export function isInsideMemberExpression(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
   // aka indexed access: https://github.com/estree/estree/blob/master/es5.md#memberexpression
   if(!hasESNodeParentExtension(node)){ return false; }
-  if(node.parent.type === "MemberExpression"){ return true; }
+  if(node.parent.type === "MemberExpression" && node.parent.property === node){ return true; }
   return isInsideMemberExpression(node.parent);
 }

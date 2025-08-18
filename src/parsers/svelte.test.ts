@@ -5,6 +5,7 @@ import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
 describe("svelte", () => {
@@ -58,6 +59,7 @@ describe("svelte", () => {
     });
   });
 
+  // #119
   it("should not report inside member expressions", () => {
     lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
       valid: [
@@ -67,5 +69,23 @@ describe("svelte", () => {
       ]
     });
   });
+
+  // #211
+  it("should still handle object values even when they are immediately index accessed", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          svelte: "<img class={{ key: '  a b c  '}['key']} />",
+          svelteOutput: "<img class={{ key: 'a b c'}['key']} />",
+
+          errors: 2,
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectValue }]]]
+          }]
+        }
+      ]
+    });
+  });
+
 
 });

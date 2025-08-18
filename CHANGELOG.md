@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.7.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.4...v3.7.5)
+
+### Fixes
+
+- Matching object values with immediate indexed access ([#212](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/212))
+
 ## v3.7.4
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.3...v3.7.4)

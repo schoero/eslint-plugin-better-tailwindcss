@@ -405,7 +405,7 @@ describe("angular", () => {
       it("should lint classes around expressions", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           invalid: [
-          // 1st pass of multi pass fix
+            // 1st pass of multi pass fix
             {
               angular: "<img [class]=\"`b a ${'d c'} f e`\" />",
               angularOutput: "<img [class]=\"`a b ${'d c'} e f`\" />",
@@ -474,6 +474,41 @@ describe("angular", () => {
         });
       });
 
+      it('should not crash on dynamic [class] expression (no literal)', () => {
+        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+          valid: [
+            {
+              // Dynamic computed class expression – previously could crash parser
+              // when parent.source was unavailable.
+              angular: `<icon [class]="styles.icon({ disabled: disabled })" />`
+            }
+          ]
+        });
+      });
+
+      it('should not crash on dynamic [ngClass] expression (no literal)', () => {
+        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+          valid: [
+            {
+              angular: `<icon [ngClass]="styles.icon({ disabled: disabled })" />`
+            }
+          ]
+        });
+      });
+
+      it('should continue handling literal map keys without crashing', () => {
+        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+          invalid: [
+            {
+              // Sanity check: object-literal keys are still parsed and reordered
+              angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
+              angularOutput: `<img [class]="{ 'a b': true, 'c d': false }" />`,
+              errors: 2,
+              options: [{ order: 'asc' }]
+            }
+          ]
+        });
+      });
     });
 
   });

@@ -62,7 +62,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceShorthandClasses: ESLintRule<Options> = {
   name: "enforce-shorthand-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Enforce shorthand class names instead of longhand class names.",

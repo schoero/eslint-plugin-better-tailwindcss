@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 describe(enforceShorthandClasses.name, () => {

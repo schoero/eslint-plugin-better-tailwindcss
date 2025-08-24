@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 function dissectClass(className: string) {

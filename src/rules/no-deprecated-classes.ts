@@ -18,8 +18,8 @@ import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
-import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
 
 import type { Rule } from "eslint";
 
@@ -60,7 +60,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noDeprecatedClasses: ESLintRule<Options> = {
   name: "no-deprecated-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow the use of deprecated Tailwind CSS classes.",

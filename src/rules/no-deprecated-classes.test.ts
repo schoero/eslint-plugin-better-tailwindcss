@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 const testCases = [

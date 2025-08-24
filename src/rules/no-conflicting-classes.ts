@@ -58,7 +58,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noConflictingClasses: ESLintRule<Options> = {
   name: "no-conflicting-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow classes that produce conflicting styles.",

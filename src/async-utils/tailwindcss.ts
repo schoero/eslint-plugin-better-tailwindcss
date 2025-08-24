@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { cwd } from "node:process";
 
 import { withCache } from "./cache.js";
@@ -8,6 +8,14 @@ import { resolveJson } from "./resolvers.js";
 export const enum TailwindcssVersion {
   V3 = 3,
   V4 = 4
+}
+
+export function isTailwindcssInstalled(): boolean {
+  try {
+    return existsSync(resolveJson("tailwindcss/package.json", cwd()));
+  } catch {
+    return false;
+  }
 }
 
 export type SupportedTailwindVersion = TailwindcssVersion.V3 | TailwindcssVersion.V4;
@@ -27,18 +35,13 @@ export function isTailwindcssVersion4(version: number): version is TailwindcssVe
 export function getTailwindcssVersion() {
   const packageJsonPath = resolveJson("tailwindcss/package.json", cwd());
 
-  if(!packageJsonPath){
-    throw new Error("Could not find a Tailwind CSS package.json");
-  }
-
   return withCache("version", packageJsonPath, () => {
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-
-    if(!packageJson){
+    try {
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+      return parseSemanticVersion(packageJson.version);
+    } catch {
       throw new Error("Error reading Tailwind CSS package.json");
     }
-
-    return parseSemanticVersion(packageJson.version);
   });
 }
 

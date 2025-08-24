@@ -8,6 +8,8 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailw
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
+import { isTailwindcssInstalled } from "better-tailwindcss:utils/tailwindcss.js";
+import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { TagNode } from "es-html-parser";
@@ -27,8 +29,14 @@ export type Options =
   TagOption &
   VariableOption;
 
-export function createRuleListener(ctx: Rule.RuleContext, options: Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
-  const { attributes, callees, tags, variables } = options;
+export function createRuleListener(ctx: Rule.RuleContext, getOptions: (ctx: Rule.RuleContext) => Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
+
+  if(!isTailwindcssInstalled()){
+    warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
+    return {};
+  }
+
+  const { attributes, callees, tags, variables } = getOptions(ctx);
 
   const callExpression = {
     CallExpression(node: Node) {

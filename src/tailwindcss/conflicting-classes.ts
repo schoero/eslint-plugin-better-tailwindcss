@@ -3,10 +3,10 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async, Warning } from "better-tailwindcss:types/async.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export type ConflictingClasses = {
@@ -28,9 +28,12 @@ export interface GetConflictingClassesRequest {
 
 export type GetConflictingClassesResponse = { conflictingClasses: ConflictingClasses; warnings: (Warning | undefined)[]; };
 
-export const getConflictingClasses = createSyncFn<
-  Async<GetConflictingClassesRequest, GetConflictingClassesResponse>
->(getWorkerPath(), getWorkerOptions());
+export function getConflictingClasses(req: GetConflictingClassesRequest): GetConflictingClassesResponse {
+  const workerPath = getWorkerPath();
+  const workerOptions = getWorkerOptions();
+
+  return createSyncFn(workerPath, workerOptions)(req);
+}
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();

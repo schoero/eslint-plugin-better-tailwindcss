@@ -51,7 +51,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noUnnecessaryWhitespace: ESLintRule<Options> = {
   name: "no-unnecessary-whitespace" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",

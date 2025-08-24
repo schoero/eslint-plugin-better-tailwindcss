@@ -2,10 +2,10 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async, Warning } from "better-tailwindcss:types/async.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export type ClassOrder = [className: string, order: bigint | null][];
@@ -19,9 +19,12 @@ export interface GetClassOrderRequest {
 
 export type GetClassOrderResponse = { classOrder: ClassOrder; warnings: (Warning | undefined)[]; };
 
-export const getClassOrder = createSyncFn<
-  Async<GetClassOrderRequest, GetClassOrderResponse>
->(getWorkerPath(), getWorkerOptions());
+export function getClassOrder(req: GetClassOrderRequest): GetClassOrderResponse {
+  const workerPath = getWorkerPath();
+  const workerOptions = getWorkerOptions();
+
+  return createSyncFn(workerPath, workerOptions)(req);
+}
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();

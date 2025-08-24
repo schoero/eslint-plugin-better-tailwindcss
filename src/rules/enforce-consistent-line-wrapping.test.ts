@@ -1,10 +1,10 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "src/async-utils/version.js";
 import { describe, it } from "vitest";
 
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 describe(enforceConsistentLineWrapping.name, () => {

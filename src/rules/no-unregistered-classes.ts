@@ -66,7 +66,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noUnregisteredClasses: ESLintRule<Options> = {
   name: "no-unregistered-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow any css classes that are not registered in tailwindcss.",

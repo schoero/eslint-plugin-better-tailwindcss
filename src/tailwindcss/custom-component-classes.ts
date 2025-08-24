@@ -7,7 +7,7 @@ import { createSyncFn } from "synckit";
 
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async, Warning } from "better-tailwindcss:types/async.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export type CustomComponentClasses = string[];
@@ -20,9 +20,12 @@ export interface GetCustomComponentClassesRequest {
 
 export type GetCustomComponentClassesResponse = { customComponentClasses: CustomComponentClasses; warnings: (Warning | undefined)[]; };
 
-export const getCustomComponentClasses = createSyncFn<
-  Async<GetCustomComponentClassesRequest, GetCustomComponentClassesResponse>
->(getWorkerPath(), getWorkerOptions());
+export function getCustomComponentClasses(req: GetCustomComponentClassesRequest): GetCustomComponentClassesResponse {
+  const workerPath = getWorkerPath();
+  const workerOptions = getWorkerOptions();
+
+  return createSyncFn(workerPath, workerOptions)(req);
+}
 
 function getWorkerPath() {
   return resolve(getCurrentDirectory(), "./custom-component-classes.async.worker.js");

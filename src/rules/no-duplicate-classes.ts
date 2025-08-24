@@ -48,7 +48,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noDuplicateClasses: ESLintRule<Options> = {
   name: "no-duplicate-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",

@@ -66,7 +66,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceConsistentClassOrder: ESLintRule<Options> = {
   name: "enforce-consistent-class-order" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",

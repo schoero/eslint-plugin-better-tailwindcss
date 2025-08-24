@@ -75,7 +75,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceConsistentLineWrapping: ESLintRule<Options> = {
   name: "enforce-consistent-line-wrapping" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",

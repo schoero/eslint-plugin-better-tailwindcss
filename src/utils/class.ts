@@ -1,4 +1,4 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 interface ClassParts {

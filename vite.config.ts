@@ -5,7 +5,6 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   ...config,
   test: {
-    fileParallelism: false,
-    testTimeout: 7000
+    fileParallelism: false
   }
 });

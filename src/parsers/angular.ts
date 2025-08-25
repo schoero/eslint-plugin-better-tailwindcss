@@ -213,32 +213,32 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
   const keyContent = key?.key;
 
   // Bail out if we can't parse safely
-  if (!literalMap || !literalMap.sourceSpan || typeof objectContent !== 'string' || typeof keyContent !== 'string') {
+  if(!literalMap?.sourceSpan || typeof objectContent !== "string" || typeof keyContent !== "string"){
     return [];
   }
-  
+
   let start = 0;
   let end = 0;
 
-  const values = (literalMap as any).values as Array<{ sourceSpan: { start: number; end: number } }> | undefined;
+  const values = (literalMap as any).values as { sourceSpan: { end: number; start: number; }; }[] | undefined;
 
-  for (const value of values ?? []) {
-    if (!value?.sourceSpan) continue;
+  for(const value of values ?? []){
+    if(!value?.sourceSpan){continue;}
 
     const sliced = objectContent.slice(start);
     const currentStart = sliced.indexOf(keyContent);
-    if (currentStart === -1) {
+    if(currentStart === -1){
       // Key not found from this position; avoid negative/invalid ranges
       return [];
     }
     const currentEnd = currentStart + keyContent.length;
 
-    if (
-      (literalMap.sourceSpan.start + currentStart >= value.sourceSpan.start &&
-        literalMap.sourceSpan.start + currentStart <= value.sourceSpan.end) ||
-      (literalMap.sourceSpan.start + currentEnd >= value.sourceSpan.start &&
-        literalMap.sourceSpan.start + currentEnd <= value.sourceSpan.end)
-    ) {
+    if(
+      literalMap.sourceSpan.start + currentStart >= value.sourceSpan.start &&
+      literalMap.sourceSpan.start + currentStart <= value.sourceSpan.end ||
+      literalMap.sourceSpan.start + currentEnd >= value.sourceSpan.start &&
+      literalMap.sourceSpan.start + currentEnd <= value.sourceSpan.end
+    ){
       start += currentEnd;
       end += currentEnd;
       continue;
@@ -257,19 +257,19 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
   const whitespaces = getWhitespace(keyContent);
   const range = [literalMap.sourceSpan.start + safeStart, literalMap.sourceSpan.start + safeEnd] satisfies [number, number];
   const loc = getLocByRange(ctx, range);
-  const line = ctx.sourceCode.lines[loc.start.line - 1] ?? '';
+  const line = ctx.sourceCode.lines[loc.start.line - 1] ?? "";
   const indentation = getIndentation(line);
 
   return [{
-      ...quotes,
-      ...whitespaces,
-      content: keyContent,
-      indentation,
-      loc,
-      range,
-      raw,
-      supportsMultiline: false,
-      type: "StringLiteral"
+    ...quotes,
+    ...whitespaces,
+    content: keyContent,
+    indentation,
+    loc,
+    range,
+    raw,
+    supportsMultiline: false,
+    type: "StringLiteral"
   }];
 }
 

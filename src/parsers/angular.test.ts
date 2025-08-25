@@ -474,7 +474,7 @@ describe("angular", () => {
         });
       });
 
-      it('should not crash on dynamic [class] expression (no literal)', () => {
+      it("should not crash on dynamic [class] expression (no literal)", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           valid: [
             {
@@ -486,7 +486,7 @@ describe("angular", () => {
         });
       });
 
-      it('should not crash on dynamic [ngClass] expression (no literal)', () => {
+      it("should not crash on dynamic [ngClass] expression (no literal)", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           valid: [
             {
@@ -496,15 +496,16 @@ describe("angular", () => {
         });
       });
 
-      it('should continue handling literal map keys without crashing', () => {
+      it("should continue handling literal map keys without crashing", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           invalid: [
             {
               // Sanity check: object-literal keys are still parsed and reordered
               angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
               angularOutput: `<img [class]="{ 'a b': true, 'c d': false }" />`,
+
               errors: 2,
-              options: [{ order: 'asc' }]
+              options: [{ order: "asc" }]
             }
           ]
         });

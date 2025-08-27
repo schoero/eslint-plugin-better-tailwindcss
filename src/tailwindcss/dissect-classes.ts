@@ -27,11 +27,11 @@ export interface DissectedClass {
 
 export type GetDissectedClassResponse = { dissectedClasses: DissectedClass[]; warnings: (Warning | undefined)[]; };
 
-export function getDissectedClasses(req: GetDissectedClassRequest): GetDissectedClassResponse {
+export function createGetDissectedClasses(): (req: GetDissectedClassRequest) => GetDissectedClassResponse {
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions)(req);
+  return createSyncFn(workerPath, workerOptions);
 }
 
 function getWorkerPath() {

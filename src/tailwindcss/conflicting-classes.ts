@@ -28,11 +28,11 @@ export interface GetConflictingClassesRequest {
 
 export type GetConflictingClassesResponse = { conflictingClasses: ConflictingClasses; warnings: (Warning | undefined)[]; };
 
-export function getConflictingClasses(req: GetConflictingClassesRequest): GetConflictingClassesResponse {
+export function createGetConflictingClasses(): (req: GetConflictingClassesRequest) => GetConflictingClassesResponse {
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions)(req);
+  return createSyncFn(workerPath, workerOptions);
 }
 
 function getWorkerPath() {

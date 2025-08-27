@@ -56,7 +56,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noRestrictedClasses: ESLintRule<Options> = {
   name: "no-restricted-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow restricted classes.",
@@ -111,6 +111,7 @@ export const noRestrictedClasses: ESLintRule<Options> = {
   }
 };
 
+function initialize() {}
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 

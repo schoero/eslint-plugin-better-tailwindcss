@@ -13,9 +13,9 @@ import {
   TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
-import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
-import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { createGetCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
+import { createGetPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { createGetUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
@@ -66,7 +66,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noUnregisteredClasses: ESLintRule<Options> = {
   name: "no-unregistered-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow any css classes that are not registered in tailwindcss.",
@@ -106,7 +106,18 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
   }
 };
 
+function initialize() {
+  createGetCustomComponentClasses();
+  createGetUnregisteredClasses();
+  createGetPrefix();
+}
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  const getPrefix = createGetPrefix();
+  const getCustomComponentClasses = createGetCustomComponentClasses();
+  const getUnregisteredClasses = createGetUnregisteredClasses();
+
   const { detectComponentClasses, ignore, tailwindConfig, tsconfig } = getOptions(ctx);
 
   const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });

@@ -10,7 +10,7 @@ import {
   TAG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
@@ -56,7 +56,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceConsistentVariableSyntax: ESLintRule<Options> = {
   name: "enforce-consistent-variable-syntax" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Enforce consistent syntax for css variables.",
@@ -87,7 +87,13 @@ export const enforceConsistentVariableSyntax: ESLintRule<Options> = {
   }
 };
 
+function initialize() {
+  createGetDissectedClasses();
+}
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  const getDissectedClasses = createGetDissectedClasses();
 
   const { syntax, tailwindConfig, tsconfig } = getOptions(ctx);
   const { major } = getTailwindcssVersion();

@@ -29,12 +29,14 @@ export type Options =
   TagOption &
   VariableOption;
 
-export function createRuleListener(ctx: Rule.RuleContext, getOptions: (ctx: Rule.RuleContext) => Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
+export function createRuleListener(ctx: Rule.RuleContext, initialize: () => void, getOptions: (ctx: Rule.RuleContext) => Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
 
   if(!isTailwindcssInstalled()){
     warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
     return {};
   }
+
+  initialize();
 
   const { attributes, callees, tags, variables } = getOptions(ctx);
 

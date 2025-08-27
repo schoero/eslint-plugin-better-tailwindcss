@@ -13,8 +13,8 @@ import {
   TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
+import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -66,7 +66,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceConsistentClassOrder: ESLintRule<Options> = {
   name: "enforce-consistent-class-order" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -105,6 +105,11 @@ export const enforceConsistentClassOrder: ESLintRule<Options> = {
     }
   }
 };
+
+function initialize() {
+  createGetClassOrder();
+  createGetDissectedClasses();
+}
 
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
@@ -176,6 +181,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 }
 
 function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
+
+  const getClassOrder = createGetClassOrder();
+  const getDissectedClasses = createGetDissectedClasses();
 
   const { order, tailwindConfig, tsconfig } = getOptions(ctx);
 

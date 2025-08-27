@@ -1,7 +1,7 @@
 import { withCache } from "./cache.js";
 import { findFileRecursive } from "./fs.js";
 import { resolveCss } from "./resolvers.js";
-import { TailwindcssVersion } from "./version.js";
+import { TailwindcssVersion } from "./tailwindcss.js";
 
 import type { Warning } from "../types/async.js";
 

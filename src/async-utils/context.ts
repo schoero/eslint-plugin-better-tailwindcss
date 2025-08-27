@@ -1,6 +1,6 @@
 import { getTailwindConfigPath } from "./config.js";
+import { getTailwindcssVersion } from "./tailwindcss.js";
 import { getTSConfigPath } from "./tsconfig.js";
-import { getTailwindcssVersion } from "./version.js";
 
 import type { Warning } from "../types/async.js";
 

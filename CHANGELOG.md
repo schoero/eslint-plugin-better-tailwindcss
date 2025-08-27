@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.7.6
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.5...v3.7.6)
+
+### Fixes
+
+- Check for tailwindcss before running rules ([#217](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/217))
+- Angular: Prevent crash when objectContent is undefined in createLiteralByLiteralMapKey ([#215](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/215))
+
+### Tests
+
+- Add no-unregistered-classes test for DaisyUI classes ([#186](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/186))
+
+### ❤️ Contributors
+
+- Paul Parker ([@pauldesmondparker](https://github.com/pauldesmondparker))
+- Yossi Yedid ([@yossiyedid](https://github.com/yossiyedid))
+
 ## v3.7.5
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.4...v3.7.5)

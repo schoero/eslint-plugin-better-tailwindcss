@@ -2,13 +2,13 @@ import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils
 import { deduplicateLiterals, getContent, getIndentation, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
-import type { Rule } from "eslint";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+export function getLiteralsByHTMLAttribute(ctx: Context, attribute: AttributeNode, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }
@@ -24,11 +24,11 @@ export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: Att
 
 }
 
-export function getAttributesByHTMLTag(ctx: Rule.RuleContext, node: TagNode): AttributeNode[] {
+export function getAttributesByHTMLTag(ctx: Context, node: TagNode): AttributeNode[] {
   return node.attributes;
 }
 
-export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute: AttributeNode): Literal[] {
+export function getLiteralsByHTMLAttributeNode(ctx: Context, attribute: AttributeNode): Literal[] {
 
   const value = attribute.value;
 
@@ -58,7 +58,7 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
 }
 
 
-function getQuotesByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode): QuoteMeta {
+function getQuotesByHTMLAttribute(ctx: Context, attribute: AttributeNode): QuoteMeta {
   const openingQuote = attribute.startWrapper?.value;
   const closingQuote = attribute.endWrapper?.value;
 

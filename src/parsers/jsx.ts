@@ -19,6 +19,7 @@ import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSX
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta } from "better-tailwindcss:types/ast.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
 export const JSX_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -33,7 +34,7 @@ export const JSX_CONTAINER_TYPES_TO_INSERT_BRACES = [
 ];
 
 
-export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsByJSXAttribute(ctx: Context, attribute: JSXAttribute, attributes: Attributes): Literal[] {
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
@@ -60,7 +61,7 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
 
 }
 
-export function getAttributesByJSXElement(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {
+export function getAttributesByJSXElement(ctx: Context, node: JSXOpeningElement): JSXAttribute[] {
   return node.attributes.reduce<JSXAttribute[]>((acc, attribute) => {
     if(isJSXAttribute(attribute)){
       acc.push(attribute);
@@ -78,7 +79,7 @@ function getAttributeName(attribute: JSXAttribute): string | undefined {
   }
 }
 
-function getLiteralsByJSXAttributeValue(ctx: Rule.RuleContext, value: JSXAttribute["value"]): Literal[] {
+function getLiteralsByJSXAttributeValue(ctx: Context, value: JSXAttribute["value"]): Literal[] {
 
   if(!value){ return []; }
 
@@ -106,7 +107,7 @@ function getLiteralsByJSXAttributeValue(ctx: Rule.RuleContext, value: JSXAttribu
 
 }
 
-function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): Literal | undefined {
+function getStringLiteralByJSXStringLiteral(ctx: Context, node: ESSimpleStringLiteral): Literal | undefined {
   const literal = getStringLiteralByESStringLiteral(ctx, node);
   const multilineQuotes = getMultilineQuotes(node);
 
@@ -120,7 +121,7 @@ function getStringLiteralByJSXStringLiteral(ctx: Rule.RuleContext, node: ESSimpl
   };
 }
 
-function getLiteralsByJSXTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral): Literal[] {
+function getLiteralsByJSXTemplateLiteral(ctx: Context, node: ESTemplateLiteral): Literal[] {
   const literals = getLiteralsByESTemplateLiteral(ctx, node);
 
   return literals.map(literal => {

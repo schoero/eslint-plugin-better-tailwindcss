@@ -35,7 +35,7 @@ import type { VLiteral } from "vue-eslint-parser/ast/index";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Context, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -47,11 +47,11 @@ export const VUE_CONTAINER_TYPES_TO_INSERT_BRACES = [
 ];
 
 
-export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VStartTag): (AST.VAttribute | AST.VDirective)[] {
+export function getAttributesByVueStartTag(ctx: Context, node: AST.VStartTag): (AST.VAttribute | AST.VDirective)[] {
   return node.attributes;
 }
 
-export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
+export function getLiteralsByVueAttribute(ctx: Context, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -75,7 +75,7 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
 
 }
 
-function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
+function getLiteralsByVueLiteralNode(ctx: Context, node: ESBaseNode): Literal[] {
 
   if(!hasESNodeParentExtension(node)){ return []; }
 
@@ -91,14 +91,14 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
   return [];
 }
 
-function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+function getLiteralsByVueMatchers(ctx: Context, node: ESBaseNode, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getVueMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
 }
 
-function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode & Rule.NodeParentExtension): Literal[] {
+function getLiteralsByVueESLiteralNode(ctx: Context, node: ESBaseNode & Rule.NodeParentExtension): Literal[] {
   const literals = getLiteralsByESLiteralNode(ctx, node);
 
   return literals.map(literal => {
@@ -111,7 +111,7 @@ function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode &
   });
 }
 
-function getStringLiteralByVueStringLiteral(ctx: Rule.RuleContext, node: AST.VLiteral): StringLiteral {
+function getStringLiteralByVueStringLiteral(ctx: Context, node: AST.VLiteral): StringLiteral {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];

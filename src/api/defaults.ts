@@ -4,7 +4,6 @@ import {
   DEFAULT_TAG_NAMES,
   DEFAULT_VARIABLE_NAMES
 } from "better-tailwindcss:options/default-options.js";
-import { DEFAULT_IGNORED_UNREGISTERED_CLASSES } from "better-tailwindcss:rules/no-unregistered-classes.js";
 
 
 export function getDefaultCallees() {
@@ -23,6 +22,7 @@ export function getDefaultTags() {
   return DEFAULT_TAG_NAMES;
 }
 
+/* TODO: remove this in v4 */
 export function getDefaultIgnoredUnregisteredClasses() {
-  return DEFAULT_IGNORED_UNREGISTERED_CLASSES;
+  return [];
 }

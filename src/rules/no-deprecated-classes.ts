@@ -1,86 +1,30 @@
-import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  ENTRYPOINT_SCHEMA,
-  TAG_SCHEMA,
-  TAILWIND_CONFIG_SCHEMA,
-  TSCONFIG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { getOptions } from "better-tailwindcss:utils/options.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
 import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
-import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
-
-import type { Rule } from "eslint";
+import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      entryPoint?: string;
-      tailwindConfig?: string;
-      tsconfig?: string;
-    }
-  >
-];
+export const noDeprecatedClasses = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Disallow the use of deprecated Tailwind CSS classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-deprecated-classes.md",
+  name: "no-deprecated-classes",
+  recommended: false,
 
+  messages: {
+    irreplaceable: "Class \"{{className}}\" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities",
+    replaceable: "Deprecated class detected. Replace \"{{className}}\" with \"{{fix}}\"."
+  },
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
-
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-deprecated-classes.md";
-
-export const noDeprecatedClasses = {
-  name: "no-deprecated-classes" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        description: "Disallow the use of deprecated Tailwind CSS classes.",
-        recommended: false,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA,
-            ...TSCONFIG_SCHEMA
-          },
-          type: "object"
-        }
-      ],
-      type: "problem"
-    }
-  }
-};
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
 const deprecations = [
   [
@@ -121,16 +65,17 @@ const deprecations = [
   ]
 ] satisfies [{ major: number; minor: number; }, [before: RegExp, after?: string][]][];
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { tailwindConfig, tsconfig } = getOptions(ctx);
+function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Literal[]) {
+
+  const { entryPoint, tailwindConfig, tsconfig } = getOptions(ctx, noDeprecatedClasses);
   const { major, minor } = getTailwindcssVersion();
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -153,23 +98,22 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
           if(!replacement){
             return {
-              message: augmentMessageWithWarnings(
-                `Class "${className}" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities`,
-                DOCUMENTATION_URL,
-                warnings
-              )
+              data: {
+                className
+              } as Record<string, string>,
+              messageId: "irreplaceable"
             };
           }
 
           const fix = buildClass({ ...dissectedClass, base: replacePlaceholders(replacement, match) });
 
           return {
+            data: {
+              className,
+              fix
+            },
             fix,
-            message: augmentMessageWithWarnings(
-              `Deprecated class detected. Replace "${className}" with ${fix}.`,
-              DOCUMENTATION_URL,
-              warnings
-            )
+            messageId: "replaceable"
           };
 
         }
@@ -177,8 +121,4 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     });
 
   }
-}
-
-export function getOptions(ctx: Rule.RuleContext) {
-  return getCommonOptions(ctx);
 }

@@ -3,7 +3,6 @@ import {
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
-  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -15,7 +14,6 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -35,8 +33,9 @@ import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 import type { VLiteral } from "vue-eslint-parser/ast/index";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -64,8 +63,6 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
     if(isAttributesName(attributes)){
       if(!matchesName(getVueBoundName(attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
       if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));

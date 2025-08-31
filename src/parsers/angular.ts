@@ -3,7 +3,6 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
@@ -36,8 +35,9 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { BracesMeta, Literal, LiteralValueQuotes } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
@@ -58,8 +58,6 @@ export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: 
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
       literals.push(...createLiteralsByAngularAttribute(ctx, attribute));
-    } else if(isAttributesRegex(attributes)){
-      // console.warn("Regex not supported for now");
     } else if(isAttributesMatchers(attributes)){
       if(!matchesName(attributes[0].toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
       if(isTextAttribute(attribute)){

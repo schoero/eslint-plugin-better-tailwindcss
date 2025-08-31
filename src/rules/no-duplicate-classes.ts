@@ -1,75 +1,28 @@
-import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  TAG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
 import { isClassSticky, splitClasses } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption
-  >
-];
+export const noDuplicateClasses = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Disallow duplicate class names in tailwind classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-duplicate-classes.md",
+  name: "no-duplicate-classes",
+  recommended: true,
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
+  messages: {
+    duplicate: "Duplicate classname: \"{{className}}\"."
+  },
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-duplicate-classes.md";
-
-export const noDuplicateClasses = {
-  name: "no-duplicate-classes" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        category: "Stylistic Issues",
-        description: "Disallow duplicate class names in tailwind classes.",
-        recommended: true,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA
-          },
-          type: "object"
-        }
-      ],
-      type: "layout"
-    }
-  }
-};
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal[]) {
   for(const literal of literals){
 
     const parentClasses = literal.priorLiterals
@@ -88,7 +41,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       if(parentClasses.includes(className) || duplicateClassIndex !== -1){
         return {
           fix: "",
-          message: `Duplicate classname: "${className}}".`
+          messageId: "duplicate"
         };
       }
     });
@@ -111,8 +64,4 @@ function getClassesFromLiteralNodes(literals: Literal[]) {
     return combinedClasses;
 
   }, []);
-}
-
-function getOptions(ctx: Rule.RuleContext) {
-  return getCommonOptions(ctx);
 }

@@ -1,114 +1,68 @@
 import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  TAG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
+  array,
+  description,
+  object,
+  optional,
+  pipe,
+  string,
+  union
+} from "valibot";
+
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { getOptions } from "better-tailwindcss:utils/options.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      restrict?: (string | {
-        pattern: string;
-        fix?: string;
-        message?: string;
-      })[];
-    }
-  >
-];
+export const noRestrictedClasses = createRule({
+  autofix: true,
+  category: "correctness",
+  description: "Disallow restricted classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-restricted-classes.md",
+  name: "no-restricted-classes",
+  recommended: false,
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  restrict: [],
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
-
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-restricted-classes.md";
-
-export const noRestrictedClasses = {
-  name: "no-restricted-classes" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        description: "Disallow restricted classes.",
-        recommended: false,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            restrict: {
-              items: {
-                anyOf: [
-                  {
-                    additionalProperties: false,
-                    properties: {
-                      fix: {
-                        description: "A replacement class",
-                        type: "string"
-                      },
-                      message: {
-                        default: undefined,
-                        description: "The message to report when a class is restricted.",
-                        type: "string"
-                      },
-                      pattern: {
-                        description: "The regex pattern to match restricted classes.",
-                        type: "string"
-                      }
-                    },
-                    required: ["pattern"],
-                    type: "object"
-                  },
-                  {
-                    type: "string"
-                  }
-                ]
-              },
-              type: "array"
+  schema: object({
+    restrict: optional(
+      array(
+        union([
+          object(
+            {
+              fix: optional(
+                pipe(
+                  string(),
+                  description("A replacement class")
+                )
+              ),
+              message: optional(
+                pipe(
+                  string(),
+                  description("The message to report when a class is restricted.")
+                )
+              ),
+              pattern: pipe(
+                string(),
+                description("The regex pattern to match restricted classes.")
+              )
             }
-          },
-          type: "object"
-        }
-      ],
-      type: "problem"
-    }
-  }
-};
+          ),
+          string()
+        ])
+      ),
+      []
+    )
+  }),
+
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+function lintLiterals(ctx: Context<typeof noRestrictedClasses>, literals: Literal[]) {
 
-  const { restrict: restrictions } = getOptions(ctx);
+  const { restrict: restrictions } = getOptions(ctx, noRestrictedClasses);
 
   for(const literal of literals){
     lintClasses(ctx, literal, (className, classes) => {
@@ -147,19 +101,4 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
     });
   }
-}
-
-export function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-
-  const common = getCommonOptions(ctx);
-
-  const restrict = options.restrict ?? defaultOptions.restrict;
-
-  return {
-    ...common,
-    restrict
-  };
-
 }

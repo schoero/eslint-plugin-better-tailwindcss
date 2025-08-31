@@ -1,5 +1,3 @@
-import { multiline } from "better-tailwindcss:rules/deprecated/multiline.js";
-import { sortClasses } from "better-tailwindcss:rules/deprecated/sort-classes.js";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
@@ -12,55 +10,66 @@ import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-clas
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { noUnregisteredClasses } from "better-tailwindcss:rules/no-unregistered-classes.js";
 
-import type { ESLint } from "eslint";
+import type { ESLint, JSRuleDefinition } from "eslint";
 
+
+type Severity = "error" | "warn";
+
+const rules = [
+  enforceConsistentClassOrder,
+  enforceConsistentImportantPosition,
+  enforceConsistentLineWrapping,
+  enforceConsistentVariableSyntax,
+  enforceShorthandClasses,
+  noConflictingClasses,
+  noDeprecatedClasses,
+  noDuplicateClasses,
+  noRestrictedClasses,
+  noUnnecessaryWhitespace,
+  noUnregisteredClasses
+];
 
 const plugin = {
   meta: {
     name: "better-tailwindcss"
   },
-  rules: {
-    [multiline.name]: multiline.rule,
-    [sortClasses.name]: sortClasses.rule,
-
-    [enforceConsistentClassOrder.name]: enforceConsistentClassOrder.rule,
-    [enforceConsistentImportantPosition.name]: enforceConsistentImportantPosition.rule,
-    [enforceConsistentLineWrapping.name]: enforceConsistentLineWrapping.rule,
-    [enforceConsistentVariableSyntax.name]: enforceConsistentVariableSyntax.rule,
-    [enforceShorthandClasses.name]: enforceShorthandClasses.rule,
-    [noConflictingClasses.name]: noConflictingClasses.rule,
-    [noDeprecatedClasses.name]: noDeprecatedClasses.rule,
-    [noDuplicateClasses.name]: noDuplicateClasses.rule,
-    [noRestrictedClasses.name]: noRestrictedClasses.rule,
-    [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule,
-    [noUnregisteredClasses.name]: noUnregisteredClasses.rule
-  }
+  rules: rules.reduce<Record<string, JSRuleDefinition>>((acc, { name, rule }) => {
+    acc[name] = rule;
+    return acc;
+  }, {})
 } satisfies ESLint.Plugin;
 
 const plugins = [plugin.meta.name];
 
 
-const getStylisticRules = (severity: "error" | "warn" = "warn") => {
-  return {
-    [`${plugin.meta.name}/${enforceConsistentClassOrder.name}`]: severity,
-    [`${plugin.meta.name}/${enforceConsistentLineWrapping.name}`]: severity,
-    [`${plugin.meta.name}/${noDuplicateClasses.name}`]: severity,
-    [`${plugin.meta.name}/${noUnnecessaryWhitespace.name}`]: severity
-  };
+const getStylisticRules = (severity: Severity = "warn") => {
+  return rules.reduce<Record<string, Severity>>((acc, { name, rule }) => {
+    if(rule.meta?.type !== "layout"){
+      return acc;
+    }
+
+    acc[`${plugin.meta.name}/${name}`] = severity;
+    return acc;
+  }, {});
 };
 
-const getCorrectnessRules = (severity: "error" | "warn" = "error") => {
-  return {
-    [`${plugin.meta.name}/${noConflictingClasses.name}`]: severity,
-    [`${plugin.meta.name}/${noUnregisteredClasses.name}`]: severity
-  };
+const getCorrectnessRules = (severity: Severity = "error") => {
+  return rules.reduce<Record<string, Severity>>((acc, { name, rule }) => {
+    if(rule.meta?.type !== "problem"){
+      return acc;
+    }
+
+    acc[`${plugin.meta.name}/${name}`] = severity;
+    return acc;
+  }, {});
 };
 
+console.log({ correctness: Object.keys(getCorrectnessRules()), stylistic: Object.keys(getStylisticRules()) });
 
 const createConfig = (
   name: string,
-  getRulesFunction: (severity?: "error" | "warn") => {
-    [x: string]: "error" | "warn";
+  getRulesFunction: (severity?: Severity) => {
+    [x: string]: Severity;
   }
 ) => {
   return {

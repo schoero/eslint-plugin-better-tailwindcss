@@ -10,26 +10,11 @@ import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 import type { Rule } from "eslint";
 import type { Node as ESNode } from "estree";
 
-import type {
-  AttributeMatchers,
-  AttributeName,
-  AttributeRegex,
-  Attributes,
-  CalleeMatchers,
-  CalleeName,
-  CalleeRegex,
-  Callees,
-  MatcherFunctions,
-  Regex,
-  TagMatchers,
-  TagName,
-  TagRegex,
-  Tags,
-  VariableMatchers,
-  VariableName,
-  VariableRegex,
-  Variables
-} from "better-tailwindcss:types/rule.js";
+import type { AttributeMatchers, AttributeName, Attributes } from "better-tailwindcss:options/schemas/attributes.js";
+import type { CalleeMatchers, CalleeName, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { TagMatchers, TagName, Tags } from "better-tailwindcss:options/schemas/tags.js";
+import type { VariableMatchers, VariableName, Variables } from "better-tailwindcss:options/schemas/variables.js";
+import type { MatcherFunctions } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
@@ -87,17 +72,14 @@ function isChildNodeOfNode(node: ESNode & Partial<Rule.NodeParentExtension>, par
   if(node.parent === parent){ return true; }
   return isChildNodeOfNode(node.parent, parent);
 }
-export function matchesPathPattern(path: string, pattern: Regex): boolean {
+
+export function matchesPathPattern(path: string, pattern: string): boolean {
   const regex = new RegExp(pattern);
   return regex.test(path);
 }
 
 export function isCalleeName(callee: Callees[number]): callee is CalleeName {
   return typeof callee === "string";
-}
-
-export function isCalleeRegex(callee: Callees[number]): callee is CalleeRegex {
-  return Array.isArray(callee) && typeof callee[0] === "string" && typeof callee[1] === "string";
 }
 
 export function isCalleeMatchers(callee: Callees[number]): callee is CalleeMatchers {
@@ -108,10 +90,6 @@ export function isVariableName(variable: Variables[number]): variable is Variabl
   return typeof variable === "string";
 }
 
-export function isVariableRegex(variable: Variables[number]): variable is VariableRegex {
-  return Array.isArray(variable) && typeof variable[0] === "string" && typeof variable[1] === "string";
-}
-
 export function isVariableMatchers(variable: Variables[number]): variable is VariableMatchers {
   return Array.isArray(variable) && typeof variable[0] === "string" && Array.isArray(variable[1]);
 }
@@ -120,20 +98,12 @@ export function isTagName(tag: Tags[number]): tag is TagName {
   return typeof tag === "string";
 }
 
-export function isTagRegex(tag: Tags[number]): tag is TagRegex {
-  return Array.isArray(tag) && typeof tag[0] === "string" && typeof tag[1] === "string";
-}
-
 export function isTagMatchers(tag: Tags[number]): tag is TagMatchers {
   return Array.isArray(tag) && typeof tag[0] === "string" && Array.isArray(tag[1]);
 }
 
 export function isAttributesName(attributes: Attributes[number]): attributes is AttributeName {
   return typeof attributes === "string";
-}
-
-export function isAttributesRegex(attributes: Attributes[number]): attributes is AttributeRegex {
-  return Array.isArray(attributes) && typeof attributes[0] === "string" && typeof attributes[1] === "string";
 }
 
 export function isAttributesMatchers(attributes: Attributes[number]): attributes is AttributeMatchers {

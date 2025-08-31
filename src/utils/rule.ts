@@ -1,5 +1,5 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, object } from "valibot";
+import { object } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
@@ -12,6 +12,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailw
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
+import { getOptions } from "better-tailwindcss:utils/options.js";
 import { isTailwindcssInstalled } from "better-tailwindcss:utils/tailwindcss.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -24,7 +25,7 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { CreateRule } from "better-tailwindcss:types/rule.js";
+import type { Context, CreateRule } from "better-tailwindcss:types/rule.js";
 
 
 export const createRule: CreateRule = ({
@@ -42,25 +43,22 @@ export const createRule: CreateRule = ({
 
   const propertiesSchema = object({
     ...COMMON_OPTIONS.entries,
-    ...schema.entries
+    ...schema?.entries ?? {}
   });
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
-  const defaultOptions = [getDefaults(propertiesSchema)] as const satisfies unknown[];
 
   return {
     name,
     rule: {
       create: ctx => createRuleListener(ctx, lintLiterals),
       meta: {
-        defaultOptions,
         docs: {
           description,
           recommended,
           url: docs
         },
         fixable: autofix ? "code" : undefined,
-        messages,
         schema: [
           {
             additionalProperties: false,
@@ -68,20 +66,22 @@ export const createRule: CreateRule = ({
             type: "object"
           }
         ],
-        type: category === "correctness" ? "problem" : "layout"
+        type: category === "correctness" ? "problem" : "layout",
+        ...messages && { messages }
       }
-    }
+    },
+    schema
   };
 };
 
-export function createRuleListener<Context extends Rule.RuleContext>(ctx: Context, lintLiterals: (ctx: Context, literals: Literal[]) => void): Rule.RuleListener {
+export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
   if(!isTailwindcssInstalled()){
     warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
     return {};
   }
 
-  const [{ attributes, callees, tags, variables }] = ctx.options;
+  const { attributes, callees, tags, variables } = getOptions(ctx);
 
   const callExpression = {
     CallExpression(node: Node) {

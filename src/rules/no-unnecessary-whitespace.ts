@@ -1,84 +1,38 @@
-import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  TAG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { boolean, description, object, optional, pipe } from "valibot";
+
+import { getOptions } from "better-tailwindcss:utils/options.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
 import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      allowMultiline?: boolean;
-    }
-  >
-];
+export const noUnnecessaryWhitespace = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Disallow unnecessary whitespace between Tailwind CSS classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unnecessary-whitespace.md",
+  name: "no-unnecessary-whitespace",
+  recommended: true,
 
-const defaultOptions = {
-  allowMultiline: true,
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
+  messages: {
+    unnecessary: "Unnecessary whitespace."
+  },
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unnecessary-whitespace.md";
+  schema: object({
+    allowMultiline: optional(pipe(
+      boolean(),
+      description("Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [better-tailwindcss/enforce-consistent-line-wrapping](./enforce-consistent-line-wrapping.md).")
+    ), true)
+  }),
 
-export const noUnnecessaryWhitespace = {
-  name: "no-unnecessary-whitespace" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        category: "Stylistic Issues",
-        description: "Disallow unnecessary whitespace between Tailwind CSS classes.",
-        recommended: true,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "whitespace",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            allowMultiline: {
-              default: defaultOptions.allowMultiline,
-              description: "Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [better-tailwindcss/enforce-consistent-line-wrapping](./enforce-consistent-line-wrapping.md).",
-              type: "boolean"
-            },
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA
-          },
-          type: "object"
-        }
-      ],
-      type: "layout"
-    }
-  }
-};
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Literal[]) {
 
-  const { allowMultiline } = getOptions(ctx);
+  const { allowMultiline } = getOptions(ctx, noUnnecessaryWhitespace);
 
   for(const literal of literals){
 
@@ -198,20 +152,5 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
     }
 
   }
-
-}
-
-function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-
-  const common = getCommonOptions(ctx);
-
-  const allowMultiline = options.allowMultiline ?? defaultOptions.allowMultiline;
-
-  return {
-    ...common,
-    allowMultiline
-  };
 
 }

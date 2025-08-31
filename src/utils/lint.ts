@@ -1,11 +1,22 @@
 import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
 import type { Literal } from "better-tailwindcss:types/ast.js";
+import type { Context, MessageId } from "better-tailwindcss:types/rule.js";
 
 
-export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (className: string, index: number, after: string[]) => boolean | undefined | { fix?: string; message?: string; }): void {
+export function lintClasses<const Ctx extends Context, const MsgId = MessageId<Ctx>>(
+  ctx: Ctx,
+  literal: Literal,
+  report: (className: string, index: number, after: string[]) => false | undefined | {
+    data?: Record<string, string>;
+    fix?: string;
+    message?: string;
+  } | {
+    messageId: MsgId;
+    data?: Record<string, string>;
+    fix?: string;
+  }
+): void {
 
   const classChunks = splitClasses(literal.content);
   const whitespaceChunks = splitWhitespaces(literal.content);
@@ -33,7 +44,7 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
 
     const result = report(className, classIndex, after);
 
-    if(result === undefined || result === false || result === className){
+    if(result === undefined || result === false){
       continue;
     }
 
@@ -44,13 +55,11 @@ export function lintClasses(ctx: Rule.RuleContext, literal: Literal, report: (cl
     }
 
     ctx.report({
-      data: {
-        className
-      },
+      data: result.data,
       loc: getExactClassLocation(literal, startIndex, endIndex),
-      message: typeof result === "object" && result.message
-        ? result.message
-        : "Expected {{ before }} to be {{ after }}.",
+      message: `Expected ${className} to be ${result.fix ?? ""}.`,
+      ..."message" in result && { message: result.message, messageId: undefined },
+      ..."messageId" in result && { message: undefined, messageId: result.messageId },
       ...typeof result === "object" && result.fix !== undefined &&
       {
         fix: fixer => fixer.replaceTextRange(

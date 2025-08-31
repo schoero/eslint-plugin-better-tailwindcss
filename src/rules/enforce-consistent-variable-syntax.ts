@@ -1,95 +1,59 @@
-import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  TAG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
+import { description, literal, object, optional, pipe, union } from "valibot";
+
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
+import { getOptions } from "better-tailwindcss:utils/options.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      syntax?: "arbitrary" | "parentheses" | "shorthand" | "variable";
-    }
-  >
-];
+export const enforceConsistentVariableSyntax = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Enforce consistent syntax for css variables.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-variable-syntax.md",
+  name: "enforce-consistent-variable-syntax",
+  recommended: false,
+
+  messages: {
+    incorrect: "Incorrect variable syntax: {{className}}."
+  },
+
+  schema: object({
+    syntax: optional(
+      pipe(
+        union([
+          literal("shorthand"),
+          literal("variable"),
+
+          // TODO: remove in v4
+          pipe(literal("arbitrary"), description("@deprecated Use 'variable' instead.")),
+          pipe(literal("parentheses"), description("@deprecated Use 'shorthand' instead."))
+        ]),
+        description("The syntax to enforce for css variables in tailwindcss class strings.")
+      ),
+      "shorthand"
+    )
+  }),
+
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  syntax: "shorthand",
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
+function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, literals: Literal[]) {
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-variable-syntax.md";
-
-export const enforceConsistentVariableSyntax = {
-  name: "enforce-consistent-variable-syntax" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        description: "Enforce consistent syntax for css variables.",
-        recommended: false,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            syntax: {
-              default: "shorthand",
-              description: "Preferred syntax for CSS variables. 'variable' uses [var(--foo)], 'shorthand' uses (--foo) in Tailwind CSS v4 or [--foo] in Tailwind CSS v3.",
-              enum: ["arbitrary", "parentheses", "shorthand", "variable"],
-              type: "string"
-            }
-          },
-          type: "object"
-        }
-      ],
-      type: "problem"
-    }
-  }
-};
-
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-
-  const { syntax, tailwindConfig, tsconfig } = getOptions(ctx);
+  const { entryPoint, syntax, tailwindConfig, tsconfig } = getOptions(ctx, enforceConsistentVariableSyntax);
   const { major } = getTailwindcssVersion();
 
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -134,8 +98,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
             : buildClass({ ...dissectedClass, base: [...beforeSquareBrackets, `[${characters}]`, ...afterSquareBrackets].join("") });
 
           return {
+            data: { className },
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${className}".`
+            messageId: "incorrect"
           };
 
         }
@@ -151,8 +116,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           });
 
           return {
+            data: { className },
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${className}".`
+            messageId: "incorrect"
           };
 
         }
@@ -172,8 +138,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           });
 
           return {
+            data: { className },
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${className}".`
+            messageId: "incorrect"
           };
         }
 
@@ -189,8 +156,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           });
 
           return {
+            data: { className },
             fix: fixedClass,
-            message: `Incorrect variable syntax: "${className}".`
+            messageId: "incorrect"
           };
 
         }
@@ -254,18 +222,4 @@ function extractBalanced(className: string, start = "(", end = ")") {
 
 function trimTailwindWhitespace(className: string): string {
   return className.replace(/^_+|_+$/g, "");
-}
-
-export function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-  const common = getCommonOptions(ctx);
-
-  const syntax = options.syntax ?? defaultOptions.syntax;
-
-  return {
-    ...common,
-    syntax
-  };
-
 }

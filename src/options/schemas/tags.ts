@@ -20,20 +20,6 @@ import type { Rule } from "eslint";
 import type { InferOutput } from "valibot";
 
 
-const TAG_REGEX_CONFIG = pipe(
-  tuple([
-    pipe(
-      string(),
-      description("Regular expression that filters the template literal tags and matches the content for further processing in a group.")
-    ),
-    pipe(
-      string(),
-      description("Regular expression that matches each string literal in a group.")
-    )
-  ]),
-  description("List of regular expressions that matches string literals which should get linted.")
-);
-
 const TAG_MATCHER_CONFIG = pipe(
   tuple([
     pipe(
@@ -54,15 +40,18 @@ const TAG_MATCHER_CONFIG = pipe(
   description("List of matchers that will automatically be matched.")
 );
 
+export type TagMatchers = InferOutput<typeof TAG_MATCHER_CONFIG>;
+
 const TAG_NAME_CONFIG = pipe(
   string(),
   description("Template literal tag that should get linted.")
 );
 
+export type TagName = InferOutput<typeof TAG_NAME_CONFIG>;
+
 export const TAGS_SCHEMA = pipe(
   array(
     union([
-      TAG_REGEX_CONFIG,
       TAG_MATCHER_CONFIG,
       TAG_NAME_CONFIG
     ])

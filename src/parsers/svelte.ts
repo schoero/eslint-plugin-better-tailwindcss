@@ -2,7 +2,6 @@ import {
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
-  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -14,7 +13,6 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -45,8 +43,9 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -84,8 +83,6 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
       if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));

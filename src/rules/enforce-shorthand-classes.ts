@@ -1,89 +1,33 @@
-import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  ENTRYPOINT_SCHEMA,
-  TAG_SCHEMA,
-  TAILWIND_CONFIG_SCHEMA,
-  TSCONFIG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
 import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
-
-import type { Rule } from "eslint";
+import { getOptions } from "better-tailwindcss:utils/options.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
+import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+
+
+export const enforceShorthandClasses = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Enforce shorthand class names instead of longhand class names.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-shorthand-classes.md",
+  name: "enforce-shorthand-classes",
+  recommended: true,
+
+  messages: {
+    longhand: "Non shorthand class detected. Expected {{longhands}} to be {{shorthands}}"
+  },
+
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
 
 export type Shorthands = [RegExp[], string[]][][];
-
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      entryPoint?: string;
-      tailwindConfig?: string;
-      tsconfig?: string;
-    }
-  >
-];
-
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
-
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-shorthand-classes.md";
-
-export const enforceShorthandClasses = {
-  name: "enforce-shorthand-classes" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        description: "Enforce shorthand class names instead of longhand class names.",
-        recommended: false,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA,
-            ...TSCONFIG_SCHEMA
-          },
-          type: "object"
-        }
-      ],
-      type: "problem"
-    }
-  }
-};
-
 
 export const shorthands = [
   [
@@ -170,14 +114,15 @@ export const shorthands = [
   ]
 ] satisfies Shorthands;
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
-  const { tailwindConfig, tsconfig } = getOptions(ctx);
+function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Literal[]) {
+
+  const { entryPoint, tailwindConfig, tsconfig } = getOptions(ctx, enforceShorthandClasses);
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     const shorthandGroups = getShorthands(dissectedClasses);
 
@@ -186,7 +131,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         .flat()
         .map(([, shorthands]) => shorthands)
         .flat(),
-      configPath: tailwindConfig,
+      configPath: entryPoint ?? tailwindConfig,
       cwd: ctx.cwd,
       tsconfigPath: tsconfig
     });
@@ -212,12 +157,12 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
           }
 
           return {
+            data: {
+              longhands: longhandClasses.join(" "),
+              shorthands: shorthands.join(" ")
+            },
             fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
-            message: augmentMessageWithWarnings(
-              `Non shorthand class detected. Expected ${longhandClasses.join(" ")} to be ${shorthands.join(" ")}`,
-              DOCUMENTATION_URL,
-              warnings
-            )
+            messageId: "longhand"
           };
         }
       }
@@ -317,8 +262,4 @@ function getShorthands(dissectedClasses: DissectedClass[]) {
   }
 
   return possibleShorthandClassesGroups;
-}
-
-export function getOptions(ctx: Rule.RuleContext) {
-  return getCommonOptions(ctx);
 }

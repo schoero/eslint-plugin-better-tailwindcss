@@ -13,7 +13,8 @@ import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/
 import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
-import type { ESLintRule, GlobalOptions, Options } from "better-tailwindcss:types/rule.js";
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { Context, ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -50,8 +51,8 @@ export function lint< const Rule extends ESLintRule, Syntaxes extends Record<str
         errors: { message: string; type?: string; }[] | number;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<GlobalOptions & Options<Rule>>];
-        settings?: Record<string, Partial<GlobalOptions>>;
+        options?: [Partial<CommonOptions & Context<Rule>["options"][0]>];
+        settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];
     valid?: (
@@ -59,8 +60,8 @@ export function lint< const Rule extends ESLintRule, Syntaxes extends Record<str
         [Key in keyof Syntaxes]?: string;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<GlobalOptions & Options<Rule>>];
-        settings?: Record<string, Partial<GlobalOptions>>;
+        options?: [Partial<CommonOptions & Context<Rule>["options"][0]>];
+        settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];
   }

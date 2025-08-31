@@ -9,8 +9,10 @@ import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { Rule } from "eslint";
 
+import type { GlobalOptions } from "better-tailwindcss:types/rule.js";
 
-export function getCommonOptions(ctx: Rule.RuleContext) {
+
+export function getCommonOptions(ctx: Rule.RuleContext): GlobalOptions {
 
   const attributes = getOption(ctx, "attributes") ?? DEFAULT_ATTRIBUTE_NAMES;
   const callees = getOption(ctx, "callees") ?? DEFAULT_CALLEE_NAMES;
@@ -36,6 +38,7 @@ export function getCommonOptions(ctx: Rule.RuleContext) {
     variables
   };
 }
+
 function getOption(ctx: Rule.RuleContext, key: string) {
   return ctx.options[0]?.[key] ?? ctx.settings["eslint-plugin-better-tailwindcss"]?.[key] ??
     ctx.settings["better-tailwindcss"]?.[key];

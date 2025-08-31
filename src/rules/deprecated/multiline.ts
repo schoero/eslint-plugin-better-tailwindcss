@@ -1,9 +1,7 @@
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 
-import type { ESLintRule } from "better-tailwindcss:types/rule.js";
 
-
-export const multiline: ESLintRule = {
+export const multiline = {
   ...enforceConsistentLineWrapping,
   name: "multiline" as const,
   rule: {

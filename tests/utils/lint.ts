@@ -13,7 +13,7 @@ import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/
 import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
-import type { ESLintRule } from "better-tailwindcss:types/rule.js";
+import type { ESLintRule, GlobalOptions, Options } from "better-tailwindcss:types/rule.js";
 
 
 export const TEST_SYNTAXES = {
@@ -37,7 +37,7 @@ export const TEST_SYNTAXES = {
   }
 } as const;
 
-export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
+export function lint< const Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
   eslintRule: Rule,
   syntaxes: Syntaxes,
   tests: {
@@ -50,8 +50,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
         errors: { message: string; type?: string; }[] | number;
       } & {
         files?: Record<string, string>;
-        options?: Rule["options"];
-        settings?: Rule["settings"];
+        options?: [Partial<GlobalOptions & Options<Rule>>];
+        settings?: Record<string, Partial<GlobalOptions>>;
       }
     )[];
     valid?: (
@@ -59,8 +59,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
         [Key in keyof Syntaxes]?: string;
       } & {
         files?: Record<string, string>;
-        options?: Rule["options"];
-        settings?: Rule["settings"];
+        options?: [Partial<GlobalOptions & Options<Rule>>];
+        settings?: Record<string, Partial<GlobalOptions>>;
       }
     )[];
   }
@@ -126,7 +126,6 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
   }
 
 }
-
 
 type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;
 

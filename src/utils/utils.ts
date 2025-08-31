@@ -44,11 +44,18 @@ export function display(classes: string): string {
     .replaceAll("\t", "→");
 }
 
-
-export function augmentMessageWithWarnings(message: string, documentationUrl: string, warnings?: (Warning | undefined)[]) {
+/**
+ * Augments a message with additional warnings and documentation links.
+ *
+ * @param message The original message to augment.
+ * @param docs The documentation URL to include.
+ * @param warnings Any warnings to include in the message.
+ * @returns The augmented message.
+ */
+export function augmentMessageWithWarnings(message: string, docs: string, warnings?: (Warning | undefined)[]) {
   const ruleWarnings = warnings
     ?.filter(warning => warning)
-    .map(warning => ({ ...warning, url: documentationUrl }));
+    .map(warning => ({ ...warning, url: docs }));
 
   if(!ruleWarnings || ruleWarnings.length === 0){
     return message;

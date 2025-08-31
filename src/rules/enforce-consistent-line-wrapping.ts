@@ -27,7 +27,7 @@ import type { Warning } from "better-tailwindcss:types/async.js";
 import type {
   AttributeOption,
   CalleeOption,
-  ESLintRule,
+  ESLintRuleDefinition,
   TagOption,
   VariableOption
 } from "better-tailwindcss:types/rule.js";
@@ -72,7 +72,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/multiline.md";
 
-export const enforceConsistentLineWrapping: ESLintRule<Options> = {
+export const enforceConsistentLineWrapping = {
   name: "enforce-consistent-line-wrapping" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions, lintLiterals),

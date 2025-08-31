@@ -25,13 +25,7 @@ import type { Rule } from "eslint";
 
 import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
 
 
 export type Shorthands = [RegExp[], string[]][][];
@@ -59,7 +53,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-shorthand-classes.md";
 
-export const enforceShorthandClasses: ESLintRule<Options> = {
+export const enforceShorthandClasses = {
   name: "enforce-shorthand-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions, lintLiterals),

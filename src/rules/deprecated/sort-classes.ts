@@ -1,9 +1,9 @@
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 
-import type { ESLintRule } from "better-tailwindcss:types/rule.js";
+import type { ESLintRuleDefinition } from "better-tailwindcss:types/rule.js";
 
 
-export const sortClasses: ESLintRule = {
+export const sortClasses = {
   name: "sort-classes" as const,
   rule: {
     ...enforceConsistentClassOrder.rule,

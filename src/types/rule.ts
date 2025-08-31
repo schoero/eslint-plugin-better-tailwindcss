@@ -1,4 +1,10 @@
-import type { Rule } from "eslint";
+import type { JSRuleDefinition } from "eslint";
+import type { JSONSchema4 } from "json-schema";
+import type { BaseIssue, BaseSchema, Default, InferOutput, ObjectSchema, OptionalSchema } from "valibot";
+
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { CALLEES_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
+import type { Literal } from "better-tailwindcss:types/ast.js";
 
 
 export enum MatcherType {
@@ -32,12 +38,10 @@ export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 export type Regex = string;
 
 export type CalleeName = string;
-export type CalleeMatchers = [callee: CalleeName, matchers: Matcher[]];
-export type CalleeRegex = [containerRegex: Regex, literalRegex: Regex];
-export type Callees = (CalleeMatchers | CalleeName | CalleeRegex)[];
-export type CalleeOption = {
-  callees: Callees;
-};
+export type CalleeMatchers = InferOutput<typeof CALLEE_MATCHER_CONFIG>;
+export type CalleeRegex = InferOutput<typeof CALLEE_REGEX_CONFIG>;
+export type CalleeOption = InferOutput<typeof CALLEES_SCHEMA>;
+export type Callees = InferOutput<typeof CALLEES_SCHEMA>;
 
 export type VariableName = string;
 export type VariableMatchers = [variable: VariableName, matchers: Matcher[]];
@@ -67,9 +71,59 @@ export type NameConfig = AttributeName | CalleeName | VariableName;
 export type RegexConfig = AttributeRegex | CalleeRegex | VariableRegex;
 export type MatchersConfig = AttributeMatchers | CalleeMatchers | VariableMatchers;
 
-export interface ESLintRule<Options extends [any] = [any]> {
+export type TailwindConfig = {
+  entryPoint?: string;
+  tailwindConfig?: string;
+};
+
+export type TSConfig = {
+  tsconfig?: string;
+};
+
+
+export type GlobalOptions =
+  AttributeOption &
+  CalleeOption &
+  TagOption &
+  TailwindConfig &
+  TSConfig &
+  VariableOption;
+
+export type Schema = ObjectSchema<Record<string, OptionalSchema<BaseSchema<unknown, unknown, BaseIssue<unknown>>, Default<BaseSchema<unknown, unknown, BaseIssue<unknown>>, undefined>>>, undefined>;
+export type JsonSchema<RawSchema extends Schema> = InferOutput<RawSchema>;
+
+export type CreateRule = <
+  const Messages extends string,
+  const Options extends CommonOptions & JsonSchema<OptionsSchema>,
+  const OptionsSchema extends Schema = Schema
+>(options: {
+  /** Whether the rule should automatically fix problems. */
+  autofix: boolean;
+  /** The category of the rule. */
+  category: "correctness" | "stylistic";
+  /** A brief description of the rule. */
+  description: string;
+  /** The URL to the rule documentation. */
+  docs: string;
+  /** Lint the literals in the given context. */
+  lintLiterals: (
+    ctx: Parameters<JSRuleDefinition<{ MessageIds: Messages; RuleOptions: [Options]; }>["create"]>[0],
+    literals: Literal[]
+  ) => void;
+  /** The messages for the rule. */
+  messages: Record<Messages, string>;
+  /** The name of the rule. */
   name: string;
-  rule: Rule.RuleModule;
-  options?: Options;
-  settings?: Rule.RuleContext["settings"];
+  /** Whether the rule is enabled in the recommended configs. */
+  recommended: boolean;
+  /** The schema for the rule options. */
+  schema: OptionsSchema;
+  initialize?: () => void;
+}) => ESLintRule<Messages, Options>;
+
+export interface ESLintRule<Messages extends string = string, Options extends JSONSchema4 = {}> {
+  name: string;
+  rule: JSRuleDefinition<{ MessageIds: Messages; RuleOptions: [Options]; }>;
 }
+
+export type Context<Rule extends ESLintRule = ESLintRule> = Parameters<Rule["rule"]["create"]>[0];

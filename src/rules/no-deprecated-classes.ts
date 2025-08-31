@@ -24,13 +24,7 @@ import { augmentMessageWithWarnings, replacePlaceholders, splitClasses } from "b
 import type { Rule } from "eslint";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
 
 
 export type Options = [
@@ -57,7 +51,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-deprecated-classes.md";
 
-export const noDeprecatedClasses: ESLintRule<Options> = {
+export const noDeprecatedClasses = {
   name: "no-deprecated-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions, lintLiterals),

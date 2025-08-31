@@ -25,13 +25,7 @@ import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:uti
 import type { Rule } from "eslint";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
 
 
 export type Options = [
@@ -63,7 +57,7 @@ const defaultOptions = {
 
 const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md";
 
-export const noUnregisteredClasses: ESLintRule<Options> = {
+export const noUnregisteredClasses = {
   name: "no-unregistered-classes" as const,
   rule: {
     create: ctx => createRuleListener(ctx, getOptions, lintLiterals),

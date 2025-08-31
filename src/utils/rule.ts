@@ -1,3 +1,7 @@
+import { toJsonSchema } from "@valibot/to-json-schema";
+import { getDefaults, object } from "valibot";
+
+import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import {
   getLiteralsByESCallExpression,
@@ -20,23 +24,64 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { AttributeOption, CalleeOption, TagOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { CreateRule } from "better-tailwindcss:types/rule.js";
 
 
-export type Options =
-  AttributeOption &
-  CalleeOption &
-  TagOption &
-  VariableOption;
+export const createRule: CreateRule = ({
+  autofix,
+  category,
+  description,
+  docs,
+  initialize,
+  lintLiterals,
+  messages,
+  name,
+  recommended,
+  schema
+}) => {
 
-export function createRuleListener(ctx: Rule.RuleContext, getOptions: (ctx: Rule.RuleContext) => Options, lintLiterals: (ctx: Rule.RuleContext, literals: Literal[]) => void): Rule.RuleListener {
+  const propertiesSchema = object({
+    ...COMMON_OPTIONS.entries,
+    ...schema.entries
+  });
+
+  const jsonSchema = toJsonSchema(propertiesSchema).properties;
+  const defaultOptions = [getDefaults(propertiesSchema)] as const satisfies unknown[];
+
+  return {
+    name,
+    rule: {
+      create: ctx => createRuleListener(ctx, lintLiterals),
+      meta: {
+        defaultOptions,
+        docs: {
+          description,
+          recommended,
+          url: docs
+        },
+        fixable: autofix ? "code" : undefined,
+        messages,
+        schema: [
+          {
+            additionalProperties: false,
+            properties: jsonSchema,
+            type: "object"
+          }
+        ],
+        type: category === "correctness" ? "problem" : "layout"
+      }
+    }
+  };
+};
+
+export function createRuleListener<Context extends Rule.RuleContext>(ctx: Context, lintLiterals: (ctx: Context, literals: Literal[]) => void): Rule.RuleListener {
 
   if(!isTailwindcssInstalled()){
     warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
     return {};
   }
 
-  const { attributes, callees, tags, variables } = getOptions(ctx);
+  const [{ attributes, callees, tags, variables }] = ctx.options;
 
   const callExpression = {
     CallExpression(node: Node) {

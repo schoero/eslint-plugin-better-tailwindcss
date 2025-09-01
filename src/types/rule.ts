@@ -61,15 +61,12 @@ export type CreateRule = <
   /** The URL to the rule documentation. */
   docs: string;
   /** Lint the literals in the given context. */
-  lintLiterals: (
-    ctx: Parameters<JSRuleDefinition<{ MessageIds: Messages; RuleOptions: [Required<JsonSchema<CommonOptions & OptionsSchema>>]; }>["create"]>[0],
-    literals: Literal[]
-  ) => void;
+  lintLiterals: (ctx: Parameters<JSRuleDefinition<{ MessageIds: Messages; RuleOptions: [Required<JsonSchema<CommonOptions & OptionsSchema>>]; }>["create"]>[0], literals: Literal[]) => void;
   /** The name of the rule. */
   name: string;
   /** Whether the rule is enabled in the recommended configs. */
   recommended: boolean;
-  initialize?: () => void;
+  initialize?: (ctx: Parameters<JSRuleDefinition<{ MessageIds: Messages; RuleOptions: [Required<JsonSchema<CommonOptions & OptionsSchema>>]; }>["create"]>[0]) => void;
   /** The messages for the rule. */
   messages?: Record<Messages, string>;
   /** The schema for the rule options. */

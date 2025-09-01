@@ -1,7 +1,7 @@
 import { description, literal, object, optional, pipe, union } from "valibot";
 
-import { getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -37,6 +37,11 @@ export const enforceConsistentClassOrder = createRule({
       "improved"
     )
   }),
+
+  initialize: () => {
+    createGetClassOrder();
+    createGetDissectedClasses();
+  },
 
   lintLiterals: (ctx, literals) => {
 

@@ -19,11 +19,17 @@ export interface GetUnregisteredClassesRequest {
 
 export type GetUnregisteredClassesResponse = { unregisteredClasses: UnregisteredClass[]; warnings: (Warning | undefined)[]; };
 
-export function createGetUnregisteredClasses(): (req: GetUnregisteredClassesRequest) => GetUnregisteredClassesResponse {
+type GetUnregisteredClasses = (req: GetUnregisteredClassesRequest) => GetUnregisteredClassesResponse;
+
+export let getUnregisteredClasses: GetUnregisteredClasses;
+
+export function createGetUnregisteredClasses(): GetUnregisteredClasses {
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions);
+  getUnregisteredClasses = createSyncFn(workerPath, workerOptions);
+
+  return getUnregisteredClasses;
 }
 
 function getWorkerPath() {

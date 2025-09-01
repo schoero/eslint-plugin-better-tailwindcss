@@ -1,3 +1,7 @@
+import {
+  createGetConflictingClasses,
+  getConflictingClasses
+} from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -19,12 +23,14 @@ export const noConflictingClasses = createRule({
     conflicting: "Conflicting class detected: \"{{className}}\" and \"{{conflictingClassString}}\" apply the same CSS properties: \"{{conflictingPropertiesString}}\"."
   },
 
+  initialize() {
+    createGetConflictingClasses();
+  },
+
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
 function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Literal[]) {
-
-  const getConflictingClasses = createGetConflictingClasses();
 
   for(const literal of literals){
 

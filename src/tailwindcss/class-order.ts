@@ -19,11 +19,21 @@ export interface GetClassOrderRequest {
 
 export type GetClassOrderResponse = { classOrder: ClassOrder; warnings: (Warning | undefined)[]; };
 
-export function createGetClassOrder(): (req: GetClassOrderRequest) => GetClassOrderResponse {
+type GetClassOrder = (req: GetClassOrderRequest) => GetClassOrderResponse;
+
+export let getClassOrder: GetClassOrder;
+
+export function createGetClassOrder(): GetClassOrder {
+  if(getClassOrder){
+    return getClassOrder;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions);
+  getClassOrder = createSyncFn(workerPath, workerOptions);
+
+  return getClassOrder;
 }
 
 function getWorkerPath() {

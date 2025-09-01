@@ -51,7 +51,16 @@ export const createRule: CreateRule = ({
   return {
     name,
     rule: {
-      create: ctx => createRuleListener(ctx, lintLiterals),
+      create: ctx => {
+        if(!isTailwindcssInstalled()){
+          warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
+          return {};
+        }
+
+        initialize?.(ctx);
+
+        return createRuleListener(ctx, lintLiterals);
+      },
       meta: {
         docs: {
           description,
@@ -75,11 +84,6 @@ export const createRule: CreateRule = ({
 };
 
 export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
-
-  if(!isTailwindcssInstalled()){
-    warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
-    return {};
-  }
 
   const { attributes, callees, tags, variables } = getOptions(ctx);
 

@@ -20,11 +20,17 @@ export interface GetCustomComponentClassesRequest {
 
 export type GetCustomComponentClassesResponse = { customComponentClasses: CustomComponentClasses; warnings: (Warning | undefined)[]; };
 
-export function createGetCustomComponentClasses(): (req: GetCustomComponentClassesRequest) => GetCustomComponentClassesResponse {
+type GetCustomComponentClasses = (req: GetCustomComponentClassesRequest) => GetCustomComponentClassesResponse;
+
+export let getCustomComponentClasses: GetCustomComponentClasses;
+
+export function createGetCustomComponentClasses(): GetCustomComponentClasses {
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions);
+  getCustomComponentClasses = createSyncFn(workerPath, workerOptions);
+
+  return getCustomComponentClasses;
 }
 
 function getWorkerPath() {

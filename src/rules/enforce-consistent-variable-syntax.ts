@@ -1,6 +1,6 @@
 import { description, literal, object, optional, pipe, union } from "valibot";
 
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
@@ -40,6 +40,10 @@ export const enforceConsistentVariableSyntax = createRule({
       "shorthand"
     )
   }),
+
+  initialize: () => {
+    createGetDissectedClasses();
+  },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });

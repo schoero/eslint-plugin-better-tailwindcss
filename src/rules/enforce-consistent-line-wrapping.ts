@@ -10,7 +10,7 @@ import {
   union
 } from "valibot";
 
-import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
@@ -95,6 +95,10 @@ export const enforceConsistentLineWrapping = createRule({
       80
     )
   }),
+
+  initialize: () => {
+    createGetPrefix();
+  },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });

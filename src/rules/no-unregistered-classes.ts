@@ -8,9 +8,15 @@ import {
   string
 } from "valibot";
 
-import { getCustomComponentClasses } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
-import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
-import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import {
+  createGetCustomComponentClasses,
+  getCustomComponentClasses
+} from "better-tailwindcss:tailwindcss/custom-component-classes.js";
+import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import {
+  createGetUnregisteredClasses,
+  getUnregisteredClasses
+} from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
@@ -51,6 +57,17 @@ export const noUnregisteredClasses = createRule({
       []
     )
   }),
+
+  initialize: ctx => {
+    const { detectComponentClasses } = getOptions(ctx, noUnregisteredClasses);
+
+    createGetPrefix();
+    createGetUnregisteredClasses();
+
+    if(detectComponentClasses){
+      createGetCustomComponentClasses();
+    }
+  },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });

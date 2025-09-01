@@ -1,5 +1,8 @@
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
-import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import {
+  createGetUnregisteredClasses,
+  getUnregisteredClasses
+} from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
@@ -21,6 +24,11 @@ export const enforceShorthandClasses = createRule({
 
   messages: {
     longhand: "Non shorthand class detected. Expected {{longhands}} to be {{shorthands}}"
+  },
+
+  initialize: () => {
+    createGetDissectedClasses();
+    createGetUnregisteredClasses();
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -135,6 +143,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
       cwd: ctx.cwd,
       tsconfigPath: tsconfig
     });
+
 
     lintClasses(ctx, literal, (className, index, after) => {
       for(const shorthandGroup of shorthandGroups){

@@ -1,4 +1,4 @@
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
@@ -21,6 +21,10 @@ export const noDeprecatedClasses = createRule({
   messages: {
     irreplaceable: "Class \"{{className}}\" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities",
     replaceable: "Deprecated class detected. Replace \"{{className}}\" with \"{{fix}}\"."
+  },
+
+  initialize: () => {
+    createGetDissectedClasses();
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)

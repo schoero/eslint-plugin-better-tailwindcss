@@ -30,7 +30,7 @@ export const enforceConsistentImportantPosition = createRule({
         ]),
         description("Preferred position for important classes. 'legacy' places the important modifier (!) at the start of the class name, 'recommended' places it at the end.")
       ),
-      "recommended"
+      getTailwindcssVersion().major <= TailwindcssVersion.V3 ? "legacy" : "recommended"
     )
   }),
 

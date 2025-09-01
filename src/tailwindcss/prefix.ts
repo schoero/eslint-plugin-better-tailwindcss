@@ -19,11 +19,11 @@ export interface GetPrefixRequest {
 
 export interface GetPrefixResponse { prefix: Prefix; suffix: Suffix; warnings: (Warning | undefined)[]; }
 
-export function getPrefix(req: GetPrefixRequest): GetPrefixResponse {
+export function createGetPrefix(): (req: GetPrefixRequest) => GetPrefixResponse {
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions)(req);
+  return createSyncFn(workerPath, workerOptions);
 }
 
 function getWorkerPath() {

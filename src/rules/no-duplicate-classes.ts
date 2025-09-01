@@ -21,6 +21,7 @@ export const noDuplicateClasses = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
+function initialize() {}
 
 function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal[]) {
   for(const literal of literals){

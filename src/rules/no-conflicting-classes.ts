@@ -1,4 +1,3 @@
-import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -24,6 +23,8 @@ export const noConflictingClasses = createRule({
 });
 
 function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Literal[]) {
+
+  const getConflictingClasses = createGetConflictingClasses();
 
   for(const literal of literals){
 

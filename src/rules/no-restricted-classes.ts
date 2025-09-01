@@ -59,6 +59,7 @@ export const noRestrictedClasses = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
+function initialize() {}
 
 function lintLiterals(ctx: Context<typeof noRestrictedClasses>, literals: Literal[]) {
 

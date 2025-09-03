@@ -32,6 +32,10 @@ type GetDissectedClasses = (req: GetDissectedClassRequest) => GetDissectedClassR
 export let getDissectedClasses: GetDissectedClasses;
 
 export function createGetDissectedClasses(): GetDissectedClasses {
+  if(getDissectedClasses){
+    return getDissectedClasses;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 

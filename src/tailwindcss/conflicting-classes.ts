@@ -33,6 +33,10 @@ type GetConflictingClasses = (req: GetConflictingClassesRequest) => GetConflicti
 export let getConflictingClasses: GetConflictingClasses;
 
 export function createGetConflictingClasses(): GetConflictingClasses {
+  if(getConflictingClasses){
+    return getConflictingClasses;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 

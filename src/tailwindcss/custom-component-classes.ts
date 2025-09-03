@@ -25,6 +25,10 @@ type GetCustomComponentClasses = (req: GetCustomComponentClassesRequest) => GetC
 export let getCustomComponentClasses: GetCustomComponentClasses;
 
 export function createGetCustomComponentClasses(): GetCustomComponentClasses {
+  if(getCustomComponentClasses){
+    return getCustomComponentClasses;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 

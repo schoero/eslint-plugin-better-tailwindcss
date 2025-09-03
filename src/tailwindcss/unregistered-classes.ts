@@ -24,6 +24,10 @@ type GetUnregisteredClasses = (req: GetUnregisteredClassesRequest) => GetUnregis
 export let getUnregisteredClasses: GetUnregisteredClasses;
 
 export function createGetUnregisteredClasses(): GetUnregisteredClasses {
+  if(getUnregisteredClasses){
+    return getUnregisteredClasses;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 

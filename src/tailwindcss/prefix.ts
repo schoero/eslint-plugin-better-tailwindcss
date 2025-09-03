@@ -24,6 +24,10 @@ type GetPrefix = (req: GetPrefixRequest) => GetPrefixResponse;
 export let getPrefix: GetPrefix;
 
 export function createGetPrefix(): GetPrefix {
+  if(getPrefix){
+    return getPrefix;
+  }
+
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 

@@ -47,7 +47,7 @@ export const TV_COMPOUND_VARIANTS_CLASS = [
   [
     {
       match: MatcherType.ObjectValue,
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class).*$"
     }
   ]
 ] satisfies CalleeMatchers;
@@ -57,7 +57,7 @@ export const TV_COMPOUND_SLOTS_CLASS = [
   [
     {
       match: MatcherType.ObjectValue,
-      pathPattern: "^compoundSlots\\[\\d+\\]\\.(?:className|class)$"
+      pathPattern: "^compoundSlots\\[\\d+\\]\\.(?:className|class).*$"
     }
   ]
 ] satisfies CalleeMatchers;

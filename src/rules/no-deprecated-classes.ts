@@ -18,8 +18,8 @@ export const noDeprecatedClasses = createRule({
   recommended: false,
 
   messages: {
-    irreplaceable: "Class \"{{className}}\" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities",
-    replaceable: "Deprecated class detected. Replace \"{{className}}\" with \"{{fix}}\"."
+    irreplaceable: "Class \"{{ className }}\" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities",
+    replaceable: "Deprecated class detected. Replace \"{{ className }}\" with \"{{fix}}\"."
   },
 
   initialize: () => {

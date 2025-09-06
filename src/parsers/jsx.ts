@@ -19,7 +19,7 @@ import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSX
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta } from "better-tailwindcss:types/ast.js";
-import type {  } from "better-tailwindcss:types/rule.js";
+import type { } from "better-tailwindcss:types/rule.js";
 
 
 export const JSX_CONTAINER_TYPES_TO_REPLACE_QUOTES = [

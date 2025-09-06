@@ -19,7 +19,7 @@ export const noConflictingClasses = createRule({
   recommended: false,
 
   messages: {
-    conflicting: "Conflicting class detected: \"{{className}}\" and \"{{conflictingClassString}}\" apply the same CSS properties: \"{{conflictingPropertiesString}}\"."
+    conflicting: "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassString }}\" apply the same CSS properties: \"{{ conflictingPropertiesString }}\"."
   },
 
   initialize() {

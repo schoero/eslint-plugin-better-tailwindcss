@@ -35,7 +35,7 @@ export const noUnregisteredClasses = createRule({
   recommended: false,
 
   messages: {
-    unregistered: "Unregistered class detected: {{className}}"
+    unregistered: "Unregistered class detected: {{ className }}"
   },
 
   schema: object({

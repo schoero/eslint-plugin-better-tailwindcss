@@ -49,7 +49,7 @@ import type {
   StringLiteral,
   TemplateLiteral
 } from "better-tailwindcss:types/ast.js";
-import type {Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [

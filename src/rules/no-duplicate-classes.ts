@@ -15,7 +15,7 @@ export const noDuplicateClasses = createRule({
   recommended: true,
 
   messages: {
-    duplicate: "Duplicate classname: \"{{className}}\"."
+    duplicate: "Duplicate classname: \"{{ className }}\"."
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)

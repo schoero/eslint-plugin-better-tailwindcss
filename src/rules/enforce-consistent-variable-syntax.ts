@@ -20,7 +20,7 @@ export const enforceConsistentVariableSyntax = createRule({
   recommended: false,
 
   messages: {
-    incorrect: "Incorrect variable syntax: {{className}}."
+    incorrect: "Incorrect variable syntax: {{ className }}."
   },
 
   schema: object({

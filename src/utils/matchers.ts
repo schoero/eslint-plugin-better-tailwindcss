@@ -14,7 +14,7 @@ import type { AttributeMatchers, AttributeName, Attributes } from "better-tailwi
 import type { CalleeMatchers, CalleeName, Callees } from "better-tailwindcss:options/schemas/callees.js";
 import type { TagMatchers, TagName, Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { VariableMatchers, VariableName, Variables } from "better-tailwindcss:options/schemas/variables.js";
-import type {MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { MatcherFunctions } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 

@@ -35,7 +35,7 @@ import type { VLiteral } from "vue-eslint-parser/ast/index";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type {Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [

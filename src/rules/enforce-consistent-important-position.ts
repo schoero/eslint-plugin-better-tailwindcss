@@ -3,7 +3,6 @@ import { description, literal, object, optional, pipe, union } from "valibot";
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
@@ -40,7 +39,7 @@ export const enforceConsistentImportantPosition = createRule({
 
   lintLiterals(ctx, literals) {
 
-    const { entryPoint, position, tailwindConfig, tsconfig } = getOptions(ctx, enforceConsistentImportantPosition);
+    const { entryPoint, position, tailwindConfig, tsconfig } = ctx.options;
 
     const { major } = getTailwindcssVersion();
 
@@ -80,7 +79,7 @@ export const enforceConsistentImportantPosition = createRule({
         return {
           data: { className, fix },
           fix,
-          messageId: "position"
+          id: "position"
         };
       });
 

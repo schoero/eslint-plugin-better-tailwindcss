@@ -3,7 +3,6 @@ import {
   getConflictingClasses
 } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -34,7 +33,7 @@ function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Liter
 
   for(const literal of literals){
 
-    const { entryPoint, tailwindConfig, tsconfig } = getOptions(ctx, noConflictingClasses);
+    const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
 
     const classes = splitClasses(literal.content);
 
@@ -74,7 +73,7 @@ function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Liter
           conflictingClassString,
           conflictingPropertiesString
         },
-        messageId: "conflicting"
+        id: "conflicting"
       };
 
     });

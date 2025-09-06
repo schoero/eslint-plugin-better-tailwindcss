@@ -49,7 +49,7 @@ import type {
   StringLiteral,
   TemplateLiteral
 } from "better-tailwindcss:types/ast.js";
-import type { Context, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type {Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [
@@ -65,7 +65,7 @@ export const ES_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
 ];
 
 
-export function getLiteralsByESVariableDeclarator(ctx: Context, node: ESVariableDeclarator, variables: Variables): Literal[] {
+export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
 
   const literals = variables.reduce<Literal[]>((literals, variable) => {
 
@@ -88,7 +88,7 @@ export function getLiteralsByESVariableDeclarator(ctx: Context, node: ESVariable
 
 }
 
-export function getLiteralsByESCallExpression(ctx: Context, node: ESCallExpression, callees: Callees): Literal[] {
+export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
 
   const literals = callees.reduce<Literal[]>((literals, callee) => {
     if(!isESCalleeSymbol(node.callee)){ return literals; }
@@ -108,7 +108,7 @@ export function getLiteralsByESCallExpression(ctx: Context, node: ESCallExpressi
 
 }
 
-export function getLiteralsByTaggedTemplateExpression(ctx: Context, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
+export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
 
   const literals = tags.reduce<Literal[]>((literals, tag) => {
     if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
@@ -128,7 +128,7 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Context, node: ESTagg
 
 }
 
-export function getLiteralsByESLiteralNode(ctx: Context, node: ESBaseNode): Literal[] {
+export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(isESSimpleStringLiteral(node)){
     const literal = getStringLiteralByESStringLiteral(ctx, node);
@@ -148,14 +148,14 @@ export function getLiteralsByESLiteralNode(ctx: Context, node: ESBaseNode): Lite
 
 }
 
-export function getLiteralsByESMatchers(ctx: Context, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
 }
 
-export function getStringLiteralByESStringLiteral(ctx: Context, node: ESSimpleStringLiteral): StringLiteral | undefined {
+export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
   const raw = node.raw;
 
@@ -189,7 +189,7 @@ export function getStringLiteralByESStringLiteral(ctx: Context, node: ESSimpleSt
 
 }
 
-function getLiteralByESTemplateElement(ctx: Context, node: ESTemplateElement & Rule.Node): TemplateLiteral | undefined {
+function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateElement & Rule.Node): TemplateLiteral | undefined {
 
   const raw = ctx.sourceCode.getText(node);
 
@@ -236,7 +236,7 @@ function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineM
   };
 }
 
-function getLiteralsByESExpression(ctx: Context, args: (ESExpression | ESSpreadElement)[]): Literal[] {
+function getLiteralsByESExpression(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
   return args.reduce<Literal[]>((acc, node) => {
     if(node.type === "SpreadElement"){ return acc; }
 
@@ -245,7 +245,7 @@ function getLiteralsByESExpression(ctx: Context, args: (ESExpression | ESSpreadE
   }, []);
 }
 
-export function getLiteralsByESTemplateLiteral(ctx: Context, node: ESTemplateLiteral): Literal[] {
+export function getLiteralsByESTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral): Literal[] {
   return node.quasis.map(quasi => {
     if(!hasESNodeParentExtension(quasi)){
       return;
@@ -260,7 +260,7 @@ export function findParentESTemplateLiteralByESTemplateElement(node: ESNode & Pa
   return findParentESTemplateLiteralByESTemplateElement(node.parent);
 }
 
-function findPriorLiterals(ctx: Context, node: ESNode) {
+function findPriorLiterals(ctx: Rule.RuleContext, node: ESNode) {
 
   if(!hasESNodeParentExtension(node)){ return; }
 
@@ -482,7 +482,7 @@ export function hasESNodeParentExtension(node: ESBaseNode): node is Rule.Node & 
   return "parent" in node && !!node.parent;
 }
 
-function getBracesByString(ctx: Context, raw: string): BracesMeta {
+function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
   const closingBraces = raw.startsWith("}") ? "}" : undefined;
   const openingBraces = raw.endsWith("${") ? "${" : undefined;
 

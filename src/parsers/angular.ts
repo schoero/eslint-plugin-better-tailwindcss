@@ -1,4 +1,5 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
@@ -32,11 +33,12 @@ import type {
   TmplAstNode,
   TmplAstTextAttribute
 } from "@angular/compiler";
+import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { BracesMeta, Literal, LiteralValueQuotes } from "better-tailwindcss:types/ast.js";
-import type { Context, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
@@ -45,14 +47,14 @@ import type { Context, Matcher, MatcherFunctions } from "better-tailwindcss:type
 // - Implement regex
 // - Add object keys
 
-export function getAttributesByAngularElement(ctx: Context, node: TmplAstElement): (TmplAstBoundAttribute | TmplAstTextAttribute)[] {
+export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplAstElement): (TmplAstBoundAttribute | TmplAstTextAttribute)[] {
   return [
     ...node.attributes,
     ...node.inputs
   ];
 }
 
-export function getLiteralsByAngularAttribute(ctx: Context, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, attributes: Attributes): Literal[] {
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
@@ -72,7 +74,7 @@ export function getLiteralsByAngularAttribute(ctx: Context, attribute: TmplAstBo
   return deduplicateLiterals(literals);
 }
 
-function createLiteralsByAngularAst(ctx: Context, ast: AST): Literal[] {
+function createLiteralsByAngularAst(ctx: Rule.RuleContext, ast: AST): Literal[] {
   if(isInterpolation(ast)){
     return ast.expressions.flatMap(expression => {
       return createLiteralsByAngularAst(ctx, expression);
@@ -105,7 +107,7 @@ function createLiteralsByAngularAst(ctx: Context, ast: AST): Literal[] {
 
 }
 
-function createLiteralsByAngularConditional(ctx: Context, conditional: Conditional): Literal[] {
+function createLiteralsByAngularConditional(ctx: Rule.RuleContext, conditional: Conditional): Literal[] {
   const literals: Literal[] = [];
 
   literals.push(...createLiteralsByAngularAst(ctx, conditional.trueExp));
@@ -114,7 +116,7 @@ function createLiteralsByAngularConditional(ctx: Context, conditional: Condition
   return literals;
 }
 
-function createLiteralsByAngularAttribute(ctx: Context, attribute: TmplAstBoundAttribute | TmplAstTextAttribute): Literal[] {
+function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute): Literal[] {
   if(isTextAttribute(attribute)){
     return createLiteralsByAngularTextAttribute(ctx, attribute);
   }
@@ -124,14 +126,14 @@ function createLiteralsByAngularAttribute(ctx: Context, attribute: TmplAstBoundA
   return [];
 }
 
-function getLiteralsByAngularMatchers(ctx: Context, ast: AST, matchers: Matcher[]): Literal[] {
+function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
   const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
   return deduplicateLiterals(literals);
 }
 
-function getAngularMatcherFunctions(ctx: Context, matchers: Matcher[]): MatcherFunctions<AST> {
+function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]): MatcherFunctions<AST> {
   return matchers.reduce<MatcherFunctions<AST>>((matcherFunctions, matcher) => {
     switch (matcher.match){
       case MatcherType.String: {
@@ -202,7 +204,7 @@ function getAngularMatcherFunctions(ctx: Context, matchers: Matcher[]): MatcherF
   }, []);
 }
 
-function createLiteralByLiteralMapKey(ctx: Context, key: LiteralMapKey): Literal[] {
+function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey): Literal[] {
   // @ts-expect-error - angular types are faulty
   const literalMap = key?.parent as LiteralMap | undefined;
   // @ts-expect-error - angular types are faulty
@@ -270,7 +272,7 @@ function createLiteralByLiteralMapKey(ctx: Context, key: LiteralMapKey): Literal
   }];
 }
 
-function createLiteralsByAngularTextAttribute(ctx: Context, attribute: TmplAstTextAttribute): Literal[] {
+function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: TmplAstTextAttribute): Literal[] {
   const content = attribute.value;
 
   if(!attribute.valueSpan){
@@ -303,7 +305,7 @@ function createLiteralsByAngularTextAttribute(ctx: Context, attribute: TmplAstTe
   }];
 }
 
-function createLiteralByAngularLiteralPrimitive(ctx: Context, literal: LiteralPrimitive): Literal[] {
+function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: LiteralPrimitive): Literal[] {
   const content = literal.value;
 
   if(!literal.sourceSpan){
@@ -336,7 +338,7 @@ function createLiteralByAngularLiteralPrimitive(ctx: Context, literal: LiteralPr
   }];
 }
 
-function createLiteralByAngularTemplateLiteralElement(ctx: Context, literal: TemplateLiteralElement): Literal[] {
+function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, literal: TemplateLiteralElement): Literal[] {
   const content = literal.text;
 
   if(!literal.sourceSpan || !hasParent(literal)){
@@ -377,17 +379,6 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Context, literal: Tem
   }];
 }
 
-function getLocByRange(ctx: Context, range: [number, number]): SourceLocation {
-  const [rangeStart, rangeEnd] = range;
-
-  const loc: SourceLocation = {
-    end: ctx.sourceCode.getLocFromIndex(rangeEnd),
-    start: ctx.sourceCode.getLocFromIndex(rangeStart)
-  };
-
-  return loc;
-}
-
 function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocation {
   return {
     end: {
@@ -401,15 +392,15 @@ function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocatio
   };
 }
 
-function getMultilineSupport(ctx: Context) {
+function getMultilineSupport(ctx: Rule.RuleContext) {
   return !isInsideInlineTemplate(ctx);
 }
 
-function isInsideInlineTemplate(ctx: Context) {
+function isInsideInlineTemplate(ctx: Rule.RuleContext) {
   return getInlineTemplateComponentIndex(ctx) !== undefined;
 }
 
-function getInlineTemplateComponentIndex(ctx: Context) {
+function getInlineTemplateComponentIndex(ctx: Rule.RuleContext) {
   const matches = ctx.filename.match(/^.*_inline-template-[\w.-]+-(\d+)\.component\.html$/);
 
   if(matches){
@@ -450,7 +441,7 @@ export type Parent = {
   parent: AST;
 };
 
-export function isInsideConditionalExpressionCondition(ctx: Context, ast: AST): boolean {
+export function isInsideConditionalExpressionCondition(ctx: Rule.RuleContext, ast: AST): boolean {
   const parent = findParent(ctx, ast);
   if(!parent){ return false; }
 
@@ -461,7 +452,7 @@ export function isInsideConditionalExpressionCondition(ctx: Context, ast: AST): 
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-export function isInsideLogicalExpressionLeft(ctx: Context, ast: AST): boolean {
+export function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean {
   const parent = findParent(ctx, ast);
   if(!parent){ return false; }
 
@@ -484,7 +475,7 @@ function hasParent(ast: AST): ast is AST & Parent {
  * @param astNode The AST node to find the parent for.
  * @returns The parent AST node, or undefined if not found.
  */
-export function findParent(ctx: Context, astNode: AST): AST | undefined {
+export function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
   if(hasParent(astNode)){
     return astNode.parent;
   }

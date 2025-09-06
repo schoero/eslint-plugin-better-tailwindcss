@@ -51,7 +51,7 @@ export function lint< const Rule extends ESLintRule, Syntaxes extends Record<str
         errors: { message: string; type?: string; }[] | number;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<CommonOptions & Context<Rule>["options"][0]>];
+        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
         settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];
@@ -60,7 +60,7 @@ export function lint< const Rule extends ESLintRule, Syntaxes extends Record<str
         [Key in keyof Syntaxes]?: string;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<CommonOptions & Context<Rule>["options"][0]>];
+        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
         settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];

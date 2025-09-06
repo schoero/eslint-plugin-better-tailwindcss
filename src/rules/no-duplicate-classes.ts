@@ -41,7 +41,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
       if(parentClasses.includes(className) || duplicateClassIndex !== -1){
         return {
           fix: "",
-          messageId: "duplicate"
+          id: "duplicate"
         };
       }
     });

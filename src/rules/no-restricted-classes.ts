@@ -9,7 +9,6 @@ import {
 } from "valibot";
 
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders } from "better-tailwindcss:utils/utils.js";
 
@@ -62,7 +61,7 @@ export const noRestrictedClasses = createRule({
 
 function lintLiterals(ctx: Context<typeof noRestrictedClasses>, literals: Literal[]) {
 
-  const { restrict: restrictions } = getOptions(ctx, noRestrictedClasses);
+  const { restrict: restrictions } = ctx.options;
 
   for(const literal of literals){
     lintClasses(ctx, literal, (className, classes) => {

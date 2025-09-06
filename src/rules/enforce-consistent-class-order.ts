@@ -2,7 +2,6 @@ import { description, literal, object, optional, pipe, union } from "valibot";
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
@@ -97,20 +96,18 @@ export const enforceConsistentClassOrder = createRule({
           notSorted: display(literal.raw),
           sorted: display(fixedClasses)
         },
-        fix(fixer) {
-          return fixer.replaceTextRange(literal.range, fixedClasses);
-        },
-        loc: literal.loc,
-        messageId: "order"
+        fix: fixedClasses,
+        id: "order",
+        range: literal.range
       });
     }
   }
 });
 
 
-function sortClassNames(ctx: Context, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
+function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { entryPoint, order, tailwindConfig, tsconfig } = getOptions(ctx, enforceConsistentClassOrder);
+  const { entryPoint, order, tailwindConfig, tsconfig } = ctx.options;
 
   if(order === "asc"){
     return [classes.toSorted((a, b) => a.localeCompare(b))];

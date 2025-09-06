@@ -1,5 +1,5 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { object } from "valibot";
+import { getDefaults, object } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
@@ -12,7 +12,7 @@ import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailw
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
+import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { isTailwindcssInstalled } from "better-tailwindcss:utils/tailwindcss.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -24,22 +24,27 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { Context, CreateRule } from "better-tailwindcss:types/rule.js";
+import type {
+  Context,
+  CreateRuleOptions,
+  ESLintRule,
+  JsonSchema,
+  RuleContext,
+  Schema
+} from "better-tailwindcss:types/rule.js";
 
 
-export const createRule: CreateRule = ({
-  autofix,
-  category,
-  description,
-  docs,
-  initialize,
-  lintLiterals,
-  messages,
-  name,
-  recommended,
-  schema
-}) => {
+export function createRule<
+  const Messages extends Record<string, string>,
+  const OptionsSchema extends Schema = Schema,
+  const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>
+>(options: CreateRuleOptions<Messages, OptionsSchema, Options>): ESLintRule<Messages, Options> {
+
+  const { autofix, category, description, docs, initialize, lintLiterals, messages, name, recommended, schema } = options;
+
+  let eslintContext: Rule.RuleContext | undefined;
 
   const propertiesSchema = object({
     ...COMMON_OPTIONS.entries,
@@ -48,8 +53,24 @@ export const createRule: CreateRule = ({
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
 
+  const getOptions = () => {
+    const commonOptions = getDefaults(COMMON_OPTIONS);
+    const defaultOptions = schema ? getDefaults(schema) : {};
+    const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
+    const options = eslintContext?.options[0] ?? {};
+
+    return {
+      ...commonOptions,
+      ...defaultOptions,
+      ...settings,
+      ...options
+    };
+  };
+
   return {
+    messages,
     name,
+    get options() { return getOptions(); },
     rule: {
       create: ctx => {
         if(!isTailwindcssInstalled()){
@@ -57,9 +78,41 @@ export const createRule: CreateRule = ({
           return {};
         }
 
-        initialize?.(ctx);
+        eslintContext = ctx;
 
-        return createRuleListener(ctx, lintLiterals);
+        const context = {
+          cwd: ctx.cwd,
+          options: getOptions(),
+          report: ({ data, fix, range, ...rest }) => {
+            const loc = getLocByRange(ctx, range);
+
+            if("id" in rest && rest.id){
+              return void ctx.report({
+                data,
+                loc,
+                ...fix !== undefined && {
+                  fix: fixer => fixer.replaceTextRange(range, fix)
+                },
+                messageId: rest.id
+              });
+            }
+
+            if("message" in rest && rest.message){
+              return void ctx.report({
+                data,
+                loc,
+                ...fix !== undefined && {
+                  fix: fixer => fixer.replaceTextRange(range, fix)
+                },
+                message: rest.message
+              });
+            }
+          }
+        } satisfies RuleContext<Messages, Options>;
+
+        initialize?.(context);
+
+        return createRuleListener(eslintContext, context, lintLiterals);
       },
       meta: {
         docs: {
@@ -78,21 +131,20 @@ export const createRule: CreateRule = ({
         type: category === "correctness" ? "problem" : "layout",
         ...messages && { messages }
       }
-    },
-    schema
+    }
   };
-};
+}
 
-export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
+export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
-  const { attributes, callees, tags, variables } = getOptions(ctx);
+  const { attributes, callees, tags, variables } = context.options;
 
   const callExpression = {
     CallExpression(node: Node) {
       const callExpressionNode = node as CallExpression;
 
       const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-      lintLiterals(ctx, literals);
+      lintLiterals(context, literals);
     }
   };
 
@@ -101,7 +153,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
       const variableDeclaratorNode = node as VariableDeclarator;
 
       const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-      lintLiterals(ctx, literals);
+      lintLiterals(context, literals);
     }
   };
 
@@ -110,7 +162,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
       const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
 
       const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-      lintLiterals(ctx, literals);
+      lintLiterals(context, literals);
     }
   };
 
@@ -126,7 +178,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
         if(!attributeValue){ continue; }
 
         const literals = getLiteralsByJSXAttribute(ctx, jsxAttribute, attributes);
-        lintLiterals(ctx, literals);
+        lintLiterals(context, literals);
       }
     }
   };
@@ -142,7 +194,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
         if(typeof attributeName !== "string"){ continue; }
 
         const literals = getLiteralsBySvelteAttribute(ctx, svelteAttribute, attributes);
-        lintLiterals(ctx, literals);
+        lintLiterals(context, literals);
       }
     }
   };
@@ -154,7 +206,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
 
       for(const attribute of vueAttributes){
         const literals = getLiteralsByVueAttribute(ctx, attribute, attributes);
-        lintLiterals(ctx, literals);
+        lintLiterals(context, literals);
       }
     }
   };
@@ -166,7 +218,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
 
       for(const htmlAttribute of htmlAttributes){
         const literals = getLiteralsByHTMLAttribute(ctx, htmlAttribute, attributes);
-        lintLiterals(ctx, literals);
+        lintLiterals(context, literals);
       }
     }
   };
@@ -178,7 +230,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Ctx, lintLiterals: 
 
       for(const angularAttribute of angularAttributes){
         const literals = getLiteralsByAngularAttribute(ctx, angularAttribute, attributes);
-        lintLiterals(ctx, literals);
+        lintLiterals(context, literals);
       }
     }
   };

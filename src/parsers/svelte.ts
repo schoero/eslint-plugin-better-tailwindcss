@@ -45,7 +45,7 @@ import type {
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Context, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -57,7 +57,7 @@ export const SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
 ];
 
 
-export function getAttributesBySvelteTag(ctx: Context, node: SvelteStartTag): SvelteAttribute[] {
+export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteAttribute[] {
   return node.attributes.reduce<SvelteAttribute[]>((acc, attribute) => {
     if(isSvelteAttribute(attribute)){
       acc.push(attribute);
@@ -66,7 +66,7 @@ export function getAttributesBySvelteTag(ctx: Context, node: SvelteStartTag): Sv
   }, []);
 }
 
-export function getLiteralsBySvelteAttribute(ctx: Context, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
 
   // skip shorthand attributes #42
   if(!Array.isArray(attribute.value)){
@@ -95,14 +95,14 @@ export function getLiteralsBySvelteAttribute(ctx: Context, attribute: SvelteAttr
 
 }
 
-function getLiteralsBySvelteMatchers(ctx: Context, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
   return deduplicateLiterals(literals);
 }
 
-function getLiteralsBySvelteLiteralNode(ctx: Context, node: ESBaseNode): Literal[] {
+function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(isSvelteStringLiteral(node)){
     const stringLiteral = getStringLiteralBySvelteStringLiteral(ctx, node);
@@ -124,7 +124,7 @@ function getLiteralsBySvelteLiteralNode(ctx: Context, node: ESBaseNode): Literal
 
 }
 
-function getLiteralsBySvelteESLiteralNode(ctx: Context, node: ESBaseNode): Literal[] {
+function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
   const literals = getLiteralsByESLiteralNode(ctx, node);
 
   return literals.map(literal => {
@@ -139,7 +139,7 @@ function getLiteralsBySvelteESLiteralNode(ctx: Context, node: ESBaseNode): Liter
   });
 }
 
-function getStringLiteralBySvelteStringLiteral(ctx: Context, node: SvelteLiteral): StringLiteral | undefined {
+function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];

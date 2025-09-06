@@ -5,7 +5,6 @@ import {
 } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -23,7 +22,8 @@ export const enforceShorthandClasses = createRule({
   recommended: true,
 
   messages: {
-    longhand: "Non shorthand class detected. Expected {{longhands}} to be {{shorthands}}"
+    longhand: "Non shorthand class detected. Expected {{ longhands }} to be {{ shorthands }}",
+    unnecessary: "Unnecessary whitespace"
   },
 
   initialize: () => {
@@ -125,7 +125,7 @@ export const shorthands = [
 
 function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Literal[]) {
 
-  const { entryPoint, tailwindConfig, tsconfig } = getOptions(ctx, enforceShorthandClasses);
+  const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
 
   for(const literal of literals){
 
@@ -161,7 +161,8 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
 
           if(shorthands.every(shorthand => after.includes(shorthand))){
             return {
-              fix: ""
+              fix: "",
+              id: "unnecessary"
             };
           }
 
@@ -171,7 +172,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
               shorthands: shorthands.join(" ")
             },
             fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
-            messageId: "longhand"
+            id: "longhand"
           };
         }
       }

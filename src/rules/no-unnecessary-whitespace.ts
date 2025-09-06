@@ -1,8 +1,7 @@
 import { boolean, description, object, optional, pipe } from "valibot";
 
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -32,7 +31,7 @@ export const noUnnecessaryWhitespace = createRule({
 
 function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Literal[]) {
 
-  const { allowMultiline } = getOptions(ctx, noUnnecessaryWhitespace);
+  const { allowMultiline } = ctx.options;
 
   for(const literal of literals){
 
@@ -65,15 +64,12 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         }
 
         ctx.report({
-          fix: fixer => fixer.replaceTextRange(
-            [
-              literalStart + 1 + startIndex,
-              literalStart + 1 + endIndex
-            ],
-            ""
-          ),
-          loc: getExactClassLocation(literal, startIndex, endIndex),
-          message: "Unnecessary whitespace."
+          fix: "",
+          id: "unnecessary",
+          range: [
+            literalStart + 1 + startIndex,
+            literalStart + 1 + endIndex
+          ]
         });
         continue;
       }
@@ -87,15 +83,12 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         }
 
         ctx.report({
-          fix: fixer => fixer.replaceTextRange(
-            [
-              literalStart + 1 + startIndex,
-              literalStart + 1 + endIndex
-            ],
-            whitespaceWithoutLeadingSpaces
-          ),
-          loc: getExactClassLocation(literal, startIndex, endIndex),
-          message: "Unnecessary whitespace."
+          fix: whitespaceWithoutLeadingSpaces,
+          id: "unnecessary",
+          range: [
+            literalStart + 1 + startIndex,
+            literalStart + 1 + endIndex
+          ]
         });
 
         continue;
@@ -115,15 +108,12 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         }
 
         ctx.report({
-          fix: fixer => fixer.replaceTextRange(
-            [
-              literalStart + 1 + startIndex,
-              literalStart + 1 + endIndex
-            ],
-            " "
-          ),
-          loc: getExactClassLocation(literal, startIndex, endIndex),
-          message: "Unnecessary whitespace."
+          fix: " ",
+          id: "unnecessary",
+          range: [
+            literalStart + 1 + startIndex,
+            literalStart + 1 + endIndex
+          ]
         });
 
         continue;
@@ -136,15 +126,12 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         }
 
         ctx.report({
-          fix: fixer => fixer.replaceTextRange(
-            [
-              literalStart + 1 + startIndex,
-              literalStart + 1 + endIndex
-            ],
-            ""
-          ),
-          loc: getExactClassLocation(literal, startIndex, endIndex),
-          message: "Unnecessary whitespace."
+          fix: "",
+          id: "unnecessary",
+          range: [
+            literalStart + 1 + startIndex,
+            literalStart + 1 + endIndex
+          ]
         });
 
         continue;

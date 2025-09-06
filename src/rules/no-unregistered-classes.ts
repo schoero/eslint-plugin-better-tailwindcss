@@ -19,7 +19,6 @@ import {
 } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -59,7 +58,7 @@ export const noUnregisteredClasses = createRule({
   }),
 
   initialize: ctx => {
-    const { detectComponentClasses } = getOptions(ctx, noUnregisteredClasses);
+    const { detectComponentClasses } = ctx.options;
 
     createGetPrefix();
     createGetUnregisteredClasses();
@@ -72,9 +71,10 @@ export const noUnregisteredClasses = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
+
 function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Literal[]) {
 
-  const { detectComponentClasses, entryPoint, ignore, tailwindConfig, tsconfig } = getOptions(ctx, noUnregisteredClasses);
+  const { detectComponentClasses, entryPoint, ignore, tailwindConfig, tsconfig } = ctx.options;
 
   const { prefix, suffix } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
@@ -114,7 +114,7 @@ function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Lite
         data: {
           className
         },
-        messageId: "unregistered"
+        id: "unregistered"
       };
 
     });

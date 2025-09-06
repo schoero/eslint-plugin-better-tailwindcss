@@ -1,7 +1,6 @@
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
@@ -72,7 +71,7 @@ const deprecations = [
 
 function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Literal[]) {
 
-  const { entryPoint, tailwindConfig, tsconfig } = getOptions(ctx, noDeprecatedClasses);
+  const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
   const { major, minor } = getTailwindcssVersion();
 
   for(const literal of literals){
@@ -105,7 +104,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
               data: {
                 className
               } as Record<string, string>,
-              messageId: "irreplaceable"
+              id: "irreplaceable"
             };
           }
 
@@ -117,7 +116,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
               fix
             },
             fix,
-            messageId: "replaceable"
+            id: "replaceable"
           };
 
         }

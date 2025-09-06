@@ -12,7 +12,6 @@ import {
 
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
-import { getOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses } from "better-tailwindcss:utils/utils.js";
@@ -105,7 +104,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, entryPoint, group: groupSeparator, preferSingleLine, printWidth, tailwindConfig, tsconfig } = getOptions(ctx, enforceConsistentLineWrapping);
+  const { classesPerLine, entryPoint, group: groupSeparator, preferSingleLine, printWidth, tailwindConfig, tsconfig } = ctx.options;
 
   const { prefix, suffix } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
@@ -370,11 +369,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
           notReadable: display(literal.raw),
           readable: display(fixedClasses)
         },
-        fix(fixer) {
-          return fixer.replaceTextRange(literal.range, fixedClasses);
-        },
-        loc: literal.loc,
-        messageId: "unnecessary"
+        fix: fixedClasses,
+        id: "unnecessary",
+        range: literal.range
       });
 
       return;
@@ -456,13 +453,11 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         notReadable: display(literal.raw),
         readable: display(fixedClasses)
       },
-      fix(fixer) {
-        return literal.surroundingBraces
-          ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
-          : fixer.replaceTextRange(literal.range, fixedClasses);
-      },
-      loc: literal.loc,
-      messageId: "missing"
+      fix: literal.surroundingBraces
+        ? `{${fixedClasses}}`
+        : fixedClasses,
+      id: "missing",
+      range: literal.range
     });
 
   }
@@ -470,7 +465,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 }
 
 function getIndentation(ctx: Context<typeof enforceConsistentLineWrapping>): number {
-  const { indent } = getOptions(ctx, enforceConsistentLineWrapping);
+  const { indent } = ctx.options;
   return indent === "tab" ? 1 : indent ?? 0;
 }
 
@@ -532,7 +527,7 @@ class Line {
   }
 
   public indent(start: number = this.indentation) {
-    const { indent } = getOptions(this.ctx, enforceConsistentLineWrapping);
+    const { indent } = this.ctx.options;
 
     if(indent === "tab"){
       this.meta.indentation = "\t".repeat(start);
@@ -679,6 +674,6 @@ class Group {
 }
 
 function getLineBreaks(ctx: Context<typeof enforceConsistentLineWrapping>) {
-  const { lineBreakStyle } = getOptions(ctx, enforceConsistentLineWrapping);
+  const { lineBreakStyle } = ctx.options;
   return lineBreakStyle === "unix" ? "\n" : "\r\n";
 }

@@ -25,7 +25,6 @@ export interface GetAsyncContextResponse {
 
 
 export async function getAsyncContext({ configPath, cwd, tsconfigPath }: GetAsyncContextRequest): Promise<GetAsyncContextResponse> {
-
   const version = getTailwindcssVersion();
 
   const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = getTailwindConfigPath({ configPath, cwd, version });

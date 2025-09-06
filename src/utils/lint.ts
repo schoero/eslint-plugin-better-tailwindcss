@@ -1,21 +1,30 @@
-import { getExactClassLocation, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type { Context, MessageId } from "better-tailwindcss:types/rule.js";
+import type { Context, MessageId, Messages } from "better-tailwindcss:types/rule.js";
 
 
-export function lintClasses<const Ctx extends Context, const MsgId = MessageId<Ctx>>(
+export function lintClasses<
+  const Ctx extends Context,
+  const MsgId extends MessageId<Ctx>,
+  const Msgs extends Record<string, string> | undefined = Messages<Ctx>
+>(
   ctx: Ctx,
   literal: Literal,
-  report: (className: string, index: number, after: string[]) => false | undefined | {
-    data?: Record<string, string>;
-    fix?: string;
-    message?: string;
-  } | {
-    messageId: MsgId;
-    data?: Record<string, string>;
-    fix?: string;
-  }
+  report: (className: string, index: number, after: string[]) =>
+    | (Msgs extends Record<string, string>
+      ? {
+        id: MsgId;
+        data?: Msgs;
+        fix?: string;
+        message?: undefined;
+      } : {
+        message: string;
+        fix?: string;
+        id?: undefined;
+      })
+      | false
+      | undefined
 ): void {
 
   const classChunks = splitClasses(literal.content);
@@ -55,21 +64,15 @@ export function lintClasses<const Ctx extends Context, const MsgId = MessageId<C
     }
 
     ctx.report({
-      data: result.data,
-      loc: getExactClassLocation(literal, startIndex, endIndex),
       message: `Expected ${className} to be ${result.fix ?? ""}.`,
-      ..."message" in result && { message: result.message, messageId: undefined },
-      ..."messageId" in result && { message: undefined, messageId: result.messageId },
-      ...typeof result === "object" && result.fix !== undefined &&
-      {
-        fix: fixer => fixer.replaceTextRange(
-          [
-            literalStart + startIndex + 1,
-            literalStart + endIndex + 1
-          ],
-          result.fix!
-        )
-      }
+      range: [
+        literalStart + startIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0),
+        literalStart + endIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0)
+      ],
+      ..."data" in result && { data: result.data },
+      ..."message" in result && { id: undefined, message: result.message },
+      ..."id" in result && { id: result.id, message: undefined },
+      ...typeof result === "object" && result.fix !== undefined && { fix: result.fix }
     });
 
   }

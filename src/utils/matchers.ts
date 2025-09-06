@@ -14,11 +14,11 @@ import type { AttributeMatchers, AttributeName, Attributes } from "better-tailwi
 import type { CalleeMatchers, CalleeName, Callees } from "better-tailwindcss:options/schemas/callees.js";
 import type { TagMatchers, TagName, Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { VariableMatchers, VariableName, Variables } from "better-tailwindcss:options/schemas/variables.js";
-import type { Context, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type {MatcherFunctions } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
-export function getLiteralNodesByMatchers<Node>(ctx: Context, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
+export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
   const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions, deadEnd);

@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.7.7
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.6...v3.7.7)
+
+### Fixes
+
+- Compound variants with slots class string not being detected ([#219](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/219))
+
+### ❤️ Contributors
+
+- tim-spitzer-syzygy ([@tim-spitzer-syzygy](https://github.com/tim-spitzer-syzygy))
+
 ## v3.7.6
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.5...v3.7.6)

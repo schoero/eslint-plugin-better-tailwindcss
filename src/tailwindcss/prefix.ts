@@ -2,10 +2,10 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/version.js";
+import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Async, Warning } from "better-tailwindcss:types/async.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export type Prefix = string;
@@ -19,9 +19,12 @@ export interface GetPrefixRequest {
 
 export interface GetPrefixResponse { prefix: Prefix; suffix: Suffix; warnings: (Warning | undefined)[]; }
 
-export const getPrefix = createSyncFn<
-  Async<GetPrefixRequest, GetPrefixResponse>
->(getWorkerPath(), getWorkerOptions());
+export function createGetPrefix(): (req: GetPrefixRequest) => GetPrefixResponse {
+  const workerPath = getWorkerPath();
+  const workerOptions = getWorkerOptions();
+
+  return createSyncFn(workerPath, workerOptions);
+}
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();

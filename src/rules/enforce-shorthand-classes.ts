@@ -13,8 +13,8 @@ import {
   TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
-import { getUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetUnregisteredClasses } from "better-tailwindcss:tailwindcss/unregistered-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
@@ -62,7 +62,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceShorthandClasses: ESLintRule<Options> = {
   name: "enforce-shorthand-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Enforce shorthand class names instead of longhand class names.",
@@ -176,7 +176,15 @@ export const shorthands = [
   ]
 ] satisfies Shorthands;
 
+function initialize() {
+  createGetDissectedClasses();
+  createGetUnregisteredClasses();
+}
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  const getDissectedClasses = createGetDissectedClasses();
+  const getUnregisteredClasses = createGetUnregisteredClasses();
 
   const { tailwindConfig, tsconfig } = getOptions(ctx);
 

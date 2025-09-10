@@ -13,7 +13,7 @@ import {
   TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { createGetPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
@@ -75,7 +75,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const enforceConsistentLineWrapping: ESLintRule<Options> = {
   name: "enforce-consistent-line-wrapping" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         category: "Stylistic Issues",
@@ -145,7 +145,12 @@ export const enforceConsistentLineWrapping: ESLintRule<Options> = {
   }
 };
 
+function initialize() {
+  createGetPrefix();
+}
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+  const getPrefix = createGetPrefix();
 
   const options = getOptions(ctx);
   const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig, tsconfig } = options;

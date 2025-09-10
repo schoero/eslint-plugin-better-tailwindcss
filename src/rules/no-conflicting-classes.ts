@@ -13,7 +13,7 @@ import {
   TSCONFIG_SCHEMA,
   VARIABLE_SCHEMA
 } from "better-tailwindcss:options/descriptions.js";
-import { getConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
+import { createGetConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCommonOptions } from "better-tailwindcss:utils/options.js";
 import { createRuleListener } from "better-tailwindcss:utils/rule.js";
@@ -58,7 +58,7 @@ const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailw
 export const noConflictingClasses: ESLintRule<Options> = {
   name: "no-conflicting-classes" as const,
   rule: {
-    create: ctx => createRuleListener(ctx, getOptions(ctx), lintLiterals),
+    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
     meta: {
       docs: {
         description: "Disallow classes that produce conflicting styles.",
@@ -86,7 +86,13 @@ export const noConflictingClasses: ESLintRule<Options> = {
   }
 };
 
+function initialize() {
+  createGetConflictingClasses();
+}
+
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+
+  const getConflictingClasses = createGetConflictingClasses();
 
   for(const literal of literals){
 

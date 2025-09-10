@@ -154,4 +154,21 @@ describe("vue", () => {
     });
   });
 
+  // #211
+  it("should still handle object values even when they are immediately index accessed", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          vue: `<template><img :class="{ key: '  a b c  ' }['key']" /></template>`,
+          vueOutput: `<template><img :class="{ key: 'a b c' }['key']" /></template>`,
+
+          errors: 2,
+          options: [{
+            attributes: [[".*", [{ match: MatcherType.ObjectValue }]]]
+          }]
+        }
+      ]
+    });
+  });
+
 });

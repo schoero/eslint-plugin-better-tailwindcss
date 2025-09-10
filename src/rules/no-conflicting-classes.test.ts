@@ -1,8 +1,8 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "src/async-utils/version.js";
 import { describe, it } from "vitest";
 
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConflictingClasses.name, () => {

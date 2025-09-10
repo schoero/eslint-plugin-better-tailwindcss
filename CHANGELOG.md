@@ -1,5 +1,53 @@
 # Changelog
 
+## v3.7.7
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.6...v3.7.7)
+
+### Fixes
+
+- Compound variants with slots class string not being detected ([#219](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/219))
+
+### ❤️ Contributors
+
+- tim-spitzer-syzygy ([@tim-spitzer-syzygy](https://github.com/tim-spitzer-syzygy))
+
+## v3.7.6
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.5...v3.7.6)
+
+### Fixes
+
+- Check for tailwindcss before running rules ([#217](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/217))
+- Angular: Prevent crash when objectContent is undefined in createLiteralByLiteralMapKey ([#215](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/215))
+
+### Tests
+
+- Add no-unregistered-classes test for DaisyUI classes ([#186](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/186))
+
+### ❤️ Contributors
+
+- Paul Parker ([@pauldesmondparker](https://github.com/pauldesmondparker))
+- Yossi Yedid ([@yossiyedid](https://github.com/yossiyedid))
+
+## v3.7.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.4...v3.7.5)
+
+### Fixes
+
+- Matching object values with immediate indexed access ([#212](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/212))
+
+## v3.7.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.3...v3.7.4)
+
+### Fixes
+
+- Error in no-conflicting-classes when used in tailwindcss 3 ([#205](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/205))
+- Invalid config warning when config was actually found ([#206](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/206))
+- Differentiate shorthands for the same classes with different variants ([#207](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/207))
+
 ## v3.7.3
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.2...v3.7.3)

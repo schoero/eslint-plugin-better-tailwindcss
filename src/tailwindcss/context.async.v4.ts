@@ -3,8 +3,6 @@ import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
-import postcss from "postcss";
-import postcssImport from "postcss-import";
 
 import { withCache } from "../async-utils/cache.js";
 import { isESModule } from "../async-utils/module.js";
@@ -33,27 +31,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(tailwindUrl);
 
-  let css = await readFile(ctx.tailwindConfigPath, "utf-8");
-
-  // Determine if the v4 API supports resolving `@import`
-  let supportsImports = false;
-  try {
-    await __unstable__loadDesignSystem('@import "./empty";', {
-      loadStylesheet: async () => {
-        supportsImports = true;
-        return {
-          base: importBasePath,
-          content: ""
-        };
-      }
-    });
-  } catch {}
-
-  if(!supportsImports){
-    const resolveImports = postcss([postcssImport()]);
-    const result = await resolveImports.process(css, { from: ctx.tailwindConfigPath });
-    css = result.css;
-  }
+  const css = await readFile(ctx.tailwindConfigPath, "utf-8");
 
   // Load the design system and set up a compatible context object that is
   // usable by the rest of the plugin

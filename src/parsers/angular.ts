@@ -267,51 +267,32 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
   // @ts-expect-error - angular types are faulty
   const objectContent = literalMap?.parent?.source;
   const keyContent = key?.key;
+  const keyIndex = literalMap?.keys.indexOf(key);
+
+  if(keyIndex === undefined || keyIndex === -1){
+    return [];
+  }
+
+  const previousValue = literalMap?.values[keyIndex - 1];
+  const value = literalMap?.values[keyIndex];
 
   // Bail out if we can't parse safely
   if(!literalMap?.sourceSpan || typeof objectContent !== "string" || typeof keyContent !== "string"){
     return [];
   }
 
-  let start = 0;
-  let end = 0;
+  const rangeStart = previousValue?.span?.end ?? 0;
+  const rangeEnd = value?.span?.start ?? objectContent.length;
 
-  const values = (literalMap as any).values as { sourceSpan: { end: number; start: number; }; }[] | undefined;
+  const slice = objectContent.slice(rangeStart, rangeEnd);
 
-  for(const value of values ?? []){
-    if(!value?.sourceSpan){continue;}
+  const start = rangeStart + slice.indexOf(keyContent) - (key.quoted ? 1 : 0);
+  const end = start + keyContent.length + (key.quoted ? 1 : 0);
 
-    const sliced = objectContent.slice(start);
-    const currentStart = sliced.indexOf(keyContent);
-    if(currentStart === -1){
-      // Key not found from this position; avoid negative/invalid ranges
-      return [];
-    }
-    const currentEnd = currentStart + keyContent.length;
-
-    if(
-      literalMap.sourceSpan.start + currentStart >= value.sourceSpan.start &&
-      literalMap.sourceSpan.start + currentStart <= value.sourceSpan.end ||
-      literalMap.sourceSpan.start + currentEnd >= value.sourceSpan.start &&
-      literalMap.sourceSpan.start + currentEnd <= value.sourceSpan.end
-    ){
-      start += currentEnd;
-      end += currentEnd;
-      continue;
-    }
-
-    start += currentStart - (key.quoted ? 1 : 0);
-    end += currentEnd + (key.quoted ? 1 : 0);
-    break;
-  }
-
-  const safeStart = Math.max(0, start);
-  const safeEnd = Math.max(safeStart, end);
-  const raw = objectContent.slice(safeStart, safeEnd);
-
+  const raw = objectContent.slice(start, end);
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(keyContent);
-  const range = [literalMap.sourceSpan.start + safeStart, literalMap.sourceSpan.start + safeEnd] satisfies [number, number];
+  const range = [literalMap.sourceSpan.start + start, literalMap.sourceSpan.start + end] satisfies [number, number];
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1] ?? "";
   const indentation = getIndentation(line);

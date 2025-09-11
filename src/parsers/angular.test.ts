@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
@@ -257,7 +258,7 @@ describe("angular", () => {
         });
       });
 
-      // #177 // TODO also "someCondition" && "otherCondition" should not be linted in object values
+      // #177
       it("should not lint literals in binary comparisons", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           invalid: [
@@ -530,17 +531,20 @@ describe("angular", () => {
   });
 
   // #177
-  it.todo("should lint classes in tests", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
-      valid: [
-        // {
-        //   angular: `<img [class]="{'hidden': 'someCondition' === 'popover'}" />`
-        // },
+  it("should be able to differentiate between overlapping object keys", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
         {
           angular: `<img [class]="{
-            'lg:rounded-r-lg': renderMode() === 'modal',
-            'rounded-r-lg': renderMode() === 'popover',
-          }" />`
+            'lg:rounded-r-lg ': true,
+            'rounded-r-lg ': true,
+          }" />`,
+          angularOutput: `<img [class]="{
+            'lg:rounded-r-lg': true,
+            'rounded-r-lg': true,
+          }" />`,
+
+          errors: 2
         }
       ]
     });

@@ -114,7 +114,8 @@ function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Lite
         data: {
           className
         },
-        id: "unregistered"
+        id: "unregistered",
+        warnings
       };
 
     });

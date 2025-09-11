@@ -3,6 +3,7 @@ import type { BaseIssue, BaseSchema, Default, InferOutput, ObjectSchema, Optiona
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
+import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export enum MatcherType {
@@ -42,7 +43,6 @@ export type TailwindConfig = {
 export type TSConfig = {
   tsconfig?: string;
 };
-
 
 export type Schema = ObjectSchema<Record<string, OptionalSchema<BaseSchema<unknown, unknown, BaseIssue<unknown>>, Default<BaseSchema<unknown, unknown, BaseIssue<unknown>>, undefined>>>, undefined>;
 export type JsonSchema<RawSchema extends Schema> = InferOutput<RawSchema>;
@@ -91,6 +91,7 @@ export interface RuleContext<
   Options extends Record<string, any>
 > {
   cwd: string;
+  docs: string;
   options: Options;
   report: <
     const MessageId extends Messages extends Record<string, string>
@@ -110,6 +111,7 @@ export interface RuleContext<
         ? Record<Variables, string>
         : never;
       fix?: string;
+      warnings?: (Warning<Options> | undefined)[];
     }
   ) => void;
 }

@@ -73,7 +73,8 @@ function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Liter
           conflictingClassString,
           conflictingPropertiesString
         },
-        id: "conflicting"
+        id: "conflicting",
+        warnings
       };
 
     });

@@ -106,7 +106,7 @@ export const enforceConsistentLineWrapping = createRule({
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
   const { classesPerLine, entryPoint, group: groupSeparator, preferSingleLine, printWidth, tailwindConfig, tsconfig } = ctx.options;
 
-  const { prefix, suffix } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { prefix, suffix, warnings } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   for(const literal of literals){
 
@@ -371,7 +371,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         },
         fix: fixedClasses,
         id: "unnecessary",
-        range: literal.range
+        range: literal.range,
+        warnings
       });
 
       return;
@@ -457,7 +458,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         ? `{${fixedClasses}}`
         : fixedClasses,
       id: "missing",
-      range: literal.range
+      range: literal.range,
+      warnings
     });
 
   }

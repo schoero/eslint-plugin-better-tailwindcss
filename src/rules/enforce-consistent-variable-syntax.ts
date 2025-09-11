@@ -56,7 +56,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -103,7 +103,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
           return {
             data: { className },
             fix: fixedClass,
-            id: "incorrect"
+            id: "incorrect",
+            warnings
           };
 
         }
@@ -121,7 +122,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
           return {
             data: { className },
             fix: fixedClass,
-            id: "incorrect"
+            id: "incorrect",
+            warnings
           };
 
         }
@@ -143,7 +145,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
           return {
             data: { className },
             fix: fixedClass,
-            id: "incorrect"
+            id: "incorrect",
+            warnings
           };
         }
 
@@ -161,7 +164,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
           return {
             data: { className },
             fix: fixedClass,
-            id: "incorrect"
+            id: "incorrect",
+            warnings
           };
 
         }

@@ -172,7 +172,8 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
               shorthands: shorthands.join(" ")
             },
             fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
-            id: "longhand"
+            id: "longhand",
+            warnings
           };
         }
       }

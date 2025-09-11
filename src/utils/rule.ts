@@ -14,6 +14,7 @@ import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-t
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { isTailwindcssInstalled } from "better-tailwindcss:utils/tailwindcss.js";
+import { augmentMessageWithWarnings } from "better-tailwindcss:utils/utils.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
@@ -82,8 +83,9 @@ export function createRule<
 
         const context = {
           cwd: ctx.cwd,
+          docs,
           options: getOptions(),
-          report: ({ data, fix, range, ...rest }) => {
+          report: ({ data, fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 
             if("id" in rest && rest.id){
@@ -104,7 +106,7 @@ export function createRule<
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                message: rest.message
+                message: augmentMessageWithWarnings(rest.message, docs, warnings)
               });
             }
           }

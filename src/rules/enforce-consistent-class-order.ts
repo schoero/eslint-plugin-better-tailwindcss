@@ -98,7 +98,8 @@ export const enforceConsistentClassOrder = createRule({
         },
         fix: fixedClasses,
         id: "order",
-        range: literal.range
+        range: literal.range,
+        warnings
       });
     }
   }

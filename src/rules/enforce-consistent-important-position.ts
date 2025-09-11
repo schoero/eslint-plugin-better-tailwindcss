@@ -58,7 +58,8 @@ export const enforceConsistentImportantPosition = createRule({
 
         const [importantAtStart, importantAtEnd] = dissectedClass.important;
 
-        if(!importantAtStart && !importantAtEnd ||
+        if(
+          !importantAtStart && !importantAtEnd ||
           position === "legacy" && importantAtStart ||
           position === "recommended" && importantAtEnd
         ){
@@ -79,7 +80,8 @@ export const enforceConsistentImportantPosition = createRule({
         return {
           data: { className, fix },
           fix,
-          id: "position"
+          id: "position",
+          warnings
         };
       });
 

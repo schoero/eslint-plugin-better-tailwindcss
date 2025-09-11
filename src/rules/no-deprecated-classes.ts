@@ -104,7 +104,8 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
               data: {
                 className
               } as Record<string, string>,
-              id: "irreplaceable"
+              id: "irreplaceable",
+              warnings
             };
           }
 
@@ -116,7 +117,8 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
               fix
             },
             fix,
-            id: "replaceable"
+            id: "replaceable",
+            warnings
           };
 
         }

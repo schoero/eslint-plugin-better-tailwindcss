@@ -550,4 +550,47 @@ describe("angular", () => {
     });
   });
 
+  // #177
+  it("should correctly create object paths", () => {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img [class]="{
+            'root': {
+              'nested': {
+                'level-2': [{
+                    'matched': 'b a',
+                    'ignored': 'b a',
+                  }]
+              },
+            },
+          }" />`,
+          angularOutput: `<img [class]="{
+            'root': {
+              'nested': {
+                'level-2': [{
+                    'matched': 'a b',
+                    'ignored': 'b a',
+                  }]
+              },
+            },
+          }" />`,
+
+          errors: 1,
+          options: [{
+            attributes: [
+              ["\\[class\\]", [
+                {
+                  match: MatcherType.ObjectValue,
+                  pathPattern: `root.nested\\["level-2"\\]\\[\\d+\\].matched`
+                }
+              ]]
+            ],
+            order: "asc"
+          }]
+        }
+      ]
+    });
+  });
+
 });

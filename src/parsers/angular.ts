@@ -217,30 +217,18 @@ function getAngularObjectPath(ctx: Rule.RuleContext, ast: AST): string | undefin
     paths.unshift(createObjectPathElement(ast.key));
   }
 
-  if(isStringLike(ast) && isInsideObjectValue(ctx, ast) && hasParent(ast)){
-    const property = findMatchingParent(ctx, ast, ast => {
-      const parent = findParent(ctx, ast);
-
-      if(!parent || !isLiteralMap(parent) || !parent.values.includes(ast)){
-        return;
-      }
-
-      const index = parent.values.indexOf(ast);
-      const objectKey = parent.keys[index];
-
-      return objectKey as unknown as AST;
-    });
-
-    if(!property){
-      return;
-    }
-
-    return getAngularObjectPath(ctx, property);
-  }
-
   if(isLiteralArray(parent)){
     const index = parent.expressions.indexOf(ast);
     paths.unshift(`[${index}]`);
+  }
+
+  if(isLiteralMap(parent) && isInsideObjectValue(ctx, ast)){
+    const keyIndex = parent.values.indexOf(ast);
+    const objectKey = parent.keys[keyIndex];
+
+    if(objectKey && isObjectKey(objectKey)){
+      paths.unshift(createObjectPathElement(objectKey.key));
+    }
   }
 
   paths.unshift(getAngularObjectPath(ctx, parent));
@@ -530,8 +518,8 @@ function isInsideObjectValue(ctx: Rule.RuleContext, ast: AST): boolean {
   return isInsideObjectValue(ctx, parent);
 }
 
-function isStringLike(ast: AST): ast is LiteralArray | LiteralPrimitive | TemplateLiteralElement {
-  return isStringLiteral(ast) || isTemplateLiteralElement(ast) || isLiteralArray(ast);
+function isStringLike(ast: AST): ast is LiteralPrimitive | TemplateLiteralElement {
+  return isStringLiteral(ast) || isTemplateLiteralElement(ast);
 }
 
 function hasParent(ast: AST): ast is AST & Parent {
@@ -568,6 +556,7 @@ function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
       }
 
       const result = visitChildNode(childNode[key]);
+
       if(result){
         return result;
       }

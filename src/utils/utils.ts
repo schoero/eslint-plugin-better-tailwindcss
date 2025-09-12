@@ -134,6 +134,14 @@ export function deduplicateLiterals(literals: Literal[]): Literal[] {
   });
 }
 
+export function createObjectPathElement(path?: string): string {
+  if(!path){ return ""; }
+
+  return path.match(/^[A-Z_a-z]\w*$/)
+    ? path
+    : `["${path}"]`;
+}
+
 export interface GenericNodeWithParent {
   parent: GenericNodeWithParent;
 }

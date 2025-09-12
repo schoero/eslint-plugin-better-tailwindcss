@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
@@ -252,6 +253,20 @@ describe("angular", () => {
                 ],
                 order: "asc"
               }]
+            }
+          ]
+        });
+      });
+
+      it("should not lint literals in binary comparisons", () => {
+        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+          invalid: [
+            {
+              angular: `<img [class]="{'b a': 'd c' === 'f e'}" />`,
+              angularOutput: `<img [class]="{'a b': 'd c' === 'f e'}" />`,
+
+              errors: 1,
+              options: [{ order: "asc" }]
             }
           ]
         });
@@ -512,6 +527,68 @@ describe("angular", () => {
       });
     });
 
+  });
+
+  // #177
+  it("should be able to differentiate between overlapping object keys", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img [class]="{
+            'lg:rounded-r-lg ': true,
+            'rounded-r-lg ': true,
+          }" />`,
+          angularOutput: `<img [class]="{
+            'lg:rounded-r-lg': true,
+            'rounded-r-lg': true,
+          }" />`,
+
+          errors: 2
+        }
+      ]
+    });
+  });
+
+  it("should correctly create object paths", () => {
+    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      invalid: [
+        {
+          angular: `<img [class]="{
+            'root': {
+              'nested': {
+                'level-2': [{
+                    'matched': 'b a',
+                    'ignored': 'b a',
+                  }]
+              },
+            },
+          }" />`,
+          angularOutput: `<img [class]="{
+            'root': {
+              'nested': {
+                'level-2': [{
+                    'matched': 'a b',
+                    'ignored': 'b a',
+                  }]
+              },
+            },
+          }" />`,
+
+          errors: 1,
+          options: [{
+            attributes: [
+              ["\\[class\\]", [
+                {
+                  match: MatcherType.ObjectValue,
+                  pathPattern: `root.nested\\["level-2"\\]\\[\\d+\\].matched`
+                }
+              ]]
+            ],
+            order: "asc"
+          }]
+        }
+      ]
+    });
   });
 
 });

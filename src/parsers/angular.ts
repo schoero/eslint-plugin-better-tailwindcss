@@ -7,6 +7,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  createObjectPathElement,
   deduplicateLiterals,
   getIndentation,
   getQuotes,
@@ -42,10 +43,6 @@ import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
-
-// TODO:
-// - Implement regex
-// - Add object keys
 
 export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplAstElement): (TmplAstBoundAttribute | TmplAstTextAttribute)[] {
   return [
@@ -144,16 +141,13 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
 
             isInsideConditionalExpressionCondition(ctx, ast) ||
             isInsideLogicalExpressionLeft(ctx, ast) ||
+
             isObjectKey(ast) ||
-            isObjectValue(ast)){
+            isInsideObjectValue(ctx, ast)){
             return false;
           }
 
-          return (
-            isStringLiteral(ast) ||
-            isTemplateLiteralElement(ast) ||
-            isLiteralArray(ast)
-          );
+          return isStringLike(ast);
         });
         break;
       }
@@ -161,12 +155,14 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
         matcherFunctions.push((ast): ast is AST => {
           if(
             !isAST(ast) ||
-            !isObjectKey(ast)){
+            !isObjectKey(ast) ||
+
+            isInsideConditionalExpressionCondition(ctx, ast) ||
+            isInsideLogicalExpressionLeft(ctx, ast)){
             return false;
           }
 
-          // objects inside angular templates can not be nested
-          const path = ast.key;
+          const path = getAngularObjectPath(ctx, ast);
 
           if(!path || !matcher.pathPattern){
             return true;
@@ -180,16 +176,19 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
         matcherFunctions.push((ast): ast is AST => {
           if(
             !isAST(ast) ||
-            !isObjectValue(ast) ||
             !hasParent(ast) ||
-            !isLiteralMap(ast.parent)){
+            !isInsideObjectValue(ctx, ast) ||
+
+            isInsideConditionalExpressionCondition(ctx, ast) ||
+            isInsideLogicalExpressionLeft(ctx, ast) ||
+            isObjectKey(ast) ||
+
+            !isStringLike(ast)
+          ){
             return false;
           }
 
-          const index = ast.parent.values.indexOf(ast);
-          const objectKey = ast.parent.keys[index];
-
-          const path = objectKey.key;
+          const path = getAngularObjectPath(ctx, ast);
 
           if(!path || !matcher.pathPattern){
             return true;
@@ -204,57 +203,82 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
   }, []);
 }
 
+function getAngularObjectPath(ctx: Rule.RuleContext, ast: AST): string | undefined {
+  const parent = findParent(ctx, ast);
+
+  if(!parent){
+    return;
+  }
+
+  const paths: (string | undefined)[] = [];
+
+  if(isObjectKey(ast)){
+    paths.unshift(createObjectPathElement(ast.key));
+  }
+
+  if(isLiteralArray(parent)){
+    const index = parent.expressions.indexOf(ast);
+    paths.unshift(`[${index}]`);
+  }
+
+  if(isLiteralMap(parent) && isInsideObjectValue(ctx, ast)){
+    const keyIndex = parent.values.indexOf(ast);
+    const objectKey = parent.keys[keyIndex];
+
+    if(objectKey && isObjectKey(objectKey)){
+      paths.unshift(createObjectPathElement(objectKey.key));
+    }
+  }
+
+  paths.unshift(getAngularObjectPath(ctx, parent));
+
+  return paths.reduce<string[]>((paths, currentPath) => {
+    if(!currentPath){ return paths; }
+
+    if(paths.length === 0){
+      return [currentPath];
+    }
+
+    if(currentPath.startsWith("[") && currentPath.endsWith("]")){
+      return [...paths, currentPath];
+    }
+
+    return [...paths, ".", currentPath];
+  }, []).join("");
+
+}
+
 function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey): Literal[] {
   // @ts-expect-error - angular types are faulty
   const literalMap = key?.parent as LiteralMap | undefined;
   // @ts-expect-error - angular types are faulty
   const objectContent = literalMap?.parent?.source;
   const keyContent = key?.key;
+  const keyIndex = literalMap?.keys.indexOf(key);
 
-  // Bail out if we can't parse safely
+  if(keyIndex === undefined || keyIndex === -1){
+    return [];
+  }
+
+  const previousValue = literalMap?.values[keyIndex - 1];
+  const value = literalMap?.values[keyIndex];
+
   if(!literalMap?.sourceSpan || typeof objectContent !== "string" || typeof keyContent !== "string"){
     return [];
   }
 
-  let start = 0;
-  let end = 0;
+  const rangeStart = previousValue?.span?.end ?? 0;
+  const rangeEnd = value?.span?.start ?? objectContent.length;
 
-  const values = (literalMap as any).values as { sourceSpan: { end: number; start: number; }; }[] | undefined;
+  const slice = objectContent.slice(rangeStart, rangeEnd);
 
-  for(const value of values ?? []){
-    if(!value?.sourceSpan){continue;}
+  const start = rangeStart + slice.indexOf(keyContent) - (key.quoted ? 1 : 0);
+  const end = start + keyContent.length + (key.quoted ? 1 : 0);
 
-    const sliced = objectContent.slice(start);
-    const currentStart = sliced.indexOf(keyContent);
-    if(currentStart === -1){
-      // Key not found from this position; avoid negative/invalid ranges
-      return [];
-    }
-    const currentEnd = currentStart + keyContent.length;
-
-    if(
-      literalMap.sourceSpan.start + currentStart >= value.sourceSpan.start &&
-      literalMap.sourceSpan.start + currentStart <= value.sourceSpan.end ||
-      literalMap.sourceSpan.start + currentEnd >= value.sourceSpan.start &&
-      literalMap.sourceSpan.start + currentEnd <= value.sourceSpan.end
-    ){
-      start += currentEnd;
-      end += currentEnd;
-      continue;
-    }
-
-    start += currentStart - (key.quoted ? 1 : 0);
-    end += currentEnd + (key.quoted ? 1 : 0);
-    break;
-  }
-
-  const safeStart = Math.max(0, start);
-  const safeEnd = Math.max(safeStart, end);
-  const raw = objectContent.slice(safeStart, safeEnd);
-
+  const raw = objectContent.slice(start, end);
   const quotes = getQuotes(raw);
   const whitespaces = getWhitespace(keyContent);
-  const range = [literalMap.sourceSpan.start + safeStart, literalMap.sourceSpan.start + safeEnd] satisfies [number, number];
+  const range = [literalMap.sourceSpan.start + start, literalMap.sourceSpan.start + end] satisfies [number, number];
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1] ?? "";
   const indentation = getIndentation(line);
@@ -441,7 +465,7 @@ export type Parent = {
   parent: AST;
 };
 
-export function isInsideConditionalExpressionCondition(ctx: Rule.RuleContext, ast: AST): boolean {
+function isInsideConditionalExpressionCondition(ctx: Rule.RuleContext, ast: AST): boolean {
   const parent = findParent(ctx, ast);
   if(!parent){ return false; }
 
@@ -452,7 +476,7 @@ export function isInsideConditionalExpressionCondition(ctx: Rule.RuleContext, as
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-export function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean {
+function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean {
   const parent = findParent(ctx, ast);
   if(!parent){ return false; }
 
@@ -461,6 +485,28 @@ export function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): 
   }
 
   return isInsideConditionalExpressionCondition(ctx, parent);
+}
+
+function isInsideObjectValue(ctx: Rule.RuleContext, ast: AST): boolean {
+  const parent = findParent(ctx, ast);
+  if(!parent){ return false; }
+
+  // #34 allow call expressions as object values
+  if(isCallExpression(ast)){ return false; }
+
+  if(isObjectValue(ast)){
+    return true;
+  }
+
+  if(isLiteralMap(parent) && parent.values.includes(ast)){
+    return true;
+  }
+
+  return isInsideObjectValue(ctx, parent);
+}
+
+function isStringLike(ast: AST): ast is LiteralPrimitive | TemplateLiteralElement {
+  return isStringLiteral(ast) || isTemplateLiteralElement(ast);
 }
 
 function hasParent(ast: AST): ast is AST & Parent {
@@ -475,7 +521,7 @@ function hasParent(ast: AST): ast is AST & Parent {
  * @param astNode The AST node to find the parent for.
  * @returns The parent AST node, or undefined if not found.
  */
-export function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
+function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
   if(hasParent(astNode)){
     return astNode.parent;
   }
@@ -497,6 +543,7 @@ export function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined
       }
 
       const result = visitChildNode(childNode[key]);
+
       if(result){
         return result;
       }

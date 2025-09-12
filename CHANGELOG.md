@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.7.8
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.7...v3.7.8)
+
+### Fixes
+
+- Improved angular support ([#182](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/182))
+  - Fixes object key detection for intersecting classes
+  - Adds support for `pathPattern` in angular
+
 ## v3.7.7
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.6...v3.7.7)

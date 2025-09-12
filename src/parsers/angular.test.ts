@@ -258,7 +258,6 @@ describe("angular", () => {
         });
       });
 
-      // #177
       it("should not lint literals in binary comparisons", () => {
         lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
           invalid: [
@@ -550,7 +549,6 @@ describe("angular", () => {
     });
   });
 
-  // #177
   it("should correctly create object paths", () => {
     lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
       invalid: [

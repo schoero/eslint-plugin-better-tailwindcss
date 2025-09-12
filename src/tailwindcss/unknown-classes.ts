@@ -8,37 +8,37 @@ import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
-export type UnregisteredClass = string;
+export type UnknownClass = string;
 
-export interface GetUnregisteredClassesRequest {
+export interface GetUnknownClassesRequest {
   classes: string[];
   configPath: string | undefined;
   cwd: string;
   tsconfigPath: string | undefined;
 }
 
-export type GetUnregisteredClassesResponse = { unregisteredClasses: UnregisteredClass[]; warnings: (Warning | undefined)[]; };
+export type GetUnknownClassesResponse = { unknownClasses: UnknownClass[]; warnings: (Warning | undefined)[]; };
 
-type GetUnregisteredClasses = (req: GetUnregisteredClassesRequest) => GetUnregisteredClassesResponse;
+type GetUnknownClasses = (req: GetUnknownClassesRequest) => GetUnknownClassesResponse;
 
-export let getUnregisteredClasses: GetUnregisteredClasses;
+export let getUnknownClasses: GetUnknownClasses;
 
-export function createGetUnregisteredClasses(): GetUnregisteredClasses {
-  if(getUnregisteredClasses){
-    return getUnregisteredClasses;
+export function createGetUnknownClasses(): GetUnknownClasses {
+  if(getUnknownClasses){
+    return getUnknownClasses;
   }
 
   const workerPath = getWorkerPath();
   const workerOptions = getWorkerOptions();
 
-  getUnregisteredClasses = createSyncFn(workerPath, workerOptions);
+  getUnknownClasses = createSyncFn(workerPath, workerOptions);
 
-  return getUnregisteredClasses;
+  return getUnknownClasses;
 }
 
 function getWorkerPath() {
   const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./unregistered-classes.async.worker.v${major}.js`);
+  return resolve(getCurrentDirectory(), `./unknown-classes.async.worker.v${major}.js`);
 }
 
 function getCurrentDirectory() {

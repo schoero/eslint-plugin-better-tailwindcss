@@ -13,10 +13,7 @@ import {
   getCustomComponentClasses
 } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
-import {
-  createGetUnregisteredClasses,
-  getUnregisteredClasses
-} from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -26,16 +23,16 @@ import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export const noUnregisteredClasses = createRule({
+export const noUnknownClasses = createRule({
   autofix: true,
   category: "correctness",
   description: "Disallow any css classes that are not registered in tailwindcss.",
-  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unregistered-classes.md",
-  name: "no-unregistered-classes",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unknown-classes.md",
+  name: "no-unknown-classes",
   recommended: false,
 
   messages: {
-    unregistered: "Unregistered class detected: {{ className }}"
+    unknown: "Unknown class detected: {{ className }}"
   },
 
   schema: object({
@@ -61,7 +58,7 @@ export const noUnregisteredClasses = createRule({
     const { detectComponentClasses } = ctx.options;
 
     createGetPrefix();
-    createGetUnregisteredClasses();
+    createGetUnknownClasses();
 
     if(detectComponentClasses){
       createGetCustomComponentClasses();
@@ -72,7 +69,7 @@ export const noUnregisteredClasses = createRule({
 });
 
 
-function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Literal[]) {
+function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]) {
 
   const { detectComponentClasses, entryPoint, ignore, tailwindConfig, tsconfig } = ctx.options;
 
@@ -89,15 +86,15 @@ function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Lite
 
     const classes = splitClasses(literal.content);
 
-    const { unregisteredClasses, warnings } = getUnregisteredClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { unknownClasses, warnings } = getUnknownClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
-    if(unregisteredClasses.length === 0){
+    if(unknownClasses.length === 0){
       continue;
     }
 
     lintClasses(ctx, literal, className => {
 
-      if(!unregisteredClasses.includes(className)){
+      if(!unknownClasses.includes(className)){
         return;
       }
 
@@ -114,7 +111,7 @@ function lintLiterals(ctx: Context<typeof noUnregisteredClasses>, literals: Lite
         data: {
           className
         },
-        id: "unregistered",
+        id: "unknown",
         warnings
       };
 

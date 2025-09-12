@@ -57,10 +57,10 @@ describe("getDissectedClass", () => {
       expect(dissectClass("has-[&_p]:text-red-500").variants).toEqual(["has-[&_p]"]);
     });
 
-    it("should not crash on unregistered classes", () => {
-      expect(dissectClass("unregistered-class").variants).toEqual(expect.any(Array));
-      expect(dissectClass("hover:unregistered-class").variants).toEqual(expect.any(Array));
-      expect(dissectClass("lg:hover:unregistered-class").variants).toEqual(expect.any(Array));
+    it("should not crash on unknown classes", () => {
+      expect(dissectClass("unknown-class").variants).toEqual(expect.any(Array));
+      expect(dissectClass("hover:unknown-class").variants).toEqual(expect.any(Array));
+      expect(dissectClass("lg:hover:unknown-class").variants).toEqual(expect.any(Array));
     });
   });
 

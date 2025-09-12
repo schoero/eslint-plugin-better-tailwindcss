@@ -1,9 +1,9 @@
 import * as rules from "tailwindcss3/lib/lib/generateRules.js";
 
-import type { UnregisteredClass } from "./unregistered-classes.js";
+import type { UnknownClass } from "./unknown-classes.js";
 
 
-export function getUnregisteredClasses(context: any, classes: string[]): UnregisteredClass[] {
+export function getUnknownClasses(context: any, classes: string[]): UnknownClass[] {
   return classes
     .filter(className => {
       const generated = rules.generateRules?.([className], context) ?? rules.default?.generateRules?.([className], context);

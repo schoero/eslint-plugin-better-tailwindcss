@@ -7,8 +7,8 @@ import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-cl
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
 import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
+import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { noUnregisteredClasses } from "better-tailwindcss:rules/no-unregistered-classes.js";
 
 import type { ESLint, JSRuleDefinition } from "eslint";
 
@@ -26,7 +26,7 @@ const rules = [
   noDuplicateClasses,
   noRestrictedClasses,
   noUnnecessaryWhitespace,
-  noUnregisteredClasses
+  noUnknownClasses
 ];
 
 const plugin = {

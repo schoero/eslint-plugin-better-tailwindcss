@@ -1,8 +1,5 @@
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
-import {
-  createGetUnregisteredClasses,
-  getUnregisteredClasses
-} from "better-tailwindcss:tailwindcss/unregistered-classes.js";
+import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -28,7 +25,7 @@ export const enforceShorthandClasses = createRule({
 
   initialize: () => {
     createGetDissectedClasses();
-    createGetUnregisteredClasses();
+    createGetUnknownClasses();
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -134,7 +131,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
 
     const shorthandGroups = getShorthands(dissectedClasses);
 
-    const { unregisteredClasses } = getUnregisteredClasses({
+    const { unknownClasses } = getUnknownClasses({
       classes: shorthandGroups
         .flat()
         .map(([, shorthands]) => shorthands)
@@ -155,7 +152,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
             continue;
           }
 
-          if(shorthands.some(shorthand => unregisteredClasses.includes(shorthand))){
+          if(shorthands.some(shorthand => unknownClasses.includes(shorthand))){
             continue;
           }
 

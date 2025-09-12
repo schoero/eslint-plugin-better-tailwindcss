@@ -23,6 +23,6 @@ export function getDefaultTags() {
 }
 
 /* TODO: remove this in v4 */
-export function getDefaultIgnoredUnregisteredClasses() {
+export function getDefaultIgnoredUnknownClasses() {
   return [];
 }

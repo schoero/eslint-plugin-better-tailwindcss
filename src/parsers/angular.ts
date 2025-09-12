@@ -264,7 +264,6 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey)
   const previousValue = literalMap?.values[keyIndex - 1];
   const value = literalMap?.values[keyIndex];
 
-  // Bail out if we can't parse safely
   if(!literalMap?.sourceSpan || typeof objectContent !== "string" || typeof keyContent !== "string"){
     return [];
   }
@@ -564,22 +563,6 @@ function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
   };
 
   return visitChildNode(ast);
-}
-
-function findMatchingParent<Type>(ctx: Rule.RuleContext, ast: AST, callback: (parent: AST) => Type | undefined): NoInfer<Type> | undefined {
-  const parent = findParent(ctx, ast);
-
-  if(!parent){
-    return;
-  }
-
-  const matchingParent = callback(parent);
-
-  if(matchingParent){
-    return matchingParent;
-  }
-
-  return findMatchingParent(ctx, parent, callback);
 }
 
 function isObjectValue(ast: AST): ast is LiteralPrimitive {

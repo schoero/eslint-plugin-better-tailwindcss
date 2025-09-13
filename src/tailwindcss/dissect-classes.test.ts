@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createTestContext } from "better-tailwindcss:tests/utils/context.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 import { async } from "better-tailwindcss:utils/context.js";
 
-import type { Context } from "better-tailwindcss:types/rule.js";
-
 
 function dissectClass(className: string) {
-  const ctx: Context = { cwd: process.cwd(), installation: process.cwd(), options: {}, version: getTailwindCSSVersion() } as Context;
+  const ctx = createTestContext();
   const getDissectedClasses = createGetDissectedClasses(ctx);
   const { dissectedClasses: classVariants } = getDissectedClasses(async(ctx), [className]);
 

@@ -1,4 +1,5 @@
 import { escapeForRegex } from "../async-utils/escape.js";
+import { normalize } from "../async-utils/path.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
 import type { AsyncContext } from "../utils/context.js";
@@ -6,7 +7,8 @@ import type { DissectedClass } from "./dissect-classes.js";
 
 
 export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: any, classes: string[]): Promise<DissectedClass[]> {
-  const utils = await import(`${ctx.installation}/lib/util/splitAtTopLevelOnly.js`);
+
+  const utils = await import(normalize(`${ctx.installation}/lib/util/splitAtTopLevelOnly.js`));
 
   const prefix = getPrefix(tailwindContext);
   const separator = tailwindContext.tailwindConfig.separator ?? ":";

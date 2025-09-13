@@ -5,8 +5,7 @@ import { pathToFileURL } from "node:url";
 import { createJiti } from "jiti";
 
 import { withCache } from "../async-utils/cache.js";
-import { isESModule } from "../async-utils/module.js";
-import { isWindows } from "../async-utils/platform.js";
+import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
 import type { AsyncContext } from "../utils/context.js";
@@ -20,10 +19,9 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
 
   const importBasePath = dirname(ctx.tailwindConfigPath);
   const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
-  const tailwindUrl = isWindows() && isESModule() ? pathToFileURL(tailwindPath).toString() : tailwindPath;
 
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
-  const { __unstable__loadDesignSystem } = await import(tailwindUrl);
+  const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
 
   const css = await readFile(ctx.tailwindConfigPath, "utf-8");
 

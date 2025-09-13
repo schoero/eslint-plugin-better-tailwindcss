@@ -21,8 +21,3 @@ export function getDefaultVariables() {
 export function getDefaultTags() {
   return DEFAULT_TAG_NAMES;
 }
-
-/* TODO: remove this in v4 */
-export function getDefaultIgnoredUnknownClasses() {
-  return [];
-}

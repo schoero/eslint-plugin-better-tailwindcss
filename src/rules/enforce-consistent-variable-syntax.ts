@@ -28,11 +28,7 @@ export const enforceConsistentVariableSyntax = createRule({
       pipe(
         union([
           literal("shorthand"),
-          literal("variable"),
-
-          // TODO: remove in v4
-          pipe(literal("arbitrary"), description("@deprecated Use 'variable' instead.")),
-          pipe(literal("parentheses"), description("@deprecated Use 'shorthand' instead."))
+          literal("variable")
         ]),
         description("The syntax to enforce for css variables in tailwindcss class strings.")
       ),

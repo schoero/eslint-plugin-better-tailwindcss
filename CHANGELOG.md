@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.0.0-beta.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.8...v4.0.0-beta.0)
+
+### Fixes
+
+- Check for tailwindcss before running rules ([a84dd50](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a84dd50))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Renamed rule `no-unregistered-classes` to `no-unknown-classes`
+- ⚠️  Renamed rule `sort-classes` to `enforce-consistent-class-order`
+- ⚠️  Renamed rule `multiline` to `enforce-consistent-line-wrapping`
+- ⚠️  Options for `better-tailwindcss/enforce-consistent-important-position` have been renamed to `legacy` and `recommended`. The default is now always `recommended`.
+- ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
+
 ## v3.7.8
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.7...v3.7.8)

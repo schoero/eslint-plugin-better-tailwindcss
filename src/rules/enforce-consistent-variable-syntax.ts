@@ -77,7 +77,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
         characters: charactersSquareBrackets
       } = extractBalanced(dissectedClass.base, "[", "]");
 
-      if(syntax === "parentheses" || syntax === "shorthand"){
+      if(syntax === "shorthand"){
 
         if(!charactersSquareBrackets){
           return;
@@ -124,7 +124,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
         }
       }
 
-      if(syntax === "arbitrary" || syntax === "variable"){
+      if(syntax === "variable"){
 
         if(charactersSquareBrackets && isBeginningOfArbitraryVariable(charactersSquareBrackets)){
           return;

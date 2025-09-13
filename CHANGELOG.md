@@ -13,7 +13,7 @@
 - ⚠️  Renamed rule `no-unregistered-classes` to `no-unknown-classes`
 - ⚠️  Renamed rule `sort-classes` to `enforce-consistent-class-order`
 - ⚠️  Renamed rule `multiline` to `enforce-consistent-line-wrapping`
-- ⚠️  Options for `better-tailwindcss/enforce-consistent-important-position` have been renamed to `legacy` and `recommended`. The default is now always `recommended`.
+- ⚠️  Options for `better-tailwindcss/enforce-consistent-variable-syntax` have been renamed to `shorthand` and `variable`.
 - ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
 
 ## v3.7.8

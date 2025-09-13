@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
 describe(enforceShorthandClasses.name, () => {
@@ -291,7 +291,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not shorten mixed important and non important classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not shorten mixed important and non important classes in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -309,7 +309,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not shorten mixed important and non important classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not shorten mixed important and non important classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -327,7 +327,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should still shorten mixed starting and ending important classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should still shorten mixed starting and ending important classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -352,7 +352,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should keep important at the start if all classes have important at the start in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should keep important at the start if all classes have important at the start in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -377,7 +377,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should shorten when all classes are important in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -402,7 +402,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should shorten when all classes are important in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should shorten when all classes are important in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -427,7 +427,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -486,7 +486,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -541,7 +541,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not work if the shorthand class doesn't actually exist <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not work if the shorthand class doesn't actually exist <= 3", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,
@@ -559,7 +559,7 @@ describe(enforceShorthandClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not work if the shorthand class doesn't actually exist in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not work if the shorthand class doesn't actually exist in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
       TEST_SYNTAXES,

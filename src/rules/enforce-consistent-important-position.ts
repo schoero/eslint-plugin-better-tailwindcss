@@ -2,9 +2,9 @@ import { description, literal, object, optional, pipe, union } from "valibot";
 
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
 
@@ -29,25 +29,23 @@ export const enforceConsistentImportantPosition = createRule({
         ]),
         description("Preferred position for important classes. 'legacy' places the important modifier (!) at the start of the class name, 'recommended' places it at the end.")
       ),
-      getTailwindcssVersion().major <= TailwindcssVersion.V3 ? "legacy" : "recommended"
+      "recommended"
     )
   }),
 
-  initialize: () => {
-    createGetDissectedClasses();
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
   },
 
   lintLiterals(ctx, literals) {
 
-    const { entryPoint, position, tailwindConfig, tsconfig } = ctx.options;
-
-    const { major } = getTailwindcssVersion();
+    const { position } = ctx.options;
 
     for(const literal of literals){
 
       const classes = splitClasses(literal.content);
 
-      const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+      const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
       lintClasses(ctx, literal, (className, index, after) => {
         const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -66,7 +64,7 @@ export const enforceConsistentImportantPosition = createRule({
           return;
         }
 
-        if(major <= TailwindcssVersion.V3 && position === "recommended"){
+        if(ctx.version.major <= 3 && position === "recommended"){
           warnings.push({
             option: "position",
             title: `The "${position}" position is not supported in Tailwind CSS v3`
@@ -74,8 +72,8 @@ export const enforceConsistentImportantPosition = createRule({
         }
 
         const fix = position === "recommended"
-          ? buildClass({ ...dissectedClass, important: [false, true] })
-          : buildClass({ ...dissectedClass, important: [true, false] });
+          ? buildClass(ctx, { ...dissectedClass, important: [false, true] })
+          : buildClass(ctx, { ...dissectedClass, important: [true, false] });
 
         return {
           data: { className, fix },

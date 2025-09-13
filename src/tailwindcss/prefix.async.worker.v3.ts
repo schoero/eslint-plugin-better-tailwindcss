@@ -1,17 +1,17 @@
 import { runAsWorker } from "synckit";
 
-import { getAsyncContext } from "../async-utils/context.js";
 import { createTailwindContext } from "./context.async.v3.js";
 import { getPrefix, getSuffix } from "./prefix.async.v3.js";
 
-import type { GetPrefixRequest, GetPrefixResponse } from "./prefix.js";
+import type { Async } from "../types/async.js";
+import type { GetPrefix } from "./prefix.js";
 
 
-runAsWorker(async ({ configPath, cwd, tsconfigPath }: GetPrefixRequest): Promise<GetPrefixResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
+runAsWorker<Async<GetPrefix>>(async ctx => {
   const context = await createTailwindContext(ctx);
 
   const prefix = getPrefix(context);
   const suffix = getSuffix(context);
-  return { prefix, suffix, warnings: [...warnings] };
+
+  return { prefix, suffix, warnings: ctx.warnings };
 });

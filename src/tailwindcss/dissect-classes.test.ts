@@ -3,12 +3,16 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
+import { async } from "better-tailwindcss:utils/context.js";
+
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
 function dissectClass(className: string) {
-  const getDissectedClasses = createGetDissectedClasses();
-  const { dissectedClasses: classVariants } = getDissectedClasses({ classes: [className], configPath: undefined, cwd: process.cwd(), tsconfigPath: undefined });
+  const ctx: Context = { cwd: process.cwd(), installation: process.cwd(), options: {}, version: getTailwindCSSVersion() } as Context;
+  const getDissectedClasses = createGetDissectedClasses(ctx);
+  const { dissectedClasses: classVariants } = getDissectedClasses(async(ctx), [className]);
 
   return classVariants[0];
 }
@@ -72,7 +76,7 @@ describe("getDissectedClass", () => {
   });
 
   describe("base", () => {
-    it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should return the base class name in tailwind >= 4", () => {
+    it.runIf(getTailwindCSSVersion().major >= 4)("should return the base class name in tailwind >= 4", () => {
       expect(dissectClass("text-red-500").base).toBe("text-red-500");
       expect(dissectClass("hover:text-red-500").base).toBe("text-red-500");
       expect(dissectClass("lg:hover:text-red-500").base).toBe("text-red-500");
@@ -81,7 +85,7 @@ describe("getDissectedClass", () => {
       expect(dissectClass("lg:hover:text-red-500/50!").base).toBe("text-red-500/50");
     });
 
-    it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should return the base class name in tailwind <= 3", () => {
+    it.runIf(getTailwindCSSVersion().major <= 3)("should return the base class name in tailwind <= 3", () => {
       expect(dissectClass("text-red-500").base).toBe("text-red-500");
       expect(dissectClass("hover:text-red-500").base).toBe("text-red-500");
       expect(dissectClass("lg:hover:text-red-500").base).toBe("text-red-500");

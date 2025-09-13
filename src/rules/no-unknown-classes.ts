@@ -14,6 +14,7 @@ import {
 } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -57,11 +58,11 @@ export const noUnknownClasses = createRule({
   initialize: ctx => {
     const { detectComponentClasses } = ctx.options;
 
-    createGetPrefix();
-    createGetUnknownClasses();
+    createGetPrefix(ctx);
+    createGetUnknownClasses(ctx);
 
     if(detectComponentClasses){
-      createGetCustomComponentClasses();
+      createGetCustomComponentClasses(ctx);
     }
   },
 
@@ -71,22 +72,22 @@ export const noUnknownClasses = createRule({
 
 function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]) {
 
-  const { detectComponentClasses, entryPoint, ignore, tailwindConfig, tsconfig } = ctx.options;
+  const { detectComponentClasses, ignore } = ctx.options;
 
-  const { prefix, suffix } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { prefix, suffix } = getPrefix(async(ctx));
 
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
   const { customComponentClasses } = detectComponentClasses
-    ? getCustomComponentClasses({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig })
+    ? getCustomComponentClasses(async(ctx))
     : {};
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { unknownClasses, warnings } = getUnknownClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { unknownClasses, warnings } = getUnknownClasses(async(ctx), classes);
 
     if(unknownClasses.length === 0){
       continue;

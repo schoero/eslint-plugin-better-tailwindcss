@@ -4,14 +4,14 @@ import { getPrefix } from "./prefix.async.v4.js";
 import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
-  const prefix = getPrefix(context);
+export function getDissectedClasses(tailwindContext: any, classes: string[]): DissectedClass[] {
+  const prefix = getPrefix(tailwindContext);
   const separator = ":";
 
   return classes.map(className => {
-    const [parsed] = context.parseCandidate(className);
+    const [parsed] = tailwindContext.parseCandidate(className);
 
-    const variants = parsed?.variants?.map(variant => context.printVariant(variant)).reverse() ?? [];
+    const variants = parsed?.variants?.map(variant => tailwindContext.printVariant(variant)).reverse() ?? [];
 
     let base = className
       .replace(new RegExp(`^${escapeForRegex(prefix + separator)}`), "")

@@ -2,33 +2,24 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export type ClassOrder = [className: string, order: bigint | null][];
 
-export interface GetClassOrderRequest {
-  classes: string[];
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
+export type GetClassOrder = (ctx: AsyncContext, classes: string[]) => {
+  classOrder: ClassOrder;
+  warnings: (Warning | undefined)[];
+};
 
-export type GetClassOrderResponse = { classOrder: ClassOrder; warnings: (Warning | undefined)[]; };
+export let getClassOrder: GetClassOrder = () => { throw new Error("getClassOrder() called before being initialized"); };
 
-type GetClassOrder = (req: GetClassOrderRequest) => GetClassOrderResponse;
-
-export let getClassOrder: GetClassOrder;
-
-export function createGetClassOrder(): GetClassOrder {
-  if(getClassOrder){
-    return getClassOrder;
-  }
-
-  const workerPath = getWorkerPath();
+export function createGetClassOrder(ctx: Context): GetClassOrder {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
   getClassOrder = createSyncFn(workerPath, workerOptions);
@@ -36,9 +27,8 @@ export function createGetClassOrder(): GetClassOrder {
   return getClassOrder;
 }
 
-function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./class-order.async.worker.v${major}.js`);
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./class-order.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

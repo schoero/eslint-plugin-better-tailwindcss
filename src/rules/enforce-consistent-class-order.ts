@@ -2,6 +2,7 @@ import { description, literal, object, optional, pipe, union } from "valibot";
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
@@ -37,9 +38,9 @@ export const enforceConsistentClassOrder = createRule({
     )
   }),
 
-  initialize: () => {
-    createGetClassOrder();
-    createGetDissectedClasses();
+  initialize: (ctx: Context) => {
+    createGetClassOrder(ctx);
+    createGetDissectedClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => {
@@ -108,7 +109,7 @@ export const enforceConsistentClassOrder = createRule({
 
 function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { entryPoint, order, tailwindConfig, tsconfig } = ctx.options;
+  const { order } = ctx.options;
 
   if(order === "asc"){
     return [classes.toSorted((a, b) => a.localeCompare(b))];
@@ -118,8 +119,8 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
     return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
-  const { classOrder, warnings } = getClassOrder({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
-  const { dissectedClasses } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { classOrder, warnings } = getClassOrder(async(ctx), classes);
+  const { dissectedClasses } = getDissectedClasses(async(ctx), classes);
 
   const officiallySortedClasses = classOrder
     .toSorted(([, a], [, z]) => {

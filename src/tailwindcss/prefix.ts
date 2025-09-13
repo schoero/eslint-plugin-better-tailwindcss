@@ -2,33 +2,26 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export type Prefix = string;
 export type Suffix = string;
 
-export interface GetPrefixRequest {
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
+export type GetPrefix = (ctx: AsyncContext) => {
+  prefix: Prefix;
+  suffix: Suffix;
+  warnings: (Warning | undefined)[];
+};
 
-export interface GetPrefixResponse { prefix: Prefix; suffix: Suffix; warnings: (Warning | undefined)[]; }
+export let getPrefix: GetPrefix = () => { throw new Error("getPrefix() called before being initialized"); };
 
-type GetPrefix = (req: GetPrefixRequest) => GetPrefixResponse;
-
-export let getPrefix: GetPrefix;
-
-export function createGetPrefix(): GetPrefix {
-  if(getPrefix){
-    return getPrefix;
-  }
-
-  const workerPath = getWorkerPath();
+export function createGetPrefix(ctx: Context): GetPrefix {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
   getPrefix = createSyncFn(workerPath, workerOptions);
@@ -36,9 +29,8 @@ export function createGetPrefix(): GetPrefix {
   return getPrefix;
 }
 
-function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./prefix.async.worker.v${major}.js`);
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./prefix.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

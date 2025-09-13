@@ -38,7 +38,7 @@ export const TEST_SYNTAXES = {
   }
 } as const;
 
-export function lint< const Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
+export function lint<const Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
   eslintRule: Rule,
   syntaxes: Syntaxes,
   tests: {

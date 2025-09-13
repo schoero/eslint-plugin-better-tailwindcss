@@ -1,14 +1,15 @@
-import * as utils from "tailwindcss3/lib/util/splitAtTopLevelOnly.js";
-
 import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
+import type { AsyncContext } from "../utils/context.js";
 import type { DissectedClass } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(context: any, classes: string[]): DissectedClass[] {
-  const prefix = getPrefix(context);
-  const separator = context.tailwindConfig.separator ?? ":";
+export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: any, classes: string[]): Promise<DissectedClass[]> {
+  const utils = await import(`${ctx.installation}/lib/util/splitAtTopLevelOnly.js`);
+
+  const prefix = getPrefix(tailwindContext);
+  const separator = tailwindContext.tailwindConfig.separator ?? ":";
 
   return classes.map(className => {
     const splitChunks = utils.splitAtTopLevelOnly?.(className, separator) ?? utils.default?.splitAtTopLevelOnly?.(className, separator);

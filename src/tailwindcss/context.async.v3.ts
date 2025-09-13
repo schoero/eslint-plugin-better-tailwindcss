@@ -1,22 +1,19 @@
-import defaultConfig from "tailwindcss3/defaultConfig.js";
-import * as setupContextUtils from "tailwindcss3/lib/lib/setupContextUtils.js";
-import loadConfig from "tailwindcss3/loadConfig.js";
-import resolveConfig from "tailwindcss3/resolveConfig.js";
-
 import { withCache } from "../async-utils/cache.js";
 
-import type { AsyncContext } from "../async-utils/context.js";
+import type { AsyncContext } from "../utils/context.js";
 
 
 export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
-  const tailwindConfig = loadTailwindConfig(ctx.tailwindConfigPath);
-  return setupContextUtils.createContext?.(tailwindConfig) ?? setupContextUtils.default?.createContext?.(tailwindConfig);
+  const { default: defaultConfig } = await import(`${ctx.installation}/defaultConfig.js`);
+  const setupContextUtils = await import(`${ctx.installation}/lib/lib/setupContextUtils.js`);
+  const { default: loadConfig } = await import(`${ctx.installation}/loadConfig.js`);
+  const { default: resolveConfig } = await import(`${ctx.installation}/resolveConfig.js`);
+
+  const config = resolveConfig(
+    ctx.tailwindConfigPath === "default"
+      ? defaultConfig
+      : loadConfig(ctx.tailwindConfigPath)
+  );
+
+  return setupContextUtils.createContext?.(config) ?? setupContextUtils.default?.createContext?.(config);
 });
-
-function loadTailwindConfig(path: string) {
-  const config = path === "default"
-    ? defaultConfig
-    : loadConfig(path);
-
-  return resolveConfig(config);
-}

@@ -2,18 +2,12 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
-
-export interface GetDissectedClassRequest {
-  classes: string[];
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
 
 export interface DissectedClass {
   base: string;
@@ -25,18 +19,15 @@ export interface DissectedClass {
   variants: string[];
 }
 
-export type GetDissectedClassResponse = { dissectedClasses: DissectedClass[]; warnings: (Warning | undefined)[]; };
+export type GetDissectedClasses = (ctx: AsyncContext, classes: string[]) => {
+  dissectedClasses: DissectedClass[];
+  warnings: (Warning | undefined)[];
+};
 
-type GetDissectedClasses = (req: GetDissectedClassRequest) => GetDissectedClassResponse;
+export let getDissectedClasses: GetDissectedClasses = () => { throw new Error("getDissectedClasses() called before being initialized"); };
 
-export let getDissectedClasses: GetDissectedClasses;
-
-export function createGetDissectedClasses(): GetDissectedClasses {
-  if(getDissectedClasses){
-    return getDissectedClasses;
-  }
-
-  const workerPath = getWorkerPath();
+export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
   getDissectedClasses = createSyncFn(workerPath, workerOptions);
@@ -44,9 +35,8 @@ export function createGetDissectedClasses(): GetDissectedClasses {
   return getDissectedClasses;
 }
 
-function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./dissect-classes.async.worker.v${major}.js`);
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./dissect-classes.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

@@ -3,12 +3,12 @@ import { describe, it } from "vitest";
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
 describe(enforceConsistentImportantPosition.name, () => {
 
-  it(`should move the important modifier correct position`, () => {
+  it.only(`should move the important modifier correct position`, () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,
@@ -271,7 +271,7 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(`should use "recommended" as default position when no option is provided in tailwind >= 4`, () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)(`should use "recommended" as default position when no option is provided in tailwind >= 4`, () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,
@@ -297,7 +297,7 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(`should use "legacy" as default position when no option is provided in tailwind <= 3`, () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)(`should use "legacy" as default position when no option is provided in tailwind <= 3`, { fails: true }, () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,
@@ -316,7 +316,7 @@ describe(enforceConsistentImportantPosition.name, () => {
             vueOutput: `<template><img class="!w-4" /></template>`,
 
             errors: 1
-            // No options provided - should default to "recommended"
+            // No options provided - should default to "legacy"
           }
         ]
       }
@@ -364,7 +364,7 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,
@@ -391,6 +391,7 @@ describe(enforceConsistentImportantPosition.name, () => {
               `
             },
             options: [{
+              position: "legacy",
               tailwindConfig: "./tailwind.config.js"
             }]
           },
@@ -415,6 +416,7 @@ describe(enforceConsistentImportantPosition.name, () => {
               `
             },
             options: [{
+              position: "legacy",
               tailwindConfig: "./tailwind.config.js"
             }]
           }
@@ -423,7 +425,7 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,

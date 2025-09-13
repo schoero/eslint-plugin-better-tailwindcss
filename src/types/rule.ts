@@ -35,6 +35,12 @@ export type MatcherFunction<Node> = (node: unknown) => node is Node;
 export type MatcherFunctions<Node> = MatcherFunction<Node>[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 
+export type Version = {
+  major: number;
+  minor: number;
+  patch: number;
+};
+
 export type TailwindConfig = {
   entryPoint?: string;
   tailwindConfig?: string;
@@ -92,6 +98,8 @@ export interface RuleContext<
 > {
   cwd: string;
   docs: string;
+  /** The installation path of Tailwind CSS. */
+  installation: string;
   options: Options;
   report: <
     const MessageId extends Messages extends Record<string, string>
@@ -114,6 +122,8 @@ export interface RuleContext<
       warnings?: (Warning<Options> | undefined)[];
     }
   ) => void;
+  /** The Tailwind CSS Version. */
+  version: Version;
 }
 
 export type Context<Rule extends ESLintRule = ESLintRule> = RuleContext<Rule["messages"], Rule["options"]>;

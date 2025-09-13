@@ -3,8 +3,8 @@ import { describe, it } from "vitest";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
 describe(enforceConsistentLineWrapping.name, () => {
@@ -1087,7 +1087,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should ignore prefixed variants in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should ignore prefixed variants in tailwind <= 3", () => {
     lint(
       enforceConsistentLineWrapping,
       TEST_SYNTAXES,
@@ -1122,7 +1122,7 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore prefixed variants in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore prefixed variants in tailwind >= 4", () => {
     lint(
       enforceConsistentLineWrapping,
       TEST_SYNTAXES,

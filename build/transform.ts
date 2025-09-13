@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'fs/promises';
- import { glob } from 'glob'
+import { glob } from 'glob'
 
 export async function transformImports(globPatterns: string[], search: string, replace: string) {
   const files = await glob(globPatterns);

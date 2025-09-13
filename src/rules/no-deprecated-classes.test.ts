@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
 const testCases = [
@@ -40,7 +40,7 @@ const testCases = [
   ["object-right-bottom", "object-bottom-right"]
 ] satisfies [string, string | undefined][];
 
-describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDeprecatedClasses.name, () => {
+describe.runIf(getTailwindCSSVersion().major >= 4)(noDeprecatedClasses.name, () => {
 
   it("should not report valid classes", () => {
     lint(

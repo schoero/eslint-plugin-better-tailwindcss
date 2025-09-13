@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
 describe(noUnknownClasses.name, () => {
@@ -82,7 +82,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -100,7 +100,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -180,7 +180,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -232,7 +232,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on registered utility classes in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -289,7 +289,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -350,7 +350,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -418,7 +418,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -449,7 +449,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should work with prefixed tailwind classes tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -479,7 +479,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should work with prefixed tailwind classes tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -507,7 +507,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on DaisyUI classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on DaisyUI classes in tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -540,7 +540,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on DaisyUI classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on DaisyUI classes in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -620,7 +620,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -667,7 +667,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -714,7 +714,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -757,7 +757,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -825,7 +825,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support tsconfig paths in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support tsconfig paths in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,
@@ -891,7 +891,7 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
     lint(
       noUnknownClasses,
       TEST_SYNTAXES,

@@ -9,7 +9,7 @@ import { isESModule } from "../async-utils/module.js";
 import { isWindows } from "../async-utils/platform.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
-import type { AsyncContext } from "../async-utils/context.js";
+import type { AsyncContext } from "../utils/context.js";
 
 
 export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
@@ -19,13 +19,7 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
   });
 
   const importBasePath = dirname(ctx.tailwindConfigPath);
-
   const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
-
-  if(!tailwindPath){
-    throw new Error("Could not find Tailwind CSS");
-  }
-
   const tailwindUrl = isWindows() && isESModule() ? pathToFileURL(tailwindPath).toString() : tailwindPath;
 
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention

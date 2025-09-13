@@ -3,10 +3,11 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export type ConflictingClasses = {
@@ -19,25 +20,15 @@ export type ConflictingClasses = {
   };
 };
 
-export interface GetConflictingClassesRequest {
-  classes: string[];
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
+export type GetConflictingClasses = (ctx: AsyncContext, classes: string[]) => {
+  conflictingClasses: ConflictingClasses;
+  warnings: (Warning | undefined)[];
+};
 
-export type GetConflictingClassesResponse = { conflictingClasses: ConflictingClasses; warnings: (Warning | undefined)[]; };
+export let getConflictingClasses: GetConflictingClasses = () => { throw new Error("getConflictingClasses() called before being initialized"); };
 
-type GetConflictingClasses = (req: GetConflictingClassesRequest) => GetConflictingClassesResponse;
-
-export let getConflictingClasses: GetConflictingClasses;
-
-export function createGetConflictingClasses(): GetConflictingClasses {
-  if(getConflictingClasses){
-    return getConflictingClasses;
-  }
-
-  const workerPath = getWorkerPath();
+export function createGetConflictingClasses(ctx: Context): GetConflictingClasses {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
   getConflictingClasses = createSyncFn(workerPath, workerOptions);
@@ -45,9 +36,8 @@ export function createGetConflictingClasses(): GetConflictingClasses {
   return getConflictingClasses;
 }
 
-function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./conflicting-classes.async.worker.v${major}.js`);
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./conflicting-classes.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

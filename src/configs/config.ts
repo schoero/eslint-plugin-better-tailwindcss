@@ -64,8 +64,6 @@ const getCorrectnessRules = (severity: Severity = "error") => {
   }, {});
 };
 
-console.log({ correctness: Object.keys(getCorrectnessRules()), stylistic: Object.keys(getStylisticRules()) });
-
 const createConfig = (
   name: string,
   getRulesFunction: (severity?: Severity) => {

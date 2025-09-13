@@ -1,8 +1,8 @@
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
@@ -22,8 +22,8 @@ export const noDeprecatedClasses = createRule({
     replaceable: "Deprecated class detected. Replace \"{{ className }}\" with \"{{fix}}\"."
   },
 
-  initialize: () => {
-    createGetDissectedClasses();
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -71,14 +71,13 @@ const deprecations = [
 
 function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Literal[]) {
 
-  const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
-  const { major, minor } = getTailwindcssVersion();
+  const { major, minor } = ctx.version;
 
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -109,7 +108,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
             };
           }
 
-          const fix = buildClass({ ...dissectedClass, base: replacePlaceholders(replacement, match) });
+          const fix = buildClass(ctx, { ...dissectedClass, base: replacePlaceholders(replacement, match) });
 
           return {
             data: {

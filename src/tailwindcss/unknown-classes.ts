@@ -2,33 +2,24 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { getTailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export type UnknownClass = string;
 
-export interface GetUnknownClassesRequest {
-  classes: string[];
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
+export type GetUnknownClasses = (ctx: AsyncContext, classes: string[]) => {
+  unknownClasses: UnknownClass[];
+  warnings: (Warning | undefined)[];
+};
 
-export type GetUnknownClassesResponse = { unknownClasses: UnknownClass[]; warnings: (Warning | undefined)[]; };
+export let getUnknownClasses: GetUnknownClasses = () => { throw new Error("getUnknownClasses() called before being initialized"); };
 
-type GetUnknownClasses = (req: GetUnknownClassesRequest) => GetUnknownClassesResponse;
-
-export let getUnknownClasses: GetUnknownClasses;
-
-export function createGetUnknownClasses(): GetUnknownClasses {
-  if(getUnknownClasses){
-    return getUnknownClasses;
-  }
-
-  const workerPath = getWorkerPath();
+export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
   getUnknownClasses = createSyncFn(workerPath, workerOptions);
@@ -36,9 +27,8 @@ export function createGetUnknownClasses(): GetUnknownClasses {
   return getUnknownClasses;
 }
 
-function getWorkerPath() {
-  const { major } = getTailwindcssVersion();
-  return resolve(getCurrentDirectory(), `./unknown-classes.async.worker.v${major}.js`);
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./unknown-classes.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

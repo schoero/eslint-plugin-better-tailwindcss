@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, object } from "valibot";
 
@@ -13,8 +16,9 @@ import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tai
 import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
-import { isTailwindcssInstalled } from "better-tailwindcss:utils/tailwindcss.js";
+import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings } from "better-tailwindcss:utils/utils.js";
+import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
@@ -74,17 +78,30 @@ export function createRule<
     get options() { return getOptions(); },
     rule: {
       create: ctx => {
-        if(!isTailwindcssInstalled()){
+
+        eslintContext = ctx;
+
+        const options = getOptions();
+
+        const { entryPoint, tailwindConfig, tsconfig } = options;
+
+        const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
+        const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
+
+        if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
           return {};
         }
 
-        eslintContext = ctx;
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+        const version = parseSemanticVersion(packageJson.version);
+        const installation = dirname(packageJsonPath);
 
         const context = {
           cwd: ctx.cwd,
           docs,
-          options: getOptions(),
+          installation,
+          options,
           report: ({ data, fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 
@@ -109,7 +126,8 @@ export function createRule<
                 message: augmentMessageWithWarnings(rest.message, docs, warnings)
               });
             }
-          }
+          },
+          version
         } satisfies RuleContext<Messages, Options>;
 
         initialize?.(context);

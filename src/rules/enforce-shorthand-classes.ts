@@ -1,6 +1,7 @@
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
@@ -23,9 +24,9 @@ export const enforceShorthandClasses = createRule({
     unnecessary: "Unnecessary whitespace"
   },
 
-  initialize: () => {
-    createGetDissectedClasses();
-    createGetUnknownClasses();
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
+    createGetUnknownClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -121,32 +122,27 @@ export const shorthands = [
 
 
 function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Literal[]) {
-
-  const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
-
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
-    const shorthandGroups = getShorthands(dissectedClasses);
+    const shorthandGroups = getShorthands(ctx, dissectedClasses);
 
-    const { unknownClasses } = getUnknownClasses({
-      classes: shorthandGroups
+    const { unknownClasses } = getUnknownClasses(
+      async(ctx),
+      shorthandGroups
         .flat()
-        .map(([, shorthands]) => shorthands)
-        .flat(),
-      configPath: entryPoint ?? tailwindConfig,
-      cwd: ctx.cwd,
-      tsconfigPath: tsconfig
-    });
+        .flatMap(([, shorthands]) => shorthands)
+        .flat()
+    );
 
 
     lintClasses(ctx, literal, (className, index, after) => {
       for(const shorthandGroup of shorthandGroups){
         for(const [longhands, shorthands] of shorthandGroup){
 
-          const longhandClasses = longhands.map(longhand => buildClass(longhand));
+          const longhandClasses = longhands.map(longhand => buildClass(ctx, longhand));
 
           if(!longhandClasses.includes(className)){
             continue;
@@ -179,7 +175,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
   }
 }
 
-function getShorthands(dissectedClasses: DissectedClass[]) {
+function getShorthands(ctx: Context<typeof enforceShorthandClasses>, dissectedClasses: DissectedClass[]) {
 
   const possibleShorthandClassesGroups: [longhands: DissectedClass[], shorthands: string[]][][] = [];
 
@@ -251,7 +247,7 @@ function getShorthands(dissectedClasses: DissectedClass[]) {
         }
 
         if(longhands.length === patterns.length){
-          possibleShorthandClasses.push([longhands, substitutes.map(substitute => buildClass({
+          possibleShorthandClasses.push([longhands, substitutes.map(substitute => buildClass(ctx, {
             base: replacePlaceholders(substitute, groups),
             important: [isImportantAtStart, isImportantAtEnd],
             negative,

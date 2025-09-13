@@ -11,6 +11,7 @@ import {
 } from "valibot";
 
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
@@ -95,8 +96,8 @@ export const enforceConsistentLineWrapping = createRule({
     )
   }),
 
-  initialize: () => {
-    createGetPrefix();
+  initialize: ctx => {
+    createGetPrefix(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -104,9 +105,9 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, entryPoint, group: groupSeparator, preferSingleLine, printWidth, tailwindConfig, tsconfig } = ctx.options;
+  const { classesPerLine, group: groupSeparator, preferSingleLine, printWidth } = ctx.options;
 
-  const { prefix, suffix, warnings } = getPrefix({ configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
   for(const literal of literals){
 

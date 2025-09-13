@@ -2,9 +2,9 @@ import { description, literal, object, optional, pipe, union } from "valibot";
 
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
@@ -40,8 +40,8 @@ export const enforceConsistentVariableSyntax = createRule({
     )
   }),
 
-  initialize: () => {
-    createGetDissectedClasses();
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -50,13 +50,12 @@ export const enforceConsistentVariableSyntax = createRule({
 
 function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, literals: Literal[]) {
 
-  const { entryPoint, syntax, tailwindConfig, tsconfig } = ctx.options;
-  const { major } = getTailwindcssVersion();
+  const { syntax } = ctx.options;
 
   for(const literal of literals){
     const classes = splitClasses(literal.content);
 
-    const { dissectedClasses, warnings } = getDissectedClasses({ classes, configPath: entryPoint ?? tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
     lintClasses(ctx, literal, className => {
       const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
@@ -96,9 +95,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
             return;
           }
 
-          const fixedClass = major >= TailwindcssVersion.V4
-            ? buildClass({ ...dissectedClass, base: [...beforeSquareBrackets, `(${characters})`, ...afterSquareBrackets].join("") })
-            : buildClass({ ...dissectedClass, base: [...beforeSquareBrackets, `[${characters}]`, ...afterSquareBrackets].join("") });
+          const fixedClass = ctx.version.major >= 4
+            ? buildClass(ctx, { ...dissectedClass, base: [...beforeSquareBrackets, `(${characters})`, ...afterSquareBrackets].join("") })
+            : buildClass(ctx, { ...dissectedClass, base: [...beforeSquareBrackets, `[${characters}]`, ...afterSquareBrackets].join("") });
 
           return {
             data: { className },
@@ -110,11 +109,11 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
         }
 
         if(isBeginningOfArbitraryShorthand(charactersSquareBrackets)){
-          if(major <= TailwindcssVersion.V3){
+          if(ctx.version.major <= 3){
             return;
           }
 
-          const fixedClass = buildClass({
+          const fixedClass = buildClass(ctx, {
             ...dissectedClass,
             base: [...beforeSquareBrackets, `(${charactersSquareBrackets})`, ...afterSquareBrackets].join("")
           });
@@ -137,7 +136,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
 
         if(isBeginningOfArbitraryShorthand(charactersSquareBrackets)){
 
-          const fixedClass = buildClass({
+          const fixedClass = buildClass(ctx, {
             ...dissectedClass,
             base: [...beforeSquareBrackets, `[var(${charactersSquareBrackets})]`, ...afterSquareBrackets].join("")
           });
@@ -152,7 +151,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
 
         if(isBeginningOfArbitraryShorthand(charactersParentheses)){
 
-          const fixedClass = buildClass({
+          const fixedClass = buildClass(ctx, {
             ...dissectedClass,
             base: [
               ...beforeParentheses,

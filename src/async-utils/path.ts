@@ -1,7 +1,7 @@
 import { pathToFileURL } from "node:url";
 
-import { isESModule } from "better-tailwindcss:utils/module.js";
-import { isWindows } from "better-tailwindcss:utils/platform.js";
+import { isESModule } from "./module.js";
+import { isWindows } from "./platform.js";
 
 
 export function normalize(path: string): string {

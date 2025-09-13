@@ -8,7 +8,7 @@ import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 describe(enforceConsistentImportantPosition.name, () => {
 
-  it.only(`should move the important modifier correct position`, () => {
+  it(`should move the important modifier correct position`, () => {
     lint(
       enforceConsistentImportantPosition,
       TEST_SYNTAXES,

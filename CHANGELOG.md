@@ -15,6 +15,7 @@
 - ⚠️  Renamed rule `multiline` to `enforce-consistent-line-wrapping`
 - ⚠️  Options for `better-tailwindcss/enforce-consistent-variable-syntax` have been renamed to `shorthand` and `variable`.
 - ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
+- ⚠️  Removed rule regex matchers
 
 ## v3.7.8
 

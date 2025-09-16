@@ -587,7 +587,6 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
 
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
             isESObjectKey(node) ||
 
             !isESStringLike(node)){

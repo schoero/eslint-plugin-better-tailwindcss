@@ -259,7 +259,6 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
 
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
             isESObjectKey(node) ||
 
             !isESStringLike(node) && !isSvelteStringLiteral(node)){

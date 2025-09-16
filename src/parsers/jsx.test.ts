@@ -49,6 +49,21 @@ describe("jsx", () => {
     });
   });
 
+  // #226
+  it("should not match index accessed object keys", () => {
+    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      valid: [
+        {
+          jsx: "<img class={{ '  a b c  ': '  d e f '}['  a b c  ']} />",
+
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectKey }]]]
+          }]
+        }
+      ]
+    });
+  });
+
 });
 
 describe("astro (jsx)", () => {

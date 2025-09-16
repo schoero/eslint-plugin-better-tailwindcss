@@ -17,6 +17,14 @@
 - ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
 - ⚠️  Removed rule regex matchers
 
+## v3.7.9
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.8...v3.7.9)
+
+### Fixes
+
+- Don't match index accessed object keys ([#227](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/227))
+
 ## v3.7.8
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.7...v3.7.8)

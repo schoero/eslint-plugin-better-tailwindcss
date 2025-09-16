@@ -235,7 +235,6 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
 
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
             isESObjectKey(node) ||
 
             !isESStringLike(node) && !isVueLiteralNode(node)){

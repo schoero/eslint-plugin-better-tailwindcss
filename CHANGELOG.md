@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.0.0-beta.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.0...v4.0.0-beta.1)
+
+### Fixes
+
+- Don't match index accessed object keys ([#227](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/227))
+- Add missing valibot dependencies ([92589e2])(<https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/92589e2e58b439621f9bcc729f42faa1f478804b>))
+
 ## v4.0.0-beta.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.8...v4.0.0-beta.0)
@@ -15,6 +24,7 @@
 - ⚠️  Renamed rule `multiline` to `enforce-consistent-line-wrapping`
 - ⚠️  Options for `better-tailwindcss/enforce-consistent-variable-syntax` have been renamed to `shorthand` and `variable`.
 - ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
+- ⚠️  The default for `enforce-consistent-important-position` is now always `recommended`. If you are on tailwindcss v3 need to manually set it to `legacy` to keep it working for tailwindcss v3.
 - ⚠️  Removed rule regex matchers
 
 ## v3.7.9

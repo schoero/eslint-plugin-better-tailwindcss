@@ -23,7 +23,7 @@ export function withCache<Result>(key: string, path: string | undefined, callbac
   const cacheKey = `${key}-${path}`;
   const cached = CACHE.get(cacheKey);
 
-  if(env.NODE_ENV !== "test" && cached && !invalidate(cached, path)){
+  if(env.NODE_ENV !== "test" && env.NO_CACHE !== "true" && cached && !invalidate(cached, path)){
     return cached.value;
   }
 

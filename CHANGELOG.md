@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.0.0-beta.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.1...v4.0.0-beta.2)
+
+### Tests
+
+- Add additional environment variable to disable cache ([2e0e858](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/2e0e858))
+
 ## v4.0.0-beta.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.0...v4.0.0-beta.1)

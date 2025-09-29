@@ -70,7 +70,7 @@ export const noUnregisteredClasses: ESLintRule<Options> = {
     meta: {
       docs: {
         description: "Disallow any css classes that are not registered in tailwindcss.",
-        recommended: false,
+        recommended: true,
         url: DOCUMENTATION_URL
       },
       fixable: "code",

@@ -62,7 +62,7 @@ export const noConflictingClasses: ESLintRule<Options> = {
     meta: {
       docs: {
         description: "Disallow classes that produce conflicting styles.",
-        recommended: false,
+        recommended: true,
         url: DOCUMENTATION_URL
       },
       fixable: "code",

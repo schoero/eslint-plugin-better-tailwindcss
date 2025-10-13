@@ -121,6 +121,8 @@ export const shorthands = [
   ],
   [
     [[/^rounded-tl-(.*)$/, /^rounded-tr-(.*)$/, /^rounded-bl-(.*)$/, /^rounded-br-(.*)$/], ["rounded-$1"]],
+    [[/^rounded-t-(.*)$/, /^rounded-b-(.*)$/], ["rounded-$1"]],
+    [[/^rounded-l-(.*)$/, /^rounded-r-(.*)$/], ["rounded-$1"]],
     [[/^rounded-tl-(.*)$/, /^rounded-tr-(.*)$/], ["rounded-t-$1"]],
     [[/^rounded-bl-(.*)$/, /^rounded-br-(.*)$/], ["rounded-b-$1"]],
     [[/^rounded-tl-(.*)$/, /^rounded-bl-(.*)$/], ["rounded-l-$1"]],

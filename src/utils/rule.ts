@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
+import { defineRule } from "oxlint";
 import { getDefaults, object } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
@@ -26,6 +27,7 @@ import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
+import type { VisitorWithHooks } from "oxlint";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
@@ -53,7 +55,7 @@ export function createRule<
 
   const propertiesSchema = object({
     ...COMMON_OPTIONS.entries,
-    ...schema?.entries ?? {}
+    ...schema?.entries
   });
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
@@ -76,16 +78,20 @@ export function createRule<
     messages,
     name,
     get options() { return getOptions(); },
-    rule: {
-      create: ctx => {
+    // @ts-expect-error - oxlint
+    rule: defineRule({
+      createOnce: ctx => {
 
-        eslintContext = ctx;
+        eslintContext = ctx as unknown as Rule.RuleContext;
 
         const options = getOptions();
 
         const { entryPoint, tailwindConfig, tsconfig } = options;
 
-        const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
+        // oxlint is missing cwd in context
+        const cwd = eslintContext?.cwd ?? process.cwd();
+
+        const projectDirectory = resolve(cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
         const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
 
         if(!packageJsonPath){
@@ -98,12 +104,12 @@ export function createRule<
         const installation = dirname(packageJsonPath);
 
         const context = {
-          cwd: ctx.cwd,
+          cwd,
           docs,
           installation,
           options,
           report: ({ data, fix, range, warnings, ...rest }) => {
-            const loc = getLocByRange(ctx, range);
+            const loc = getLocByRange(eslintContext!, range);
 
             if("id" in rest && rest.id){
               return void ctx.report({
@@ -151,11 +157,11 @@ export function createRule<
         type: category === "correctness" ? "problem" : "layout",
         ...messages && { messages }
       }
-    }
+    })
   };
 }
 
-export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
+export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): VisitorWithHooks {
 
   const { attributes, callees, tags, variables } = context.options;
 
@@ -271,6 +277,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     };
   }
 
+  // @ts-expect-error - oxlint
   return {
     ...callExpression,
     ...variableDeclarators,

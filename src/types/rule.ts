@@ -128,7 +128,6 @@ export interface RuleContext<
 
 export type Context<Rule extends ESLintRule = ESLintRule> = RuleContext<Rule["messages"], Rule["options"]>;
 
-
 export type Messages<Ctx extends Context> = Parameters<Ctx["report"]>[0]["data"];
 
 export type MessageId<Ctx extends Context> = Parameters<Ctx["report"]>[0] extends infer Obj

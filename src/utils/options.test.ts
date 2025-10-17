@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("settings", () => {
 
   it("should use the global settings if provided", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img settings="  b  a  c  a  " />`,
@@ -24,7 +24,7 @@ describe("settings", () => {
         }
       ]
     });
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img settings="  b  a  c  a  " />`,
@@ -44,7 +44,7 @@ describe("settings", () => {
   });
 
   it("should always use rule options to override settings if provided", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img options="  b  a  c  a  " />`,
@@ -62,7 +62,7 @@ describe("settings", () => {
         }
       ]
     });
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img options="  b  a  c  a  " />`,
@@ -83,7 +83,7 @@ describe("settings", () => {
   });
 
   it("should only override provided settings on defaults", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img settings="  b  a  c  a  " class="  b  a  c  a  " />`,
@@ -103,7 +103,7 @@ describe("settings", () => {
   });
 
   it("should only override provided options on settings", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img options="  b  a  c  a  " settings="  b  a  c  a  " class="  b  a  c  a  " />`,

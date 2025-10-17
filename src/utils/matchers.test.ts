@@ -10,7 +10,7 @@ import {
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { findNode, lint, TEST_SYNTAXES, withParentNodeExtension } from "better-tailwindcss:tests/utils/lint.js";
+import { findNode, lint, withParentNodeExtension } from "better-tailwindcss:tests/utils/lint.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 import type { Node as ESNode } from "estree";
@@ -207,7 +207,7 @@ describe("matchers", () => {
 
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -240,7 +240,7 @@ describe("matchers", () => {
     });
 
     it("should match callees names via regex", () => {
-      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, {
         invalid: [
           {
             jsx: `testStyles(" lint ");`,
@@ -260,7 +260,7 @@ describe("matchers", () => {
     });
 
     it("should match variable names via regex", () => {
-      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, {
         invalid: [
           {
             jsx: `const testStyles = " lint ";`,
@@ -280,7 +280,7 @@ describe("matchers", () => {
     });
 
     it("should match attributes via regex", () => {
-      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, {
         invalid: [
           {
             jsx: `<img testStyles=" lint " />`,
@@ -343,7 +343,7 @@ describe("matchers", () => {
 
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -376,7 +376,7 @@ describe("matchers", () => {
     });
 
     it("should not cross arrow function boundaries", () => {
-      lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+      lint(noUnnecessaryWhitespace, {
         valid: [
           {
             jsx: `const defined = () => " b a ";`,
@@ -434,7 +434,7 @@ describe("matchers", () => {
 
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -471,7 +471,7 @@ describe("matchers", () => {
     it("should lint class names in tagged template literals when matched using the strings matcher", () => {
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -493,7 +493,7 @@ describe("matchers", () => {
     it("should lint class names in nested literal expressions inside tagged template literals when matched using the strings matcher", () => {
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -521,7 +521,7 @@ describe("matchers", () => {
       );
       lint(
         noUnnecessaryWhitespace,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -552,7 +552,7 @@ describe("matchers", () => {
   });
 
   it("should lint literals inside object keys when matched", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "defined({ \" lint \": \" ignore \" })",
@@ -572,7 +572,7 @@ describe("matchers", () => {
   });
 
   it("should lint literals inside object values when matched", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "defined({ \" ignore \": \" lint \" })",
@@ -592,7 +592,7 @@ describe("matchers", () => {
   });
 
   it("should lint only strings not matched by other matchers", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "defined(\" lint \", { \" ignore \": \" ignore \" }, [\" lint \"])",
@@ -612,7 +612,7 @@ describe("matchers", () => {
   });
 
   it("should lint strings inside template literal expressions when matched using the strings matcher", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "defined(` lint ${\" lint \"} lint `)",
@@ -632,7 +632,7 @@ describe("matchers", () => {
   });
 
   it("should not double report if multiple matchers match the same literal", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "defined({ \" lint \": \" lint \" })",
@@ -648,7 +648,7 @@ describe("matchers", () => {
   });
 
   it("should still handle callees even when they are object values", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "<img class={{ key: defined('  a b c  ')}} />",

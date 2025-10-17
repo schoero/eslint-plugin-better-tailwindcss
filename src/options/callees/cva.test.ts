@@ -6,7 +6,7 @@ import {
   CVA_VARIANT_VALUES
 } from "better-tailwindcss:options/callees/cva.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("cva", () => {
@@ -16,7 +16,7 @@ describe("cva", () => {
     const dirty = `cva(" lint ", [" lint ", " lint "])`;
     const clean = `cva("lint", ["lint", "lint"])`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,
@@ -51,7 +51,7 @@ describe("cva", () => {
       )
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,
@@ -93,7 +93,7 @@ describe("cva", () => {
       )
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,
@@ -158,7 +158,7 @@ describe("cva", () => {
       });
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,

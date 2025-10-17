@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
@@ -11,7 +11,7 @@ describe("angular", () => {
 
   describe("defaults", () => {
     it("should support normal classes", () => {
-      lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      lint(enforceConsistentClassOrder, {
         invalid: [
           {
             angular: `<img class="b a" />`,
@@ -39,7 +39,7 @@ describe("angular", () => {
     });
 
     it("should support array binding in [class] and [ngClass]", () => {
-      lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      lint(enforceConsistentClassOrder, {
         invalid: [
           {
             angular: `<img [class]="['b a', 'd c']" />`,
@@ -60,7 +60,7 @@ describe("angular", () => {
     });
 
     it("should support expressions in literal arrays", () => {
-      lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      lint(enforceConsistentClassOrder, {
         invalid: [
           {
             angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
@@ -81,7 +81,7 @@ describe("angular", () => {
     });
 
     it("should support object keys in [class] and [ngClass]", () => {
-      lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      lint(enforceConsistentClassOrder, {
         invalid: [
           {
             angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
@@ -104,7 +104,7 @@ describe("angular", () => {
 
   describe("names", () => {
     it("should match attribute names via names regex", () => {
-      lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+      lint(enforceConsistentClassOrder, {
         invalid: [
           {
             angular: `<img customAttribute="b a" />`,
@@ -143,7 +143,7 @@ describe("angular", () => {
 
     describe("string", () => {
       it("should match attribute names via matchers", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img class="b a" />`,
@@ -173,7 +173,7 @@ describe("angular", () => {
 
     describe("object keys", () => {
       it("should match object keys", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="{ 'b a': true, 'd c': false }" />`,
@@ -216,7 +216,7 @@ describe("angular", () => {
       });
 
       it("should still match the object key when there is a value with the same content", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="{ 'b a': 'd c', 'd c': 'b a' }" />`,
@@ -259,7 +259,7 @@ describe("angular", () => {
       });
 
       it("should not lint literals in binary comparisons", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="{'b a': 'd c' === 'f e'}" />`,
@@ -276,7 +276,7 @@ describe("angular", () => {
     describe("object values", () => {
       // this is not used by angular, but matchers should still be able to handle it
       it("should support object values", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [ngClass]="{ '0': 'b a', '1': 'd c' }" />`,
@@ -299,7 +299,7 @@ describe("angular", () => {
 
     describe("arrays", () => {
       it("should support arrays", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="['b a', 'd c']" />`,
@@ -320,7 +320,7 @@ describe("angular", () => {
       });
 
       it("should support expressions in arrays", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="['b a', expression ? 'd c' : 'f e']" />`,
@@ -343,7 +343,7 @@ describe("angular", () => {
 
     describe("expressions", () => {
       it("should lint classes returned from expressions", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img class="{{ true === 'b a' ? 'b a' : 'd c' }}" />`,
@@ -373,7 +373,7 @@ describe("angular", () => {
 
     describe("template literals", () => {
       it("should support template literals in interpolated class", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             // 1st pass of multi pass fix
             {
@@ -397,7 +397,7 @@ describe("angular", () => {
       });
 
       it("should support short circuiting", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: "<img [class]=\"`${'b a' && 'd c'}`\" />",
@@ -418,7 +418,7 @@ describe("angular", () => {
       });
 
       it("should lint classes around expressions", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             // 1st pass of multi pass fix
             {
@@ -469,7 +469,7 @@ describe("angular", () => {
           c d
         `;
 
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               angular: `<img [class]="\`${dirty}\`" />`,
@@ -490,7 +490,7 @@ describe("angular", () => {
       });
 
       it("should not crash on dynamic [class] expression (no literal)", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           valid: [
             {
               // Dynamic computed class expression – previously could crash parser
@@ -502,7 +502,7 @@ describe("angular", () => {
       });
 
       it("should not crash on dynamic [ngClass] expression (no literal)", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           valid: [
             {
               angular: `<icon [ngClass]="styles.icon({ disabled: disabled })" />`
@@ -512,7 +512,7 @@ describe("angular", () => {
       });
 
       it("should continue handling literal map keys without crashing", () => {
-        lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+        lint(enforceConsistentClassOrder, {
           invalid: [
             {
               // Sanity check: object-literal keys are still parsed and reordered
@@ -531,7 +531,7 @@ describe("angular", () => {
 
   // #177
   it("should be able to differentiate between overlapping object keys", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img [class]="{
@@ -550,7 +550,7 @@ describe("angular", () => {
   });
 
   it("should correctly create object paths", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           angular: `<img [class]="{

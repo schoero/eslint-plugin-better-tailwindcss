@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { OBJSTR_OBJECT_KEYS } from "better-tailwindcss:options/callees/objstr.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("objstr", () => {
@@ -22,7 +22,7 @@ describe("objstr", () => {
       )
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,

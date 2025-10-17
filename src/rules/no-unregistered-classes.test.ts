@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { noUnregisteredClasses } from "better-tailwindcss:rules/no-unregistered-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
@@ -11,7 +11,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report standard tailwind classes", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -29,7 +29,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report standard tailwind classes with variants", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -47,7 +47,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report standard tailwind classes with many variants", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -65,7 +65,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should report standard tailwind classes with an unregistered variant in many variants", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -85,7 +85,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -103,7 +103,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -123,7 +123,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should report unregistered classes", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -143,7 +143,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should be possible to whitelist classes in options", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -163,7 +163,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should be possible to whitelist classes in options via regex", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -183,7 +183,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -235,7 +235,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -292,7 +292,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -353,7 +353,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -421,7 +421,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -452,7 +452,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -482,7 +482,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -510,7 +510,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on DaisyUI classes in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -543,7 +543,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on DaisyUI classes in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -573,7 +573,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report on groups and peers", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -598,7 +598,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report on named groups and peers", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -623,7 +623,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -670,7 +670,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -717,7 +717,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -760,7 +760,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -803,7 +803,7 @@ describe(noUnregisteredClasses.name, () => {
   it("should not report on tailwind utility classes with modifiers", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -828,7 +828,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support tsconfig paths in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -894,7 +894,7 @@ describe(noUnregisteredClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {

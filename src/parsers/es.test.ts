@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("es", () => {
 
   it("should match callees names via regex", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `testStyles(" lint ");`,
@@ -27,7 +27,7 @@ describe("es", () => {
   });
 
   it("should match variable names via regex", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `const testStyles = " lint ";`,
@@ -47,7 +47,7 @@ describe("es", () => {
   });
 
   it("should match attributes via regex", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `<img testStyles=" lint " />`,

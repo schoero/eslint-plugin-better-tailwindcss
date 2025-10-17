@@ -10,13 +10,12 @@ import eslintParserVue from "vue-eslint-parser";
 
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 
-import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
 import type { ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
-export const TEST_SYNTAXES = {
+const TEST_SYNTAXES = {
   angular: {
     languageOptions: { parser: eslintParserAngular }
   },
@@ -37,9 +36,10 @@ export const TEST_SYNTAXES = {
   }
 } as const;
 
-export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
+type Syntaxes = typeof TEST_SYNTAXES;
+
+export function lint<Rule extends ESLintRule>(
   eslintRule: Rule,
-  syntaxes: Syntaxes,
   tests: {
     invalid?: (
       {
@@ -63,7 +63,8 @@ export function lint<Rule extends ESLintRule, Syntaxes extends Record<string, Li
         settings?: Rule["settings"];
       }
     )[];
-  }
+  },
+  syntaxes: Syntaxes = TEST_SYNTAXES
 ) {
 
   resetTestingDirectory();

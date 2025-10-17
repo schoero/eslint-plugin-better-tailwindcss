@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { TW_MERGE_STRINGS } from "better-tailwindcss:options/callees/twMerge.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("twMerge", () => {
@@ -12,7 +12,7 @@ describe("twMerge", () => {
     const dirty = `twMerge(" lint ", [" lint ", " lint "])`;
     const clean = `twMerge("lint", ["lint", "lint"])`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,

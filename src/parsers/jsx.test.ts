@@ -2,13 +2,13 @@ import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
 describe("jsx", () => {
   it("should match attribute names via regex", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           jsx: `<img customAttribute="b a" />`,
@@ -23,7 +23,7 @@ describe("jsx", () => {
 
   // #119
   it("should not report inside member expressions", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           jsx: `<img className={classes[" ignored "]} />`
@@ -34,7 +34,7 @@ describe("jsx", () => {
 
   // #211
   it("should still handle object values even when they are immediately index accessed", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: "<img class={{ key: '  a b c  '}['key']} />",
@@ -51,7 +51,7 @@ describe("jsx", () => {
 
   // #226
   it("should not match index accessed object keys", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           jsx: "<img class={{ '  a b c  ': '  d e f '}['  a b c  ']} />",
@@ -68,7 +68,7 @@ describe("jsx", () => {
 
 describe("astro (jsx)", () => {
   it("should match astro syntactic sugar", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           astro: `<img class:list="b a" />`,

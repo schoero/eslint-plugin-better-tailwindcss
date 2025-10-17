@@ -1,14 +1,14 @@
 import { describe, it } from "vitest";
 
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noDuplicateClasses.name, () => {
 
   it("should filter all duplicate classes", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           angular: `<img class="  b  a  c  a  " />`,
@@ -29,7 +29,7 @@ describe(noDuplicateClasses.name, () => {
   });
 
   it("should keep the quotes as they are", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           angular: `<img class="  b  a  b  " />`,
@@ -101,7 +101,7 @@ describe(noDuplicateClasses.name, () => {
       
     `;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           angular: `<img class="${dirty}" />`,
@@ -143,7 +143,7 @@ describe(noDuplicateClasses.name, () => {
     `;
 
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyWithExpressions}\`} />`,
@@ -208,7 +208,7 @@ describe(noDuplicateClasses.name, () => {
       
     `;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
@@ -221,7 +221,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
@@ -234,7 +234,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
@@ -263,7 +263,7 @@ describe(noDuplicateClasses.name, () => {
     const dirtyStickyExpressionAtEnd = ` c ${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = ` c ${cleanExpression}`;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -276,7 +276,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -290,7 +290,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
@@ -319,7 +319,7 @@ describe(noDuplicateClasses.name, () => {
     const dirtyStickyExpressionAtEnd = ` c ${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = ` c ${cleanExpression}`;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -332,7 +332,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -346,7 +346,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
@@ -375,7 +375,7 @@ describe(noDuplicateClasses.name, () => {
     const dirtyStickyExpressionAtEnd = `a b a b${dirtyExpression}`;
     const cleanStickyExpressionAtEnd = `a b  b${cleanExpression}`;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -388,7 +388,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -402,7 +402,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
@@ -423,7 +423,7 @@ describe(noDuplicateClasses.name, () => {
     const cleanDefined = "defined('  a b   ');";
     const dirtyUndefined = "notDefined(\"  a b a  \");";
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -448,7 +448,7 @@ describe(noDuplicateClasses.name, () => {
       ]
     });
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -521,7 +521,7 @@ describe(noDuplicateClasses.name, () => {
 
     lint(
       noDuplicateClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -568,7 +568,7 @@ describe(noDuplicateClasses.name, () => {
         c
     \`;`;
 
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -607,7 +607,7 @@ describe(noDuplicateClasses.name, () => {
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {
     lint(
       noDuplicateClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -637,7 +637,7 @@ describe(noDuplicateClasses.name, () => {
 
   // #81
   it("should not report duplicates for carriage return characters", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       valid: [
         {
           html: `<img class="  b  a \r\n c  \r\n  d  " />`,
@@ -650,7 +650,7 @@ describe(noDuplicateClasses.name, () => {
   });
 
   it("should not report duplicates for newline characters", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       valid: [
         {
           html: `<img class="  b  a \n c  \n  d  " />`,
@@ -663,7 +663,7 @@ describe(noDuplicateClasses.name, () => {
   });
 
   it("should report fixes with unchanged line endings", () => {
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img class="  b  a \r\n c  \r\n a d  " />`,
@@ -679,7 +679,7 @@ describe(noDuplicateClasses.name, () => {
         }
       ]
     });
-    lint(noDuplicateClasses, TEST_SYNTAXES, {
+    lint(noDuplicateClasses, {
       invalid: [
         {
           html: `<img class="  b  a \n c  \n a d  " />`,

@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
 
@@ -10,7 +10,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should not report on non-conflicting tailwind classes", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -28,7 +28,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should report on conflicting tailwind classes", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -48,7 +48,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should not report on different variants", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -66,7 +66,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should not report on the variants itself", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -84,7 +84,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should report on the same variants", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -104,7 +104,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should even report on classes if one of them has an important flag", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -124,7 +124,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should not report for css properties with an `undefined` value", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -143,7 +143,7 @@ describe.skipIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(noConfli
   it("should report errors when multiple properties apply the same styles", () => {
     lint(
       noConflictingClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {

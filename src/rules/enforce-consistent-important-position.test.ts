@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
@@ -11,7 +11,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should move the important modifier correct position`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -52,7 +52,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should handle classes with variants correctly`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -93,7 +93,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should handle multiple variants`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -134,7 +134,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should handle multiple classes with mixed important positions`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -175,7 +175,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should handle arbitrary values correctly`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -216,7 +216,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should not report errors for correctly positioned important modifiers`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -245,7 +245,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should not report errors for classes without important modifiers`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -274,7 +274,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(`should use "recommended" as default position when no option is provided in tailwind >= 4`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -300,7 +300,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)(`should use "legacy" as default position when no option is provided in tailwind <= 3`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -326,7 +326,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it(`should keep modifiers in the correct position when changing the important position`, () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -367,7 +367,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -426,7 +426,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
     lint(
       enforceConsistentImportantPosition,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {

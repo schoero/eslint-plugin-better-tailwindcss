@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
@@ -11,7 +11,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not report on shorthand classes", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -29,7 +29,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not report on classes that have no shorthand", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -47,7 +47,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should collapse multiple classes into their shorthand", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -72,7 +72,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not collapse classes if they have a different sign", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -90,7 +90,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should collapse many classes into their shorthand", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -115,7 +115,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not collapse differing classes into an otherwise valid shorthand", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -140,7 +140,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should work with variants", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -165,7 +165,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not report when one instance has a variant", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -183,7 +183,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not report when one instance has a different variant", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -201,7 +201,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should handle arbitrary values correctly", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -226,7 +226,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not collapse arbitrary values with different values", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -244,7 +244,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should handle complex variants correctly", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -269,7 +269,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not shorten mixed positive and negative values", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -294,7 +294,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not shorten mixed important and non important classes in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -312,7 +312,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not shorten mixed important and non important classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -330,7 +330,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should still shorten mixed starting and ending important classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -355,7 +355,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should keep important at the start if all classes have important at the start in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -380,7 +380,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should shorten when all classes are important in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -405,7 +405,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should shorten when all classes are important in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -430,7 +430,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes in tailwind <= 3", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -489,7 +489,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -544,7 +544,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not work if the shorthand class doesn't actually exist <= 3", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -562,7 +562,7 @@ describe(enforceShorthandClasses.name, () => {
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not work if the shorthand class doesn't actually exist in tailwind >= 4", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -580,7 +580,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should not add an additional class if the shorthand class is already present", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -605,7 +605,7 @@ describe(enforceShorthandClasses.name, () => {
   it("should shorten multiple variants separately", () => {
     lint(
       enforceShorthandClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {

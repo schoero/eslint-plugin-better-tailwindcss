@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
 
@@ -45,7 +45,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should not report valid classes", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         valid: [
           {
@@ -63,7 +63,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should fix replaceable deprecated classes", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -88,7 +88,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should warn for irreplaceable deprecated classes", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -108,7 +108,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should work with variants", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -133,7 +133,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the original value", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -172,7 +172,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the important modifier", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -211,7 +211,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the tailwindcss prefix", () => {
     lint(
       noDeprecatedClasses,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -271,7 +271,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
     if(hasFix){
       lint(
         noDeprecatedClasses,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {
@@ -294,7 +294,7 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
     } else {
       lint(
         noDeprecatedClasses,
-        TEST_SYNTAXES,
+
         {
           invalid: [
             {

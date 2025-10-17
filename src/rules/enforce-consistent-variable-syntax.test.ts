@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforce-consistent-variable-syntax.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
@@ -11,7 +11,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should not report on the preferred syntax in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         valid: [
           {
@@ -40,7 +39,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should not report on the preferred syntax in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         valid: [
           {
@@ -69,7 +67,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it("should convert shorthands to variables", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -110,7 +107,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should convert variables to parenthesized shorthands in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -136,7 +132,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should convert variables to arbitrary shorthands in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -162,7 +157,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should work when surrounded by underlines in arbitrary syntax in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -188,7 +182,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should work when surrounded by underlines in arbitrary syntax in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -214,7 +207,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should work with variants in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -255,7 +247,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should work with variants in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -296,7 +287,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should work with other classes in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -337,7 +327,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should work with other classes <= tailwind 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -378,7 +367,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should work with the important modifier in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -419,7 +407,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should work with the important modifier in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -460,7 +447,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should preserve fallback values in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -502,7 +488,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should preserve fallback values in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -543,7 +528,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should preserve css functions in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -584,7 +568,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should preserve css functions in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -625,7 +608,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should work with nested variables in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -666,7 +648,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should work with nested variables in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -707,7 +688,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should preserve the case sensitivity of the variable name in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -748,7 +728,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should preserve the case sensitivity of the variable name in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -789,7 +768,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should preserve allow special characters in variable names in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -830,7 +808,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major <= 3)("should preserve allow special characters in variable names in tailwind <= 3", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -881,7 +858,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
 
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -932,7 +908,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
 
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -973,7 +948,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it.runIf(getTailwindCSSVersion().major >= 4)("should convert arbitrary shorthands to parenthesized shorthands in tailwind >= 4", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -999,7 +973,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it("should not convert variable definitions", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         valid: [
           {
@@ -1037,7 +1010,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it("should not convert arbitrary variables in arbitrary classes", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         valid: [
           {
@@ -1057,7 +1029,6 @@ describe(enforceConsistentVariableSyntax.name, () => {
   it("should not convert if multiple variables are used in the same class", () => {
     lint(
       enforceConsistentVariableSyntax,
-      TEST_SYNTAXES,
       {
         valid: [
           {

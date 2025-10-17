@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
@@ -11,7 +11,7 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 describe("svelte", () => {
 
   it("should match attribute names via regex", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           svelte: `<img customAttribute="b a" />`,
@@ -26,7 +26,7 @@ describe("svelte", () => {
 
   // #42
   it("should work with shorthand attributes", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           svelte: `<script>let disabled = true;</script><img class="c b a" {disabled} />`,
@@ -46,7 +46,7 @@ describe("svelte", () => {
       d e f
     `;
 
-    lint(enforceConsistentLineWrapping, TEST_SYNTAXES, {
+    lint(enforceConsistentLineWrapping, {
       invalid: [
         {
           svelte: `<img class={true ? '${singleLine}' : '${singleLine}'} />`,
@@ -61,7 +61,7 @@ describe("svelte", () => {
 
   // #119
   it("should not report inside member expressions", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           svelte: `<img class={classes[" ignored "]} />`
@@ -72,7 +72,7 @@ describe("svelte", () => {
 
   // #211
   it("should still handle object values even when they are immediately index accessed", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           svelte: "<img class={{ key: '  a b c  '}['key']} />",
@@ -89,7 +89,7 @@ describe("svelte", () => {
 
   // #226
   it("should not match index accessed object keys", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           svelte: "<img class={{ '  a b c  ': '  d e f '}['  a b c  ']} />",

@@ -1,14 +1,14 @@
 import { describe, it } from "vitest";
 
 import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noRestrictedClasses.name, () => {
 
   it("should not report on unrestricted classes", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       valid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -22,7 +22,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -39,7 +39,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes matching a regex", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold container text-lg" />`,
@@ -56,7 +56,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes with variants", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold lg:container lg:text-lg" />`,
@@ -73,7 +73,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should report restricted classes containing reserved regex characters", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold *:container **:text-lg" />`,
@@ -90,7 +90,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should be possible to disallow the important modifier", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold text-lg!" />`,
@@ -107,7 +107,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should be possible to provide custom error messages", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold text-green-500 text-lg" />`,
@@ -126,7 +126,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should be possible to use matched groups in the error messages", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold text-green-500 text-lg" />`,
@@ -157,7 +157,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fix the classes when a fix is provided", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold bg-green-500 text-green-500 text-lg" />`,
@@ -188,7 +188,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fix only the class name when a variant is used", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold lg:text-green-500 text-lg" />`,
@@ -218,7 +218,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fix classes with multiple variants", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold lg:hover:text-green-500 text-lg" />`,
@@ -248,7 +248,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should match modifiers", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold lg:hover:text-green-500/50 text-lg" />`,
@@ -288,7 +288,7 @@ describe(noRestrictedClasses.name, () => {
       hover:text-success
     `;
 
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="${dirty}" />`,
@@ -319,7 +319,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should not report on classes with the same name but different variants", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       valid: [
         {
           angular: `<img class="font-bold text-green-500" />`,
@@ -340,7 +340,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should be possible to remove classes with a fix", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="font-bold text-green-500" />`,
@@ -370,7 +370,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should work with mixed string and object restrictions", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500 bg-red-500" />`,
@@ -400,7 +400,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fallback to empty string for invalid capture groups in messages", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500" />`,
@@ -424,7 +424,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fallback to empty string for invalid capture groups in fixes", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500" />`,
@@ -453,7 +453,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should report the first matching restrictions", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500" />`,
@@ -478,7 +478,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should work with restriction objects without fix and message", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500" />`,
@@ -499,7 +499,7 @@ describe(noRestrictedClasses.name, () => {
   });
 
   it("should fallback to the default message when empty", () => {
-    lint(noRestrictedClasses, TEST_SYNTAXES, {
+    lint(noRestrictedClasses, {
       invalid: [
         {
           angular: `<img class="text-green-500" />`,

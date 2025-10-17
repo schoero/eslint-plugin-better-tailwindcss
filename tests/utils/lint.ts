@@ -10,14 +10,13 @@ import eslintParserVue from "vue-eslint-parser";
 
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 
-import type { Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Context, ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
-export const TEST_SYNTAXES = {
+const TEST_SYNTAXES = {
   angular: {
     languageOptions: { parser: eslintParserAngular }
   },
@@ -38,9 +37,10 @@ export const TEST_SYNTAXES = {
   }
 } as const;
 
-export function lint<const Rule extends ESLintRule, Syntaxes extends Record<string, Linter.Config>>(
+type Syntaxes = typeof TEST_SYNTAXES;
+
+export function lint<const Rule extends ESLintRule>(
   eslintRule: Rule,
-  syntaxes: Syntaxes,
   tests: {
     invalid?: (
       {
@@ -76,9 +76,9 @@ export function lint<const Rule extends ESLintRule, Syntaxes extends Record<stri
       createTestFile(file, invalid.files![file]);
     }
 
-    for(const syntax of Object.keys(syntaxes)){
+    for(const syntax of Object.keys(TEST_SYNTAXES)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
 
       if(!invalid[syntax]){
         continue;
@@ -106,9 +106,9 @@ export function lint<const Rule extends ESLintRule, Syntaxes extends Record<stri
       createTestFile(file, valid.files![file]);
     }
 
-    for(const syntax of Object.keys(syntaxes)){
+    for(const syntax of Object.keys(TEST_SYNTAXES)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
 
       if(!valid[syntax]){
         continue;

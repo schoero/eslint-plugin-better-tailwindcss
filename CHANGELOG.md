@@ -35,6 +35,23 @@
 - ⚠️  The default for `enforce-consistent-important-position` is now always `recommended`. If you are on tailwindcss v3 need to manually set it to `legacy` to keep it working for tailwindcss v3.
 - ⚠️  Removed rule regex matchers
 
+## v3.7.10
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.9...v3.7.10)
+
+### Fixes
+
+- `enforce-shorthand-classes` to include horizontal and vertical cases for `rounded` classes ([#231](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/231))
+
+### Chore
+
+- Correct recommended rules to match implementation ([#229](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/229))
+
+### ❤️ Contributors
+
+- Andrew Kodkod ([@akodkod](https://github.com/akodkod))
+- 2754 ([@2754github](https://github.com/2754github))
+
 ## v3.7.9
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.8...v3.7.9)

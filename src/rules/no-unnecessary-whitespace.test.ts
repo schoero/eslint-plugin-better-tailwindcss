@@ -1,14 +1,14 @@
 import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
 
 
 describe(noUnnecessaryWhitespace.name, () => {
 
   it("should trim leading and trailing white space in literals", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="  b  a  " />`,
@@ -29,7 +29,7 @@ describe(noUnnecessaryWhitespace.name, () => {
   });
 
   it("should remove whitespace in empty strings", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="  " />`,
@@ -50,7 +50,7 @@ describe(noUnnecessaryWhitespace.name, () => {
   });
 
   it("should not report on empty strings", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           angular: `<img class="" />`,
@@ -69,7 +69,7 @@ describe(noUnnecessaryWhitespace.name, () => {
     `;
     const cleanEmptyMultilineString = "";
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="${dirtyEmptyMultilineString}" />`,
@@ -90,7 +90,7 @@ describe(noUnnecessaryWhitespace.name, () => {
   });
 
   it("should keep the quotes as they are", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="  b  a  " />`,
@@ -149,7 +149,7 @@ describe(noUnnecessaryWhitespace.name, () => {
   });
 
   it("should keep one whitespace around template elements", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`  b  a  \${"  c  "}  d  \`} />`,
@@ -177,7 +177,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       c
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="${dirty}" />`,
@@ -232,7 +232,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ${cleanExpression}
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtStart}\`} />`,
@@ -245,7 +245,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
@@ -258,7 +258,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
@@ -287,7 +287,7 @@ describe(noUnnecessaryWhitespace.name, () => {
     const dirtyExpressionAtEnd = `  a  ${dirtyExpression}  `;
     const cleanExpressionAtEnd = `a ${cleanExpression}`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtStartAtStart}\`} />`,
@@ -300,7 +300,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionBetween}\`} />`,
@@ -313,7 +313,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyExpressionAtEnd}\`} />`,
@@ -342,7 +342,7 @@ describe(noUnnecessaryWhitespace.name, () => {
     const dirtyStickyExpressionAtEnd = `  a${dirtyExpression}  `;
     const cleanStickyExpressionAtEnd = `a${cleanExpression}`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtStart}\`} />`,
@@ -355,7 +355,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionBetween}\`} />`,
@@ -368,7 +368,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
@@ -396,7 +396,7 @@ describe(noUnnecessaryWhitespace.name, () => {
 
     const cleanedSinglelineString = "d c b a";
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           angular: `<img class="${uncleanedMultilineString}" />`,
@@ -471,7 +471,7 @@ describe(noUnnecessaryWhitespace.name, () => {
     const cleanDefined = "defined('f e');";
     const dirtyUndefined = "notDefined(\"  f  e  \");";
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -496,7 +496,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       ]
     });
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -547,7 +547,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       j i
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirtyDefinedMultiline}\`} />`,
@@ -585,7 +585,7 @@ describe(noUnnecessaryWhitespace.name, () => {
       d c
     \`;`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirtyDefined,
@@ -624,7 +624,7 @@ describe(noUnnecessaryWhitespace.name, () => {
   it("should remove unnecessary whitespace in string literals in defined tagged template literals", () => {
     lint(
       noUnnecessaryWhitespace,
-      TEST_SYNTAXES,
+
       {
         invalid: [
           {
@@ -654,7 +654,7 @@ describe(noUnnecessaryWhitespace.name, () => {
 
   // #144
   it("should not remove the whitespace between two template literals", () => {
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       valid: [
         {
           angular: "<img class=\"{{`${'a'} ${'b'}`}}\" />",

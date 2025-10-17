@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { CTL_STRINGS } from "better-tailwindcss:options/callees/ctl.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("ctl", () => {
@@ -12,7 +12,7 @@ describe("ctl", () => {
     const dirty = `ctl(" lint ")`;
     const clean = `ctl("lint")`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,

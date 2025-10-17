@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe(enforceConsistentClassOrder.name, () => {
@@ -9,7 +9,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should sort simple class names in string literals by the defined order", () => {
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -92,7 +91,7 @@ describe(enforceConsistentClassOrder.name, () => {
   });
 
   it("should group all classes with the same variant together", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           angular: `<img class="hover:text-black focus:text-black dark:text-black focus:text-white hover:text-white dark:text-white" />`,
@@ -116,7 +115,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should keep the quotes as they are", () => {
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -178,7 +176,7 @@ describe(enforceConsistentClassOrder.name, () => {
   });
 
   it("should keep expressions as they are", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       valid: [
         {
           jsx: `() => <img class={true ? "b a" : "c b"} />`,
@@ -189,7 +187,7 @@ describe(enforceConsistentClassOrder.name, () => {
   });
 
   it("should keep expressions where they are", () => {
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           jsx: `() => <img class={\`c a \${true ? "e" : "f"} d b \`} />`,
@@ -217,7 +215,7 @@ describe(enforceConsistentClassOrder.name, () => {
     const dirty = `c b a${expression}f e d`;
     const clean = `b c a${expression}f d e`;
 
-    lint(enforceConsistentClassOrder, TEST_SYNTAXES, {
+    lint(enforceConsistentClassOrder, {
       invalid: [
         {
           jsx: `() => <img class={\`${dirty}\`} />`,
@@ -245,7 +243,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -320,7 +317,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -349,7 +345,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -406,7 +401,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -451,7 +445,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {
@@ -494,7 +487,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should sort simple class names in tagged template literals", () => {
     lint(
       enforceConsistentClassOrder,
-      TEST_SYNTAXES,
       {
         invalid: [
           {

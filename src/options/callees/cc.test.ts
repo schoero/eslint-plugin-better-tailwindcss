@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { CC_OBJECT_KEYS, CC_STRINGS } from "better-tailwindcss:options/callees/cc.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
-import { lint, TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
+import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("cc", () => {
@@ -12,7 +12,7 @@ describe("cc", () => {
     const dirty = `cc(" lint ", [" lint ", " lint "])`;
     const clean = `cc("lint", ["lint", "lint"])`;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,
@@ -45,7 +45,7 @@ describe("cc", () => {
       )
     `;
 
-    lint(noUnnecessaryWhitespace, TEST_SYNTAXES, {
+    lint(noUnnecessaryWhitespace, {
       invalid: [
         {
           jsx: dirty,

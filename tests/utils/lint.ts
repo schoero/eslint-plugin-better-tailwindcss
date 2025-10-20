@@ -9,6 +9,7 @@ import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
+import { clearCache } from "better-tailwindcss:utils/cache.js";
 
 import type { Node as ESNode } from "estree";
 
@@ -67,9 +68,11 @@ export function lint<const Rule extends ESLintRule>(
   }
 ) {
 
-  resetTestingDirectory();
 
   for(const invalid of tests.invalid ?? []){
+
+    resetTestingDirectory();
+    clearCache();
 
     for(const file in invalid.files ?? {}){
       invalid.settings ??= { "better-tailwindcss": {} };
@@ -97,9 +100,11 @@ export function lint<const Rule extends ESLintRule>(
     }
   }
 
-  resetTestingDirectory();
 
   for(const valid of tests.valid ?? []){
+
+    resetTestingDirectory();
+    clearCache();
 
     for(const file in valid.files ?? {}){
       valid.settings ??= { "better-tailwindcss": {} };

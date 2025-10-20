@@ -1,3 +1,4 @@
+import { enforceCanonicalClasses } from "better-tailwindcss:rules/enforce-canonical-classes.js";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
@@ -26,7 +27,8 @@ const rules = [
   noDuplicateClasses,
   noRestrictedClasses,
   noUnnecessaryWhitespace,
-  noUnknownClasses
+  noUnknownClasses,
+  enforceCanonicalClasses
 ];
 
 const plugin = {

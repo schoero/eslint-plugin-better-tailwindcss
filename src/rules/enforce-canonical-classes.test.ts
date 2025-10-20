@@ -2,9 +2,10 @@ import { describe, it } from "vitest";
 
 import { enforceCanonicalClasses } from "better-tailwindcss:rules/enforce-canonical-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 
 
-describe(enforceCanonicalClasses.name, () => {
+describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name, () => {
 
   it("should convert unnecessary arbitrary value to canonical class", () => {
     lint(enforceCanonicalClasses, {

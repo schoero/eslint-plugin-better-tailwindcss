@@ -49,4 +49,4 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
     });
   });
 
-}, 30_000);
+});

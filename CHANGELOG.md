@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.0.0-beta.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.2...v4.0.0-beta.3)
+
+### Features
+
+- New rule: `enforce-canonical-classes` ([#232](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/232))
+
 ## v4.0.0-beta.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.1...v4.0.0-beta.2)

@@ -1,6 +1,6 @@
 # better-tailwindcss/enforce-canonical-classes
 
-Implements the [canonical suggestions](https://github.com/tailwindlabs/tailwindcss-intellisense/pull/1475) from Tailwindcss `^4.1.15`.
+Implements the [canonical suggestions](https://github.com/tailwindlabs/tailwindcss/pull/19059) from Tailwindcss `^4.1.15`.
 A canonical class is a simpler representation of a less optimal way of writing the same class. This can be the case when arbitrary values or variants are used while a predefined value exists for example.
 
 > [!NOTE]

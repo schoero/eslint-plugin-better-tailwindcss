@@ -14,7 +14,9 @@ The following classes will be reported as deprecated:
 | `divide-opacity-*`        | Use opacity modifiers like `divide-black/50`  |
 | `ring-opacity-*`          | Use opacity modifiers like `ring-black/50`    |
 | `placeholder-opacity-*`   | Use opacity modifiers like `placeholder-black/50` |
+| `flex-shrink`             | `shrink`                                      |
 | `flex-shrink-*`           | `shrink-*`                                    |
+| `flex-grow`               | `grow`                                        |
 | `flex-grow-*`             | `grow-*`                                      |
 | `overflow-ellipsis`       | `text-ellipsis`                               |
 | `decoration-slice`        | `box-decoration-slice`                        |

@@ -105,7 +105,9 @@ const deprecations = [
       [/^ring-opacity-(.*)$/],
       [/^placeholder-opacity-(.*)$/],
 
+      [/^flex-shrink$/, "shrink"],
       [/^flex-shrink-(.*)$/, "shrink-$1"],
+      [/^flex-grow$/, "grow"],
       [/^flex-grow-(.*)$/, "grow-$1"],
 
       [/^overflow-ellipsis$/, "text-ellipsis"],

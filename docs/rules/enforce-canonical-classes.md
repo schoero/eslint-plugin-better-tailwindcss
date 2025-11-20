@@ -80,11 +80,11 @@ A canonical class is a simpler representation of a less optimal way of writing t
 ```
 
 ```tsx
-// ❌ BAD: using separate width and height classes
+// ❌ BAD: using unnecessary arbitrary data attribute variant
 <div class="data-[is-selected]:opacity-100" />;
 ```
 
 ```tsx
-// ✅ GOOD: using canonical size class
+// ✅ GOOD: using canonical data attribute variant
 <div class="data-is-selected:opacity-100" />;
 ```

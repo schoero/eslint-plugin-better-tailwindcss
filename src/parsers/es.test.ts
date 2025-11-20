@@ -2,6 +2,7 @@ import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 
 describe("es", () => {
@@ -60,6 +61,29 @@ describe("es", () => {
           errors: 2,
           options: [{
             attributes: ["^.*Styles$"]
+          }]
+        }
+      ]
+    });
+  });
+
+  // #234
+  it("should ignore literals in binary expressions", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `<img class={{ "bg-primary": category === " members " }} />`,
+          svelte: `<img class={{ "bg-primary": category === " members " }} />`,
+          vue: `<template><img :class="{ 'bg-primary': category === ' members ' }" /></template>`,
+
+          options: [{
+            attributes: [[
+              "^v-bind:class$",
+              [{ match: MatcherType.ObjectValue }]
+            ], [
+              "class",
+              [{ match: MatcherType.ObjectValue }]
+            ]]
           }]
         }
       ]

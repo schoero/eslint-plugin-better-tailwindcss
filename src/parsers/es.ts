@@ -5,6 +5,7 @@ import {
   isCalleeMatchers,
   isCalleeName,
   isCalleeRegex,
+  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -540,6 +541,7 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -561,6 +563,7 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node)){
@@ -585,6 +588,7 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

@@ -15,6 +15,7 @@ import {
   isAttributesMatchers,
   isAttributesName,
   isAttributesRegex,
+  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -211,6 +212,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -233,6 +235,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node)){
@@ -257,6 +260,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

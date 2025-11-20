@@ -192,8 +192,8 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
-            isInsideConditionalExpressionTest(node) ||
             isInsideBinaryExpression(node) ||
+            isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
 
@@ -214,7 +214,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
-            isInsideConditionalExpressionTest(node) ||
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node)){

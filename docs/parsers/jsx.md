@@ -62,7 +62,7 @@ export default [
 
     // enable all recommended rules
     "extends": [
-      "plugin:better-tailwindcss/legacy-recommended",
+      "plugin:better-tailwindcss/legacy-recommended"
     ],
 
     // override rules to configure them individually

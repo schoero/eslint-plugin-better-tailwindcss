@@ -63,7 +63,7 @@ export default [
     languageOptions: {
       parser: eslintParserAngular.templateParser
     }
-  },
+  }
 ];
 ```
 
@@ -106,7 +106,7 @@ export default [
       },
       {
         "files": ["**/*.html"],
-        "parser": "@angular-eslint/template-parser",
+        "parser": "@angular-eslint/template-parser"
       }
     ]
   }

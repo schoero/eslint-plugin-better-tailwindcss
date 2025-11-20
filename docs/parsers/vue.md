@@ -49,7 +49,7 @@ export default [
     languageOptions: {
       parser: eslintParserVue
     }
-    
+
   }
 ];
 ```

@@ -67,23 +67,20 @@ export const getTailwindConfigPath = ({ configPath, cwd, version }: GetTailwindC
 });
 
 function getConfigPathWarning(configPath: string | undefined, foundConfigPath: string | undefined): Warning | undefined {
-  if(!!configPath && !!foundConfigPath){
-    return;
+  if(configPath && !foundConfigPath){
+    return {
+      option: "tailwindConfig",
+      title: `No tailwind css config found at \`${configPath}\``
+    };
   }
-
-  return {
-    option: "tailwindConfig",
-    title: `No tailwind css config found at \`${configPath}\``
-  };
 }
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {
-  if(!!entryPoint && !!foundEntryPoint){
-    return;
+  // entryPoint must be explicitly set
+  if(!foundEntryPoint){
+    return {
+      option: "entryPoint",
+      title: `No tailwind css entry point found at \`${entryPoint}\``
+    };
   }
-
-  return {
-    option: "entryPoint",
-    title: `No tailwind css entry point found at \`${entryPoint}\``
-  };
 }

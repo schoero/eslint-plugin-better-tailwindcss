@@ -1,5 +1,20 @@
 # Changelog
 
+## v3.7.11
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.3...v3.7.11)
+
+### Fixes
+
+- Convert missing flex shrink and grow utilities ([#236](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/236))
+- Ignore literals in binary expressions ([#238](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/238))
+- Allow interpolations in normal svelte string literals ([#239](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/239))
+- Only show config warning when config is set and not found ([#240](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/240))
+
+### ❤️ Contributors
+
+- Akameco ([@akameco](https://github.com/akameco))
+
 ## v3.7.10
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.9...v3.7.10)

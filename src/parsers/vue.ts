@@ -14,6 +14,7 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
+  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -188,6 +189,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -209,6 +211,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node)){
@@ -233,6 +236,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

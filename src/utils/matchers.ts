@@ -116,6 +116,12 @@ export function isInsideConditionalExpressionTest(node: ESNode & Partial<Rule.No
   return isInsideConditionalExpressionTest(node.parent);
 }
 
+export function isInsideBinaryExpression(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+  if(!hasESNodeParentExtension(node)){ return false; }
+  if(node.parent.type === "BinaryExpression"){ return true; }
+  return isInsideBinaryExpression(node.parent);
+}
+
 export function isInsideLogicalExpressionLeft(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "LogicalExpression" && node.parent.left === node){ return true; }

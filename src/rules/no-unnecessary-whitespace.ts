@@ -94,13 +94,13 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         continue;
       }
 
-      // whitespace between template literal expression
+      // whitespace between interpolated literals
       if(
         !isFirstChunk && !isLastChunk ||
         (
-          literal.type === "TemplateLiteral" && literal.closingBraces && isFirstChunk && !isLastChunk ||
-          literal.type === "TemplateLiteral" && literal.openingBraces && isLastChunk && !isFirstChunk ||
-          literal.type === "TemplateLiteral" && literal.closingBraces && literal.openingBraces
+          literal.isInterpolated && literal.closingBraces && isFirstChunk && !isLastChunk ||
+          literal.isInterpolated && literal.openingBraces && isLastChunk && !isFirstChunk ||
+          literal.isInterpolated && literal.closingBraces && literal.openingBraces
         )
       ){
         if(whitespace.length <= 1){

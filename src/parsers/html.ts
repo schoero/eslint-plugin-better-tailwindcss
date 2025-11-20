@@ -48,6 +48,7 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
     ...quotes,
     content,
     indentation,
+    isInterpolated: false,
     loc: value.loc,
     range: [value.range[0] - 1, value.range[1] + 1], // include quotes in range
     raw,

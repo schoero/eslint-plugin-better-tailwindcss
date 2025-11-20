@@ -102,4 +102,23 @@ describe("svelte", () => {
     });
   });
 
+  // #237
+  it("should keep interpolations in normal string literals", () => {
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
+        {
+          svelte: `<img class="a b {someVar ? 'c' : 'd'} md:e" />`,
+          svelteOutput: `<img class="\n  a b\n  {someVar ? 'c' : 'd'}\n  md:e\n" />`,
+
+          errors: 2
+        }
+      ],
+      valid: [
+        {
+          svelte: `<img class="\n  flex\n  {disabled ? 'cursor-default' : 'cursor-pointer'}" />`
+        }
+      ]
+    });
+  });
+
 });

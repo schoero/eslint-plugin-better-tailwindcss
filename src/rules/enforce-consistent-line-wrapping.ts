@@ -138,11 +138,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       singlelineClasses.line.addMeta({ closingQuote: literal.closingQuote, openingQuote: literal.openingQuote });
     }
 
-    leadingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.closingBraces){
+    leadingTemplateLiteralNewLine: if(literal.isInterpolated && literal.closingBraces){
 
-      multilineClasses.line.addMeta({
-        closingBraces: literal.closingBraces
-      });
+      multilineClasses.line.addMeta({ closingBraces: literal.closingBraces });
 
       // skip newline for sticky classes
       if(literal.leadingWhitespace === "" && groupedClasses){
@@ -182,8 +180,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         }
 
         if(isFirstGroup && (
-          literal.type === "TemplateLiteral" && !literal.closingBraces ||
-          literal.type !== "TemplateLiteral"
+          literal.isInterpolated && !literal.closingBraces ||
+          !literal.isInterpolated
         )){
           multilineClasses.addLine();
           multilineClasses.line.indent();
@@ -216,8 +214,12 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
             .toString();
 
           // wrap after the first sticky class
-          if(isFirstClass && literal.leadingWhitespace === "" &&
-            literal.type === "TemplateLiteral" && literal.closingBraces){
+          if(
+            isFirstClass &&
+            literal.leadingWhitespace === "" &&
+            literal.isInterpolated &&
+            literal.closingBraces
+          ){
 
             multilineClasses.line.addClass(className);
 
@@ -239,8 +241,12 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
           }
 
           // wrap before the last sticky class
-          if(isLastClass && literal.trailingWhitespace === "" &&
-            literal.type === "TemplateLiteral" && literal.openingBraces){
+          if(
+            isLastClass &&
+            literal.trailingWhitespace === "" &&
+            literal.isInterpolated &&
+            literal.openingBraces
+          ){
 
             // skip wrapping for the first class of a group
             if(isFirstClass){
@@ -282,7 +288,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       }
     }
 
-    trailingTemplateLiteralNewLine: if(literal.type === "TemplateLiteral" && literal.openingBraces){
+    trailingTemplateLiteralNewLine: if(literal.isInterpolated && literal.openingBraces){
 
       // skip newline for sticky classes
       if(literal.trailingWhitespace === "" && groupedClasses){
@@ -334,8 +340,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         break collapse;
       }
 
-      // disallow collapsing for template literals with braces (expressions)
-      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
+      // disallow collapsing for interpolated literals
+      if(literal.isInterpolated && (literal.openingBraces || literal.closingBraces)){
         break collapse;
       }
 
@@ -351,11 +357,6 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
       // disallow collapsing if the single line including the element and all previous characters is longer than the printWidth
       if(literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0){
-        break collapse;
-      }
-
-      // disallow collapsing if the literal contains expressions
-      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
         break collapse;
       }
 
@@ -414,8 +415,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
         break skip;
       }
 
-      // disallow skipping for template literals with braces (expressions)
-      if(literal.type === "TemplateLiteral" && (literal.openingBraces || literal.closingBraces)){
+      // disallow skipping for interpolated literals
+      if(literal.isInterpolated && (literal.openingBraces || literal.closingBraces)){
         break skip;
       }
 

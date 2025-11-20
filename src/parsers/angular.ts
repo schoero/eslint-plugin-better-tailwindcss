@@ -370,6 +370,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
   }
 
   const braces = getBraces(literal);
+  const isInterpolated = getIsInterpolated(literal);
   const start = literal.sourceSpan.start - (braces.closingBraces?.length ?? 0);
   const end = literal.sourceSpan.end + (braces.openingBraces?.length ?? 0);
   const range = [start, end] satisfies [number, number];
@@ -394,6 +395,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
     ...braces,
     content,
     indentation,
+    isInterpolated,
     loc,
     multilineQuotes,
     range,
@@ -449,6 +451,11 @@ function getBraces(literal: TemplateLiteralElement): BracesMeta {
     closingBraces: index >= 1 ? "}" : undefined,
     openingBraces: index < parent.elements.length - 1 ? "${" : undefined
   };
+}
+
+function getIsInterpolated(literal: TemplateLiteralElement): boolean {
+  const braces = getBraces(literal);
+  return !!braces.closingBraces || !!braces.openingBraces;
 }
 
 function getAttributeName(node: TmplAstBoundAttribute | TmplAstTextAttribute): string {

@@ -82,9 +82,9 @@ export const enforceConsistentClassOrder = createRule({
 
       const fixedClasses = [
         literal.openingQuote ?? "",
-        literal.type === "TemplateLiteral" && literal.closingBraces ? literal.closingBraces : "",
+        literal.isInterpolated && literal.closingBraces ? literal.closingBraces : "",
         escapedClasses,
-        literal.type === "TemplateLiteral" && literal.openingBraces ? literal.openingBraces : "",
+        literal.isInterpolated && literal.openingBraces ? literal.openingBraces : "",
         literal.closingQuote ?? ""
       ].join("");
 

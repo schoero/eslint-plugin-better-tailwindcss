@@ -226,6 +226,7 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
     ...multilineQuotes,
     content,
     indentation,
+    isInterpolated: false,
     loc: node.loc,
     priorLiterals,
     range: node.range,
@@ -248,6 +249,7 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
 
   const quotes = getQuotes(raw);
   const braces = getBracesByString(ctx, raw);
+  const isInterpolated = getIsInterpolated(ctx, raw);
   const priorLiterals = findPriorLiterals(ctx, node);
   const content = getContent(raw, quotes, braces);
   const whitespaces = getWhitespace(content);
@@ -261,6 +263,7 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
     ...multilineQuotes,
     content,
     indentation,
+    isInterpolated,
     loc: node.loc,
     priorLiterals,
     range: node.range,
@@ -521,13 +524,18 @@ export function hasESNodeParentExtension(node: ESBaseNode): node is Rule.Node & 
 }
 
 function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
-  const closingBraces = raw.startsWith("}") ? "}" : undefined;
-  const openingBraces = raw.endsWith("${") ? "${" : undefined;
+  const closingBraces = raw.trim().startsWith("}") ? "}" : undefined;
+  const openingBraces = raw.trim().endsWith("${") ? "${" : undefined;
 
   return {
     closingBraces,
     openingBraces
   };
+}
+
+function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
+  const braces = getBracesByString(ctx, raw);
+  return !!braces.closingBraces || !!braces.openingBraces;
 }
 
 function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {

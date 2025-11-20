@@ -138,6 +138,10 @@ You can change the severity by adding a suffix to the config name:
   
 For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
   
+If you still use the old .eslintrc configuration format, you can prefix the config names with `legacy-`.
+
+For example, `legacy-recommended` or `legacy-correctness-warn`.
+
 The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 
 <br/>

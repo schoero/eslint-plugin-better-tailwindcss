@@ -81,17 +81,20 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
   }
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+    if(isAttributesRegex(attributes)){
+      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
+    }
+
     for(const value of attribute.value){
       if(isAttributesName(attributes)){
         if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-      } else if(isAttributesRegex(attributes)){
-        literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
       } else if(isAttributesMatchers(attributes)){
         if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
       }
     }
+
     return literals;
   }, []);
 

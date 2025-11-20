@@ -21,7 +21,9 @@ const testCases = [
   ["ring-opacity-70", undefined],
   ["placeholder-opacity-70", undefined],
 
+  ["flex-shrink", "shrink"],
   ["flex-shrink-1", "shrink-1"],
+  ["flex-grow", "grow"],
   ["flex-grow-1", "grow-1"],
 
   ["overflow-ellipsis", "text-ellipsis"],

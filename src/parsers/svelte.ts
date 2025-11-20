@@ -15,6 +15,7 @@ import {
   isAttributesMatchers,
   isAttributesName,
   isAttributesRegex,
+  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
@@ -45,7 +46,13 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
+import type {
+  BracesMeta,
+  Literal,
+  LiteralValueQuotes,
+  MultilineMeta,
+  StringLiteral
+} from "better-tailwindcss:types/ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
@@ -74,21 +81,19 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     return [];
   }
 
-  const [value] = attribute.value;
-
-  if(!value){ // empty attribute
-    return [];
-  }
-
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
-    if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-    } else if(isAttributesRegex(attributes)){
+    if(isAttributesRegex(attributes)){
       literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
-    } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
+    }
+
+    for(const value of attribute.value){
+      if(isAttributesName(attributes)){
+        if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
+      } else if(isAttributesMatchers(attributes)){
+        if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
+      }
     }
 
     return literals;
@@ -145,20 +150,24 @@ function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNod
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
 
   const raw = ctx.sourceCode.getText(node as unknown as ESNode, 1, 1);
-  const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
+  const braces = getBracesByString(ctx, raw);
+  const isInterpolated = getIsInterpolated(ctx, raw);
   const quotes = getQuotes(raw);
-  const content = getContent(raw, quotes);
+  const content = getContent(raw, quotes, braces);
   const whitespaces = getWhitespace(content);
+  const line = ctx.sourceCode.lines[isInterpolated ? node.parent.loc.start.line - 1 : node.loc.start.line - 1];
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
 
   return {
     ...whitespaces,
     ...quotes,
+    ...braces,
     ...multilineQuotes,
     content,
     indentation,
+    isInterpolated,
     loc: node.loc,
     range: [node.range[0] - 1, node.range[1] + 1], // include quotes in range
     raw,
@@ -166,6 +175,23 @@ function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: Svel
     type: "StringLiteral"
   };
 
+}
+
+function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
+  const closingBraces = raw.trim().startsWith("}") ? "}" : undefined;
+  const openingTemplateBraces = raw.trim().endsWith("${") ? "${" : undefined;
+  const openingBrace = raw.trim().endsWith("{") ? "{" : undefined;
+  const openingBraces = openingTemplateBraces ?? openingBrace;
+
+  return {
+    closingBraces,
+    openingBraces
+  };
+}
+
+function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
+  const braces = getBracesByString(ctx, raw);
+  return !!braces.closingBraces || !!braces.openingBraces;
 }
 
 function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | SvelteLiteral): MultilineMeta {
@@ -211,6 +237,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -233,6 +260,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node)){
@@ -257,6 +285,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
+            isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

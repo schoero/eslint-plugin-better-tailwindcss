@@ -49,6 +49,7 @@ interface NodeBase extends Range, Loc {
 interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
+  isInterpolated?: boolean;
   priorLiterals?: Literal[];
 }
 

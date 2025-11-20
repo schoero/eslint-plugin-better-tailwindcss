@@ -41,9 +41,6 @@ const plugin = {
   }, {})
 } satisfies ESLint.Plugin;
 
-const plugins = [plugin.meta.name];
-
-
 const getStylisticRules = (severity: Severity = "warn") => {
   return rules.reduce<Record<string, Severity>>((acc, { name, rule }) => {
     if(rule.meta?.type !== "layout"){
@@ -73,16 +70,35 @@ const createConfig = (
   }
 ) => {
   return {
+    [`legacy-${name}-error`]: {
+      plugins: [plugin.meta.name],
+      rules: getRulesFunction("error")
+    },
+    [`legacy-${name}-warn`]: {
+      plugins: [plugin.meta.name],
+      rules: getRulesFunction("warn")
+    },
+    [`legacy-${name}`]: {
+      plugins: [plugin.meta.name],
+      rules: getRulesFunction()
+    },
+
     [`${name}-error`]: {
-      plugins,
+      plugins: {
+        [plugin.meta.name]: plugin
+      },
       rules: getRulesFunction("error")
     },
     [`${name}-warn`]: {
-      plugins,
+      plugins: {
+        [plugin.meta.name]: plugin
+      },
       rules: getRulesFunction("warn")
     },
     [name]: {
-      plugins,
+      plugins: {
+        [plugin.meta.name]: plugin
+      },
       rules: getRulesFunction()
     }
   };

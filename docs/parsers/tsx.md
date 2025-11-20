@@ -1,14 +1,17 @@
 # TSX
 
-To use ESLint with TSX files, first install the [@typescript-eslint/parser](https://typescript-eslint.io/packages/parser). Then, configure ESLint to use this parser for TypeScript files.
-
-In addition, you need to enable `ecmaFeatures.jsx` in the parser options.
-
-To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+To use ESLint with TSX files, first install the [@typescript-eslint/parser](https://typescript-eslint.io/packages/parser).
 
 ```sh
 npm i -D @typescript-eslint/parser
 ```
+
+To lint Tailwind CSS classes in TSX files, ensure that:
+
+- The `@typescript-eslint/parser` is enabled for all TypeScript files.
+- `jsx` parsing is enabled.
+- The plugin is added to your configuration.
+- The `settings` object contains the correct Tailwind CSS configuration paths.
 
 <br/>
 
@@ -25,6 +28,25 @@ import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
+    // enable all recommended rules
+    ...eslintPluginBetterTailwindcss.configs.recommended,
+
+    // override rules to configure them individually
+    // rules: {
+    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
+    // },
+
+    settings: {
+      "better-tailwindcss": {
+        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+        entryPoint: "src/global.css",
+        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+        tailwindConfig: "tailwind.config.js"
+      }
+    }
+  },
+
+  {
     files: ["**/*.{ts,tsx,cts,mts}"],
     languageOptions: {
       parser: eslintParserTypeScript,
@@ -33,6 +55,7 @@ export default [
       }
     }
   },
+
   {
     files: ["**/*.{jsx,tsx}"],
     languageOptions: {
@@ -40,26 +63,6 @@ export default [
         ecmaFeatures: {
           jsx: true
         }
-      }
-    },
-    plugins: {
-      "better-tailwindcss": eslintPluginBetterTailwindcss
-    },
-    rules: {
-      // enable all recommended rules to report a warning
-      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
-      // enable all recommended rules to report an error
-      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
-
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
-    },
-    settings: {
-      "better-tailwindcss": {
-        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-        entryPoint: "src/global.css",
-        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        tailwindConfig: "tailwind.config.js"
       }
     }
   }
@@ -76,24 +79,16 @@ export default [
   ```jsonc
   // .eslintrc.json
   {
-    "parser": "@typescript-eslint/parser",
+    // enable all recommended rules
     "extends": [
-      // enable all recommended rules to report a warning
-      "plugin:better-tailwindcss/recommended-warn",
-      // enable all recommended rules to report an error
-      "plugin:better-tailwindcss/recommended-error"
+      "plugin:better-tailwindcss/legacy-recommended"
     ],
-    "parserOptions": {
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "ecmaVersion": "latest"
-    },
-    "plugins": ["better-tailwindcss"],
-    "rules": {
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
-    },
+    
+    // override rules to configure them individually
+    // "rules": {
+    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
+    // },
+
     "settings": {
       "better-tailwindcss": {
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
@@ -101,7 +96,17 @@ export default [
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
         "tailwindConfig": "tailwind.config.js"
       }
+    },
+
+    "parser": "@typescript-eslint/parser",
+
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": "latest"
     }
+
   }
   ```
 

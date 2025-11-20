@@ -2,9 +2,11 @@
 
 To use ESLint with Astro files, first install the [astro-eslint-parser](https://github.com/ota-meshi/astro-eslint-parser). Then, configure ESLint to use this parser for Astro files.
 
-To use TypeScript within Astro files, you can also install the [@typescript-eslint/parser](https://typescript-eslint.io/packages/parser) and configure it via the `parser` option in the `languageOptions` section of your ESLint configuration.
+To lint Tailwind CSS classes in Astro files, ensure that:
 
-To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+- The `astro-eslint-parser` is enabled.
+- The plugin is added to your configuration.
+- The `settings` object contains the correct Tailwind CSS configuration paths.
 
 <br/>
 
@@ -22,32 +24,30 @@ import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 export default [
   {
-    files: ["**/*.astro"],
-    languageOptions: {
-      parser: eslintParserAstro,
-      parserOptions: {
-        // optionally use TypeScript parser within for Astro files
-        parser: eslintParserTypeScript
-      }
-    },
-    plugins: {
-      "better-tailwindcss": eslintPluginBetterTailwindcss
-    },
-    rules: {
-      // enable all recommended rules to report a warning
-      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
-      // enable all recommended rules to report an error
-      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
+    // enable all recommended rules
+    ...eslintPluginBetterTailwindcss.configs.recommended,
 
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
-    },
+    // override rules to configure them individually
+    // rules: {
+    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
+    // },
+
     settings: {
       "better-tailwindcss": {
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         entryPoint: "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
         tailwindConfig: "tailwind.config.js"
+      }
+    },
+
+    files: ["**/*.astro"],
+
+    languageOptions: {
+      parser: eslintParserAstro,
+      parserOptions: {
+        // optionally use TypeScript parser within for Astro files
+        parser: eslintParserTypeScript
       }
     }
   }
@@ -64,22 +64,16 @@ export default [
   ```jsonc
   // .eslintrc.json
   {
+    // enable all recommended rules
     "extends": [
-      // enable all recommended rules to report a warning
-      "plugin:better-tailwindcss/recommended-warn",
-      // enable all recommended rules to report an error
-      "plugin:better-tailwindcss/recommended-error"
+      "plugin:better-tailwindcss/legacy-recommended"
     ],
-    "parser": "astro-eslint-parser",
-    "parserOptions": {
-      // optionally use TypeScript parser within for Astro files
-      "parser": "@typescript-eslint/parser"
-    },
-    "plugins": ["better-tailwindcss"],
-    "rules": {
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
-    },
+
+    // override rules to configure them individually
+    // "rules": {
+    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
+    // },
+
     "settings": {
       "better-tailwindcss": {
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
@@ -87,28 +81,16 @@ export default [
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
         "tailwindConfig": "tailwind.config.js"
       }
+    },
+
+    "parser": "astro-eslint-parser",
+
+    "parserOptions": {
+      // optionally use TypeScript parser within for Astro files
+      "parser": "@typescript-eslint/parser"
     }
+
   }
   ```
 
 </details>
-
-<br/>
-
-### Editor configuration
-
-#### VSCode
-
-To enable the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) to validate Astro files, add the following to your `.vscode/settings.json`:
-
-```jsonc
-{
-  // enable ESLint to validate Astro files
-  "eslint.validate": [/* ...other formats */, "astro"],
-
-  // enable ESLint to fix tailwind classes on save
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  }
-}
-```

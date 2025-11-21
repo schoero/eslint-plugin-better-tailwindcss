@@ -112,53 +112,6 @@ describe(enforceConsistentClassOrder.name, () => {
     });
   });
 
-  it("should group variants together in the `strict` sorting order", () => {
-    lint(enforceConsistentClassOrder, {
-      invalid: [
-        {
-          angular: `<img class="hover:text-black text-black hover:dark:text-black" />`,
-          angularOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
-          html: `<img class="hover:text-black text-black hover:dark:text-black" />`,
-          htmlOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
-          jsx: `() => <img class="hover:text-black text-black hover:dark:text-black" />`,
-          jsxOutput: `() => <img class="text-black hover:text-black hover:dark:text-black" />`,
-          svelte: `<img class="hover:text-black text-black hover:dark:text-black" />`,
-          svelteOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
-          vue: `<template><img class="hover:text-black text-black hover:dark:text-black" /></template>`,
-          vueOutput: `<template><img class="text-black hover:text-black hover:dark:text-black" /></template>`,
-
-          errors: 1
-        }
-      ]
-    });
-  });
-
-  it("should group arbitrary variants together in the `strict` sorting order", () => {
-    lint(enforceConsistentClassOrder, {
-      invalid: [
-        {
-          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black" />`,
-          jsxOutput: `<img class="text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
-
-          errors: 1
-        }
-      ]
-    });
-  });
-
-  it("should sort arbitrary variants last in the `strict` sorting order", () => {
-    lint(enforceConsistentClassOrder, {
-      invalid: [
-        {
-          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black md:dark:text-black md:text-black" />`,
-          jsxOutput: `<img class="text-black md:text-black md:dark:text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
-
-          errors: 1
-        }
-      ]
-    });
-  });
-
   it("should keep the quotes as they are", () => {
     lint(
       enforceConsistentClassOrder,
@@ -559,6 +512,57 @@ describe(enforceConsistentClassOrder.name, () => {
         ]
       }
     );
+  });
+
+
+  it("should group variants together in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          angularOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          html: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          htmlOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          jsx: `() => <img class="hover:text-black text-black hover:dark:text-black" />`,
+          jsxOutput: `() => <img class="text-black hover:text-black hover:dark:text-black" />`,
+          svelte: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          svelteOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          vue: `<template><img class="hover:text-black text-black hover:dark:text-black" /></template>`,
+          vueOutput: `<template><img class="text-black hover:text-black hover:dark:text-black" /></template>`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should group arbitrary variants together in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black" />`,
+          jsxOutput: `<img class="text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should sort arbitrary variants last in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black md:dark:text-black md:text-black" />`,
+          jsxOutput: `<img class="text-black md:text-black md:dark:text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
   });
 
 });

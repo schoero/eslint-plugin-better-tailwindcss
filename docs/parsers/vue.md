@@ -22,8 +22,8 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 // eslint.config.js
 
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import eslintParserVue from "vue-eslint-parser";
 import { defineConfig } from "eslint/config";
+import eslintParserVue from "vue-eslint-parser";
 
 export default defineConfig({
   // enable all recommended rules

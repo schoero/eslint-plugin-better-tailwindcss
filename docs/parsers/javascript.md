@@ -22,7 +22,7 @@ import { defineConfig } from "eslint/config";
 export default defineConfig({
   // enable all recommended rules
   extends: [
-    eslintPluginBetterTailwindcss.configs.recommended,
+    eslintPluginBetterTailwindcss.configs.recommended
   ],
 
   // if needed, override rules to configure them individually

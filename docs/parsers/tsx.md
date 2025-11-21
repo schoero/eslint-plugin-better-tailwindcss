@@ -23,14 +23,14 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 // eslint.config.js
 
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { parser as eslintParserTypeScript } from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import { parser as eslintParserTypeScript } from "typescript-eslint";
 
 export default defineConfig([
   {
     // enable all recommended rules
     extends: [
-      eslintPluginBetterTailwindcss.configs.recommended,
+      eslintPluginBetterTailwindcss.configs.recommended
     ],
 
     // if needed, override rules to configure them individually

@@ -24,8 +24,8 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 import eslintParserAstro from "astro-eslint-parser";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { parser as eslintParserTypeScript} from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import { parser as eslintParserTypeScript } from "typescript-eslint";
 
 export default defineConfig({
   // enable all recommended rules

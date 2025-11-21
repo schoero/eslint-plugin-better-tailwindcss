@@ -20,6 +20,7 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 ```js
 // eslint.config.js
+
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import { parser as eslintParserTypeScript } from "typescript-eslint";
 import { defineConfig } from "eslint/config";
@@ -79,6 +80,7 @@ export default defineConfig({
 
   ```jsonc
   // .eslintrc.json
+
   {
     // enable all recommended rules
     "extends": [

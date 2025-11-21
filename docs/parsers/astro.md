@@ -21,6 +21,7 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 ```js
 // eslint.config.js
+
 import eslintParserAstro from "astro-eslint-parser";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import { parser as eslintParserTypeScript} from "typescript-eslint";
@@ -64,7 +65,7 @@ export default defineConfig({
   <summary>Legacy config</summary>
 
   <br/>
-  
+
   To use ESLint with Astro files using the legacy config, first install the [astro-eslint-parser](https://github.com/ota-meshi/astro-eslint-parser) and optionally [@typescript-eslint/parser](https://typescript-eslint.io/getting-started/legacy-eslint-setup). Then, configure ESLint to use this parser for Astro files.
 
   ```sh
@@ -82,6 +83,7 @@ export default defineConfig({
 
   ```jsonc
   // .eslintrc.json
+
   {
     // enable all recommended rules
     "extends": [

@@ -3,12 +3,10 @@ const eslintPluginBetterTailwindcss = require("eslint-plugin-better-tailwindcss"
 
 
 module.exports = {
+  ...eslintPluginBetterTailwindcss.configs["stylistic-warn"],
+
   files: ["**/*.html"],
   languageOptions: {
     parser: eslintParserHTML
-  },
-  plugins: {
-    "better-tailwindcss": eslintPluginBetterTailwindcss
-  },
-  rules: eslintPluginBetterTailwindcss.configs["stylistic-warn"].rules
+  }
 };

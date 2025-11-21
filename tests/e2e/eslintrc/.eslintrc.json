@@ -1,0 +1,7 @@
+{
+  "extends": [
+    "plugin:better-tailwindcss/legacy-stylistic-warn"
+  ],
+
+  "parser": "@html-eslint/parser"
+}

@@ -10,7 +10,7 @@ npm i -D typescript-eslint
 
 To lint Tailwind CSS classes in TypeScript files, ensure that:
 
-- The `typescript-eslint` parser is installed and configured.
+- The `typescript-eslint` package is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
 

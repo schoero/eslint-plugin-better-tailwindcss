@@ -22,7 +22,7 @@ export default [
     // enable all recommended rules
     ...eslintPluginBetterTailwindcss.configs.recommended,
 
-    // override rules to configure them individually
+    // if needed, override rules to configure them individually
     // rules: {
     //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
     // },
@@ -54,7 +54,7 @@ export default [
       "plugin:better-tailwindcss/legacy-recommended"
     ],
 
-    // override rules to configure them individually
+    // if needed, override rules to configure them individually
     // "rules": {
     //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
     // },

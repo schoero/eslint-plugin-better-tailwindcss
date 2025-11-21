@@ -72,7 +72,7 @@ export default [
       "plugin:better-tailwindcss/legacy-recommended"
     ],
 
-    // override rules to configure them individually
+    // if needed, override rules to configure them individually
     // "rules": {
     //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
     // },

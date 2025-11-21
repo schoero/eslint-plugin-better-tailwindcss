@@ -1,22 +1,21 @@
 # Angular
 
-To use ESLint with Angular, install [Angular ESLint](https://github.com/angular-eslint/angular-eslint?tab=readme-ov-file#quick-start). You can follow the [flat config](https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_FLAT_CONFIG.md) or [legacy config](https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md) setup, which includes rules from the Angular ESLint package or you can add the parser directly by following the steps below.
+## Flat config
+
+To use ESLint with Angular, install [Angular ESLint](https://github.com/angular-eslint/angular-eslint?tab=readme-ov-file#quick-start) and [TypeScript ESLint](https://typescript-eslint.io/getting-started). You can follow the [flat config](https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_FLAT_CONFIG.md) setup, which includes rules from the Angular ESLint package or you can add the parser directly by following the steps below.
 
 ```sh
-npm i -D angular-eslint
+npm i -D angular-eslint typescript-eslint
 ```
 
 To lint Tailwind CSS classes in Angular files, ensure that:
 
-- The `angular-eslint` parser is enabled.
+- The `angular-eslint` package is installed and configured.
+- The `typescript-eslint` package is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
 
 <br/>
-
-## Usage
-
-### Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
 
@@ -25,11 +24,14 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 import eslintParserTypeScript from "@typescript-eslint/parser";
 import eslintParserAngular from "angular-eslint";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { defineConfig } from "eslint/config";
 
-export default [
+export default defineConfig([
   {
     // enable all recommended rules
-    ...eslintPluginBetterTailwindcss.configs.recommended,
+    extends: [
+      eslintPluginBetterTailwindcss.configs.recommended,
+    ],
 
     // if needed, override rules to configure them individually
     // rules: {
@@ -64,13 +66,28 @@ export default [
       parser: eslintParserAngular.templateParser
     }
   }
-];
+]);
 ```
 
 <br/>
 
 <details>
   <summary>Legacy config</summary>
+
+  <br/>
+  
+  To use ESLint with Angular using the legacy config, install [Angular ESLint](https://github.com/angular-eslint/angular-eslint?tab=readme-ov-file#quick-start) and [@typescript-eslint/parser](https://typescript-eslint.io/getting-started/legacy-eslint-setup). You can follow the [legacy config](https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_ESLINTRC.md) setup, which includes rules from the Angular ESLint package or you can add the parser directly by following the steps below.
+
+  ```sh
+  npm i -D angular-eslint @typescript-eslint/parser
+  ```
+
+  To lint Tailwind CSS classes in TypeScript files, ensure that:
+
+- The `angular-eslint` package is installed and configured.
+- The `@typescript-eslint/parser` is installed and configured.
+- The plugin is added to your configuration.
+- The `settings` object contains the correct Tailwind CSS configuration paths.
 
   <br/>
 

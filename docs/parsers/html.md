@@ -14,9 +14,7 @@ To lint Tailwind CSS classes in HTML files, ensure that:
 
 <br/>
 
-## Usage
-
-### Flat config
+## Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
 
@@ -24,34 +22,34 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 // eslint.config.js
 import eslintParserHTML from "@html-eslint/parser";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { defineConfig } from "eslint/config";
 
-export default [
-  {
-    // enable all recommended rules
-    ...eslintPluginBetterTailwindcss.configs.recommended,
+export default defineConfig({
+  // enable all recommended rules
+  extends: [
+    eslintPluginBetterTailwindcss.configs.recommended
+  ],
 
-    // if needed, override rules to configure them individually
-    // rules: {
-    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
-    // },
+  // if needed, override rules to configure them individually
+  // rules: {
+  //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
+  // },
 
-    settings: {
-      "better-tailwindcss": {
-        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-        entryPoint: "src/global.css",
-        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        tailwindConfig: "tailwind.config.js"
-      }
-    },
-
-    files: ["**/*.html"],
-
-    languageOptions: {
-      parser: eslintParserHTML
+  settings: {
+    "better-tailwindcss": {
+      // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+      entryPoint: "src/global.css",
+      // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+      tailwindConfig: "tailwind.config.js"
     }
+  },
 
+  files: ["**/*.html"],
+
+  languageOptions: {
+    parser: eslintParserHTML
   }
-];
+});
 ```
 
 <br/>

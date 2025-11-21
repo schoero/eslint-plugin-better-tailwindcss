@@ -8,7 +8,7 @@ npm i -D @html-eslint/parser
 
 To lint Tailwind CSS classes in HTML files, ensure that:
 
-- The `@html-eslint/parser` is enabled.
+- The `@html-eslint/parser` is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
 

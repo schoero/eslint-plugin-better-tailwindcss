@@ -73,43 +73,18 @@ npm i -D eslint-plugin-better-tailwindcss
 
 ## Quick start
 
-1. Follow the [parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
+Depending on the flavor you are using, you need to install and configure the corresponding parser:
 
-1. Configure the plugin to be able to read your tailwind configuration via [settings](docs/settings/settings.md) or for each [rule](#rules) separately.
-
-    ```jsonc
-    // eslint.config.js
-    {
-      //...
-      "settings": {
-        "better-tailwindcss": {
-          // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-          "entryPoint": "src/global.css",
-          // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-          "tailwindConfig": "tailwind.config.js"
-        }
-      }
-    }
-    ```
-
-1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
-
-<br/>
-<br/>
-
-### Parsers
-
-Depending on the flavor you are using, you may need to install and configure the corresponding parser:
-
-- [JSX (React, Solid.js, Qwik)](docs/parsers/jsx.md)
-- [TSX (React, Solid.js, Qwik) with TypeScript support](docs/parsers/tsx.md)
-- [Svelte](docs/parsers/svelte.md)
-- [Vue](docs/parsers/vue.md)
-- [Astro](docs/parsers/astro.md)
-- [Angular](docs/parsers/angular.md)
-- [HTML](docs/parsers/html.md)
-- [Plain JavaScript](docs/parsers/javascript.md)
-- [Plain TypeScript](docs/parsers/typescript.md)
+- React: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- SolidJS: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Qwik: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Svelte: [.svelte](docs/parsers/svelte.md)  
+- Vue: [.vue](docs/parsers/vue.md)  
+- Astro: [.astro](docs/parsers/astro.md)  
+- Angular: [.html, .ts](docs/parsers/angular.md)  
+- HTML: [.html](docs/parsers/html.md)  
+- JavaScript: [.js](docs/parsers/javascript.md)  
+- TypeScript: [.ts](docs/parsers/typescript.md)  
 
 <br/>
 <br/>

@@ -1,4 +1,3 @@
-
 {
   "extends": [
     "plugin:better-tailwindcss/legacy-stylistic-warn"

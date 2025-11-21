@@ -64,7 +64,7 @@ export default [
   ```jsonc
   // .eslintrc.json
   {
-    // enable allrecommended rules
+    // enable all recommended rules
     "extends": [
       "plugin:better-tailwindcss/legacy-recommended"
     ],

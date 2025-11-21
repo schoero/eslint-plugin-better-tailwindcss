@@ -10,11 +10,14 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 - `asc`: Sort classes alphabetically in ascending order.
 - `desc`: Sort classes alphabetically in descending order.
-- `official`: Sort classes according to the official sorting order from tailwindcss.
-- `improved`: Same as `official` but sorts variants more strictly.
+- `official`: Sort classes according to the official sorting order from tailwindcss based on semantics.
+- `strict`: Same as `official` but sorts variants more strictly:
+  - Classes that share the same base variants get grouped together.
+  - Classes with less variants come before classes with more variants.
+  - Classes with arbitrary variants come last.
 
-  **Type**: `"asc" | "desc" | "official" | "improved"`  
-  **Default**: `"improved"`
+  **Type**: `"asc" | "desc" | "official" | "strict"`  
+  **Default**: `"official"`
 
 <br/>
 

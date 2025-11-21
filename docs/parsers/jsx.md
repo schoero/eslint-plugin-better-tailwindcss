@@ -66,7 +66,7 @@ export default [
     ],
 
     // override rules to configure them individually
-    //  "rules": {
+    // "rules": {
     //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
     // },
 

@@ -24,13 +24,11 @@ import type { } from "better-tailwindcss:types/rule.js";
 
 export const JSX_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
   ...ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
-  "JSXAttribute",
   "JSXExpressionContainer"
 ];
 
 export const JSX_CONTAINER_TYPES_TO_INSERT_BRACES = [
-  ...ES_CONTAINER_TYPES_TO_INSERT_BRACES,
-  "JSXAttribute"
+  ...ES_CONTAINER_TYPES_TO_INSERT_BRACES
 ];
 
 

@@ -2,10 +2,10 @@ name: Documentation
 description: Improvements or additions to documentation
 labels: ["documentation"]
 body:
-  - type: textarea
-    id: documentation
-    attributes:
-      label: Documentation Issue
+  - attributes:
       description: Describe the documentation issue or improvement.
+      label: Documentation Issue
+    id: documentation
+    type: textarea
     validations:
       required: true

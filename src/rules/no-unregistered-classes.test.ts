@@ -418,6 +418,257 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore classes defined in imported files with layer(components) in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            // layer import via nested file
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            // layer import in nested file
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css" layer(components);
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore classes defined in imported files in nested components.custom layer in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css" layer(custom);
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                @layer custom {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                @layer components {
+                  @layer custom {
+                    .custom-component {
+                      @apply font-bold;
+                    }
+                  }
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not ignore custom classes from other layers in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "./components.css";
+
+                @layer custom {
+                  .custom-component {
+                    font-weight: bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "./components.css";
+
+                .custom-component {
+                  font-weight: bold;
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
     lint(
       noUnregisteredClasses,

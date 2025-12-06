@@ -176,7 +176,7 @@ function getCustomComponentClassRegexes(ctx: Rule.RuleContext): RegExp[] | undef
   const { customComponentClasses } = getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
   const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
-  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*):?${escapeForRegex(className)}$`));
+  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }
 
 export function getOptions(ctx: Rule.RuleContext) {

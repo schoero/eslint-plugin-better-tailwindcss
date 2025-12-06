@@ -761,11 +761,11 @@ describe(noUnregisteredClasses.name, () => {
         // immediate layer import
         invalid: [
           {
-            angular: `<img class="sm:custom-component sm:unregistered" />`,
-            html: `<img class="sm:custom-component sm:unregistered" />`,
-            jsx: `() => <img class="sm:custom-component sm:unregistered" />`,
-            svelte: `<img class="sm:custom-component sm:unregistered" />`,
-            vue: `<template><img class="sm:custom-component sm:unregistered" /></template>`,
+            angular: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            html: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            jsx: `() => <img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            svelte: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            vue: `<template><img class="sm:hover:custom-component sm:hover:unregistered" /></template>`,
 
             errors: 1,
 

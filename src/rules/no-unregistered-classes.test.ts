@@ -627,7 +627,7 @@ describe(noUnregisteredClasses.name, () => {
 
             files: {
               "tailwind.css": css`
-                @import "./components.css";
+                @import "tailwindcss";
 
                 @layer custom {
                   .custom-component {
@@ -652,7 +652,61 @@ describe(noUnregisteredClasses.name, () => {
 
             files: {
               "tailwind.css": css`
-                @import "./components.css";
+                @import "tailwindcss";
+
+                @layer custom {
+                  @layer components {
+                    .custom-component {
+                      font-weight: bold;
+                    }
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "./components.css": css`
+                @layer components {
+                  .custom-component {
+                    font-weight: bold;
+                  }
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(custom);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unregistered" />`,
+            html: `<img class="custom-component unregistered" />`,
+            jsx: `() => <img class="custom-component unregistered" />`,
+            svelte: `<img class="custom-component unregistered" />`,
+            vue: `<template><img class="custom-component unregistered" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
 
                 .custom-component {
                   font-weight: bold;

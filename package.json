@@ -86,8 +86,8 @@
     "tsconfig-paths-webpack-plugin": "^4.2.0"
   },
   "devDependencies": {
-    "@angular/compiler": "^21.0.3",
     "@angular-eslint/template-parser": "^21.0.1",
+    "@angular/compiler": "^21.0.3",
     "@html-eslint/parser": "^0.50.0",
     "@schoero/configs": "^1.5.20",
     "@types/estree-jsx": "^1.0.5",
@@ -101,6 +101,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-better-tailwindcss": "file:./",
     "eslint-plugin-eslint-plugin": "^7.2.0",
+    "glob": "^13.0.0",
     "json-schema": "^0.4.0",
     "markdownlint": "^0.40.0",
     "svelte": "^5.45.6",

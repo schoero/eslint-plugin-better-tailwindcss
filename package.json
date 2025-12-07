@@ -86,8 +86,8 @@
     "tsconfig-paths-webpack-plugin": "^4.2.0"
   },
   "devDependencies": {
-    "@angular-eslint/template-parser": "^21.0.1",
     "@angular/compiler": "^21.0.3",
+    "@angular-eslint/template-parser": "^21.0.1",
     "@html-eslint/parser": "^0.50.0",
     "@schoero/configs": "^1.5.20",
     "@types/estree-jsx": "^1.0.5",

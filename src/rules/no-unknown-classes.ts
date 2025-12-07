@@ -72,16 +72,14 @@ export const noUnknownClasses = createRule({
 
 function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]) {
 
-  const { detectComponentClasses, ignore } = ctx.options;
+  const { ignore } = ctx.options;
 
   const { prefix, suffix } = getPrefix(async(ctx));
 
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
-  const { customComponentClasses } = detectComponentClasses
-    ? getCustomComponentClasses(async(ctx))
-    : {};
+  const customComponentClassRegexes = getCustomComponentClassRegexes(ctx);
 
   for(const literal of literals){
 
@@ -101,7 +99,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
       if(
         ignore.some(ignoredClass => className.match(ignoredClass)) ||
-        customComponentClasses?.includes(className) ||
+        customComponentClassRegexes?.some(customComponentClassesRegex => className.match(customComponentClassesRegex)) ||
         className.match(ignoredGroups) ||
         className.match(ignoredPeers)
       ){
@@ -118,4 +116,17 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
     });
   }
+}
+
+function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>): RegExp[] | undefined {
+  const { detectComponentClasses } = ctx.options;
+
+  if(!detectComponentClasses){
+    return;
+  }
+
+  const { customComponentClasses } = getCustomComponentClasses(async(ctx));
+  const { prefix, suffix } = getPrefix(async(ctx));
+
+  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }

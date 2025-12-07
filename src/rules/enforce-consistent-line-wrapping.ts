@@ -86,6 +86,13 @@ export const enforceConsistentLineWrapping = createRule({
 
       false
     ),
+    prettierCompatibility: optional(
+      pipe(
+        boolean(),
+        description("Enable this option if prettier is used in your project.")
+      ),
+      false
+    ),
     printWidth: optional(
       pipe(
         number(),
@@ -105,7 +112,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, preferSingleLine, printWidth } = ctx.options;
+  const { classesPerLine, group: groupSeparator, preferSingleLine, prettierCompatibility, printWidth } = ctx.options;
 
   const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
@@ -117,12 +124,13 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const lineStartPosition = literal.indentation + getIndentation(ctx);
     const literalStartPosition = literal.loc.start.column;
-
-    const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
+    const prettierStartPosition = lineStartPosition + (literal.attribute?.length ?? 0) + 1;
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
+
+    const classChunks = splitClasses(literal.content);
+    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
 
     if(literal.openingQuote){
       if(literal.multilineQuotes?.includes("`")){
@@ -393,6 +401,11 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       ) ||
       printWidth === 0 && classesPerLine === 0
     ){
+      continue;
+    }
+
+    // force skip if prettier would wrap the attribute to a new line and then the single line would fit
+    if(prettierCompatibility && prettierStartPosition + singlelineClasses.line.length <= printWidth && printWidth !== 0){
       continue;
     }
 

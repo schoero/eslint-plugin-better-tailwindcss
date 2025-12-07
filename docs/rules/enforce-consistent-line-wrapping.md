@@ -59,6 +59,16 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
   **Type**: `"windows" | "unix"`  
   **Default**: `"unix"`
 
+<br />
+
+### `prettierCompatibility`
+
+  Enable this option if Prettier is used in your project.  
+  When set to `true`, the rule will be less strict about the printWidth to avoid [conflicts with Prettier's formatting](https://github.com/schoero/eslint-plugin-better-tailwindcss/issues/243).
+
+  **Type**: `boolean`  
+  **Default**: `false`
+
 <br/>
 
 <details>

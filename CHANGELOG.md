@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.0.0-beta.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.4...v4.0.0-beta.5)
+
+### Features
+
+- **no-unknown-classes:** Support `@import layer(components)` ([#257](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/257))
+
+### Fixes
+
+- Wrong documentation url ([#255](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/255))
+- Ignore variants in custom component classes ([#258](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/258))
+- Angular line wrapping ([#259](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/259))
+
+### ❤️ Contributors
+
+- Carlos Marques <karkosyk@gmail.com>
+
 ## v4.0.0-beta.4
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.3...v4.0.0-beta.4)

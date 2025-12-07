@@ -115,19 +115,16 @@ function initialize() {
 function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
   const getPrefix = createGetPrefix();
-  const getCustomComponentClasses = createGetCustomComponentClasses();
   const getUnregisteredClasses = createGetUnregisteredClasses();
 
-  const { detectComponentClasses, ignore, tailwindConfig, tsconfig } = getOptions(ctx);
+  const { ignore, tailwindConfig, tsconfig } = getOptions(ctx);
 
   const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
 
   const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
   const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
-  const { customComponentClasses } = detectComponentClasses
-    ? getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig })
-    : {};
+  const customComponentClassRegexes = getCustomComponentClassRegexes(ctx);
 
   for(const literal of literals){
 
@@ -147,7 +144,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       if(
         ignore.some(ignoredClass => className.match(ignoredClass)) ||
-        customComponentClasses?.includes(className) ||
+        customComponentClassRegexes?.some(customComponentClassesRegex => className.match(customComponentClassesRegex)) ||
         className.match(ignoredGroups) ||
         className.match(ignoredPeers)
       ){
@@ -164,6 +161,22 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     });
   }
+}
+
+function getCustomComponentClassRegexes(ctx: Rule.RuleContext): RegExp[] | undefined {
+  const { detectComponentClasses, tailwindConfig, tsconfig } = getOptions(ctx);
+
+  if(!detectComponentClasses){
+    return;
+  }
+
+  const getCustomComponentClasses = createGetCustomComponentClasses();
+  const getPrefix = createGetPrefix();
+
+  const { customComponentClasses } = getCustomComponentClasses({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+
+  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }
 
 export function getOptions(ctx: Rule.RuleContext) {

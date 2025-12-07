@@ -754,6 +754,103 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support variants in custom component classes in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            html: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            jsx: `() => <img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            svelte: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
+            vue: `<template><img class="sm:hover:custom-component sm:hover:unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
+            html: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
+            jsx: `() => <img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
+            svelte: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
+            vue: `<template><img class="[&[open]]:custom-component [&[open]]:unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support prefixes in custom component classes in tailwind >= 4", () => {
+    lint(
+      noUnregisteredClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="tw:md:custom-component tw:md:unregistered" />`,
+            html: `<img class="tw:md:custom-component tw:md:unregistered" />`,
+            jsx: `() => <img class="tw:md:custom-component tw:md:unregistered" />`,
+            svelte: `<img class="tw:md:custom-component tw:md:unregistered" />`,
+            vue: `<template><img class="tw:md:custom-component tw:md:unregistered" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
     lint(
       noUnregisteredClasses,

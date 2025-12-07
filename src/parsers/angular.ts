@@ -37,7 +37,7 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { BracesMeta, Literal, LiteralValueQuotes } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, Literal } from "better-tailwindcss:types/ast.js";
 import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
@@ -313,8 +313,7 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
   const loc = convertParseSourceSpanToLoc(attribute.valueSpan);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
-  const supportsMultiline = getMultilineSupport(ctx);
-  const multilineQuotes: LiteralValueQuotes[] = ["'", "\""];
+  const supportsMultiline = true;
 
   return [{
     ...quotes,
@@ -322,7 +321,6 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
     content,
     indentation,
     loc,
-    multilineQuotes,
     range,
     raw,
     supportsMultiline,
@@ -346,8 +344,7 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
-  const supportsMultiline = getMultilineSupport(ctx);
-  const multilineQuotes: LiteralValueQuotes[] = supportsMultiline ? ["'", "\"", "`"] : ["'", "\""];
+  const supportsMultiline = true;
 
   return [{
     ...quotes,
@@ -355,7 +352,6 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
     content,
     indentation,
     loc,
-    multilineQuotes,
     range,
     raw,
     supportsMultiline,
@@ -387,8 +383,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
   const parentLoc = getLocByRange(ctx, parentRange);
   const parentLine = ctx.sourceCode.lines[parentLoc.start.line - 1];
   const indentation = getIndentation(parentLine);
-  const supportsMultiline = getMultilineSupport(ctx);
-  const multilineQuotes: LiteralValueQuotes[] = supportsMultiline ? ["'", "\"", "`"] : ["'", "\""];
+  const supportsMultiline = true;
 
   return [{
     ...quotes,
@@ -398,7 +393,6 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
     indentation,
     isInterpolated,
     loc,
-    multilineQuotes,
     range,
     raw,
     supportsMultiline,
@@ -428,10 +422,6 @@ function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocatio
       line: sourceSpan.fullStart.line + 1
     }
   };
-}
-
-function getMultilineSupport(ctx: Rule.RuleContext) {
-  return !isInsideInlineTemplate(ctx);
 }
 
 function isInsideInlineTemplate(ctx: Rule.RuleContext) {

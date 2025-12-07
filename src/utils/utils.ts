@@ -143,7 +143,7 @@ export function createObjectPathElement(path?: string): string {
 }
 
 export interface GenericNodeWithParent {
-  parent: GenericNodeWithParent;
+  parent: Partial<GenericNodeWithParent>;
 }
 
 export function isGenericNodeWithParent(node: unknown): node is GenericNodeWithParent {

@@ -25,6 +25,7 @@ import {
   getIndentation,
   getQuotes,
   getWhitespace,
+  isGenericNodeWithParent,
   matchesName
 } from "better-tailwindcss:utils/utils.js";
 
@@ -52,6 +53,7 @@ import type {
   StringLiteral,
   TemplateLiteral
 } from "better-tailwindcss:types/ast.js";
+import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
   Callees,
   Matcher,
@@ -305,7 +307,7 @@ export function getLiteralsByESTemplateLiteral(ctx: Rule.RuleContext, node: ESTe
   }).filter((literal): literal is TemplateLiteral => literal !== undefined);
 }
 
-export function findParentESTemplateLiteralByESTemplateElement(node: ESNode & Partial<Rule.NodeParentExtension>): ESTemplateLiteral | undefined {
+export function findParentESTemplateLiteralByESTemplateElement(node: WithParent<ESNode>): ESTemplateLiteral | undefined {
   if(!hasESNodeParentExtension(node)){ return; }
   if(node.parent.type === "TemplateLiteral"){ return node.parent; }
   return findParentESTemplateLiteralByESTemplateElement(node.parent);
@@ -371,8 +373,9 @@ function findPriorLiterals(ctx: Rule.RuleContext, node: ESNode) {
 
 }
 
-export function getESObjectPath(node: ESNode & Partial<Rule.NodeParentExtension>): string | undefined {
+export function getESObjectPath(node: WithParent<ESNode>): string | undefined {
 
+  if(!isGenericNodeWithParent(node)){ return; }
   if(!hasESNodeParentExtension(node)){ return; }
 
   if(
@@ -446,7 +449,7 @@ export function isESObjectKey(node: ESBaseNode & Rule.NodeParentExtension) {
   );
 }
 
-export function isInsideObjectValue(node: ESBaseNode & Partial<Rule.NodeParentExtension>) {
+export function isInsideObjectValue(node: WithParent<ESNode>) {
   if(!hasESNodeParentExtension(node)){ return false; }
 
   // #34 allow call expressions as object values

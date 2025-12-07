@@ -10,6 +10,7 @@ import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 import type { Rule } from "eslint";
 import type { Node as ESNode } from "estree";
 
+import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
   AttributeMatchers,
   AttributeName,
@@ -65,7 +66,7 @@ function findMatchingNestedNodes<Node>(
   }, []);
 }
 
-export function findMatchingParentNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions<Node>): Node[] {
+export function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matcherFunctions: MatcherFunctions<Node>): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
   if(nodeMatches(node.parent, matcherFunctions)){
@@ -82,7 +83,7 @@ function nodeMatches<Node>(node: unknown, matcherFunctions: MatcherFunctions<Nod
   return false;
 }
 
-function isChildNodeOfNode(node: ESNode & Partial<Rule.NodeParentExtension>, parent: ESNode): boolean {
+function isChildNodeOfNode(node: WithParent<ESNode>, parent: ESNode): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent === parent){ return true; }
   return isChildNodeOfNode(node.parent, parent);
@@ -140,25 +141,25 @@ export function isAttributesMatchers(attributes: Attributes[number]): attributes
   return Array.isArray(attributes) && typeof attributes[0] === "string" && Array.isArray(attributes[1]);
 }
 
-export function isInsideConditionalExpressionTest(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+export function isInsideConditionalExpressionTest(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "ConditionalExpression" && node.parent.test === node){ return true; }
   return isInsideConditionalExpressionTest(node.parent);
 }
 
-export function isInsideBinaryExpression(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+export function isInsideBinaryExpression(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "BinaryExpression"){ return true; }
   return isInsideBinaryExpression(node.parent);
 }
 
-export function isInsideLogicalExpressionLeft(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+export function isInsideLogicalExpressionLeft(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "LogicalExpression" && node.parent.left === node){ return true; }
   return isInsideLogicalExpressionLeft(node.parent);
 }
 
-export function isInsideMemberExpression(node: ESNode & Partial<Rule.NodeParentExtension>): boolean {
+export function isInsideMemberExpression(node: WithParent<ESNode>): boolean {
   // aka indexed access: https://github.com/estree/estree/blob/master/es5.md#memberexpression
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "MemberExpression"){ return true; }

@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.0.0-beta.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.4...v4.0.0-beta.5)
+
+### Features
+
+- **no-unknown-classes:** Support `@import layer(components)` ([#257](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/257))
+
+### Fixes
+
+- Wrong documentation url ([#255](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/255))
+- Ignore variants in custom component classes ([#258](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/258))
+- Angular line wrapping ([#259](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/259))
+
+### ❤️ Contributors
+
+- Carlos Marques <karkosyk@gmail.com>
+
 ## v4.0.0-beta.4
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.3...v4.0.0-beta.4)
@@ -56,6 +74,24 @@
 - ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
 - ⚠️  The default for `enforce-consistent-important-position` is now always `recommended`. If you are on tailwindcss v3 need to manually set it to `legacy` to keep it working for tailwindcss v3.
 - ⚠️  Removed rule regex matchers
+
+## v3.8.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.11...v3.8.0)
+
+### Features
+
+- **no-unregistered-classes:** Support `@import layer(components)` ([#257](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/257))
+
+### Fixes
+
+- Wrong documentation url ([#255](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/255))
+- Ignore variants in custom component classes ([#258](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/258))
+- Angular line wrapping ([#259](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/259))
+
+### ❤️ Contributors
+
+- Carlos Marques <karkosyk@gmail.com>
 
 ## v3.7.11
 

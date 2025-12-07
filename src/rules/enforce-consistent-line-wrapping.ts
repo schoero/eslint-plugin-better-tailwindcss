@@ -30,7 +30,7 @@ export const enforceConsistentLineWrapping = createRule({
   autofix: true,
   category: "stylistic",
   description: "Enforce consistent line wrapping for tailwind classes.",
-  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/multiline.md",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-line-wrapping.md",
   name: "enforce-consistent-line-wrapping",
   recommended: true,
 

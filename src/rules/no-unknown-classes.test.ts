@@ -405,6 +405,311 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore classes defined in imported files with layer(components) in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            // layer import via nested file
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            // layer import in nested file
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css" layer(components);
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore classes defined in imported files in nested components.custom layer in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                .custom-component {
+                  @apply font-bold;
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css" layer(custom);
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                @layer custom {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "nested/dir/components.css": css`
+                @layer components {
+                  @layer custom {
+                    .custom-component {
+                      @apply font-bold;
+                    }
+                  }
+                }
+              `,
+              "nested/import.css": css`
+                @import "./dir/components.css";
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./nested/import.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not ignore custom classes from other layers in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer custom {
+                  .custom-component {
+                    font-weight: bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                @layer custom {
+                  @layer components {
+                    .custom-component {
+                      font-weight: bold;
+                    }
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "./components.css": css`
+                @layer components {
+                  .custom-component {
+                    font-weight: bold;
+                  }
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(custom);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
+
+            errors: 2,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+
+                .custom-component {
+                  font-weight: bold;
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindCSSVersion().major >= 4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
     lint(
       noUnknownClasses,
@@ -423,6 +728,103 @@ describe(noUnknownClasses.name, () => {
               "tailwind.css": css`
                 @import "tailwindcss";
                 @import "./does-not-exist.css";
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support variants in custom component classes in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            html: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            jsx: `() => <img class="sm:hover:custom-component sm:hover:unknown" />`,
+            svelte: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            vue: `<template><img class="sm:hover:custom-component sm:hover:unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            html: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            jsx: `() => <img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            svelte: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            vue: `<template><img class="[&[open]]:custom-component [&[open]]:unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "./components.css" layer(components);
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support prefixes in custom component classes in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        // immediate layer import
+        invalid: [
+          {
+            angular: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            html: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            jsx: `() => <img class="tw:md:custom-component tw:md:unknown" />`,
+            svelte: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            vue: `<template><img class="tw:md:custom-component tw:md:unknown" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "components.css": css`
+                .custom-component {
+                  font-weight: bold;
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+                @import "./components.css" layer(components);
               `
             },
             options: [{

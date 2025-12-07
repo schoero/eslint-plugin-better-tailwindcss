@@ -1,0 +1,97 @@
+name: Bug Report
+description: Create a report
+labels: ["bug"]
+body:
+  - attributes:
+      description: A clear and concise description of what the bug is.
+      label: Description
+      placeholder: Describe the bug here...
+    id: description
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: Which framework/flavor are you using?
+      label: Flavor
+      options:
+        - JSX
+        - TSX
+        - Svelte
+        - Vue
+        - Astro
+        - Angular
+        - HTML
+        - JavaScript
+        - TypeScript
+    id: flavor
+    type: dropdown
+    validations:
+      required: true
+  - attributes:
+      description: The code that triggers the bug.
+      label: Code Input
+      placeholder: |
+        // Code snippet
+      render: tsx
+    id: code-input
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: What you expected to happen.
+      label: Expected Behavior
+      placeholder: |
+        // Expected output
+      render: tsx
+    id: expected-behavior
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: What actually happened.
+      label: Actual Behavior
+      placeholder: |
+        // Actual output
+      render: tsx
+    id: actual-behavior
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: Link to a reproduction (e.g. StackBlitz, CodeSandbox, GitHub repo).
+      label: Reproduction URL
+      placeholder: https://...
+    id: reproduction-url
+    type: input
+    validations:
+      required: false
+  - attributes:
+      description: Please paste the output of `npx eslint ./path/to/file` here.
+      label: ESLint Log
+      placeholder: |
+        // ESLint log output
+      render: shell
+    id: eslint-log
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: The relevant parts of your ESLint config
+      label: ESLint Config
+      render: typescript
+    id: eslint-config
+    type: textarea
+    validations:
+      required: true
+  - attributes:
+      description: Please list the versions of the tools you are using.
+      label: Versions
+      value: |
+        - ESLint: 
+        - Parser: 
+        - Plugin: 
+        - Node: 
+    id: versions
+    type: textarea
+    validations:
+      required: true

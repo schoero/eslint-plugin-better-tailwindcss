@@ -13,29 +13,35 @@ import type { CssNode } from "@eslint/css-tree";
 import type { AsyncContext } from "../utils/context.js";
 
 
+interface ImportInfo {
+  path: string;
+  layer?: string;
+}
+
 interface CssFile {
   ast: CssNode;
-  imports: string[];
+  imports: ImportInfo[];
 }
 
 interface CssFiles {
   [resolvedPath: string]: CssFile;
 }
 
-const { findAll, generate, parse } = fork(tailwind4);
+const { findAll, generate, parse, walk } = fork(tailwind4);
 
 
 runAsWorker(async ctx => {
   const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
 
+  if(!resolvedPath){
+    return [];
+  }
+
   const files = await parseCssFilesDeep(ctx, resolvedPath);
 
-  const utilities = Object.values(files).reduce<string[]>((customComponentClasses, { ast }) => {
-    customComponentClasses.push(...getCustomComponentUtilities(ast));
-    return customComponentClasses;
-  }, []);
+  const customComponentClasses = getCustomComponentUtilities(files, resolvedPath);
 
-  return { customComponentClasses: utilities, warnings: ctx.warnings };
+  return { customComponentClasses, warnings: ctx.warnings };
 });
 
 async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
@@ -49,8 +55,8 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promi
 
   cssFiles[resolvedPath] = cssFile;
 
-  for(const importPath of cssFile.imports){
-    const importedFiles = await parseCssFilesDeep(ctx, importPath);
+  for(const { path } of cssFile.imports){
+    const importedFiles = await parseCssFilesDeep(ctx, path);
 
     for(const importedFile in importedFiles){
       cssFiles[importedFile] = importedFiles[importedFile];
@@ -68,24 +74,28 @@ const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<Cs
       node.name === "import" &&
       node.prelude?.type === "AtrulePrelude");
 
-    const imports = importNodes.reduce<string[]>((imports, importNode) => {
+    const imports = importNodes.reduce<ImportInfo[]>((imports, importNode) => {
       if(importNode.type !== "Atrule" || !importNode.prelude){
         return imports;
       }
 
-      const importStatement = generate(importNode.prelude).match(/["'](?<importPath>[^"']+)["']/);
+      const prelude = generate(importNode.prelude);
+      const importStatement = prelude.match(/["'](?<importPath>[^"']+)["'](?<rest>.*)/);
 
       if(!importStatement){
         return imports;
       }
 
-      const { importPath } = importStatement.groups || {};
+      const { importPath, rest } = importStatement.groups || {};
+
+      const layerMatch = rest?.match(/layer(?:\((?<layerName>[^)]+)\))?/);
+      const layer = layerMatch ? layerMatch.groups?.layerName || "anonymous" : undefined;
 
       const cwd = dirname(resolvedPath);
       const resolvedImportPath = resolveCss(ctx, importPath, cwd);
 
       if(resolvedImportPath){
-        imports.push(resolvedImportPath);
+        imports.push({ layer, path: resolvedImportPath });
       }
 
       return imports;
@@ -99,32 +109,49 @@ const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<Cs
   } catch {}
 });
 
+function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = []): string[] {
+  const classes = new Set<string>();
+  const file = files[filePath];
 
-function getCustomComponentUtilities(ast: CssNode) {
-  const customComponentUtilities: string[] = [];
+  if(!file){
+    return [];
+  }
 
-  const componentLayers = findAll(ast, node => {
-    return node.type === "Atrule" &&
-      node.name === "layer" &&
-      node.prelude?.type === "AtrulePrelude" &&
-      generate(node.prelude).trim() === "components";
-  });
+  for(const { layer, path } of file.imports){
+    const nextLayer = [...currentLayer];
 
-  for(const layer of componentLayers){
-    const classSelectors = findAll(layer, node => node.type === "ClassSelector");
+    if(layer){
+      nextLayer.push(layer);
+    }
 
-    for(const classNode of classSelectors){
-      if(classNode.type !== "ClassSelector"){
-        continue;
-      }
+    const importedClasses = getCustomComponentUtilities(files, path, nextLayer);
 
-      if(customComponentUtilities.includes(classNode.name)){
-        continue;
-      }
-
-      customComponentUtilities.push(classNode.name);
+    for(const importedClass of importedClasses){
+      classes.add(importedClass);
     }
   }
 
-  return customComponentUtilities;
+  const localLayers: string[] = [];
+
+  walk(file.ast, {
+    enter: (node: CssNode) => {
+      if(node.type === "Atrule" && node.name === "layer" && node.prelude?.type === "AtrulePrelude" && node.block){
+        const layerName = generate(node.prelude).trim();
+        localLayers.push(layerName);
+      }
+
+      if(node.type === "ClassSelector"){
+        if([...currentLayer, ...localLayers][0] === "components"){
+          classes.add(node.name);
+        }
+      }
+    },
+    leave: (node: CssNode) => {
+      if(node.type === "Atrule" && node.name === "layer" && node.block){
+        localLayers.pop();
+      }
+    }
+  });
+
+  return Array.from(classes);
 }

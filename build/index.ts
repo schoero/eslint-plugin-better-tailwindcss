@@ -1,5 +1,4 @@
 import { $ } from "better-tailwindcss:build/utils.js";
-import { writeFile } from "node:fs/promises";
 
 async function build(){
   const outDir = "lib"

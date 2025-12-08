@@ -125,9 +125,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ openingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -323,9 +321,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
 
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ closingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });

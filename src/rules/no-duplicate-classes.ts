@@ -40,6 +40,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
 
       if(parentClasses.includes(className) || duplicateClassIndex !== -1){
         return {
+          data: { className },
           fix: "",
           id: "duplicate"
         };

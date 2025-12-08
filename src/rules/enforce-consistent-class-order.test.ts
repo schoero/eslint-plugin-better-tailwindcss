@@ -2,6 +2,8 @@ import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
+import { css } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 
 
 describe(enforceConsistentClassOrder.name, () => {
@@ -563,6 +565,158 @@ describe(enforceConsistentClassOrder.name, () => {
         }
       ]
     });
+  });
+
+  it("should sort unknown classes to the start by default", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex unknown" />`,
+            angularOutput: `<img class="unknown flex" />`,
+            html: `<img class="flex unknown" />`,
+            htmlOutput: `<img class="unknown flex" />`,
+            jsx: `() => <img class="flex unknown" />`,
+            jsxOutput: `() => <img class="unknown flex" />`,
+            svelte: `<img class="flex unknown" />`,
+            svelteOutput: `<img class="unknown flex" />`,
+            vue: `<template><img class="flex unknown" /></template>`,
+            vueOutput: `<template><img class="unknown flex" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort component classes to the start by default in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex custom-component" />`,
+            angularOutput: `<img class="custom-component flex" />`,
+            html: `<img class="flex custom-component" />`,
+            htmlOutput: `<img class="custom-component flex" />`,
+            jsx: `() => <img class="flex custom-component" />`,
+            jsxOutput: `() => <img class="custom-component flex" />`,
+            svelte: `<img class="flex custom-component" />`,
+            svelteOutput: `<img class="custom-component flex" />`,
+            vue: `<template><img class="flex custom-component" /></template>`,
+            vueOutput: `<template><img class="custom-component flex" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should differentiate between custom component classes and unknown classes in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            angularOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            html: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            htmlOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            jsx: `() => <img class="g d h flex c b i a h-full k e w-full f j" />`,
+            jsxOutput: `() => <img class="a b c d e f flex h-full w-full k j i h g" />`,
+            svelte: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            svelteOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            vue: `<template><img class="g d h flex c b i a h-full k e w-full f j" /></template>`,
+            vueOutput: `<template><img class="a b c d e f flex h-full w-full k j i h g" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .a, .b, .c, .d, .e, .f {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "asc",
+              componentClassPosition: "start",
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css",
+              unknownClassOrder: "desc",
+              unknownClassPosition: "end"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should be possible to move both custom component classes and unknown classes to the end and preserve the order in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            angularOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            html: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            htmlOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            jsx: `() => <img class="g d h flex c b i a w-full k e h-full f j" />`,
+            jsxOutput: `() => <img class="flex h-full w-full g h i k j d c b a e f" />`,
+            svelte: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            svelteOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            vue: `<template><img class="g d h flex c b i a w-full k e h-full f j" /></template>`,
+            vueOutput: `<template><img class="flex h-full w-full g h i k j d c b a e f" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .a, .b, .c, .d, .e, .f {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "preserve",
+              componentClassPosition: "end",
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css",
+              unknownClassOrder: "preserve",
+              unknownClassPosition: "end"
+            }]
+          }
+        ]
+      }
+    );
   });
 
 });

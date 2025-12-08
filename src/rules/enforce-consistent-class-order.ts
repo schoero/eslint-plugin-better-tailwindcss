@@ -1,6 +1,18 @@
-import { description, literal, object, optional, pipe, union } from "valibot";
+import {
+  boolean,
+  description,
+  literal,
+  object,
+  optional,
+  pipe,
+  union
+} from "valibot";
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
+import {
+  createGetCustomComponentClasses,
+  getCustomComponentClasses
+} from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
@@ -25,6 +37,34 @@ export const enforceConsistentClassOrder = createRule({
   },
 
   schema: object({
+    componentClassOrder: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("preserve")
+        ]),
+        description("Defines how component classes should be ordered among themselves.")
+      ),
+      "preserve"
+    ),
+    componentClassPosition: optional(
+      pipe(
+        union([
+          literal("start"),
+          literal("end")
+        ]),
+        description("Defines where component classes should be placed in relation to the whole string literal.")
+      ),
+      "start"
+    ),
+    detectComponentClasses: optional(
+      pipe(
+        boolean(),
+        description("Whether to automatically detect custom component classes from the tailwindcss config.")
+      ),
+      false
+    ),
     order: optional(
       pipe(
         union([
@@ -36,12 +76,34 @@ export const enforceConsistentClassOrder = createRule({
         description("The algorithm to use when sorting classes.")
       ),
       "official"
+    ),
+    unknownClassOrder: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("preserve")
+        ]),
+        description("Defines how component classes should be ordered among themselves.")
+      ),
+      "preserve"
+    ),
+    unknownClassPosition: optional(
+      pipe(
+        union([
+          literal("start"),
+          literal("end")
+        ]),
+        description("Defines where component classes should be placed in relation to the whole string literal.")
+      ),
+      "start"
     )
   }),
 
   initialize: (ctx: Context) => {
     createGetClassOrder(ctx);
     createGetDissectedClasses(ctx);
+    createGetCustomComponentClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => {
@@ -110,7 +172,7 @@ export const enforceConsistentClassOrder = createRule({
 
 function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { order } = ctx.options;
+  const { componentClassOrder, componentClassPosition, order, unknownClassOrder, unknownClassPosition } = ctx.options;
 
   if(order === "asc"){
     return [classes.toSorted((a, b) => a.localeCompare(b))];
@@ -121,13 +183,46 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
   }
 
   const { classOrder, warnings } = getClassOrder(async(ctx), classes);
+  const { customComponentClasses } = getCustomComponentClasses(async(ctx));
 
   const officiallySortedClasses = classOrder
-    .toSorted(([, a], [, z]) => {
-      if(a === z){ return 0; }
-      if(a === null){ return -1; }
-      if(z === null){ return +1; }
-      return +(a - z > 0n) - +(a - z < 0n);
+    .toSorted((a, b) => {
+      const [classA, aIndex] = a;
+      const [classB, bIndex] = b;
+
+      const componentClassSorting = getCustomOrder(
+        componentClassPosition,
+        componentClassOrder,
+        classA,
+        classB,
+        className => customComponentClasses.includes(className)
+      );
+
+      if(componentClassSorting !== undefined){
+        return componentClassSorting;
+      }
+
+      const unknownClassSorting = getCustomOrder(
+        unknownClassPosition,
+        unknownClassOrder,
+        classA,
+        classB,
+        className => {
+          return (
+            (classA === className && aIndex === null || classB === className && bIndex === null) &&
+            !customComponentClasses.includes(className)
+          );
+        }
+      );
+
+      if(unknownClassSorting !== undefined){
+        return unknownClassSorting;
+      }
+
+      if(aIndex === bIndex){ return 0; }
+      if(aIndex === null){ return -1; }
+      if(bIndex === null){ return +1; }
+      return +(aIndex - bIndex > 0n) - +(aIndex - bIndex < 0n);
     })
     .map(([className]) => className);
 
@@ -219,6 +314,55 @@ function getStrictOrder(variantMap: VariantMap): string[] {
   }
 
   return orderedClasses;
+
+}
+
+function getCustomOrder(position: "end" | "preserve" | "start", order: "asc" | "desc", classA: string, classB: string, isCustomClass: (className: string) => boolean): number | undefined {
+  const aIsCustomClass = isCustomClass(classA);
+  const bIsCustomClass = isCustomClass(classB);
+
+  if(position === "preserve"){
+    if(aIsCustomClass && bIsCustomClass){
+      if(order === "asc"){
+        return classA.localeCompare(classB);
+      }
+      if(order === "desc"){
+        return classB.localeCompare(classA);
+
+      }
+    }
+    if(aIsCustomClass || bIsCustomClass){
+      return 0;
+    }
+  }
+  if(position === "start"){
+    if(aIsCustomClass && !bIsCustomClass){ return -1; }
+    if(!aIsCustomClass && bIsCustomClass){ return +1; }
+
+    if(aIsCustomClass && bIsCustomClass){
+      if(order === "asc"){
+        return classA.localeCompare(classB);
+      }
+      if(order === "desc"){
+        return classB.localeCompare(classA);
+      }
+      return 0;
+    }
+  }
+  if(position === "end"){
+    if(aIsCustomClass && !bIsCustomClass){ return +1; }
+    if(!aIsCustomClass && bIsCustomClass){ return -1; }
+
+    if(aIsCustomClass && bIsCustomClass){
+      if(order === "asc"){
+        return classA.localeCompare(classB);
+      }
+      if(order === "desc"){
+        return classB.localeCompare(classA);
+      }
+      return 0;
+    }
+  }
 
 }
 

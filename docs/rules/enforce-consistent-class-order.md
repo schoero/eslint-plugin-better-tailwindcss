@@ -21,6 +21,67 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 <br/>
 
+### `detectComponentClasses`
+
+  Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
+  
+  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes. This can also be configured via the [`settings` object](../settings/settings.md).
+
+  **Type**: `boolean`  
+  **Default**: `false`
+
+<br/>
+
+### `componentClassOrder`
+
+  Defines how component classes should be ordered among themselves.
+
+- `asc`: Sort component classes alphabetically in ascending order.
+- `desc`: Sort component classes alphabetically in descending order.
+- `preserve`: Keep component classes in their original order.
+
+  **Type**: `"asc" | "desc" | "preserve"`  
+  **Default**: `"preserve"`
+
+<br/>
+
+### `componentClassPosition`
+
+  Defines where component classes should be placed in relation to the whole string literal.
+
+- `start`: Place component classes at the beginning.
+- `end`: Place component classes at the end.
+
+  **Type**: `"start" | "end"`  
+  **Default**: `"start"`
+
+<br/>
+
+### `unknownClassOrder`
+
+  Defines how unknown classes should be ordered among themselves.
+
+- `asc`: Sort unknown classes alphabetically in ascending order.
+- `desc`: Sort unknown classes alphabetically in descending order.
+- `preserve`: Keep unknown classes in their original order.
+
+  **Type**: `"asc" | "desc" | "preserve"`  
+  **Default**: `"preserve"`
+
+<br/>
+
+### `unknownClassPosition`
+
+  Defines where unknown classes should be placed in relation to the whole string literal.
+
+- `start`: Place unknown classes at the beginning.
+- `end`: Place unknown classes at the end.
+
+  **Type**: `"start" | "end"`  
+  **Default**: `"start"`
+
+<br/>
+
 <details>
   <summary>Common options</summary>
 
@@ -124,4 +185,28 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 ```tsx
 // ✅ GOOD: with option { order: 'official' }
 <div class="text-black underline hover:font-bold hover:text-opacity-70 focus:font-bold focus:text-opacity-70"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { componentClassPosition: 'start' }
+// 'btn' and 'card' are defined as component classes in the tailwind config
+<div class="btn card text-black underline"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { componentClassPosition: 'end' }
+// 'btn' and 'card' are defined as component classes in the tailwind config
+<div class="text-black underline btn card"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { unknownClassPosition: 'start' }
+// 'unknown-class' is not defined in the tailwind config
+<div class="unknown-class text-black underline"/>;
+```
+
+```tsx
+// ✅ GOOD: with option { unknownClassPosition: 'end' }
+// 'unknown-class' is not defined in the tailwind config
+<div class="text-black underline unknown-class"/>;
 ```

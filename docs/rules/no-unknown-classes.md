@@ -19,7 +19,7 @@ Disallow unknown classes in tailwindcss class strings. Unknown classes are class
 
   Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
   
-  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes.
+  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes. This can also be configured via the [`settings` object](../settings/settings.md).
   
   **Type**: `boolean`  
   **Default**: `false`

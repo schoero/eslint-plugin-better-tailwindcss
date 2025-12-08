@@ -1,9 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "verbatimModuleSyntax": false,
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "declarationMap": true,
     "noEmit": false,
@@ -13,7 +12,7 @@
   },
   "include": [
     "src/tailwindcss/**/*.ts",
-    "src/configs/cjs.ts",
+    "src/configs/config.ts",
     "src/api/defaults.ts",
     "src/api/types.ts"
   ],

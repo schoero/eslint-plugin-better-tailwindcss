@@ -30,7 +30,7 @@ export const enforceConsistentLineWrapping = createRule({
   autofix: true,
   category: "stylistic",
   description: "Enforce consistent line wrapping for tailwind classes.",
-  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/multiline.md",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-line-wrapping.md",
   name: "enforce-consistent-line-wrapping",
   recommended: true,
 
@@ -125,9 +125,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
     if(literal.openingQuote){
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ openingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -323,9 +321,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
 
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ closingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
@@ -615,8 +611,8 @@ function groupClasses(ctx: Context<typeof enforceConsistentLineWrapping>, classe
     const unprefixedLastClassName = lastClassName?.replace(prefixRegex, "");
     const unprefixedClassName = className.replace(prefixRegex, "");
 
-    const lastVariant = unprefixedLastClassName?.match(/^.*?:/)?.[0];
-    const variant = unprefixedClassName.match(/^.*?:/)?.[0];
+    const lastVariant = unprefixedLastClassName?.match(/^.*:/)?.[0];
+    const variant = unprefixedClassName.match(/^.*:/)?.[0];
 
     if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
       groups.addGroup();

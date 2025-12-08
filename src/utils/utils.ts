@@ -36,6 +36,12 @@ export function splitClasses(classes: string): string[] {
     .split(/\s+/);
 }
 
+export function deduplicateClasses(classes: string[]): string[] {
+  return classes.filter((className, index) => {
+    return classes.indexOf(className) === index;
+  });
+}
+
 export function display(classes: string): string {
   return classes
     .replaceAll(" ", "·")
@@ -151,7 +157,7 @@ export function createObjectPathElement(path?: string): string {
 }
 
 export interface GenericNodeWithParent {
-  parent: GenericNodeWithParent;
+  parent: Partial<GenericNodeWithParent>;
 }
 
 export function isGenericNodeWithParent(node: unknown): node is GenericNodeWithParent {

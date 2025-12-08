@@ -183,7 +183,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -214,7 +214,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -422,79 +422,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   });
 
-  it("should change to a jsx expression correctly", () => {
-
-    const singleLine = " a b c d e f g h ";
-    const multipleLines = dedent`
-      a b c
-      d e f
-      g h
-    `;
-
-    lint(
-      enforceConsistentLineWrapping,
-      {
-        invalid: [
-          {
-            jsx: `() => <img class="${singleLine}" />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class='${singleLine}' />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class={"${singleLine}"} />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={"${singleLine}"} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class={'${singleLine}'} />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={'${singleLine}'} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          }
-        ],
-        valid: [
-          {
-            jsx: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={\`${multipleLines}\`} />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            angular: `<img class="${multipleLines}" />`,
-            html: `<img class="${multipleLines}" />`,
-            svelte: `<img class="${multipleLines}" />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            angular: `<img class='${multipleLines}' />`,
-            html: `<img class='${multipleLines}' />`,
-            svelte: `<img class='${multipleLines}' />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          }
-        ]
-      }
-    );
-  });
-
-  it("should wrap long lines on to multiple lines", () => {
+  it("should always preserve the original quotes in attributes", () => {
 
     const singleLine = " a b c d e f g h ";
     const multipleLines = dedent`
@@ -511,7 +439,7 @@ describe(enforceConsistentLineWrapping.name, () => {
           html: `<img class="${singleLine}" />`,
           htmlOutput: `<img class="${multipleLines}" />`,
           jsx: `() => <img class="${singleLine}" />`,
-          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+          jsxOutput: `() => <img class="${multipleLines}" />`,
           svelte: `<img class="${singleLine}" />`,
           svelteOutput: `<img class="${multipleLines}" />`,
           vue: `<template><img class="${singleLine}" /></template>`,
@@ -526,7 +454,7 @@ describe(enforceConsistentLineWrapping.name, () => {
           html: `<img class='${singleLine}' />`,
           htmlOutput: `<img class='${multipleLines}' />`,
           jsx: `() => <img class='${singleLine}' />`,
-          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+          jsxOutput: `() => <img class='${multipleLines}' />`,
           svelte: `<img class='${singleLine}' />`,
           svelteOutput: `<img class='${multipleLines}' />`,
           vue: `<template><img class='${singleLine}' /></template>`,
@@ -534,7 +462,22 @@ describe(enforceConsistentLineWrapping.name, () => {
 
           errors: 1,
           options: [{ classesPerLine: 3, indent: 2 }]
-        },
+        }
+      ]
+    });
+  });
+
+  it("should change the quotes to backticks in attribute expressions", () => {
+
+    const singleLine = " a b c d e f g h ";
+    const multipleLines = dedent`
+      a b c
+      d e f
+      g h
+    `;
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
         {
           jsx: `() => <img class={\`${singleLine}\`} />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
@@ -848,7 +791,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -878,7 +821,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />;`,
-            jsxOutput: `() => <img class={\`${clean}\`} />;`,
+            jsxOutput: `() => <img class="${clean}" />;`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -930,7 +873,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -955,7 +898,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -995,7 +938,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -1071,7 +1014,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
             htmlOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             jsx: `() => <img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
-            jsxOutput: `() => <img class={\`\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n\`} />`,
+            jsxOutput: `() => <img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             svelte: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
             svelteOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             vue: `<template><img class="tw-a tw-b hover:tw-c focus:tw-d" /></template>`,
@@ -1105,7 +1048,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
             htmlOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             jsx: `() => <img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
-            jsxOutput: `() => <img class={\`\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n\`} />`,
+            jsxOutput: `() => <img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             svelte: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
             svelteOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             vue: `<template><img class="tw:a tw:b tw:hover:c tw:focus:d" /></template>`,

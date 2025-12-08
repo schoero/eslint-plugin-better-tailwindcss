@@ -2,7 +2,7 @@ import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindc
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { splitClasses } from "better-tailwindcss:utils/utils.js";
+import { deduplicateClasses, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -32,10 +32,13 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
-    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), classes);
+    const uniqueClasses = deduplicateClasses(classes);
 
-    lintClasses(ctx, literal, (className, index) => {
-      const canonicalClass = canonicalClasses[index];
+    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), uniqueClasses);
+
+    lintClasses(ctx, literal, className => {
+      const uniqueIndex = uniqueClasses.indexOf(className);
+      const canonicalClass = canonicalClasses[uniqueIndex];
 
       if(!canonicalClass || canonicalClass === className){
         return;

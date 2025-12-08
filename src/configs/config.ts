@@ -88,7 +88,7 @@ const createConfig = (
   };
 };
 
-export const config = {
+const config = {
   ...plugin,
 
   configs: {
@@ -100,3 +100,6 @@ export const config = {
     }))
   }
 } satisfies ESLint.Plugin;
+
+export default config;
+export { config as "module.exports" };

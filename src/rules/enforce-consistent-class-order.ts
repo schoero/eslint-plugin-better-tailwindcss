@@ -100,7 +100,7 @@ export const enforceConsistentClassOrder = createRule({
     )
   }),
 
-  initialize: (ctx: Context) => {
+  initialize: ctx => {
     createGetClassOrder(ctx);
     createGetDissectedClasses(ctx);
     createGetCustomComponentClasses(ctx);
@@ -317,24 +317,10 @@ function getStrictOrder(variantMap: VariantMap): string[] {
 
 }
 
-function getCustomOrder(position: "end" | "preserve" | "start", order: "asc" | "desc", classA: string, classB: string, isCustomClass: (className: string) => boolean): number | undefined {
+function getCustomOrder(position: "end" | "start", order: "asc" | "desc" | "preserve", classA: string, classB: string, isCustomClass: (className: string) => boolean): number | undefined {
   const aIsCustomClass = isCustomClass(classA);
   const bIsCustomClass = isCustomClass(classB);
 
-  if(position === "preserve"){
-    if(aIsCustomClass && bIsCustomClass){
-      if(order === "asc"){
-        return classA.localeCompare(classB);
-      }
-      if(order === "desc"){
-        return classB.localeCompare(classA);
-
-      }
-    }
-    if(aIsCustomClass || bIsCustomClass){
-      return 0;
-    }
-  }
   if(position === "start"){
     if(aIsCustomClass && !bIsCustomClass){ return -1; }
     if(!aIsCustomClass && bIsCustomClass){ return +1; }

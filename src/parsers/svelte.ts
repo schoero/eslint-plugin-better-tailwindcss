@@ -2,7 +2,6 @@ import {
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
-  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -14,7 +13,6 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
@@ -46,6 +44,7 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type {
   BracesMeta,
   Literal,
@@ -53,7 +52,7 @@ import type {
   MultilineMeta,
   StringLiteral
 } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -82,9 +81,6 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
   }
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
-    if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
-    }
 
     for(const value of attribute.value){
       if(isAttributesName(attributes)){

@@ -73,43 +73,18 @@ npm i -D eslint-plugin-better-tailwindcss
 
 ## Quick start
 
-1. Follow the [parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
+Depending on the flavor you are using, you need to install and configure the corresponding parser:
 
-1. Configure the plugin to be able to read your tailwind configuration via [settings](docs/settings/settings.md) or for each [rule](#rules) separately.
-
-    ```jsonc
-    // eslint.config.js
-    {
-      //...
-      "settings": {
-        "better-tailwindcss": {
-          // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-          "entryPoint": "src/global.css",
-          // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-          "tailwindConfig": "tailwind.config.js"
-        }
-      }
-    }
-    ```
-
-1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
-
-<br/>
-<br/>
-
-### Parsers
-
-Depending on the flavor you are using, you may need to install and configure the corresponding parser:
-
-- [JSX (React, Solid.js, Qwik)](docs/parsers/jsx.md)
-- [TSX (React, Solid.js, Qwik) with TypeScript support](docs/parsers/tsx.md)
-- [Svelte](docs/parsers/svelte.md)
-- [Vue](docs/parsers/vue.md)
-- [Astro](docs/parsers/astro.md)
-- [Angular](docs/parsers/angular.md)
-- [HTML](docs/parsers/html.md)
-- [Plain JavaScript](docs/parsers/javascript.md)
-- [Plain TypeScript](docs/parsers/typescript.md)
+- React: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- SolidJS: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Qwik: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Svelte: [.svelte](docs/parsers/svelte.md)  
+- Vue: [.vue](docs/parsers/vue.md)  
+- Astro: [.astro](docs/parsers/astro.md)  
+- Angular: [.html, .ts](docs/parsers/angular.md)  
+- HTML: [.html](docs/parsers/html.md)  
+- JavaScript: [.js](docs/parsers/javascript.md)  
+- TypeScript: [.ts](docs/parsers/typescript.md)  
 
 <br/>
 <br/>
@@ -138,6 +113,10 @@ You can change the severity by adding a suffix to the config name:
   
 For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
   
+If you still use the old .eslintrc configuration format, you can prefix the config names with `legacy-`.
+
+For example, `legacy-recommended` or `legacy-correctness-warn`.
+
 The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 
 <br/>
@@ -152,6 +131,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 | [enforce-consistent-variable-syntax](docs/rules/enforce-consistent-variable-syntax.md) | Enforce consistent variable syntax. | ✔ | ✔ |  | ✔ |
 | [enforce-consistent-important-position](docs/rules/enforce-consistent-important-position.md) | Enforce consistent position of the important modifier. | ✔ | ✔ |  | ✔ |
 | [enforce-shorthand-classes](docs/rules/enforce-shorthand-classes.md) | Enforce shorthand class names. | ✔ | ✔ |  | ✔ |
+| [enforce-canonical-classes](docs/rules/enforce-canonical-classes.md) | Enforce canonical class names. |  | ✔ |  | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
 | [no-deprecated-classes](docs/rules/no-deprecated-classes.md) | Remove deprecated classes. |  | ✔ |  | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
@@ -160,7 +140,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 | Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
+| [no-unknown-classes](docs/rules/no-unknown-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ | ✔ |  |
 | [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  | ✔ |
 

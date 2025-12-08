@@ -9,10 +9,12 @@ import eslintParserSvelte from "svelte-eslint-parser";
 import eslintParserVue from "vue-eslint-parser";
 
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
+import { clearCache } from "better-tailwindcss:utils/cache.js";
 
 import type { Node as ESNode } from "estree";
 
-import type { ESLintRule } from "better-tailwindcss:types/rule.js";
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { Context, ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
 const TEST_SYNTAXES = {
@@ -38,7 +40,7 @@ const TEST_SYNTAXES = {
 
 type Syntaxes = typeof TEST_SYNTAXES;
 
-export function lint<Rule extends ESLintRule>(
+export function lint<const Rule extends ESLintRule>(
   eslintRule: Rule,
   tests: {
     invalid?: (
@@ -50,8 +52,8 @@ export function lint<Rule extends ESLintRule>(
         errors: { message: string; type?: string; }[] | number;
       } & {
         files?: Record<string, string>;
-        options?: Rule["options"];
-        settings?: Rule["settings"];
+        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
+        settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];
     valid?: (
@@ -59,26 +61,27 @@ export function lint<Rule extends ESLintRule>(
         [Key in keyof Syntaxes]?: string;
       } & {
         files?: Record<string, string>;
-        options?: Rule["options"];
-        settings?: Rule["settings"];
+        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
+        settings?: Record<string, Partial<CommonOptions>>;
       }
     )[];
-  },
-  syntaxes: Syntaxes = TEST_SYNTAXES
+  }
 ) {
 
-  resetTestingDirectory();
 
   for(const invalid of tests.invalid ?? []){
+
+    resetTestingDirectory();
+    clearCache();
 
     for(const file in invalid.files ?? {}){
       invalid.settings ??= { "better-tailwindcss": {} };
       createTestFile(file, invalid.files![file]);
     }
 
-    for(const syntax of Object.keys(syntaxes)){
+    for(const syntax of Object.keys(TEST_SYNTAXES)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
 
       if(!invalid[syntax]){
         continue;
@@ -97,18 +100,20 @@ export function lint<Rule extends ESLintRule>(
     }
   }
 
-  resetTestingDirectory();
 
   for(const valid of tests.valid ?? []){
+
+    resetTestingDirectory();
+    clearCache();
 
     for(const file in valid.files ?? {}){
       valid.settings ??= { "better-tailwindcss": {} };
       createTestFile(file, valid.files![file]);
     }
 
-    for(const syntax of Object.keys(syntaxes)){
+    for(const syntax of Object.keys(TEST_SYNTAXES)){
 
-      const ruleTester = new RuleTester(syntaxes[syntax]);
+      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
 
       if(!valid[syntax]){
         continue;
@@ -127,7 +132,6 @@ export function lint<Rule extends ESLintRule>(
   }
 
 }
-
 
 type GuardedType<Type> = Type extends (value: any) => value is infer ResultType ? ResultType : never;
 

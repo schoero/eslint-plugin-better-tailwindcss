@@ -3,7 +3,7 @@ import { describe, it } from "vitest";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
 const testCases = [
@@ -42,12 +42,11 @@ const testCases = [
   ["object-right-bottom", "object-bottom-right"]
 ] satisfies [string, string | undefined][];
 
-describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDeprecatedClasses.name, () => {
+describe.runIf(getTailwindCSSVersion().major >= 4)(noDeprecatedClasses.name, () => {
 
   it("should not report valid classes", () => {
     lint(
       noDeprecatedClasses,
-
       {
         valid: [
           {
@@ -65,7 +64,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should fix replaceable deprecated classes", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -90,7 +88,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should warn for irreplaceable deprecated classes", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -110,7 +107,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should work with variants", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -135,7 +131,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the original value", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -174,7 +169,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the important modifier", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -213,7 +207,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
   it("should keep the tailwindcss prefix", () => {
     lint(
       noDeprecatedClasses,
-
       {
         invalid: [
           {
@@ -273,7 +266,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
     if(hasFix){
       lint(
         noDeprecatedClasses,
-
         {
           invalid: [
             {
@@ -296,7 +288,6 @@ describe.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)(noDepreca
     } else {
       lint(
         noDeprecatedClasses,
-
         {
           invalid: [
             {

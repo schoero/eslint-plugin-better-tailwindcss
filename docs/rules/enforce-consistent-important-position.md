@@ -16,7 +16,7 @@ Controls where the important modifier (`!`) should be placed in class names.
 - `recommended`: Places the important modifier at the end of the class name.
 
   **Type**: `"legacy" | "recommended"`  
-  **Default**: `"recommended"` in Tailwind CSS v4, `"legacy"` in Tailwind CSS v3 and earlier.
+  **Default**: `"recommended"`  
 
 <br/>
 

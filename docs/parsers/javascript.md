@@ -1,8 +1,9 @@
 # JavaScript
 
-JavaScript files are supported out of the box by eslint.
+To lint Tailwind CSS classes in JavaScript files, ensure that:
 
-To enable eslint-plugin-better-tailwindcss, you need to add it to the plugins section of your eslint configuration and enable the rules you want to use.
+- The plugin is added to your configuration.
+- The `settings` object contains the correct Tailwind CSS configuration paths.
 
 <br/>
 
@@ -14,32 +15,30 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 ```js
 // eslint.config.js
+
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { defineConfig } from "eslint/config";
 
-export default [
-  {
-    plugins: {
-      "better-tailwindcss": eslintPluginBetterTailwindcss
-    },
-    rules: {
-      // enable all recommended rules to report a warning
-      ...eslintPluginBetterTailwindcss.configs["recommended-warn"].rules,
-      // enable all recommended rules to report an error
-      ...eslintPluginBetterTailwindcss.configs["recommended-error"].rules,
+export default defineConfig({
+  // enable all recommended rules
+  extends: [
+    eslintPluginBetterTailwindcss.configs.recommended
+  ],
 
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
-    },
-    settings: {
-      "better-tailwindcss": {
-        // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-        entryPoint: "src/global.css",
-        // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        tailwindConfig: "tailwind.config.js"
-      }
+  // if needed, override rules to configure them individually
+  // rules: {
+  //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
+  // },
+
+  settings: {
+    "better-tailwindcss": {
+      // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+      entryPoint: "src/global.css",
+      // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
+      tailwindConfig: "tailwind.config.js"
     }
   }
-];
+});
 ```
 
 <br/>
@@ -51,18 +50,18 @@ export default [
 
   ```jsonc
   // .eslintrc.json
+
   {
+    // enable all recommended rules
     "extends": [
-      // enable all recommended rules to report a warning
-      "plugin:better-tailwindcss/recommended-warn",
-      // or enable all recommended rules to report an error
-      "plugin:better-tailwindcss/recommended-error"
+      "plugin:better-tailwindcss/legacy-recommended"
     ],
-    "plugins": ["better-tailwindcss"],
-    "rules": {
-      // or configure rules individually
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
-    },
+
+    // if needed, override rules to configure them individually
+    // "rules": {
+    //   "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { "printWidth": 100 }]
+    // },
+
     "settings": {
       "better-tailwindcss": {
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)

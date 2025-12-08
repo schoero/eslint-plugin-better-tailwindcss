@@ -1,11 +1,11 @@
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils/matchers.js";
+import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
 import { deduplicateLiterals, getContent, getIndentation, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
-import type { Attributes } from "better-tailwindcss:types/rule.js";
 
 
 export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
@@ -13,8 +13,6 @@ export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: Att
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
-    } else if(isAttributesRegex(attributes)){
-      // console.warn("Regex not supported in HTML");
     } else if(isAttributesMatchers(attributes)){
       // console.warn("Matchers not supported in HTML");
     }

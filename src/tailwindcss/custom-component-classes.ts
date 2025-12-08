@@ -8,27 +8,30 @@ import { createSyncFn } from "synckit";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
 export type CustomComponentClasses = string[];
 
-export interface GetCustomComponentClassesRequest {
-  configPath: string | undefined;
-  cwd: string;
-  tsconfigPath: string | undefined;
-}
+export type GetCustomComponentClasses = (ctx: AsyncContext) => {
+  customComponentClasses: CustomComponentClasses;
+  warnings: (Warning | undefined)[];
+};
 
-export type GetCustomComponentClassesResponse = { customComponentClasses: CustomComponentClasses; warnings: (Warning | undefined)[]; };
+export let getCustomComponentClasses: GetCustomComponentClasses = () => { throw new Error("getCustomComponentClasses() called before being initialized"); };
 
-export function createGetCustomComponentClasses(): (req: GetCustomComponentClassesRequest) => GetCustomComponentClassesResponse {
-  const workerPath = getWorkerPath();
+export function createGetCustomComponentClasses(ctx: Context): GetCustomComponentClasses {
+  const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
 
-  return createSyncFn(workerPath, workerOptions);
+  getCustomComponentClasses = createSyncFn(workerPath, workerOptions);
+
+  return getCustomComponentClasses;
 }
 
-function getWorkerPath() {
-  return resolve(getCurrentDirectory(), "./custom-component-classes.async.worker.js");
+function getWorkerPath(ctx: Context) {
+  return resolve(getCurrentDirectory(), `./custom-component-classes.async.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

@@ -1,4 +1,4 @@
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
 interface ClassParts {
@@ -10,14 +10,13 @@ interface ClassParts {
   variants: string[];
 }
 
-export function buildClass({ base, important, negative, prefix, separator, variants }: ClassParts): string {
-  const { major } = getTailwindcssVersion();
+export function buildClass(ctx: Context, { base, important, negative, prefix, separator, variants }: ClassParts): string {
 
   const importantAtStart = important[0] && "!";
   const importantAtEnd = important[1] && "!";
   const negativePrefix = negative && "-";
 
-  if(major >= TailwindcssVersion.V4){
+  if(ctx.version.major >= 4){
     return [
       prefix,
       ...variants,

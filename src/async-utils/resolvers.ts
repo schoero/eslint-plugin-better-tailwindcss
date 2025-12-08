@@ -5,7 +5,7 @@ import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
 import { withCache } from "../async-utils/cache.js";
 
-import type { AsyncContext } from "../async-utils/context.js";
+import type { AsyncContext } from "../utils/context.js";
 
 
 const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);

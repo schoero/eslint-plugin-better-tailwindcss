@@ -1,5 +1,102 @@
 # Changelog
 
+## v4.0.0-beta.6
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.5...v4.0.0-beta.6)
+
+### Fixes
+
+- Add missing `className` to error message ([f7ebdd6](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/f7ebdd6))
+- **enforce-canonical-classes:** Use correct class for comparison when string literal contains duplicates ([a50bb15](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a50bb15))
+- **enforce-consistent-class-order:** Options ([d18558a](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/d18558a))
+
+### Chore
+
+- Increase worker timeout ([2f0bfe3](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/2f0bfe3))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Remove separate `CommonJS` build ([#264](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/264))
+      Minimum Node.js version to v23.0.0, v22.12.0, v20.19.0 to support `require(esm)`
+- ⚠️  Preserve normal quotes whenever possible ([#246](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/246))
+- ⚠️  Renamed the `improved` sorting order to `strict` ([#245](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/245))
+- ⚠️  Rename configs ([#244](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/244))
+
+## v4.0.0-beta.5
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.4...v4.0.0-beta.5)
+
+### Features
+
+- **no-unknown-classes:** Support `@import layer(components)` ([#257](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/257))
+
+### Fixes
+
+- Wrong documentation url ([#255](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/255))
+- Ignore variants in custom component classes ([#258](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/258))
+- Angular line wrapping ([#259](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/259))
+
+### ❤️ Contributors
+
+- Carlos Marques <karkosyk@gmail.com>
+
+## v4.0.0-beta.4
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.3...v4.0.0-beta.4)
+
+### Fixes
+
+- Convert missing flex shrink and grow utilities ([#236](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/236))
+- Ignore literals in binary expressions ([#238](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/238))
+- Allow interpolations in normal svelte string literals ([#239](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/239))
+
+### ❤️ Contributors
+
+- Akameco ([@akameco](https://github.com/akameco))
+
+## v4.0.0-beta.3
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.2...v4.0.0-beta.3)
+
+### Features
+
+- New rule: `enforce-canonical-classes` ([#232](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/232))
+
+## v4.0.0-beta.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.1...v4.0.0-beta.2)
+
+### Tests
+
+- Add additional environment variable to disable cache ([2e0e858](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/2e0e858))
+
+## v4.0.0-beta.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.0...v4.0.0-beta.1)
+
+### Fixes
+
+- Don't match index accessed object keys ([#227](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/227))
+- Add missing valibot dependencies ([92589e2])(<https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/92589e2e58b439621f9bcc729f42faa1f478804b>))
+
+## v4.0.0-beta.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.8...v4.0.0-beta.0)
+
+### Fixes
+
+- Check for tailwindcss before running rules ([a84dd50](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a84dd50))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Renamed rule `no-unregistered-classes` to `no-unknown-classes`
+- ⚠️  Renamed rule `sort-classes` to `enforce-consistent-class-order`
+- ⚠️  Renamed rule `multiline` to `enforce-consistent-line-wrapping`
+- ⚠️  Options for `better-tailwindcss/enforce-consistent-variable-syntax` have been renamed to `shorthand` and `variable`.
+- ⚠️  Function `getDefaultIgnoredUnregisteredClasses()` has been removed.
+- ⚠️  The default for `enforce-consistent-important-position` is now always `recommended`. If you are on tailwindcss v3 need to manually set it to `legacy` to keep it working for tailwindcss v3.
+- ⚠️  Removed rule regex matchers
+
 ## v3.8.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.7.11...v3.8.0)

@@ -1,4 +1,4 @@
-export type LiteralValueQuotes = "'" | "\"" | "\\`" | "`";
+export type LiteralValueQuotes = "'" | "\"" | "`";
 
 export interface Range {
   range: [number, number];

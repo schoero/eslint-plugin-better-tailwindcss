@@ -1,17 +1,16 @@
 import { describe, it } from "vitest";
 
-import { noUnregisteredClasses } from "better-tailwindcss:rules/no-unregistered-classes.js";
+import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css, ts } from "better-tailwindcss:tests/utils/template.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 
 
-describe(noUnregisteredClasses.name, () => {
+describe(noUnknownClasses.name, () => {
 
   it("should not report standard tailwind classes", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -28,8 +27,7 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should not report standard tailwind classes with variants", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -46,8 +44,7 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should not report standard tailwind classes with many variants", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -62,18 +59,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it("should report standard tailwind classes with an unregistered variant in many variants", () => {
+  it("should report standard tailwind classes with an unknown variant in many variants", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="dark:unregistered:before:inset-0" />`,
-            html: `<img class="dark:unregistered:before:inset-0" />`,
-            jsx: `() => <img class="dark:unregistered:before:inset-0" />`,
-            svelte: `<img class="dark:unregistered:before:inset-0" />`,
-            vue: `<template><img class="dark:unregistered:before:inset-0" /></template>`,
+            angular: `<img class="dark:unknown:before:inset-0" />`,
+            html: `<img class="dark:unknown:before:inset-0" />`,
+            jsx: `() => <img class="dark:unknown:before:inset-0" />`,
+            svelte: `<img class="dark:unknown:before:inset-0" />`,
+            vue: `<template><img class="dark:unknown:before:inset-0" /></template>`,
 
             errors: 1
           }
@@ -82,10 +78,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on dynamic utility values in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on dynamic utility values in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -100,10 +95,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should report on dynamic utility values in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should report on dynamic utility values in tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
@@ -120,18 +114,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it("should report unregistered classes", () => {
+  it("should report unknown classes", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="unregistered" />`,
-            html: `<img class="unregistered" />`,
-            jsx: `() => <img class="unregistered" />`,
-            svelte: `<img class="unregistered" />`,
-            vue: `<template><img class="unregistered" /></template>`,
+            angular: `<img class="unknown" />`,
+            html: `<img class="unknown" />`,
+            jsx: `() => <img class="unknown" />`,
+            svelte: `<img class="unknown" />`,
+            vue: `<template><img class="unknown" /></template>`,
 
             errors: 1
           }
@@ -142,18 +135,17 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should be possible to whitelist classes in options", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
-            angular: `<img class="unregistered" />`,
-            html: `<img class="unregistered" />`,
-            jsx: `() => <img class="unregistered" />`,
-            svelte: `<img class="unregistered" />`,
-            vue: `<template><img class="unregistered" /></template>`,
+            angular: `<img class="unknown" />`,
+            html: `<img class="unknown" />`,
+            jsx: `() => <img class="unknown" />`,
+            svelte: `<img class="unknown" />`,
+            vue: `<template><img class="unknown" /></template>`,
 
-            options: [{ ignore: ["unregistered"] }]
+            options: [{ ignore: ["unknown"] }]
           }
         ]
       }
@@ -162,16 +154,15 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should be possible to whitelist classes in options via regex", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
-            angular: `<img class="ignored-unregistered" />`,
-            html: `<img class="ignored-unregistered" />`,
-            jsx: `() => <img class="ignored-unregistered" />`,
-            svelte: `<img class="ignored-unregistered" />`,
-            vue: `<template><img class="ignored-unregistered" /></template>`,
+            angular: `<img class="ignored-unknown" />`,
+            html: `<img class="ignored-unknown" />`,
+            jsx: `() => <img class="ignored-unknown" />`,
+            svelte: `<img class="ignored-unknown" />`,
+            vue: `<template><img class="ignored-unknown" /></template>`,
 
             options: [{ ignore: ["^ignored-.*$"] }]
           }
@@ -180,18 +171,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on registered utility classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            html: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            jsx: `() => <img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            svelte: `<img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            vue: `<template><img class="unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
+            angular: `<img class="unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            html: `<img class="unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            jsx: `() => <img class="unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            svelte: `<img class="unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            vue: `<template><img class="unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
 
             errors: 1,
             files: {
@@ -232,18 +222,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on registered utility classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on registered utility classes in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            html: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            jsx: `() => <img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            svelte: `<img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
-            vue: `<template><img class="in-utility unregistered in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
+            angular: `<img class="in-utility unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            html: `<img class="in-utility unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            jsx: `() => <img class="in-utility unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            svelte: `<img class="in-utility unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" />`,
+            vue: `<template><img class="in-utility unknown in-plugin text-config hover:before:in-plugin hover:before:text-config" /></template>`,
 
             errors: 1,
             files: {
@@ -289,18 +278,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore custom component classes defined in the component layer in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -350,18 +338,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore custom component classes defined in imported files in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -384,11 +371,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -418,18 +405,18 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore classes defined in imported files with layer(components) in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore classes defined in imported files with layer(components) in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
+      noUnknownClasses,
       {
         // immediate layer import
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -450,11 +437,11 @@ describe(noUnregisteredClasses.name, () => {
           },
           {
             // layer import via nested file
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -479,11 +466,11 @@ describe(noUnregisteredClasses.name, () => {
           },
           {
             // layer import in nested file
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -511,17 +498,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore classes defined in imported files in nested components.custom layer in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore classes defined in imported files in nested components.custom layer in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -545,11 +532,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -575,11 +562,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 1,
 
@@ -611,17 +598,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not ignore custom classes from other layers in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not ignore custom classes from other layers in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 2,
 
@@ -642,11 +629,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 2,
 
@@ -669,11 +656,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 2,
 
@@ -696,11 +683,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 2,
 
@@ -723,18 +710,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not crash when trying to read custom component classes in a file that doesn't exists in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="custom-component unregistered" />`,
-            html: `<img class="custom-component unregistered" />`,
-            jsx: `() => <img class="custom-component unregistered" />`,
-            svelte: `<img class="custom-component unregistered" />`,
-            vue: `<template><img class="custom-component unregistered" /></template>`,
+            angular: `<img class="custom-component unknown" />`,
+            html: `<img class="custom-component unknown" />`,
+            jsx: `() => <img class="custom-component unknown" />`,
+            svelte: `<img class="custom-component unknown" />`,
+            vue: `<template><img class="custom-component unknown" /></template>`,
 
             errors: 2,
 
@@ -754,18 +740,18 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support variants in custom component classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support variants in custom component classes in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
+      noUnknownClasses,
       {
         // immediate layer import
         invalid: [
           {
-            angular: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
-            html: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
-            jsx: `() => <img class="sm:hover:custom-component sm:hover:unregistered" />`,
-            svelte: `<img class="sm:hover:custom-component sm:hover:unregistered" />`,
-            vue: `<template><img class="sm:hover:custom-component sm:hover:unregistered" /></template>`,
+            angular: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            html: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            jsx: `() => <img class="sm:hover:custom-component sm:hover:unknown" />`,
+            svelte: `<img class="sm:hover:custom-component sm:hover:unknown" />`,
+            vue: `<template><img class="sm:hover:custom-component sm:hover:unknown" /></template>`,
 
             errors: 1,
 
@@ -786,11 +772,11 @@ describe(noUnregisteredClasses.name, () => {
             }]
           },
           {
-            angular: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
-            html: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
-            jsx: `() => <img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
-            svelte: `<img class="[&[open]]:custom-component [&[open]]:unregistered" />`,
-            vue: `<template><img class="[&[open]]:custom-component [&[open]]:unregistered" /></template>`,
+            angular: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            html: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            jsx: `() => <img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            svelte: `<img class="[&[open]]:custom-component [&[open]]:unknown" />`,
+            vue: `<template><img class="[&[open]]:custom-component [&[open]]:unknown" /></template>`,
 
             errors: 1,
 
@@ -815,18 +801,18 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support prefixes in custom component classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support prefixes in custom component classes in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
+      noUnknownClasses,
       {
         // immediate layer import
         invalid: [
           {
-            angular: `<img class="tw:md:custom-component tw:md:unregistered" />`,
-            html: `<img class="tw:md:custom-component tw:md:unregistered" />`,
-            jsx: `() => <img class="tw:md:custom-component tw:md:unregistered" />`,
-            svelte: `<img class="tw:md:custom-component tw:md:unregistered" />`,
-            vue: `<template><img class="tw:md:custom-component tw:md:unregistered" /></template>`,
+            angular: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            html: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            jsx: `() => <img class="tw:md:custom-component tw:md:unknown" />`,
+            svelte: `<img class="tw:md:custom-component tw:md:unknown" />`,
+            vue: `<template><img class="tw:md:custom-component tw:md:unknown" /></template>`,
 
             errors: 1,
 
@@ -851,10 +837,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should work with prefixed tailwind classes tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should work with prefixed tailwind classes tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
@@ -881,10 +866,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should work with prefixed tailwind classes tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should work with prefixed tailwind classes tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
@@ -909,10 +893,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on DaisyUI classes in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on DaisyUI classes in tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -942,10 +925,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on DaisyUI classes in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on DaisyUI classes in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
@@ -974,8 +956,7 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should not report on groups and peers", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -999,8 +980,7 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should not report on named groups and peers", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1022,10 +1002,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on prefixed groups and peers in tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1069,10 +1048,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should not report on prefixed named groups and peers in tailwind <= 3", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1116,10 +1094,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on prefixed groups and peers in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1159,10 +1136,9 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should not report on prefixed named groups and peers in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1204,8 +1180,7 @@ describe(noUnregisteredClasses.name, () => {
 
   it("should not report on tailwind utility classes with modifiers", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         valid: [
           {
@@ -1227,18 +1202,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should support tsconfig paths in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support tsconfig paths in tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="unregistered custom-component custom-utility custom-plugin"/>`,
-            html: `<img class="unregistered custom-component custom-utility custom-plugin" />`,
-            jsx: `() => <img class="unregistered custom-component custom-utility custom-plugin" />`,
-            svelte: `<img class="unregistered custom-component custom-utility custom-plugin" />`,
-            vue: `<template><img class="unregistered custom-component custom-utility custom-plugin" /></template>`,
+            angular: `<img class="unknown custom-component custom-utility custom-plugin"/>`,
+            html: `<img class="unknown custom-component custom-utility custom-plugin" />`,
+            jsx: `() => <img class="unknown custom-component custom-utility custom-plugin" />`,
+            svelte: `<img class="unknown custom-component custom-utility custom-plugin" />`,
+            vue: `<template><img class="unknown custom-component custom-utility custom-plugin" /></template>`,
 
             errors: 1,
             files: {
@@ -1293,18 +1267,17 @@ describe(noUnregisteredClasses.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should use the provided tsconfig instead of finding one tailwind >= 4", () => {
     lint(
-      noUnregisteredClasses,
-
+      noUnknownClasses,
       {
         invalid: [
           {
-            angular: `<img class="unregistered custom-utility"/>`,
-            html: `<img class="unregistered custom-utility" />`,
-            jsx: `() => <img class="unregistered custom-utility" />`,
-            svelte: `<img class="unregistered custom-utility" />`,
-            vue: `<template><img class="unregistered custom-utility" /></template>`,
+            angular: `<img class="unknown custom-utility"/>`,
+            html: `<img class="unknown custom-utility" />`,
+            jsx: `() => <img class="unknown custom-utility" />`,
+            svelte: `<img class="unknown custom-utility" />`,
+            vue: `<template><img class="unknown custom-utility" /></template>`,
 
             errors: 1,
             files: {

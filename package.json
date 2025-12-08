@@ -1,5 +1,5 @@
 {
-  "version": "3.8.0",
+  "version": "4.0.0-beta.6",
   "type": "module",
   "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
@@ -13,20 +13,11 @@
     "url": "https://github.com/schoero/eslint-plugin-better-tailwindcss/issues"
   },
   "exports": {
-    ".": {
-      "require": "./lib/cjs/configs/cjs.js",
-      "import": "./lib/esm/configs/esm.js"
-    },
-    "./api/defaults": {
-      "require": "./lib/cjs/api/defaults.js",
-      "import": "./lib/esm/api/defaults.js"
-    },
-    "./api/types": {
-      "require": "./lib/cjs/api/types.js",
-      "import": "./lib/esm/api/types.js"
-    }
+    ".": "./lib/configs/config.js",
+    "./api/defaults": "./lib/api/defaults.js",
+    "./api/types": "./lib/api/types.js"
   },
-  "main": "./lib/cjs/configs/cjs.js",
+  "main": "./lib/configs/config.js",
   "scripts": {
     "build": "vite-node build",
     "build:ci": "vite-node build",
@@ -66,29 +57,30 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "^20.11.0 || >=21.2.0"
+    "node": "^20.19.0 || ^22.12.0 || >=23.0.0"
   },
   "files": [
     "lib"
   ],
   "peerDependencies": {
     "eslint": "^7.0.0 || ^8.0.0 || ^9.0.0",
-    "tailwindcss": "^3.3.0 || ^4.1.6"
+    "tailwindcss": "^3.3.0 || ^4.1.15"
   },
   "dependencies": {
     "@eslint/css-tree": "^3.6.8",
+    "@valibot/to-json-schema": "^1.4.0",
     "enhanced-resolve": "^5.18.3",
     "jiti": "^2.6.1",
-    "postcss": "^8.5.6",
-    "postcss-import": "^16.1.1",
     "synckit": "^0.11.11",
     "tailwind-csstree": "^0.1.4",
-    "tsconfig-paths-webpack-plugin": "^4.2.0"
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
+    "valibot": "^1.2.0"
   },
   "devDependencies": {
     "@angular/compiler": "^21.0.3",
     "@angular-eslint/template-parser": "^21.0.1",
     "@html-eslint/parser": "^0.50.0",
+    "@oxc-node/core": "^0.0.35",
     "@schoero/configs": "^1.5.20",
     "@types/estree-jsx": "^1.0.5",
     "@types/node": "^24.10.1",
@@ -107,9 +99,6 @@
     "svelte": "^5.45.6",
     "svelte-eslint-parser": "^1.4.1",
     "tailwindcss": "^4.1.17",
-    "tailwindcss3": "npm:tailwindcss@^3.0.0",
-    "tailwindcss4": "npm:tailwindcss@^4.0.0",
-    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3",
     "vite-node": "^5.2.0",
@@ -150,6 +139,6 @@
     "tailwind-classes"
   ],
   "volta": {
-    "node": "24.3.0"
+    "node": "25.2.1"
   }
 }

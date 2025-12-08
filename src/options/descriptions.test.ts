@@ -1,10 +1,15 @@
+import { toJsonSchema } from "@valibot/to-json-schema";
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
-import { ATTRIBUTE_SCHEMA, CALLEE_SCHEMA, VARIABLE_SCHEMA } from "better-tailwindcss:options/descriptions.js";
+import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
+import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
+import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
-import type { AttributeOption, CalleeOption, VariableOption } from "better-tailwindcss:types/rule.js";
+import type { AttributesOptions } from "better-tailwindcss:options/schemas/attributes.js";
+import type { CalleesOptions } from "better-tailwindcss:options/schemas/callees.js";
+import type { VariablesOptions } from "better-tailwindcss:options/schemas/variables.js";
 
 
 describe("descriptions", () => {
@@ -16,10 +21,10 @@ describe("descriptions", () => {
         "class",
         "className"
       ]
-    } satisfies AttributeOption;
+    } satisfies AttributesOptions;
 
     expect(
-      validate(attributes, ATTRIBUTE_SCHEMA)
+      validate(attributes, toJsonSchema(ATTRIBUTES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -28,10 +33,10 @@ describe("descriptions", () => {
       callees: [
         "callee"
       ]
-    } satisfies CalleeOption;
+    } satisfies CalleesOptions;
 
     expect(
-      validate(callees, CALLEE_SCHEMA)
+      validate(callees, toJsonSchema(CALLEES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -41,10 +46,10 @@ describe("descriptions", () => {
         "classes",
         "styles"
       ]
-    } satisfies VariableOption;
+    } satisfies VariablesOptions;
 
     expect(
-      validate(variable, VARIABLE_SCHEMA)
+      validate(variable, toJsonSchema(VARIABLES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -58,10 +63,10 @@ describe("descriptions", () => {
         "(class|className)",
         "(.*)"
       ]
-    } satisfies AttributeOption;
+    } satisfies AttributesOptions;
 
     expect(
-      validate(attributes, ATTRIBUTE_SCHEMA)
+      validate(attributes, toJsonSchema(ATTRIBUTES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -71,10 +76,10 @@ describe("descriptions", () => {
         "callee(.*)",
         "(.*)"
       ]
-    } satisfies CalleeOption;
+    } satisfies CalleesOptions;
 
     expect(
-      validate(callees, CALLEE_SCHEMA)
+      validate(callees, toJsonSchema(CALLEES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -84,10 +89,10 @@ describe("descriptions", () => {
         "variable = (.*)",
         "(.*)"
       ]
-    } satisfies VariableOption;
+    } satisfies VariablesOptions;
 
     expect(
-      validate(variable, VARIABLE_SCHEMA)
+      validate(variable, toJsonSchema(VARIABLES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
@@ -96,7 +101,7 @@ describe("descriptions", () => {
 
   test("matcher config", () => {
 
-    const attributes: AttributeOption = {
+    const attributes: AttributesOptions = {
       attributes: [
         [
           "class",
@@ -117,12 +122,12 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(attributes, ATTRIBUTE_SCHEMA)
+      validate(attributes, toJsonSchema(ATTRIBUTES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
 
-    const callees: CalleeOption = {
+    const callees: CalleesOptions = {
       callees: [
         [
           "callee",
@@ -143,12 +148,12 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(callees, CALLEE_SCHEMA)
+      validate(callees, toJsonSchema(CALLEES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );
 
-    const variable: VariableOption = {
+    const variable: VariablesOptions = {
       variables: [
         [
           "variable",
@@ -169,7 +174,7 @@ describe("descriptions", () => {
     };
 
     expect(
-      validate(variable, VARIABLE_SCHEMA)
+      validate(variable, toJsonSchema(VARIABLES_OPTION_SCHEMA))
     ).toStrictEqual(
       { errors: [], valid: true }
     );

@@ -7,6 +7,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   createObjectPathElement,
   deduplicateLiterals,
   getIndentation,
@@ -52,12 +53,15 @@ export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplA
 }
 
 export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, attributes: Attributes): Literal[] {
+
+  const name = getAttributeName(attribute);
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...createLiteralsByAngularAttribute(ctx, attribute));
     } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(attributes[0].toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
+      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
       if(isTextAttribute(attribute)){
         literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
       }
@@ -68,7 +72,10 @@ export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: 
 
     return literals;
   }, []);
-  return deduplicateLiterals(literals);
+
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 }
 
 function createLiteralsByAngularAst(ctx: Rule.RuleContext, ast: AST): Literal[] {
@@ -127,7 +134,8 @@ function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers:
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
   const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]): MatcherFunctions<AST> {

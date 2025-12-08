@@ -1,5 +1,11 @@
 import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
-import { deduplicateLiterals, getContent, getIndentation, matchesName } from "better-tailwindcss:utils/utils.js";
+import {
+  addAttribute,
+  deduplicateLiterals,
+  getContent,
+  getIndentation,
+  matchesName
+} from "better-tailwindcss:utils/utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
@@ -9,9 +15,12 @@ import type { Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 
 
 export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+
+  const name = attribute.key.value;
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
     } else if(isAttributesMatchers(attributes)){
       // console.warn("Matchers not supported in HTML");
@@ -20,7 +29,9 @@ export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: Att
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 

@@ -88,7 +88,7 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals.filter(deduplicateLiterals);
 
 }
 
@@ -108,7 +108,7 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals.filter(deduplicateLiterals);
 
 }
 
@@ -128,7 +128,7 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, nod
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals.filter(deduplicateLiterals);
 
 }
 
@@ -156,7 +156,7 @@ export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode,
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
-  return deduplicateLiterals(literals);
+  return literals.filter(deduplicateLiterals);
 }
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {

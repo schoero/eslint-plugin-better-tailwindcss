@@ -20,6 +20,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   deduplicateLiterals,
   getContent,
   getIndentation,
@@ -80,14 +81,16 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     return [];
   }
 
+  const name = attribute.key.name;
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
 
     for(const value of attribute.value){
       if(isAttributesName(attributes)){
-        if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
       } else if(isAttributesMatchers(attributes)){
-        if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
       }
     }
@@ -95,7 +98,9 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 
@@ -103,7 +108,8 @@ function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, ma
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {

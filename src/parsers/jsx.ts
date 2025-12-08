@@ -10,7 +10,7 @@ import {
   isESTemplateLiteral
 } from "better-tailwindcss:parsers/es.js";
 import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
-import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils/utils.js";
+import { addAttribute, deduplicateLiterals, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, TemplateLiteral as ESTemplateLiteral } from "estree";
@@ -33,12 +33,12 @@ export const JSX_CONTAINER_TYPES_TO_INSERT_BRACES = [
 
 
 export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
+
+  const name = getAttributeName(attribute);
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(!value){ return literals; }
-
-    const name = getAttributeName(attribute);
 
     if(typeof name !== "string"){
       return literals;
@@ -55,8 +55,9 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
-
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 }
 
 export function getAttributesByJSXElement(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {

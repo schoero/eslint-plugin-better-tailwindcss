@@ -188,7 +188,7 @@ You can match custom attributes by modifying your `attributes` matcher configura
 
 <br/>
 
-```jsonc
+```mjs
 // eslint.config.mjs
 import bettertailwindcss from "eslint-plugin-better-tailwindcss";
 

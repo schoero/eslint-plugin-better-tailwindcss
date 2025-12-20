@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0-beta.5",
+  "version": "4.0.0-beta.6",
   "type": "module",
   "name": "eslint-plugin-better-tailwindcss",
   "description": "auto-wraps tailwind classes after a certain print width or class count into multiple lines to improve readability.",
@@ -13,20 +13,11 @@
     "url": "https://github.com/schoero/eslint-plugin-better-tailwindcss/issues"
   },
   "exports": {
-    ".": {
-      "require": "./lib/cjs/configs/cjs.js",
-      "import": "./lib/esm/configs/esm.js"
-    },
-    "./api/defaults": {
-      "require": "./lib/cjs/api/defaults.js",
-      "import": "./lib/esm/api/defaults.js"
-    },
-    "./api/types": {
-      "require": "./lib/cjs/api/types.js",
-      "import": "./lib/esm/api/types.js"
-    }
+    ".": "./lib/configs/config.js",
+    "./api/defaults": "./lib/api/defaults.js",
+    "./api/types": "./lib/api/types.js"
   },
-  "main": "./lib/cjs/configs/cjs.js",
+  "main": "./lib/configs/config.js",
   "scripts": {
     "build": "vite-node build",
     "build:ci": "vite-node build",
@@ -66,7 +57,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "^20.11.0 || >=21.2.0"
+    "node": "^20.19.0 || ^22.12.0 || >=23.0.0"
   },
   "files": [
     "lib"
@@ -148,6 +139,6 @@
     "tailwind-classes"
   ],
   "volta": {
-    "node": "24.3.0"
+    "node": "25.2.1"
   }
 }

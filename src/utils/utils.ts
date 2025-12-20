@@ -36,6 +36,12 @@ export function splitClasses(classes: string): string[] {
     .split(/\s+/);
 }
 
+export function deduplicateClasses(classes: string[]): string[] {
+  return classes.filter((className, index) => {
+    return classes.indexOf(className) === index;
+  });
+}
+
 export function display(classes: string): string {
   return classes
     .replaceAll(" ", "·")

@@ -624,8 +624,8 @@ function groupClasses(ctx: Context<typeof enforceConsistentLineWrapping>, classe
     const unprefixedLastClassName = lastClassName?.replace(prefixRegex, "");
     const unprefixedClassName = className.replace(prefixRegex, "");
 
-    const lastVariant = unprefixedLastClassName?.match(/^.*?:/)?.[0];
-    const variant = unprefixedClassName.match(/^.*?:/)?.[0];
+    const lastVariant = unprefixedLastClassName?.match(/^.*:/)?.[0];
+    const variant = unprefixedClassName.match(/^.*:/)?.[0];
 
     if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
       groups.addGroup();

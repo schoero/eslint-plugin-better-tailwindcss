@@ -1,5 +1,27 @@
 # Changelog
 
+## v4.0.0-beta.6
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.5...v4.0.0-beta.6)
+
+### Fixes
+
+- Add missing `className` to error message ([f7ebdd6](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/f7ebdd6))
+- **enforce-canonical-classes:** Use correct class for comparison when string literal contains duplicates ([a50bb15](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a50bb15))
+- **enforce-consistent-class-order:** Options ([d18558a](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/d18558a))
+
+### Chore
+
+- Increase worker timeout ([2f0bfe3](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/2f0bfe3))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Remove separate `CommonJS` build ([#264](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/264))
+      Minimum Node.js version to v23.0.0, v22.12.0, v20.19.0 to support `require(esm)`
+- ⚠️  Preserve normal quotes whenever possible ([#246](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/246))
+- ⚠️  Renamed the `improved` sorting order to `strict` ([#245](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/245))
+- ⚠️  Rename configs ([#244](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/244))
+
 ## v4.0.0-beta.5
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.4...v4.0.0-beta.5)

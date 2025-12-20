@@ -50,7 +50,6 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
   const line = ctx.sourceCode.lines[attribute.loc.start.line - 1];
   const raw = attribute.startWrapper?.value + value.value + attribute.endWrapper?.value;
 
-
   const quotes = getQuotesByHTMLAttribute(ctx, attribute);
   const indentation = getIndentation(line);
   const content = getContent(raw, quotes);

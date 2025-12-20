@@ -86,13 +86,6 @@ export const enforceConsistentLineWrapping = createRule({
 
       false
     ),
-    prettierCompatibility: optional(
-      pipe(
-        boolean(),
-        description("Enable this option if prettier is used in your project.")
-      ),
-      false
-    ),
     printWidth: optional(
       pipe(
         number(),
@@ -100,6 +93,16 @@ export const enforceConsistentLineWrapping = createRule({
         description("The maximum line length before it gets wrapped.")
       ),
       80
+    ),
+    strictness: optional(
+      pipe(
+        union([
+          literal("strict"),
+          literal("loose")
+        ]),
+        description("Enable this option if prettier is used in your project.")
+      ),
+      "strict"
     )
   }),
 
@@ -112,7 +115,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, preferSingleLine, prettierCompatibility, printWidth } = ctx.options;
+  const { classesPerLine, group: groupSeparator, preferSingleLine, printWidth, strictness } = ctx.options;
 
   const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
@@ -405,7 +408,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     }
 
     // force skip if prettier would wrap the attribute to a new line and then the single line would fit
-    if(prettierCompatibility && prettierStartPosition + singlelineClasses.line.length <= printWidth && printWidth !== 0){
+    if(strictness === "loose" &&
+      literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0 &&
+      prettierStartPosition + singlelineClasses.line.length <= printWidth){
       continue;
     }
 

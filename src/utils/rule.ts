@@ -17,7 +17,7 @@ import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-t
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
-import { augmentMessageWithWarnings } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -105,14 +105,14 @@ export function createRule<
           report: ({ data, fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 
-            if("id" in rest && rest.id){
+            if("id" in rest && rest.id && messages && rest.id in messages){
               return void ctx.report({
                 data,
                 loc,
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                messageId: rest.id
+                message: escapeMessage(augmentMessageWithWarnings(messages[rest.id], docs, warnings))
               });
             }
 
@@ -123,7 +123,7 @@ export function createRule<
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                message: augmentMessageWithWarnings(rest.message, docs, warnings)
+                message: escapeMessage(augmentMessageWithWarnings(rest.message, docs, warnings))
               });
             }
           },

@@ -170,6 +170,46 @@ This plugin works out of the box with most popular tailwind utilities:
 If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
+#### Custom attributes
+
+You can match custom attributes by modifying your `attributes` matcher configuration. Here is an example on how to match Algolia `classNames` objects.
+
+```tsx
+<SearchBox
+  classNames={{
+    root: 'p-3 shadow-sm',
+    form: 'relative',
+  }}
+/>
+```
+<details>
+
+<summary>See an example matcher using eslint flat config</summary>
+
+<br/>
+
+```mjs
+// eslint.config.mjs
+import bettertailwindcss from "eslint-plugin-better-tailwindcss";
+
+// ...
+  {
+    plugins: {
+      "better-tailwindcss": bettertailwindcss,
+    },
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: "app/globals.css",
+        attributes: [
+          ["^classNames$", [{ match: "objectValues" }]],
+        ],
+      },
+    },
+  }
+// ...
+```
+</details>
+
 <br/>
 <br/>
 

@@ -90,7 +90,7 @@ To set the settings object, add a `settings` key to the eslint config.
   `"compact"` visual message on a single line, better suitable for CI environments.  
   `"raw"` shows only the raw information without whitespace or line break visualization.  
 
-  **Type**: `"visual"` | `"compact" | "raw"`  
+  **Type**: `"visual" | "compact" | "raw"`  
   **Default**: `"visual"`, `"compact"` in CI environments
 
 ### `attributes`

@@ -87,7 +87,7 @@ To set the settings object, add a `settings` key to the eslint config.
   Customize how linting messages are displayed.
   
   `"visual"` visualizes whitespaces and line breaks for better readability.  
-  `"compact"` visual message on a single line, better suitable for CI environments.  
+  `"compact"` displays visual message on a single line, better suitable for CI environments.  
   `"raw"` shows only the raw information without whitespace or line break visualization.  
 
   **Type**: `"visual" | "compact" | "raw"`  

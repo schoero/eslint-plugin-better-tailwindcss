@@ -105,7 +105,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, preferSingleLine, printWidth } = ctx.options;
+  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth } = ctx.options;
 
   const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
@@ -364,8 +364,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
       ctx.report({
         data: {
-          notReadable: display(literal.raw),
-          readable: display(fixedClasses)
+          notReadable: display(messageStyle, literal.raw),
+          readable: display(messageStyle, fixedClasses)
         },
         fix: fixedClasses,
         id: "unnecessary",
@@ -449,8 +449,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     ctx.report({
       data: {
-        notReadable: display(literal.raw),
-        readable: display(fixedClasses)
+        notReadable: display(messageStyle, literal.raw),
+        readable: display(messageStyle, fixedClasses)
       },
       fix: literal.surroundingBraces
         ? `{${fixedClasses}}`

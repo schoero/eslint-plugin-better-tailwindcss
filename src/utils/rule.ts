@@ -18,6 +18,7 @@ import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-ta
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
+import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -52,8 +53,8 @@ export function createRule<
   let eslintContext: Rule.RuleContext | undefined;
 
   const propertiesSchema = object({
-    ...COMMON_OPTIONS.entries,
-    ...schema?.entries ?? {}
+    ...removeDefaults(COMMON_OPTIONS.entries),
+    ...schema?.entries
   });
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
@@ -83,7 +84,7 @@ export function createRule<
 
         const options = getOptions();
 
-        const { entryPoint, tailwindConfig, tsconfig } = options;
+        const { entryPoint, messageStyle, tailwindConfig, tsconfig } = options;
 
         const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
         const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
@@ -112,7 +113,7 @@ export function createRule<
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                message: escapeMessage(augmentMessageWithWarnings(messages[rest.id], docs, warnings))
+                message: escapeMessage(messageStyle, augmentMessageWithWarnings(messages[rest.id], docs, warnings))
               });
             }
 
@@ -123,7 +124,7 @@ export function createRule<
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                message: escapeMessage(augmentMessageWithWarnings(rest.message, docs, warnings))
+                message: escapeMessage(messageStyle, augmentMessageWithWarnings(rest.message, docs, warnings))
               });
             }
           },

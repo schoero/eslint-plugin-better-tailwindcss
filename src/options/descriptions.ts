@@ -4,6 +4,7 @@ import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/att
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import {
   ENTRYPOINT_OPTION_SCHEMA,
+  MESSAGE_STYLE_OPTION_SCHEMA,
   TAILWIND_OPTION_SCHEMA,
   TSCONFIG_OPTION_SCHEMA
 } from "better-tailwindcss:options/schemas/common.js";
@@ -19,6 +20,7 @@ export const COMMON_OPTIONS = object({
   ...VARIABLES_OPTION_SCHEMA.entries,
   ...TAGS_OPTIONS_SCHEMA.entries,
   ...ENTRYPOINT_OPTION_SCHEMA.entries,
+  ...MESSAGE_STYLE_OPTION_SCHEMA.entries,
   ...TAILWIND_OPTION_SCHEMA.entries,
   ...TSCONFIG_OPTION_SCHEMA.entries
 });

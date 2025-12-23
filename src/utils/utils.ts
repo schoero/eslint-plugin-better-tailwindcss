@@ -1,5 +1,4 @@
-import { env } from "node:process";
-
+import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
@@ -44,8 +43,13 @@ export function deduplicateClasses(classes: string[]): string[] {
   });
 }
 
-export function display(classes: string): string {
+export function display(messageStyle: MessageStyleOption["messageStyle"], classes: string): string {
+  if(messageStyle === "raw"){
+    return escapeMessage(messageStyle, classes);
+  }
+
   return escapeMessage(
+    messageStyle,
     classes
       .replaceAll(" ", "·")
       .replaceAll("\n", "↵\n")
@@ -80,8 +84,8 @@ export function augmentMessageWithWarnings<Options extends Record<string, any>>(
   ].join("\n\n");
 }
 
-export function escapeMessage(message: string): string {
-  if(env.CI === "true" || env.CI === "1"){
+export function escapeMessage(messageStyle: MessageStyleOption["messageStyle"], message: string): string {
+  if(messageStyle === "compact"){
     return message
       .replaceAll("\r", "")
       .replaceAll("\n", "");

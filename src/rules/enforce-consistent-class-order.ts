@@ -108,6 +108,8 @@ export const enforceConsistentClassOrder = createRule({
 
   lintLiterals: (ctx, literals) => {
 
+    const { messageStyle } = ctx.options;
+
     for(const literal of literals){
 
       const classChunks = splitClasses(literal.content);
@@ -157,8 +159,8 @@ export const enforceConsistentClassOrder = createRule({
 
       ctx.report({
         data: {
-          notSorted: display(literal.raw),
-          sorted: display(fixedClasses)
+          notSorted: display(messageStyle, literal.raw),
+          sorted: display(messageStyle, fixedClasses)
         },
         fix: fixedClasses,
         id: "order",

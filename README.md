@@ -151,7 +151,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 This plugin is pre-configured to lint tailwind classes for the most popular utilities:
 
-- [tailwind merge](https://github.com/dcastil/tailwind-merge): `twMerge`, `twJoin`
+- [tailwind merge](https://github.com/dcastil/tailwind-merge): `twMerge` · `twJoin`
 - [class variance authority](https://github.com/joe-bell/cva): `cva`
 - [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file): `tv`
 - [shadcn](https://ui.shadcn.com/docs/installation/manual): `cn`

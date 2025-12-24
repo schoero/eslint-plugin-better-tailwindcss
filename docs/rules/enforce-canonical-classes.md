@@ -20,7 +20,7 @@ A canonical class is a simpler representation of a less optimal way of writing t
 >   - [`better-tailwindcss/enforce-consistent-important-position`](./enforce-consistent-important-position.md)
 >   - [`better-tailwindcss/enforce-consistent-variable-syntax`](./enforce-consistent-variable-syntax.md)
 >
-> - The canonical suggestions are based on the internal logic of Tailwind CSS and it possible that the suggestions can change in future versions of Tailwindcss.
+> - The canonical suggestions are based on the internal logic of Tailwind CSS and it is possible that the suggestions can change in future versions of Tailwindcss.
 > - Configurability is also limited to what Tailwind CSS exposes via their API.
 > - The rule comes with a [startup cost of around ~1s](https://github.com/tailwindlabs/tailwindcss/pull/19059#:~:text=performance).
 

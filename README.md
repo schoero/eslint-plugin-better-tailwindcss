@@ -149,66 +149,26 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 ### Utilities
 
-This plugin works out of the box with most popular tailwind utilities:
+This plugin is pre-configured to lint tailwind classes for the most popular utilities:
 
-- [tailwind merge](https://github.com/dcastil/tailwind-merge)
-- [class variance authority](https://github.com/joe-bell/cva)
-- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file)
-- [shadcn](https://ui.shadcn.com/docs/installation/manual)
-- [classcat](https://github.com/jorgebucaran/classcat)
-- [class list builder](https://github.com/crswll/clb)
-- [clsx](https://github.com/lukeed/clsx)
-- [cnbuilder](https://github.com/xobotyi/cnbuilder)
-- [classnames template literals](https://github.com/netlify/classnames-template-literals)
-- [obj str](https://github.com/lukeed/obj-str)
+- [tailwind merge](https://github.com/dcastil/tailwind-merge): `twMerge`, `twJoin`
+- [class variance authority](https://github.com/joe-bell/cva): `cva`
+- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file): `tv`
+- [shadcn](https://ui.shadcn.com/docs/installation/manual): `cn`
+- [classcat](https://github.com/jorgebucaran/classcat): `cc`
+- [class list builder](https://github.com/crswll/clb): `clb`
+- [clsx](https://github.com/lukeed/clsx): `clsx`
+- [cnbuilder](https://github.com/xobotyi/cnbuilder): `cnb`
+- [classnames template literals](https://github.com/netlify/classnames-template-literals): `ctl`
+- [obj str](https://github.com/lukeed/obj-str): `objstr`
 
 <br/>
 <br/>
 
 ### Advanced configuration
 
-If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
+If an utility is not supported by default, or you want to customize the configuration, you can define which [`callees`](./docs/settings/settings.md#callees), [`attributes`](./docs/settings/settings.md#attributes), [`tags`](./docs/settings/settings.md#tags) and [`variables`](./docs/settings/settings.md#variables) should get linted.  
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
-
-#### Custom attributes
-
-You can match custom attributes by modifying your `attributes` matcher configuration. Here is an example on how to match Algolia `classNames` objects.
-
-```tsx
-<SearchBox
-  classNames={{
-    root: 'p-3 shadow-sm',
-    form: 'relative',
-  }}
-/>
-```
-<details>
-
-<summary>See an example matcher using eslint flat config</summary>
-
-<br/>
-
-```mjs
-// eslint.config.mjs
-import bettertailwindcss from "eslint-plugin-better-tailwindcss";
-
-// ...
-  {
-    plugins: {
-      "better-tailwindcss": bettertailwindcss,
-    },
-    settings: {
-      "better-tailwindcss": {
-        entryPoint: "app/globals.css",
-        attributes: [
-          ["^classNames$", [{ match: "objectValues" }]],
-        ],
-      },
-    },
-  }
-// ...
-```
-</details>
 
 <br/>
 <br/>

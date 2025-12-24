@@ -4,7 +4,7 @@ The [rules](../../README.md#rules) in this plugin lint string literals that cont
 
 By default, the plugin is configured to work with [most popular tailwind utilities](../../README.md#utilities).  
 
-It is possible to override the default configuration by defining the `attributes`, `callees`, `variables` or `tags` option for each rule individually, or globally via the [settings](../settings/settings.md) object in ESLint.
+It is possible to override the default configuration by defining the [`callees`](../settings/settings.md#callees), [`attributes`](../settings/settings.md#attributes), [`tags`](../settings/settings.md#tags) and [`variables`](../settings/settings.md#variables) option for each rule individually, or globally via the [settings](../settings/settings.md) object in ESLint.
 
 In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own config.
 
@@ -213,4 +213,42 @@ For example, the object path for the `value` key in the following object would b
     ]
   })
 } />;
+```
+
+#### Full example: custom Algolia attribute matcher
+
+You can match custom attributes by modifying your `attributes` matcher configuration. Here is an example on how to match the values inside the Algolia `classNames` objects:
+
+```tsx
+<SearchBox
+  classNames={{
+    form: "relative",
+    root: "p-3 shadow-sm"
+  }}
+/>;
+```
+
+<br/>
+
+```js
+// eslint.config.js
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { getDefaultAttributes } from "eslint-plugin-better-tailwindcss/api/defaults";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig({
+  plugins: {
+    "better-tailwindcss": eslintPluginBetterTailwindcss
+  },
+  settings: {
+    "better-tailwindcss": {
+      attributes: [
+        ...getDefaultAttributes(), // preserve default attributes
+        ["^classNames$", [{ match: "objectValues" }]]
+      ],
+      entryPoint: "app/globals.css"
+    }
+  }
+});
+// ...
 ```

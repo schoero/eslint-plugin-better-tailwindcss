@@ -78,12 +78,10 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
       }
 
       if(canonicalClass.input.length > 1){
-        const classNames = canonicalClass.input.join(", ");
-
         return {
           data: {
             canonicalClass: canonicalClasses[className].output,
-            classNames
+            classNames: canonicalClass.input.join(", ")
           },
           fix: className === canonicalClass.input[0]
             ? canonicalClass.output
@@ -94,12 +92,10 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
       }
 
       if(canonicalClass.input.length === 1 && canonicalClass.output !== className){
-        const classNames = canonicalClass.input.join(", ");
-
         return {
           data: {
             canonicalClass: canonicalClasses[className].output,
-            classNames
+            classNames: canonicalClass.input[0]
           },
           fix: canonicalClass.output,
           id: "single",

@@ -35,7 +35,7 @@ export const enforceConsistentLineWrapping = createRule({
   recommended: true,
 
   messages: {
-    missing: "Missing line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}",
+    missing: "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}",
     unnecessary: "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
   },
 

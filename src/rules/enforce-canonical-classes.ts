@@ -102,7 +102,7 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
             classNames
           },
           fix: canonicalClass.output,
-          id: "multiple",
+          id: "single",
           warnings
         };
       }

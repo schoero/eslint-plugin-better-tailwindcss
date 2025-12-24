@@ -15,7 +15,7 @@ export const noDeprecatedClasses = createRule({
   description: "Disallow the use of deprecated Tailwind CSS classes.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-deprecated-classes.md",
   name: "no-deprecated-classes",
-  recommended: false,
+  recommended: true,
 
   messages: {
     irreplaceable: "Class \"{{ className }}\" is deprecated. Check the tailwindcss documentation for more information: https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities",

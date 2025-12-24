@@ -17,7 +17,7 @@ export const noConflictingClasses = createRule({
   description: "Disallow classes that produce conflicting styles.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md",
   name: "no-conflicting-classes",
-  recommended: false,
+  recommended: true,
 
   messages: {
     conflicting: "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassString }}\" apply the same CSS properties: \"{{ conflictingPropertiesString }}\"."

@@ -13,7 +13,12 @@ import {
 } from "better-tailwindcss:parsers/es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailwindcss:parsers/html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
+import {
+  getAttributesBySvelteTag,
+  getDirectivesBySvelteTag,
+  getLiteralsBySvelteAttribute,
+  getLiteralsBySvelteDirective
+} from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
@@ -207,6 +212,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     SvelteStartTag(node: Node) {
       const svelteNode = node as unknown as SvelteStartTag;
       const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
+      const svelteDirectives = getDirectivesBySvelteTag(ctx, svelteNode);
 
       for(const svelteAttribute of svelteAttributes){
         const attributeName = svelteAttribute.key.name;
@@ -214,6 +220,11 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
         if(typeof attributeName !== "string"){ continue; }
 
         const literals = getLiteralsBySvelteAttribute(ctx, svelteAttribute, attributes);
+        lintLiterals(context, literals);
+      }
+
+      for(const svelteDirective of svelteDirectives){
+        const literals = getLiteralsBySvelteDirective(ctx, svelteDirective, attributes);
         lintLiterals(context, literals);
       }
     }

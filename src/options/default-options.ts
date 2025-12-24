@@ -49,6 +49,13 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
   // angular
   "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)",
   [
+    "(?:^\\[class\\..*\\]$)", [
+      {
+        match: MatcherType.String
+      }
+    ]
+  ],
+  [
     "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)", [
       {
         match: MatcherType.String

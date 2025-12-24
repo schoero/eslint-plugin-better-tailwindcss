@@ -61,8 +61,12 @@ export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: 
       if(isTextAttribute(attribute)){
         literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
       }
-      if(isBoundAttribute(attribute) && isASTWithSource(attribute.value)){
-        literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, attributes[1]));
+      if(isBoundAttribute(attribute)){
+        if(isBoundAttributeName(attribute)){
+          literals.push(...getLiteralsByAngularMatchers(ctx, attribute, attributes[1]));
+        } else if(isASTWithSource(attribute.value)){
+          literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, attributes[1]));
+        }
       }
     }
 
@@ -100,6 +104,9 @@ function createLiteralsByAngularAst(ctx: Rule.RuleContext, ast: AST): Literal[] 
     return createLiteralByAngularTemplateLiteralElement(ctx, ast);
   }
 
+  if(isBoundAttribute(ast) && isBoundAttributeName(ast)){
+    return createLiteralsByAngularBoundAttributeName(ctx, ast);
+  }
   return [];
 
 }
@@ -123,7 +130,7 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
   return [];
 }
 
-function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
+function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
   const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
@@ -147,7 +154,7 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
             return false;
           }
 
-          return isStringLike(ast);
+          return isStringLike(ast) || isBoundAttributeName(ast);
         });
         break;
       }
@@ -246,6 +253,44 @@ function getAngularObjectPath(ctx: Rule.RuleContext, ast: AST): string | undefin
     return [...paths, ".", currentPath];
   }, []).join("");
 
+}
+
+function createLiteralsByAngularBoundAttributeName(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute): Literal[] {
+
+  if(!attribute.keySpan){
+    return [];
+  }
+
+  const content = attribute.name;
+
+  const startOffset = attribute.keySpan.toString()?.indexOf(content) ?? 0;
+
+  const start = attribute.keySpan.fullStart;
+  const end = attribute.keySpan.end;
+  const range = [start.offset + startOffset, end.offset] satisfies [number, number];
+  const raw = attribute.sourceSpan.start.file.content.slice(...range);
+  const quotes = getQuotes(raw);
+  const whitespaces = getWhitespace(content);
+  const loc = convertParseSourceSpanToLoc(attribute.keySpan);
+
+  loc.start.column += startOffset;
+  loc.end.column = loc.start.column + content.length;
+
+  const line = ctx.sourceCode.lines[loc.start.line - 1];
+  const indentation = getIndentation(line);
+  const supportsMultiline = false;
+
+  return [{
+    ...quotes,
+    ...whitespaces,
+    content,
+    indentation,
+    loc,
+    range,
+    raw,
+    supportsMultiline,
+    type: "StringLiteral"
+  }];
 }
 
 function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey): Literal[] {
@@ -550,6 +595,10 @@ function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
   return visitChildNode(ast);
 }
 
+function isBoundAttributeName(ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute): boolean {
+  return isBoundAttribute(ast) && getAttributeName(ast)?.startsWith("[class.");
+}
+
 function isObjectValue(ast: AST): ast is LiteralPrimitive {
   return isStringLiteral(ast) && hasParent(ast) && isLiteralMap(ast.parent);
 }
@@ -581,5 +630,5 @@ const isTemplateLiteral = (ast: AST) => is<TemplateLiteral>(ast, "TemplateLitera
 const isTemplateLiteralElement = (ast: AST) => is<TemplateLiteralElement>(ast, "TemplateLiteralElement");
 const isLiteralPrimitive = (ast: AST) => is<LiteralPrimitive>(ast, "LiteralPrimitive");
 
-const isTextAttribute = (ast: TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstTextAttribute>(ast, "TextAttribute");
-const isBoundAttribute = (ast: TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstBoundAttribute>(ast, "BoundAttribute");
+const isTextAttribute = (ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstTextAttribute>(ast, "TextAttribute");
+const isBoundAttribute = (ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstBoundAttribute>(ast, "BoundAttribute");

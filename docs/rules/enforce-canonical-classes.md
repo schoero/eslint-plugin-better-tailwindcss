@@ -17,7 +17,7 @@ A canonical class is a simpler representation of a less optimal way of writing t
 > - The rule covers multiple other rules.  
 >   It is recommended to disable the following rules to avoid duplicate reports:
 >   - [`better-tailwindcss/enforce-shorthand-classes`](./enforce-shorthand-classes.md)
->   - [`better-tailwindcss/no-deprecated-classes`](./no-deprecated-classes.md)
+>   - [`better-tailwindcss/enforce-consistent-important-position`](./enforce-consistent-important-position.md)
 >   - [`better-tailwindcss/enforce-consistent-variable-syntax`](./enforce-consistent-variable-syntax.md)
 >
 > - The canonical suggestions are based on the internal logic of Tailwind CSS and it possible that the suggestions can change in future versions of Tailwindcss.

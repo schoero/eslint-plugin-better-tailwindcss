@@ -53,7 +53,7 @@ export function createRule<
 
   const propertiesSchema = object({
     ...COMMON_OPTIONS.entries,
-    ...schema?.entries ?? {}
+    ...schema?.entries
   });
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;

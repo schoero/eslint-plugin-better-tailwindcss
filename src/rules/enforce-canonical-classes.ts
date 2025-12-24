@@ -1,3 +1,5 @@
+import { boolean, description, number, object, optional, pipe } from "valibot";
+
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
@@ -16,8 +18,33 @@ export const enforceCanonicalClasses = createRule({
   name: "enforce-canonical-classes",
   recommended: false,
 
+  schema: object({
+    collapse: optional(
+      pipe(
+        boolean(),
+        description("Whether to collapse multiple utilities into a single utility if possible.")
+      ),
+      true
+    ),
+    logical: optional(
+      pipe(
+        boolean(),
+        description("Whether to convert between logical and physical properties when collapsing utilities.")
+      ),
+      true
+    ),
+    rootFontSize: optional(
+      pipe(
+        number(),
+        description("The root font size in pixels.")
+      ),
+      undefined
+    )
+  }),
+
   messages: {
-    canonical: "The class: \"{{ className }}\" can be simplified to \"{{canonicalClass}}\"."
+    multiple: "The classes: \"{{ classNames }}\" can be simplified to \"{{canonicalClass}}\".",
+    single: "The class: \"{{ className }}\" can be simplified to \"{{canonicalClass}}\"."
   },
 
   initialize: ctx => {
@@ -34,22 +61,52 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
     const classes = splitClasses(literal.content);
     const uniqueClasses = deduplicateClasses(classes);
 
-    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), uniqueClasses);
+    const { collapse, logical, rootFontSize } = ctx.options;
+
+    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), uniqueClasses, {
+      collapse,
+      logicalToPhysical: logical,
+      rem: rootFontSize
+    });
 
     lintClasses(ctx, literal, className => {
-      const uniqueIndex = uniqueClasses.indexOf(className);
-      const canonicalClass = canonicalClasses[uniqueIndex];
+      const canonicalClass = canonicalClasses[className];
 
-      if(!canonicalClass || canonicalClass === className){
+      if(!canonicalClass){
+        console.log("No canonical class found for:", className);
         return;
       }
 
-      return {
-        data: { canonicalClass, className },
-        fix: canonicalClass,
-        id: "canonical",
-        warnings
-      };
+      if(canonicalClass.input.length > 1){
+        const classNames = canonicalClass.input.join(", ");
+
+        return {
+          data: {
+            canonicalClass: canonicalClasses[className].output,
+            classNames
+          },
+          fix: className === canonicalClass.input[0]
+            ? canonicalClass.output
+            : "",
+          id: "multiple",
+          warnings
+        };
+      }
+
+      if(canonicalClass.input.length === 1 && canonicalClass.output !== className){
+        const classNames = canonicalClass.input.join(", ");
+
+        return {
+          data: {
+            canonicalClass: canonicalClasses[className].output,
+            classNames
+          },
+          fix: canonicalClass.output,
+          id: "multiple",
+          warnings
+        };
+      }
+
     });
   }
 }

@@ -5,6 +5,7 @@ import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callee
 import {
   DETECT_COMPONENT_CLASSES_OPTION_SCHEMA,
   ENTRYPOINT_OPTION_SCHEMA,
+  ROOT_FONT_SIZE_OPTION_SCHEMA,
   TAILWIND_OPTION_SCHEMA,
   TSCONFIG_OPTION_SCHEMA
 } from "better-tailwindcss:options/schemas/common.js";
@@ -22,7 +23,8 @@ export const COMMON_OPTIONS = object({
   ...ENTRYPOINT_OPTION_SCHEMA.entries,
   ...TAILWIND_OPTION_SCHEMA.entries,
   ...TSCONFIG_OPTION_SCHEMA.entries,
-  ...DETECT_COMPONENT_CLASSES_OPTION_SCHEMA.entries
+  ...DETECT_COMPONENT_CLASSES_OPTION_SCHEMA.entries,
+  ...ROOT_FONT_SIZE_OPTION_SCHEMA.entries
 });
 
 export type CommonOptions = InferOutput<typeof COMMON_OPTIONS>;

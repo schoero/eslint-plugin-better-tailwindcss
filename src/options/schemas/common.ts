@@ -1,4 +1,4 @@
-import { description, object, optional, pipe, string } from "valibot";
+import { boolean, description, object, optional, pipe, string } from "valibot";
 
 import type { InferOutput } from "valibot";
 
@@ -35,3 +35,14 @@ export const TSCONFIG_OPTION_SCHEMA = object({
 });
 
 export type TSConfigOption = InferOutput<typeof TSCONFIG_OPTION_SCHEMA>;
+
+export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
+  detectComponentClasses: optional(
+    pipe(
+      boolean(),
+      description("Whether to automatically detect custom component classes from the tailwindcss config.")
+    )
+  )
+});
+
+export type DetectComponentClassesOption = InferOutput<typeof DETECT_COMPONENT_CLASSES_OPTION_SCHEMA>;

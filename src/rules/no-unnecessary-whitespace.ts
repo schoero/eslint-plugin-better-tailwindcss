@@ -43,13 +43,13 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
       const isFirstChunk = whitespaceIndex === 0;
       const isLastChunk = whitespaceIndex === whitespaceChunks.length - 1;
 
-      const startIndex = stringIndex;
+      const startIndex = stringIndex + (literal.openingQuote?.length || 0) + (literal.closingBraces?.length || 0);
 
       const whitespace = whitespaceChunks[whitespaceIndex];
 
       stringIndex += whitespace.length;
 
-      const endIndex = stringIndex;
+      const endIndex = startIndex + whitespace.length;
 
       const className = classChunks[whitespaceIndex] ?? "";
 
@@ -67,8 +67,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
           fix: "",
           id: "unnecessary",
           range: [
-            literalStart + 1 + startIndex,
-            literalStart + 1 + endIndex
+            literalStart + startIndex,
+            literalStart + endIndex
           ]
         });
         continue;
@@ -86,8 +86,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
           fix: whitespaceWithoutLeadingSpaces,
           id: "unnecessary",
           range: [
-            literalStart + 1 + startIndex,
-            literalStart + 1 + endIndex
+            literalStart + startIndex,
+            literalStart + endIndex
           ]
         });
 
@@ -111,8 +111,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
           fix: " ",
           id: "unnecessary",
           range: [
-            literalStart + 1 + startIndex,
-            literalStart + 1 + endIndex
+            literalStart + startIndex,
+            literalStart + endIndex
           ]
         });
 
@@ -129,8 +129,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
           fix: "",
           id: "unnecessary",
           range: [
-            literalStart + 1 + startIndex,
-            literalStart + 1 + endIndex
+            literalStart + startIndex,
+            literalStart + endIndex
           ]
         });
 

@@ -77,8 +77,8 @@
     "valibot": "^1.2.0"
   },
   "devDependencies": {
-    "@angular-eslint/template-parser": "^21.1.0",
     "@angular/compiler": "^21.0.6",
+    "@angular-eslint/template-parser": "^21.1.0",
     "@html-eslint/parser": "^0.52.0",
     "@oxc-node/core": "^0.0.35",
     "@schoero/configs": "^1.5.20",

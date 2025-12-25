@@ -132,7 +132,9 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 

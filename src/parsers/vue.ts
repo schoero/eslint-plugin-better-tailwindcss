@@ -21,6 +21,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   deduplicateLiterals,
   getContent,
   getIndentation,
@@ -58,21 +59,24 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
     return [];
   }
 
+  const name = getVueAttributeName(attribute);
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(getVueBoundName(attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+      if(!matchesName(getVueBoundName(attributes).toLowerCase(), name?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
     } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), name?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));
     }
 
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 
@@ -96,7 +100,8 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   const matcherFunctions = getVueMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode & Rule.NodeParentExtension): Literal[] {

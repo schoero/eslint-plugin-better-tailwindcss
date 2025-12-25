@@ -20,6 +20,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   deduplicateLiterals,
   getContent,
   getIndentation,
@@ -37,6 +38,7 @@ import type {
   SvelteGenericsDirective,
   SvelteLiteral,
   SvelteMustacheTagText,
+  SvelteName,
   SvelteShorthandAttribute,
   SvelteSpecialDirective,
   SvelteSpreadAttribute,
@@ -73,6 +75,15 @@ export function getAttributesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
   }, []);
 }
 
+export function getDirectivesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStartTag): SvelteDirective[] {
+  return node.attributes.reduce<SvelteDirective[]>((acc, attribute) => {
+    if(isSvelteDirective(attribute)){
+      acc.push(attribute);
+    }
+    return acc;
+  }, []);
+}
+
 export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
 
   // skip shorthand attributes #42
@@ -80,14 +91,16 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     return [];
   }
 
+  const name = attribute.key.name;
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
 
     for(const value of attribute.value){
       if(isAttributesName(attributes)){
-        if(!matchesName(attributes.toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
       } else if(isAttributesMatchers(attributes)){
-        if(!matchesName(attributes[0].toLowerCase(), attribute.key.name.toLowerCase())){ continue; }
+        if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ continue; }
         literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
       }
     }
@@ -95,7 +108,33 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
+
+}
+
+export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: SvelteDirective, attributes: Attributes): Literal[] {
+
+  if(directive.kind !== "Class"){
+    return [];
+  }
+
+  const name = `class:${directive.key.name.name}`;
+
+  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+
+    if(isAttributesMatchers(attributes)){
+      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
+      literals.push(...getLiteralsBySvelteMatchers(ctx, directive.key.name, attributes[1]));
+    }
+
+    return literals;
+  }, []);
+
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 
@@ -103,13 +142,22 @@ function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, ma
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getLiteralsBySvelteLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(isSvelteStringLiteral(node)){
     const stringLiteral = getStringLiteralBySvelteStringLiteral(ctx, node);
+
+    if(stringLiteral){
+      return [stringLiteral];
+    }
+  }
+
+  if(isSvelteName(node)){
+    const stringLiteral = getStringLiteralBySvelteName(ctx, node);
 
     if(stringLiteral){
       return [stringLiteral];
@@ -141,6 +189,36 @@ function getLiteralsBySvelteESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNod
       ...multilineQuotes
     };
   });
+}
+
+function getStringLiteralBySvelteName(ctx: Rule.RuleContext, node: SvelteName): StringLiteral {
+
+  const raw = node.name;
+
+  const braces = getBracesByString(ctx, raw);
+  const isInterpolated = getIsInterpolated(ctx, raw);
+  const quotes = getQuotes(raw);
+  const content = getContent(raw, quotes, braces);
+  const whitespaces = getWhitespace(content);
+  const line = ctx.sourceCode.lines[isInterpolated ? node.parent.loc.start.line - 1 : node.loc.start.line - 1];
+  const indentation = getIndentation(line);
+  const multilineQuotes = getMultilineQuotes(node);
+
+  return {
+    ...whitespaces,
+    ...quotes,
+    ...braces,
+    ...multilineQuotes,
+    content,
+    indentation,
+    isInterpolated,
+    loc: node.loc,
+    range: node.range, // include quotes in range
+    raw,
+    supportsMultiline: false,
+    type: "StringLiteral"
+  };
+
 }
 
 function getStringLiteralBySvelteStringLiteral(ctx: Rule.RuleContext, node: SvelteLiteral): StringLiteral | undefined {
@@ -190,7 +268,7 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   return !!braces.closingBraces || !!braces.openingBraces;
 }
 
-function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | SvelteLiteral): MultilineMeta {
+function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | SvelteLiteral | SvelteName): MultilineMeta {
   const surroundingBraces = SVELTE_CONTAINER_TYPES_TO_INSERT_BRACES.includes(node.parent.type);
   const multilineQuotes: LiteralValueQuotes[] = SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES.includes(node.parent.type)
     ? ["'", "\"", "`"]
@@ -202,7 +280,7 @@ function getMultilineQuotes(node: ESBaseNode & Rule.NodeParentExtension | Svelte
   };
 }
 
-function isSvelteAttribute(attribute:
+function isSvelteAttribute(node:
   | SvelteAttachTag
   | SvelteAttribute
   | SvelteDirective
@@ -210,12 +288,20 @@ function isSvelteAttribute(attribute:
   | SvelteShorthandAttribute
   | SvelteSpecialDirective
   | SvelteSpreadAttribute
-  | SvelteStyleDirective): attribute is SvelteAttribute {
-  return "key" in attribute && "name" in attribute.key && typeof attribute.key.name === "string";
+  | SvelteStyleDirective): node is SvelteAttribute {
+  return node.type === "SvelteAttribute";
+}
+
+function isSvelteDirective(node: ESBaseNode): node is SvelteDirective {
+  return node.type === "SvelteDirective";
 }
 
 function isSvelteStringLiteral(node: ESBaseNode): node is SvelteLiteral {
   return node.type === "SvelteLiteral";
+}
+
+function isSvelteName(node: ESBaseNode): node is SvelteName {
+  return node.type === "SvelteName";
 }
 
 function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
@@ -243,7 +329,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             return false;
           }
 
-          return isESStringLike(node) || isSvelteStringLiteral(node);
+          return isESStringLike(node) || isSvelteStringLiteral(node) || isSvelteName(node);
         });
         break;
       }

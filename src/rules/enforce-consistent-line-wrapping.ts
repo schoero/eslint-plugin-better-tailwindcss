@@ -93,6 +93,16 @@ export const enforceConsistentLineWrapping = createRule({
         description("The maximum line length before it gets wrapped.")
       ),
       80
+    ),
+    strictness: optional(
+      pipe(
+        union([
+          literal("strict"),
+          literal("loose")
+        ]),
+        description("Enable this option if prettier is used in your project.")
+      ),
+      "strict"
     )
   }),
 
@@ -105,7 +115,7 @@ export const enforceConsistentLineWrapping = createRule({
 
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
-  const { classesPerLine, group: groupSeparator, preferSingleLine, printWidth } = ctx.options;
+  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness } = ctx.options;
 
   const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
@@ -117,12 +127,13 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const lineStartPosition = literal.indentation + getIndentation(ctx);
     const literalStartPosition = literal.loc.start.column;
-
-    const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
+    const prettierStartPosition = lineStartPosition + (literal.attribute ? literal.attribute.length + 1 : 0);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
+
+    const classChunks = splitClasses(literal.content);
+    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
 
     if(literal.openingQuote){
       if(literal.multilineQuotes?.includes("`")){
@@ -364,8 +375,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
       ctx.report({
         data: {
-          notReadable: display(literal.raw),
-          readable: display(fixedClasses)
+          notReadable: display(messageStyle, literal.raw),
+          readable: display(messageStyle, fixedClasses)
         },
         fix: fixedClasses,
         id: "unnecessary",
@@ -393,6 +404,13 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       ) ||
       printWidth === 0 && classesPerLine === 0
     ){
+      continue;
+    }
+
+    // force skip if prettier would wrap the attribute to a new line and then the single line would fit
+    if(strictness === "loose" &&
+      literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0 &&
+      prettierStartPosition + singlelineClasses.line.length <= printWidth){
       continue;
     }
 
@@ -449,8 +467,8 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     ctx.report({
       data: {
-        notReadable: display(literal.raw),
-        readable: display(fixedClasses)
+        notReadable: display(messageStyle, literal.raw),
+        readable: display(messageStyle, fixedClasses)
       },
       fix: literal.surroundingBraces
         ? `{${fixedClasses}}`

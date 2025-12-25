@@ -34,8 +34,6 @@ function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Liter
 
   for(const literal of literals){
 
-    const { entryPoint, tailwindConfig, tsconfig } = ctx.options;
-
     const classes = splitClasses(literal.content);
 
     const { conflictingClasses, warnings } = getConflictingClasses(async(ctx), classes);

@@ -13,11 +13,17 @@ import {
 } from "better-tailwindcss:parsers/es.js";
 import { getAttributesByHTMLTag, getLiteralsByHTMLAttribute } from "better-tailwindcss:parsers/html.js";
 import { getAttributesByJSXElement, getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
-import { getAttributesBySvelteTag, getLiteralsBySvelteAttribute } from "better-tailwindcss:parsers/svelte.js";
+import {
+  getAttributesBySvelteTag,
+  getDirectivesBySvelteTag,
+  getLiteralsBySvelteAttribute,
+  getLiteralsBySvelteDirective
+} from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
-import { augmentMessageWithWarnings } from "better-tailwindcss:utils/utils.js";
+import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
+import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -52,7 +58,7 @@ export function createRule<
   let eslintContext: Rule.RuleContext | undefined;
 
   const propertiesSchema = object({
-    ...COMMON_OPTIONS.entries,
+    ...removeDefaults(COMMON_OPTIONS.entries),
     ...schema?.entries
   });
 
@@ -83,7 +89,7 @@ export function createRule<
 
         const options = getOptions();
 
-        const { entryPoint, tailwindConfig, tsconfig } = options;
+        const { entryPoint, messageStyle, tailwindConfig, tsconfig } = options;
 
         const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
         const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
@@ -105,14 +111,14 @@ export function createRule<
           report: ({ data, fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 
-            if("id" in rest && rest.id){
+            if("id" in rest && rest.id && messages && rest.id in messages){
               return void ctx.report({
                 data,
                 loc,
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                messageId: rest.id
+                message: escapeMessage(messageStyle, augmentMessageWithWarnings(messages[rest.id], docs, warnings))
               });
             }
 
@@ -123,7 +129,7 @@ export function createRule<
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
                 },
-                message: augmentMessageWithWarnings(rest.message, docs, warnings)
+                message: escapeMessage(messageStyle, augmentMessageWithWarnings(rest.message, docs, warnings))
               });
             }
           },
@@ -207,6 +213,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     SvelteStartTag(node: Node) {
       const svelteNode = node as unknown as SvelteStartTag;
       const svelteAttributes = getAttributesBySvelteTag(ctx, svelteNode);
+      const svelteDirectives = getDirectivesBySvelteTag(ctx, svelteNode);
 
       for(const svelteAttribute of svelteAttributes){
         const attributeName = svelteAttribute.key.name;
@@ -214,6 +221,11 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
         if(typeof attributeName !== "string"){ continue; }
 
         const literals = getLiteralsBySvelteAttribute(ctx, svelteAttribute, attributes);
+        lintLiterals(context, literals);
+      }
+
+      for(const svelteDirective of svelteDirectives){
+        const literals = getLiteralsBySvelteDirective(ctx, svelteDirective, attributes);
         lintLiterals(context, literals);
       }
     }

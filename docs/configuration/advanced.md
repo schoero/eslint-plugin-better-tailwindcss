@@ -6,9 +6,9 @@ By default, the plugin is configured to work with [most popular tailwind utiliti
 
 It is possible to override the default configuration by defining the [`callees`](../settings/settings.md#callees), [`attributes`](../settings/settings.md#attributes), [`tags`](../settings/settings.md#tags) and [`variables`](../settings/settings.md#variables) option for each rule individually, or globally via the [settings](../settings/settings.md) object in ESLint.
 
-In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own config.
+In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/defaults` and merge them with your own config.
 
-You can read more about the default configuration in the [defaults documentation](../api/defaults.md).
+You can read more about the default configuration in the [defaults documentation](../defaults.md).
 
 <br/>
 <br/>
@@ -233,7 +233,7 @@ You can match custom attributes by modifying your `attributes` matcher configura
 ```js
 // eslint.config.js
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { getDefaultAttributes } from "eslint-plugin-better-tailwindcss/api/defaults";
+import { getDefaultAttributes } from "eslint-plugin-better-tailwindcss/defaults";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig({

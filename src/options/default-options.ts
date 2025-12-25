@@ -46,8 +46,24 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
     ]
   ],
 
+  // svelte
+  [
+    "^class:.*", [
+      {
+        match: MatcherType.String
+      }
+    ]
+  ],
+
   // angular
   "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)",
+  [
+    "(?:^\\[class\\..*\\]$)", [
+      {
+        match: MatcherType.String
+      }
+    ]
+  ],
   [
     "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)", [
       {

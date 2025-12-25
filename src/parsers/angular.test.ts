@@ -1,6 +1,7 @@
 import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
+import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
@@ -585,6 +586,25 @@ describe("angular", () => {
               ]]
             ],
             order: "asc"
+          }]
+        }
+      ]
+    });
+  });
+
+  // #274
+  it("should support bound attribute names", () => {
+    lint(noRestrictedClasses, {
+      invalid: [
+        {
+          angular: `<img [class.restricted]="true" />`,
+          angularOutput: `<img [class.allowed]="true" />`,
+
+          errors: 1,
+          options: [{
+            restrict: [
+              { fix: "allowed", pattern: "restricted" }
+            ]
           }]
         }
       ]

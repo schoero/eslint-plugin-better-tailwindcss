@@ -4,6 +4,11 @@ Enforce consistent css variable syntax in tailwindcss class strings.
 
 <br/>
 
+> [!NOTE]
+> This rule might interfere with [`better-tailwindcss/enforce-canonical-classes`](./enforce-canonical-classes.md) if both rules are enabled. It is recommended to use only one of them to avoid conflicting fixes.
+
+<br/>
+
 ## Options
 
 ### `syntax`

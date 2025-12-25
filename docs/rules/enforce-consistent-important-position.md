@@ -6,6 +6,11 @@ Tailwind CSS v4 introduces the "recommended" position as the new standard. This 
 
 <br/>
 
+> [!NOTE]
+> This rule might interfere with [`better-tailwindcss/enforce-canonical-classes`](./enforce-canonical-classes.md) if both rules are enabled. It is recommended to use only one of them to avoid conflicting fixes.
+
+<br/>
+
 ## Options
 
 ### `position`
@@ -16,7 +21,7 @@ Controls where the important modifier (`!`) should be placed in class names.
 - `recommended`: Places the important modifier at the end of the class name.
 
   **Type**: `"legacy" | "recommended"`  
-  **Default**: `"recommended"`  
+  **Default**: `"recommended"` in Tailwind CSS v4, `"legacy"` in Tailwind CSS v3 and earlier.  
 
 <br/>
 

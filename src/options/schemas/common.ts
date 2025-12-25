@@ -4,12 +4,12 @@ import {
   boolean,
   description,
   literal,
+  number,
   object,
   optional,
   pipe,
   string,
-  union,
-  number,
+  union
 } from "valibot";
 
 import type { InferOutput } from "valibot";

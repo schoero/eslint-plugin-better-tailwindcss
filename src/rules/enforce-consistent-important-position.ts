@@ -28,8 +28,7 @@ export const enforceConsistentImportantPosition = createRule({
           literal("recommended")
         ]),
         description("Preferred position for important classes. 'legacy' places the important modifier (!) at the start of the class name, 'recommended' places it at the end.")
-      ),
-      "recommended"
+      )
     )
   }),
 
@@ -39,7 +38,13 @@ export const enforceConsistentImportantPosition = createRule({
 
   lintLiterals(ctx, literals) {
 
-    const { position } = ctx.options;
+    const { position: configuredPosition } = ctx.options;
+
+    const position = configuredPosition ?? (
+      ctx.version.major >= 4
+        ? "recommended"
+        : "legacy"
+    );
 
     for(const literal of literals){
 

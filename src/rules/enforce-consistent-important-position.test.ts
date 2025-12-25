@@ -297,7 +297,7 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
-  it.runIf(getTailwindCSSVersion().major <= 3)(`should use "legacy" as default position when no option is provided in tailwind <= 3`, { fails: true }, () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)(`should use "legacy" as default position when no option is provided in tailwind <= 3`, () => {
     lint(
       enforceConsistentImportantPosition,
 

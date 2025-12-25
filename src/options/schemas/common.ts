@@ -1,6 +1,7 @@
 import { env } from "node:process";
 
 import {
+  boolean,
   description,
   literal,
   object,
@@ -63,3 +64,14 @@ export const MESSAGE_STYLE_OPTION_SCHEMA = object({
 });
 
 export type MessageStyleOption = InferOutput<typeof MESSAGE_STYLE_OPTION_SCHEMA>;
+
+export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
+  detectComponentClasses: optional(
+    pipe(
+      boolean(),
+      description("Whether to automatically detect custom component classes from the tailwindcss config.")
+    )
+  )
+});
+
+export type DetectComponentClassesOption = InferOutput<typeof DETECT_COMPONENT_CLASSES_OPTION_SCHEMA>;

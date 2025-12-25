@@ -1,10 +1,15 @@
-import { describe, it } from "vitest";
+import eslintParserHTML from "@html-eslint/parser";
+import { describe, expect, it } from "vitest";
 
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
+import { eslint } from "better-tailwindcss:tests/utils/eslint.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
-import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
+import { prettier } from "better-tailwindcss:tests/utils/prettier.js";
+import { css, dedent, jsx, ts } from "better-tailwindcss:tests/utils/template.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
+
+import eslintPluginBetterTailwindcss from "../configs/config.js";
 
 
 describe(enforceConsistentLineWrapping.name, () => {
@@ -1069,4 +1074,113 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  describe("prettier compatibility", () => {
+    const iterations = [
+      jsx`
+        () => (
+          <img class="font-bold text-blue" />
+        );
+      `,
+      jsx`
+        () => (
+          <img class="
+            font-bold text-blue
+          " />
+        );
+      `,
+      jsx`
+        () => (
+          <img
+            class="
+            font-bold text-blue
+          "
+          />
+        );
+      `,
+      jsx`
+        () => (
+          <img
+            class="font-bold text-blue"
+          />
+        );
+      `,
+      jsx`
+        () => (
+          <img class="font-bold text-blue" />
+        );
+      `
+    ];
+
+    const cases = [
+      { input: iterations[0], name: "eslint line wrapping", output: iterations[1] },
+      { input: iterations[1], name: "prettier class attribute newline", output: iterations[2] },
+      { input: iterations[2], name: "eslint line collapsing", output: iterations[3] },
+      { input: iterations[3], name: "prettier class attribute collapsing", output: iterations[4] }
+    ];
+
+    it.each(cases)("should conflict with prettier iteration $name", async currentCase => {
+      const index = cases.indexOf(currentCase);
+
+      const output = index % 2 === 0
+        ? await eslint(
+          currentCase.input,
+          [{
+            languageOptions: {
+              parser: eslintParserHTML
+            },
+            plugins: {
+              "better-tailwindcss": eslintPluginBetterTailwindcss
+            },
+            rules: {
+              "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+                printWidth: 32,
+                strictness: "strict"
+              }]
+            }
+          }]
+        )
+        : await prettier(
+          currentCase.input,
+          {
+            parser: "babel",
+            printWidth: 32
+          }
+        );
+
+      expect(output.trim()).toBe(currentCase.output);
+    });
+
+    it(`should not conflict with prettier when "strictness" is set to "loose"`, async () => {
+      const input = iterations[0];
+
+      const eslintOutput = await eslint(
+        input,
+        [{
+          languageOptions: {
+            parser: eslintParserHTML
+          },
+          plugins: {
+            "better-tailwindcss": eslintPluginBetterTailwindcss
+          },
+          rules: {
+            "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+              printWidth: 32,
+              strictness: "loose"
+            }]
+          }
+        }]
+      );
+
+      const prettierOutput = await prettier(
+        eslintOutput,
+        {
+          parser: "babel",
+          printWidth: 32
+        }
+      );
+
+      expect(eslintOutput.trim()).toBe(input.trim());
+      expect(eslintOutput.trim()).toBe(prettierOutput.trim());
+    });
+  });
 });

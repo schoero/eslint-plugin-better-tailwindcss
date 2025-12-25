@@ -3,6 +3,7 @@ import { object } from "valibot";
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import {
+  DETECT_COMPONENT_CLASSES_OPTION_SCHEMA,
   ENTRYPOINT_OPTION_SCHEMA,
   MESSAGE_STYLE_OPTION_SCHEMA,
   TAILWIND_OPTION_SCHEMA,
@@ -22,7 +23,8 @@ export const COMMON_OPTIONS = object({
   ...ENTRYPOINT_OPTION_SCHEMA.entries,
   ...MESSAGE_STYLE_OPTION_SCHEMA.entries,
   ...TAILWIND_OPTION_SCHEMA.entries,
-  ...TSCONFIG_OPTION_SCHEMA.entries
+  ...TSCONFIG_OPTION_SCHEMA.entries,
+  ...DETECT_COMPONENT_CLASSES_OPTION_SCHEMA.entries
 });
 
 export type CommonOptions = InferOutput<typeof COMMON_OPTIONS>;

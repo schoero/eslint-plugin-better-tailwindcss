@@ -155,14 +155,23 @@ export function replacePlaceholders(template: string, match: RegExpMatchArray | 
   });
 }
 
-export function deduplicateLiterals(literals: Literal[]): Literal[] {
-  return literals.filter((l1, index) => {
-    return literals.findIndex(l2 => {
-      return l1.content === l2.content &&
-        l1.range[0] === l2.range[0] &&
-        l1.range[1] === l2.range[1];
-    }) === index;
-  });
+export function addAttribute(name: string | undefined): (literal: Literal, index: number, literals: Literal[]) => Literal {
+  return (literal: Literal) => {
+    if(!name){
+      return literal;
+    }
+
+    literal.attribute = name;
+    return literal;
+  };
+}
+
+export function deduplicateLiterals(literal: Literal, index: number, literals: Literal[]): boolean {
+  return literals.findIndex(l2 => {
+    return literal.content === l2.content &&
+      literal.range[0] === l2.range[0] &&
+      literal.range[1] === l2.range[1];
+  }) === index;
 }
 
 export function createObjectPathElement(path?: string): string {

@@ -1,3 +1,4 @@
+import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
@@ -42,14 +43,20 @@ export function deduplicateClasses(classes: string[]): string[] {
   });
 }
 
-export function display(classes: string): string {
-  return classes
-    .replaceAll(" ", "·")
-    .replaceAll("\n", "↵\n")
-    .replaceAll("\r", "↩\r")
-    .replaceAll("\t", "→");
-}
+export function display(messageStyle: MessageStyleOption["messageStyle"], classes: string): string {
+  if(messageStyle === "raw"){
+    return escapeMessage(messageStyle, classes);
+  }
 
+  return escapeMessage(
+    messageStyle,
+    classes
+      .replaceAll(" ", "·")
+      .replaceAll("\n", "↵\n")
+      .replaceAll("\r", "↩\r")
+      .replaceAll("\t", "→")
+  );
+}
 /**
  * Augments a message with additional warnings and documentation links.
  *
@@ -75,6 +82,16 @@ export function augmentMessageWithWarnings<Options extends Record<string, any>>(
     ]).join("\n"),
     message
   ].join("\n\n");
+}
+
+export function escapeMessage(messageStyle: MessageStyleOption["messageStyle"], message: string): string {
+  if(messageStyle === "compact"){
+    return message
+      .replaceAll("\r", "")
+      .replaceAll("\n", "");
+  }
+
+  return message;
 }
 
 export function splitWhitespaces(classes: string): string[] {

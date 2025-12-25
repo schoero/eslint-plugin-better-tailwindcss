@@ -1,4 +1,15 @@
-import { boolean, description, object, optional, pipe, string } from "valibot";
+import { env } from "node:process";
+
+import {
+  boolean,
+  description,
+  literal,
+  object,
+  optional,
+  pipe,
+  string,
+  union
+} from "valibot";
 
 import type { InferOutput } from "valibot";
 
@@ -35,6 +46,24 @@ export const TSCONFIG_OPTION_SCHEMA = object({
 });
 
 export type TSConfigOption = InferOutput<typeof TSCONFIG_OPTION_SCHEMA>;
+
+export const MESSAGE_STYLE_OPTION_SCHEMA = object({
+  messageStyle: optional(
+    pipe(
+      union([
+        literal("visual"),
+        literal("compact"),
+        literal("raw")
+      ]),
+      description("How linting messages are displayed.")
+    ),
+    env.CI === "true" || env.CI === "1"
+      ? "compact"
+      : "visual"
+  )
+});
+
+export type MessageStyleOption = InferOutput<typeof MESSAGE_STYLE_OPTION_SCHEMA>;
 
 export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
   detectComponentClasses: optional(

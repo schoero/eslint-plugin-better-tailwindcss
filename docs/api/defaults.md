@@ -2,7 +2,7 @@
 # Defaults
 
 The plugin comes with a set of default [matchers](../configuration/advanced.md#matchers) for `attributes`, `callees`, `variables` and `tags`. These matchers are used to [determine how the rules should behave](../configuration/advanced.md#advanced-configuration) when checking your code.
-In order to extend the default configuration instead of overwriting it, you can import the default options from `eslint-plugin-better-tailwindcss/api/defaults` and merge them with your own options.
+In order to extend the default configuration instead of overwriting it, you can import the default options from `eslint-plugin-better-tailwindcss/defaults` and merge them with your own options.
 
 <br/>
 <br/>
@@ -16,8 +16,8 @@ import {
   getDefaultCallees,
   getDefaultTags,
   getDefaultVariables
-} from "eslint-plugin-better-tailwindcss/api/defaults";
-import { MatcherType } from "eslint-plugin-better-tailwindcss/api/types";
+} from "eslint-plugin-better-tailwindcss/defaults";
+import { MatcherType } from "eslint-plugin-better-tailwindcss/types";
 
 
 export default [

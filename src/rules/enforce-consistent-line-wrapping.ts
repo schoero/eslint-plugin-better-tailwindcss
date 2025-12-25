@@ -127,7 +127,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const lineStartPosition = literal.indentation + getIndentation(ctx);
     const literalStartPosition = literal.loc.start.column;
-    const prettierStartPosition = lineStartPosition + (literal.attribute?.length ?? 0) + 1;
+    const prettierStartPosition = lineStartPosition + (literal.attribute ? literal.attribute.length + 1 : 0);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);

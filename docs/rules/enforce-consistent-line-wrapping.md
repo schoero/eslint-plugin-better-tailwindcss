@@ -59,6 +59,17 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
   **Type**: `"windows" | "unix"`  
   **Default**: `"unix"`
 
+<br />
+
+### `strictness`
+
+  When used in combination with formatters like prettier, biome or oxfmt, the line wrapping might interfere with the line wrapping of those formatters in some [edge cases](https://github.com/schoero/eslint-plugin-better-tailwindcss/issues/243).  
+  If you experience such issues, you can set the `strictness` option to `"loose"` to make the rule less strict about line wrapping.
+  This will allow the lines to slightly exceed the `printWidth` if the plugin detects that the line wrapping would likely cause conflicts with a formatter.
+
+  **Type**: `"strict" | "loose"`  
+  **Default**: `"strict"`
+
 <br/>
 
 <details>

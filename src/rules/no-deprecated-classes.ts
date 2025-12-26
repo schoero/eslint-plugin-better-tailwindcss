@@ -82,7 +82,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
     const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
     lintClasses(ctx, literal, className => {
-      const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
+      const dissectedClass = dissectedClasses[className];
 
       if(!dissectedClass){
         return;

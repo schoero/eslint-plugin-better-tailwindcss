@@ -3,17 +3,17 @@ import { normalize } from "../async-utils/path.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
 import type { AsyncContext } from "../utils/context.js";
-import type { DissectedClass } from "./dissect-classes.js";
+import type { DissectedClass, DissectedClasses } from "./dissect-classes.js";
 
 
-export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: any, classes: string[]): Promise<DissectedClass[]> {
+export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: any, classes: string[]): Promise<DissectedClasses> {
 
   const utils = await import(normalize(`${ctx.installation}/lib/util/splitAtTopLevelOnly.js`));
 
   const prefix = getPrefix(tailwindContext);
   const separator = tailwindContext.tailwindConfig.separator ?? ":";
 
-  return classes.map(className => {
+  return classes.reduce<Record<string, DissectedClass>>((acc, className) => {
     const splitChunks = utils.splitAtTopLevelOnly?.(className, separator) ?? utils.default?.splitAtTopLevelOnly?.(className, separator);
     const variants = splitChunks.slice(0, -1);
 
@@ -30,7 +30,7 @@ export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: an
     const isImportantAtEnd = base.endsWith("!");
     base = base.replace(/!$/, "");
 
-    return {
+    acc[className] = {
       base,
       className,
       important: [isImportantAtStart, isImportantAtEnd],
@@ -39,5 +39,7 @@ export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: an
       separator,
       variants
     };
-  });
+
+    return acc;
+  }, {});
 }

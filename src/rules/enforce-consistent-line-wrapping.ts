@@ -10,13 +10,13 @@ import {
   union
 } from "valibot";
 
-import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
-import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { display, splitClasses } from "better-tailwindcss:utils/utils.js";
 
+import type { DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { BracesMeta, Literal, QuoteMeta, WhitespaceMeta } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 
@@ -107,7 +107,7 @@ export const enforceConsistentLineWrapping = createRule({
   }),
 
   initialize: ctx => {
-    createGetPrefix(ctx);
+    createGetDissectedClasses(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -116,8 +116,6 @@ export const enforceConsistentLineWrapping = createRule({
 
 function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
   const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness } = ctx.options;
-
-  const { prefix, suffix, warnings } = getPrefix(async(ctx));
 
   for(const literal of literals){
 
@@ -132,8 +130,12 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
-    const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
+
+    const classes = splitClasses(literal.content);
+
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+
+    const groupedClasses = groupClasses(classes, dissectedClasses);
 
     if(literal.openingQuote){
       if(literal.multilineQuotes?.includes("`")){
@@ -608,13 +610,11 @@ class Line {
   }
 }
 
-function groupClasses(ctx: Context<typeof enforceConsistentLineWrapping>, classes: string[], prefix: string, suffix: string) {
+function groupClasses(classes: string[], dissectedClasses: DissectedClasses) {
 
   if(classes.length === 0){
     return;
   }
-
-  const prefixRegex = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}`);
 
   const groups = new Groups();
 
@@ -626,14 +626,17 @@ function groupClasses(ctx: Context<typeof enforceConsistentLineWrapping>, classe
     const lastGroup = groups.at(-1);
     const lastClassName = lastGroup?.at(-1);
 
-    const unprefixedLastClassName = lastClassName?.replace(prefixRegex, "");
-    const unprefixedClassName = className.replace(prefixRegex, "");
+    if(lastClassName){
+      const lastDissectedClass = dissectedClasses[lastClassName];
+      const currentDissectedClass = dissectedClasses[className];
 
-    const lastVariant = unprefixedLastClassName?.match(/^.*:/)?.[0];
-    const variant = unprefixedClassName.match(/^.*:/)?.[0];
+      // parse variants manually for custom component classes
+      const lastVariant = lastDissectedClass.variants?.join() ?? lastClassName.match(/^(.*):/)?.[1] ?? "";
+      const variant = currentDissectedClass.variants?.join() ?? className.match(/^(.*):/)?.[1] ?? "";
 
-    if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
-      groups.addGroup();
+      if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
+        groups.addGroup();
+      }
     }
 
     groups.group.addClass(className);

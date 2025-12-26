@@ -543,8 +543,8 @@ describe(enforceConsistentClassOrder.name, () => {
     lint(enforceConsistentClassOrder, {
       invalid: [
         {
-          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black" />`,
-          jsxOutput: `<img class="text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+          jsx: `<img class="data-[attr=a]:*:text-black text-black data-[attr=a]:text-black" />`,
+          jsxOutput: `<img class="text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
 
           errors: 1,
           options: [{ order: "strict" }]
@@ -557,8 +557,8 @@ describe(enforceConsistentClassOrder.name, () => {
     lint(enforceConsistentClassOrder, {
       invalid: [
         {
-          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black data-[attr=a]:text-black md:dark:text-black md:text-black" />`,
-          jsxOutput: `<img class="text-black md:text-black md:dark:text-black data-[attr=a]:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black md:dark:text-black md:text-black" />`,
+          jsxOutput: `<img class="text-black md:text-black md:dark:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
 
           errors: 1,
           options: [{ order: "strict" }]

@@ -236,23 +236,28 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
 
   const variantMap: VariantMap = {};
 
-  for(const dissectedClass of dissectedClasses){
-    dissectedClass.variants.unshift("");
+  for(const originalClass in dissectedClasses){
+    const dissectedClass = dissectedClasses[originalClass];
 
-    for(let v = 0, variantMapLevel = variantMap; v < dissectedClass.variants.length; v++){
-      const isLastVariant = v === dissectedClass.variants.length - 1;
+    // parse variants manually for custom component classes
+    const variants = dissectedClass.variants ?? originalClass.match(/^(.*):/)?.[1]?.split(":") ?? [];
 
-      variantMapLevel[dissectedClass.variants[v]] ??= {
+    variants.unshift("");
+
+    for(let v = 0, variantMapLevel = variantMap; v < variants.length; v++){
+      const isLastVariant = v === variants.length - 1;
+
+      variantMapLevel[variants[v]] ??= {
         dissectedClasses: [],
         nested: {}
       };
 
       if(isLastVariant){
-        variantMapLevel[dissectedClass.variants[v]].dissectedClasses.push(dissectedClass);
+        variantMapLevel[variants[v]].dissectedClasses.push(dissectedClass);
         continue;
       }
 
-      variantMapLevel = variantMapLevel[dissectedClass.variants[v]].nested;
+      variantMapLevel = variantMapLevel[variants[v]].nested;
 
     }
   }

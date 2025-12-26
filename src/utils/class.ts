@@ -7,7 +7,7 @@ interface ClassParts {
   negative: boolean;
   prefix: string;
   separator: string;
-  variants: string[];
+  variants: string[] | undefined;
 }
 
 export function buildClass(ctx: Context, { base, important, negative, prefix, separator, variants }: ClassParts): string {
@@ -19,12 +19,12 @@ export function buildClass(ctx: Context, { base, important, negative, prefix, se
   if(ctx.version.major >= 4){
     return [
       prefix,
-      ...variants,
+      ...variants ?? [],
       [importantAtStart, negativePrefix, base, importantAtEnd].filter(Boolean).join("")
     ].filter(Boolean).join(separator);
   } else {
     return [
-      ...variants,
+      ...variants ?? [],
       [importantAtStart, prefix, negativePrefix, base, importantAtEnd].filter(Boolean).join("")
     ].filter(Boolean).join(separator);
   }

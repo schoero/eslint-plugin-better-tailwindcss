@@ -6,7 +6,7 @@ import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
-import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import type { DissectedClass, DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 
@@ -177,7 +177,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
   }
 }
 
-function getShorthands(ctx: Context<typeof enforceShorthandClasses>, dissectedClasses: DissectedClass[]) {
+function getShorthands(ctx: Context<typeof enforceShorthandClasses>, dissectedClasses: DissectedClasses) {
 
   const possibleShorthandClassesGroups: [longhands: DissectedClass[], shorthands: string[]][][] = [];
 
@@ -189,8 +189,8 @@ function getShorthands(ctx: Context<typeof enforceShorthandClasses>, dissectedCl
 
     shorthandLoop: for(const [patterns, substitutes] of sortedShorthandGroup){
 
-      const groupedByVariants = dissectedClasses.reduce<Record<string, DissectedClass[]>>((acc, dissectedClass) => {
-        const variants = dissectedClass.variants.join(dissectedClass.separator);
+      const groupedByVariants = Object.values(dissectedClasses).reduce<Record<string, DissectedClass[]>>((acc, dissectedClass) => {
+        const variants = dissectedClass.variants?.join(dissectedClass.separator) ?? "";
 
         acc[variants] ??= [];
         acc[variants].push(dissectedClass);
@@ -236,14 +236,14 @@ function getShorthands(ctx: Context<typeof enforceShorthandClasses>, dissectedCl
         const negative = longhands.some(longhand => longhand.negative);
 
         const prefix = longhands[0]?.prefix ?? "";
-        const variants = longhands[0]?.variants ?? [];
+        const variants = longhands[0]?.variants;
         const separator = longhands[0]?.separator ?? ":";
 
         if(
           longhands.length !== patterns.length ||
           longhands.some(longhand => (longhand?.important[0] || longhand?.important[1]) !== (isImportantAtStart || isImportantAtEnd)) ||
           longhands.some(longhand => longhand?.negative !== negative) ||
-          longhands.some(longhand => longhand?.variants.join(separator) !== variants.join(separator))
+          longhands.some(longhand => longhand?.variants?.join(separator) !== variants?.join(separator))
         ){
           continue;
         }

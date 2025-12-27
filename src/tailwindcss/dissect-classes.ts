@@ -16,11 +16,16 @@ export interface DissectedClass {
   negative: boolean;
   prefix: string;
   separator: string;
-  variants: string[];
+  /** Will be undefined in tailwindcss 4 for non-tailwind classes. */
+  variants: string[] | undefined;
+}
+
+export interface DissectedClasses {
+  [className: string]: DissectedClass;
 }
 
 export type GetDissectedClasses = (ctx: AsyncContext, classes: string[]) => {
-  dissectedClasses: DissectedClass[];
+  dissectedClasses: DissectedClasses;
   warnings: (Warning | undefined)[];
 };
 

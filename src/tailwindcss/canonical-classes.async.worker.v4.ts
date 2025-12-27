@@ -7,9 +7,9 @@ import type { Async } from "../types/async.js";
 import type { GetCanonicalClasses } from "./canonical-classes.js";
 
 
-runAsWorker<Async<GetCanonicalClasses>>(async (ctx, classes) => {
+runAsWorker<Async<GetCanonicalClasses>>(async (ctx, classes, options) => {
   const tailwindContext = await createTailwindContext(ctx);
-  const canonicalClasses = getCanonicalClasses(tailwindContext, classes);
+  const canonicalClasses = getCanonicalClasses(tailwindContext, classes, options);
 
   return { canonicalClasses, warnings: ctx.warnings };
 });

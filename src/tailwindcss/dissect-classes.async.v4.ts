@@ -1,21 +1,21 @@
 import { escapeForRegex } from "../async-utils/escape.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
-import type { DissectedClass } from "./dissect-classes.js";
+import type { DissectedClass, DissectedClasses } from "./dissect-classes.js";
 
 
-export function getDissectedClasses(tailwindContext: any, classes: string[]): DissectedClass[] {
+export function getDissectedClasses(tailwindContext: any, classes: string[]): DissectedClasses {
   const prefix = getPrefix(tailwindContext);
   const separator = ":";
 
-  return classes.map(className => {
+  return classes.reduce<Record<string, DissectedClass>>((acc, className) => {
     const [parsed] = tailwindContext.parseCandidate(className);
 
-    const variants = parsed?.variants?.map(variant => tailwindContext.printVariant(variant)).reverse() ?? [];
+    const variants = parsed?.variants?.map(variant => tailwindContext.printVariant(variant)).reverse();
 
     let base = className
       .replace(new RegExp(`^${escapeForRegex(prefix + separator)}`), "")
-      .replace(new RegExp(`^${escapeForRegex(variants.join(separator) + separator)}`), "");
+      .replace(new RegExp(`^${escapeForRegex((variants?.join(separator) ?? "") + separator)}`), "");
 
     const isNegative = base.startsWith("-");
     base = base.replace(/^-/, "");
@@ -26,7 +26,7 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
     const isImportantAtEnd = base.endsWith("!");
     base = base.replace(/!$/, "");
 
-    return {
+    acc[className] = {
       base,
       className,
       important: [isImportantAtStart, isImportantAtEnd],
@@ -35,5 +35,7 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
       separator,
       variants
     };
-  });
+
+    return acc;
+  }, {});
 }

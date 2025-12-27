@@ -4,6 +4,7 @@ import {
   boolean,
   description,
   literal,
+  number,
   object,
   optional,
   pipe,
@@ -70,8 +71,20 @@ export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
     pipe(
       boolean(),
       description("Whether to automatically detect custom component classes from the tailwindcss config.")
-    )
+    ),
+    false
   )
 });
 
 export type DetectComponentClassesOption = InferOutput<typeof DETECT_COMPONENT_CLASSES_OPTION_SCHEMA>;
+
+export const ROOT_FONT_SIZE_OPTION_SCHEMA = object({
+  rootFontSize: optional(
+    pipe(
+      number(),
+      description("The root font size in pixels.")
+    )
+  )
+});
+
+export type RootFontSizeOption = InferOutput<typeof ROOT_FONT_SIZE_OPTION_SCHEMA>;

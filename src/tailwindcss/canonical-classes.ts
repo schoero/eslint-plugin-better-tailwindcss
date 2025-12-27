@@ -9,10 +9,16 @@ import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
-export type CanonicalClass = string;
+export type CanonicalClasses = {
+  [originalClass: string]: {
+    input: string[];
+    output: string;
+  };
+};
+export type CanonicalClassOptions = { collapse?: boolean; logicalToPhysical?: boolean; rem?: number; };
 
-export type GetCanonicalClasses = (ctx: AsyncContext, classes: string[]) => {
-  canonicalClasses: CanonicalClass[];
+export type GetCanonicalClasses = (ctx: AsyncContext, classes: string[], options: CanonicalClassOptions) => {
+  canonicalClasses: CanonicalClasses;
   warnings: (Warning | undefined)[];
 };
 

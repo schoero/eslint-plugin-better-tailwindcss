@@ -11,9 +11,9 @@ import { async } from "better-tailwindcss:utils/context.js";
 function dissectClass(className: string) {
   const ctx = createTestContext();
   const getDissectedClasses = createGetDissectedClasses(ctx);
-  const { dissectedClasses: classVariants } = getDissectedClasses(async(ctx), [className]);
+  const { dissectedClasses } = getDissectedClasses(async(ctx), [className]);
 
-  return classVariants[0];
+  return dissectedClasses[className];
 }
 
 describe("getDissectedClass", () => {
@@ -61,9 +61,9 @@ describe("getDissectedClass", () => {
     });
 
     it("should not crash on unknown classes", () => {
-      expect(dissectClass("unknown-class").variants).toEqual(expect.any(Array));
-      expect(dissectClass("hover:unknown-class").variants).toEqual(expect.any(Array));
-      expect(dissectClass("lg:hover:unknown-class").variants).toEqual(expect.any(Array));
+      expect(() => dissectClass("unknown-class")).not.toThrow();
+      expect(() => dissectClass("hover:unknown-class")).not.toThrow();
+      expect(() => dissectClass("lg:hover:unknown-class")).not.toThrow();
     });
   });
 

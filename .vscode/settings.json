@@ -18,6 +18,7 @@
   
   // tailwindcss
   "tailwindCSS.lint.cssConflict": "ignore",
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
 
   "editor.formatOnSave": false,
 

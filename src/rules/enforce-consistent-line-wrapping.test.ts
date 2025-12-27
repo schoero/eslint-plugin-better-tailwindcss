@@ -975,12 +975,12 @@ describe(enforceConsistentLineWrapping.name, () => {
       {
         invalid: [
           {
-            jsx: "defined` a b c d e f g h `",
-            jsxOutput: "defined`\n  a b c\n  d e f\n  g h\n`",
-            svelte: "<script>defined` a b c d e f g h `</script>",
-            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
-            vue: "<script>defined` a b c d e f g h `</script>",
-            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
+            jsx: "defined` a b c d e f g `",
+            jsxOutput: "defined`\n  a b c\n  d e f\n  g\n`",
+            svelte: "<script>defined` a b c d e f g`</script>",
+            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g\n`</script>",
+            vue: "<script>defined` a b c d e f g`</script>",
+            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g\n`</script>",
 
             errors: 1,
             options: [{
@@ -992,9 +992,9 @@ describe(enforceConsistentLineWrapping.name, () => {
         ],
         valid: [
           {
-            jsx: "notDefined` a b c d e f g h `",
-            svelte: "<script>notDefined` a b c d e f g h `</script>",
-            vue: "notDefined` a b c d e f g h `",
+            jsx: "notDefined` a b c d e f g`",
+            svelte: "<script>notDefined` a b c d e f g`</script>",
+            vue: "notDefined` a b c d e f g`",
 
             options: [{
               classesPerLine: 3,
@@ -1068,6 +1068,19 @@ describe(enforceConsistentLineWrapping.name, () => {
             options: [{
               entryPoint: "./tailwind.css"
             }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not group arbitrary styles differently", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        valid: [
+          {
+            jsx: `() => <div class="md:w-full md:[height:_100px]" />`
           }
         ]
       }

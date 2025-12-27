@@ -23,7 +23,7 @@
 <br/>
 <br/>
 
-ESLint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
+ESLint/Oxlint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
 
 The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
 

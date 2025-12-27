@@ -73,7 +73,6 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
       const canonicalClass = canonicalClasses[className];
 
       if(!canonicalClass){
-        console.log("No canonical class found for:", className);
         return;
       }
 

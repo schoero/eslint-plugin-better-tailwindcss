@@ -10,7 +10,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 - `asc`: Sort classes alphabetically in ascending order.
 - `desc`: Sort classes alphabetically in descending order.
-- `official`: Sort classes according to the official sorting order from tailwindcss based on semantics.
+- `official`: Sort classes according to the official sorting order from Tailwind CSS based on semantics.
 - `strict`: Same as `official` but sorts variants more strictly:
   - Classes that share the same base variants get grouped together.
   - Classes with less variants come before classes with more variants.
@@ -23,7 +23,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 ### `detectComponentClasses`
 
-  Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
+  Tailwind CSS v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
   
   If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes. This can also be configured via the [`settings` object](../settings/settings.md).
 
@@ -144,7 +144,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`  
   **Default**: `undefined`

@@ -87,7 +87,7 @@ Controls where the important modifier (`!`) should be placed in class names.
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`  
   **Default**: `undefined`

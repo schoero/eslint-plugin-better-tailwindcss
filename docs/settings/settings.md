@@ -53,7 +53,7 @@ To set the settings object, add a `settings` key to the eslint config.
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   The tailwind config is used to determine the sorting order.
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`
   
@@ -73,7 +73,7 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `detectComponentClasses`
 
-  Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
+  Tailwind CSS v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
   
   If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes.
   

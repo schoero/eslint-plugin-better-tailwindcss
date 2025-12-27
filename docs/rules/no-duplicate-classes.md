@@ -1,6 +1,6 @@
 # better-tailwindcss/no-duplicate-classes
 
-Disallow duplicate classes in tailwindcss class strings.
+Disallow duplicate classes in Tailwind CSS class strings.
 
 <br/>
 

@@ -5,7 +5,7 @@ A canonical class is a simpler representation of a less optimal way of writing t
 
 > [!NOTE]
 >
-> - This rule is identical to `suggestCanonicalClasses` from the [TailwindCSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension.  
+> - This rule is identical to `suggestCanonicalClasses` from the [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension.  
 >   It is recommended to disable `suggestCanonicalClasses` in your projects `.vscode/settings.json` to avoid confusion:
 >
 >   ```jsonc
@@ -20,7 +20,7 @@ A canonical class is a simpler representation of a less optimal way of writing t
 >   - [`better-tailwindcss/enforce-consistent-important-position`](./enforce-consistent-important-position.md)
 >   - [`better-tailwindcss/enforce-consistent-variable-syntax`](./enforce-consistent-variable-syntax.md)
 >
-> - The canonical suggestions are based on the internal logic of Tailwind CSS and it is possible that the suggestions can change in future versions of Tailwindcss.
+> - The canonical suggestions are based on the internal logic of Tailwind CSS and it is possible that the suggestions can change in future versions of Tailwind CSS.
 > - Configurability is also limited to what Tailwind CSS exposes via their API.
 > - The rule comes with a [startup cost of around ~1s](https://github.com/tailwindlabs/tailwindcss/pull/19059#:~:text=performance).
 

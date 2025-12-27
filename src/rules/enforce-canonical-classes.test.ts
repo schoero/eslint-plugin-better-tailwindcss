@@ -140,4 +140,29 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
     });
   });
 
+  it("should still work when unknown classes are passed", () => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          angular: `<img class="w-10 h-10 unknown" />`,
+          angularOutput: `<img class="size-10  unknown" />`,
+          html: `<img class="w-10 h-10 unknown" />`,
+          htmlOutput: `<img class="size-10  unknown" />`,
+          jsx: `() => <img class="w-10 h-10 unknown" />`,
+          jsxOutput: `() => <img class="size-10  unknown" />`,
+          svelte: `<img class="w-10 h-10 unknown" />`,
+          svelteOutput: `<img class="size-10  unknown" />`,
+          vue: `<template><img class="w-10 h-10 unknown" /></template>`,
+          vueOutput: `<template><img class="size-10  unknown" /></template>`,
+
+          errors: 2,
+
+          options: [{
+            collapse: true
+          }]
+        }
+      ]
+    });
+  });
+
 });

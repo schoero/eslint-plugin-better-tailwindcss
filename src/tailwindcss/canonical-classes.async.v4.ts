@@ -1,3 +1,5 @@
+import { getUnknownClasses } from "./unknown-classes.async.v4.js";
+
 import type { CanonicalClasses, CanonicalClassOptions } from "./canonical-classes.js";
 
 
@@ -14,16 +16,27 @@ export function getCanonicalClasses(tailwindContext: any, classes: string[], opt
     return result;
   }
 
-  const canonicalizedClasses = tailwindContext.canonicalizeCandidates?.(classes, options);
+  // tailwind currently crashes when unknown classes are passed to canonicalizeCandidates
+  const unknownClasses = getUnknownClasses(tailwindContext, classes);
+  const knownClasses = classes.filter(className => !unknownClasses.includes(className));
 
-  const removedClasses = classes.filter(className => !canonicalizedClasses.includes(className));
-  const originalClasses = classes.filter(className => canonicalizedClasses.includes(className));
+  const canonicalizedClasses = tailwindContext.canonicalizeCandidates?.(knownClasses, options);
+
+  const removedClasses = knownClasses.filter(className => !canonicalizedClasses.includes(className));
+  const originalClasses = knownClasses.filter(className => canonicalizedClasses.includes(className));
   const canonicalClasses = canonicalizedClasses.filter(className => !classes.includes(className));
 
   for(const originalClass of originalClasses){
     result[originalClass] = {
       input: [originalClass],
       output: originalClass
+    };
+  }
+
+  for(const unknownClass of unknownClasses){
+    result[unknownClass] = {
+      input: [unknownClass],
+      output: unknownClass
     };
   }
 

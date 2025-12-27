@@ -30,7 +30,7 @@ export const noUnknownClasses = createRule({
   description: "Disallow any css classes that are not registered in tailwindcss.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-unknown-classes.md",
   name: "no-unknown-classes",
-  recommended: false,
+  recommended: true,
 
   messages: {
     unknown: "Unknown class detected: {{ className }}"

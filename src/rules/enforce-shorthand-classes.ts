@@ -17,7 +17,7 @@ export const enforceShorthandClasses = createRule({
   description: "Enforce shorthand class names instead of longhand class names.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-shorthand-classes.md",
   name: "enforce-shorthand-classes",
-  recommended: true,
+  recommended: false,
 
   messages: {
     longhand: "Non shorthand class detected. Expected {{ longhands }} to be {{ shorthands }}",

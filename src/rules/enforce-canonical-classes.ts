@@ -16,7 +16,7 @@ export const enforceCanonicalClasses = createRule({
   description: "Enforce canonical class names.",
   docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-canonical-classes.md",
   name: "enforce-canonical-classes",
-  recommended: false,
+  recommended: true,
 
   schema: object({
     collapse: optional(

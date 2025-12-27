@@ -1,5 +1,48 @@
 # Changelog
 
+## v4.0.0-rc.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.6...v4.0.0-rc.0)
+
+### Features
+
+- Add prettier compatibility mode ([#260](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/260))
+- Add settings option to configure `messageStyle` ([#276](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/276))
+- **angular:** Support bound attribute classes ([#277](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/277))
+- **svelte:** Support class directive ([#278](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/278))
+- Oxlint support ([#284](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/284))
+
+### Fixes
+
+- Add `detectComponentClasses` to settings schema ([36f6ffa](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/36f6ffa))
+- Invalid variant grouping order ([#282](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/282))
+- **enforce-canonical-classes:** Crash on unknown classes ([#283](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/283))
+
+### Refactors
+
+- Bring back `legacy` default option for projects using tailwindcss v3 ([5fbc827](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/5fbc827))
+- Deprecate `/api/` path for imports ([#281](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/281))
+- Update canonical classes ([#279](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/279))
+- Update rule recommendations ([#280](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/280))
+
+### Documentation
+
+- Add `detectComponentClasses` to settings ([388103e](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/388103e))
+- Add attribute matcher example ([#272](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/272))
+- Improve configuration guide ([bd873ea](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/bd873ea))
+
+### Chore
+
+- Improve linting message ([04129b9](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/04129b9))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Update rule recommendations ([#280](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/280))
+
+### ❤️ Contributors
+
+- V-iktor ([@V-iktor](https://github.com/V-iktor))
+
 ## v4.0.0-beta.6
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-beta.5...v4.0.0-beta.6)

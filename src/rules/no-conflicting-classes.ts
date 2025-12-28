@@ -74,7 +74,7 @@ function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Liter
         },
         id: "conflicting",
         warnings
-      };
+      } as const;
 
     });
 

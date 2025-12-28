@@ -2,32 +2,46 @@ import { augmentMessageWithWarnings, splitClasses, splitWhitespaces } from "bett
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
-import type { Context, MessageId, Messages } from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
+
+type RemoveNeverProperties<ObjectType extends Record<string, any>> = {
+  [Key in keyof ObjectType as ObjectType[Key] extends never ? never : Key]: ObjectType[Key]
+};
 
 export function lintClasses<
-  const Ctx extends Context,
-  const MsgId extends MessageId<Ctx>,
-  const Msgs extends Record<string, string> | undefined = Messages<Ctx>
+  const Ctx extends Context
 >(
   ctx: Ctx,
   literal: Literal,
   report: (className: string, index: number, after: string[]) =>
-    | (Msgs extends Record<string, string>
-      ? {
-        id: MsgId;
-        data?: Msgs;
-        fix?: string;
-        message?: undefined;
-        warnings?: (Warning | undefined)[];
-      } : {
-        message: string;
-        fix?: string;
-        id?: undefined;
-        warnings?: (Warning | undefined)[];
-      })
+      | ((
+        Parameters<Ctx["report"]>[0] extends infer DataAndId
+          ? (
+            DataAndId extends Record<"data" | "id", any>
+              ? {
+                data: DataAndId["data"];
+                id: DataAndId["id"];
+                fix?: string;
+                message?: undefined;
+                warnings?: (Warning | undefined)[];
+              }
+              : never
+          )
+          : never
+      ) extends infer Result extends Record<string, any>
+        ? {
+          [Key in keyof Result as Result[Key] extends never ? never : Key]: Result[Key]
+        }
+        : never
+      )
       | false
       | undefined
+      | {
+        message: string;
+        fix?: string;
+        warnings?: (Warning | undefined)[];
+      }
 ): void {
 
   const classChunks = splitClasses(literal.content);

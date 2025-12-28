@@ -158,7 +158,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
             return {
               fix: "",
               id: "unnecessary"
-            };
+            } as const;
           }
 
           return {
@@ -169,7 +169,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
             fix: shorthands.filter(shorthand => !after.includes(shorthand)).join(" "),
             id: "longhand",
             warnings
-          };
+          } as const;
         }
       }
     });

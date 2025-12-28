@@ -112,7 +112,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
         },
         id: "unknown",
         warnings
-      };
+      } as const;
 
     });
   }

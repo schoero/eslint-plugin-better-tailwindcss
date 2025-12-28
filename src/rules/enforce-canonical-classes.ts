@@ -87,19 +87,19 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
             : "",
           id: "multiple",
           warnings
-        };
+        } as const;
       }
 
       if(canonicalClass.input.length === 1 && canonicalClass.output !== className){
         return {
           data: {
             canonicalClass: canonicalClasses[className].output,
-            classNames: canonicalClass.input[0]
+            className: canonicalClass.input[0]
           },
           fix: canonicalClass.output,
           id: "single",
           warnings
-        };
+        } as const;
       }
 
     });

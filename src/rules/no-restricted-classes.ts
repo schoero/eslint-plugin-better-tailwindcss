@@ -84,19 +84,19 @@ function lintLiterals(ctx: Context<typeof noRestrictedClasses>, literals: Litera
         if(typeof restriction === "string"){
           return {
             message
-          };
+          } as const;
         }
 
         if(restriction.fix !== undefined){
           return {
             fix: replacePlaceholders(restriction.fix, matches),
             message
-          };
+          } as const;
         }
 
         return {
           message
-        };
+        } as const;
       }
     });
   }

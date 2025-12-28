@@ -85,7 +85,7 @@ export const enforceConsistentImportantPosition = createRule({
           fix,
           id: "position",
           warnings
-        };
+        } as const;
       });
 
     }

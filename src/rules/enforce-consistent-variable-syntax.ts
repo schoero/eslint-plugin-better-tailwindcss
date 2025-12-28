@@ -100,7 +100,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
             fix: fixedClass,
             id: "incorrect",
             warnings
-          };
+          } as const;
 
         }
 
@@ -119,7 +119,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
             fix: fixedClass,
             id: "incorrect",
             warnings
-          };
+          } as const;
 
         }
       }
@@ -142,7 +142,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
             fix: fixedClass,
             id: "incorrect",
             warnings
-          };
+          } as const;
         }
 
         if(isBeginningOfArbitraryShorthand(charactersParentheses)){
@@ -161,7 +161,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
             fix: fixedClass,
             id: "incorrect",
             warnings
-          };
+          } as const;
 
         }
       }

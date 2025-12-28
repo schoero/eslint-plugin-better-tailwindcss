@@ -43,7 +43,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
           data: { className },
           fix: "",
           id: "duplicate"
-        };
+        } as const;
       }
     });
   }

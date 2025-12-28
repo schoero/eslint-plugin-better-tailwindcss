@@ -102,25 +102,36 @@ export interface RuleContext<
   installation: string;
   options: Options;
   report: <
-    const MessageId extends Messages extends Record<string, string>
-      ? keyof Messages & string
-      : undefined,
-    const Message extends string = Messages extends Record<string, string>
-      ? MessageId extends keyof Messages
-        ? Messages[MessageId]
-        : never
-      : never
-  >(info: (
-    | { id: MessageId; }
-    | { message?: Message; }) &
-    {
+    const MsgId extends MessageId<Messages>
+  >(info:
+    (
+      | (
+        MsgId extends string
+          ? Messages extends Record<string, string>
+            ? MsgId extends keyof Messages
+              ? {
+                data: Record<ExtractVariables<Messages[MsgId]>, string> extends infer Data
+                  ? keyof Data extends never
+                    ? never
+                    : Data
+                  : never;
+                id: MsgId;
+                fix?: string;
+                warnings?: (Warning | undefined)[];
+              }
+              : never
+            : never
+          : never
+        )
+      | {
+        fix?: string;
+        message?: string;
+        warnings?: (Warning<Options> | undefined)[];
+      }
+    ) & {
       range: [number, number];
-      data?: ExtractVariables<Message> extends infer Variables extends string
-        ? Record<Variables, string>
-        : never;
-      fix?: string;
-      warnings?: (Warning<Options> | undefined)[];
     }
+
   ) => void;
   /** The Tailwind CSS Version. */
   version: Version;
@@ -128,13 +139,8 @@ export interface RuleContext<
 
 export type Context<Rule extends ESLintRule = ESLintRule> = RuleContext<Rule["messages"], Rule["options"]>;
 
-
-export type Messages<Ctx extends Context> = Parameters<Ctx["report"]>[0]["data"];
-
-export type MessageId<Ctx extends Context> = Parameters<Ctx["report"]>[0] extends infer Obj
-  ? Obj extends { id: any; }
-    ? Obj["id"]
-    : never
+export type MessageId<Messages extends Record<string, any> | undefined> = Messages extends Record<string, any>
+  ? keyof Messages
   : never;
 
 type Trim<Content extends string> =

@@ -108,12 +108,12 @@ export function createRule<
           docs,
           installation,
           options,
-          report: ({ data, fix, range, warnings, ...rest }) => {
+          report: ({ fix, range, warnings, ...rest }) => {
             const loc = getLocByRange(ctx, range);
 
             if("id" in rest && rest.id && messages && rest.id in messages){
               return void ctx.report({
-                data,
+                data: rest.data,
                 loc,
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)
@@ -124,7 +124,6 @@ export function createRule<
 
             if("message" in rest && rest.message){
               return void ctx.report({
-                data,
                 loc,
                 ...fix !== undefined && {
                   fix: fixer => fixer.replaceTextRange(range, fix)

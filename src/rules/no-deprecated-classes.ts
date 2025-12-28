@@ -107,7 +107,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
               } as Record<string, string>,
               id: "irreplaceable",
               warnings
-            };
+            } as const;
           }
 
           const fix = buildClass(ctx, { ...dissectedClass, base: replacePlaceholders(replacement, match) });
@@ -120,7 +120,7 @@ function lintLiterals(ctx: Context<typeof noDeprecatedClasses>, literals: Litera
             fix,
             id: "replaceable",
             warnings
-          };
+          } as const;
 
         }
       }

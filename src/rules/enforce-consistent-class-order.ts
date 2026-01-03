@@ -62,8 +62,7 @@ export const enforceConsistentClassOrder = createRule({
       pipe(
         boolean(),
         description("Whether to automatically detect custom component classes from the tailwindcss config.")
-      ),
-      false
+      )
     ),
     order: optional(
       pipe(

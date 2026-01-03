@@ -41,8 +41,7 @@ export const noUnknownClasses = createRule({
       pipe(
         boolean(),
         description("Whether to automatically detect custom component classes from the tailwindcss config.")
-      ),
-      false
+      )
     ),
     ignore: optional(
       pipe(

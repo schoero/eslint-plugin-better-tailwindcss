@@ -1,12 +1,4 @@
-import {
-  boolean,
-  description,
-  literal,
-  object,
-  optional,
-  pipe,
-  union
-} from "valibot";
+import { description, literal, object, optional, pipe, union } from "valibot";
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import {
@@ -57,12 +49,6 @@ export const enforceConsistentClassOrder = createRule({
         description("Defines where component classes should be placed in relation to the whole string literal.")
       ),
       "start"
-    ),
-    detectComponentClasses: optional(
-      pipe(
-        boolean(),
-        description("Whether to automatically detect custom component classes from the tailwindcss config.")
-      )
     ),
     order: optional(
       pipe(

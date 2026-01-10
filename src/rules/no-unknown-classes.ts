@@ -1,12 +1,4 @@
-import {
-  array,
-  boolean,
-  description,
-  object,
-  optional,
-  pipe,
-  string
-} from "valibot";
+import { array, description, object, optional, pipe, string } from "valibot";
 
 import {
   createGetCustomComponentClasses,
@@ -37,12 +29,6 @@ export const noUnknownClasses = createRule({
   },
 
   schema: object({
-    detectComponentClasses: optional(
-      pipe(
-        boolean(),
-        description("Whether to automatically detect custom component classes from the tailwindcss config.")
-      )
-    ),
     ignore: optional(
       pipe(
         array(

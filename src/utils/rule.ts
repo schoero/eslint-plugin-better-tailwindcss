@@ -62,8 +62,8 @@ export function createRule<
     // because we want to have a specific order of precedence, we need to remove the defaults here and merge them
     // manually in getOptions. The order of precedence is:
     // 1. defaults from settings
-    // 2. configs from settings
-    // 3. defaults from option
+    // 2. defaults from option
+    // 3. configs from settings
     // 4. configs from option
     ...removeDefaults(COMMON_OPTIONS.entries),
     ...schema?.entries

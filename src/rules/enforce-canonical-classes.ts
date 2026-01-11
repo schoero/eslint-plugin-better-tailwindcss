@@ -1,4 +1,4 @@
-import { boolean, description, number, object, optional, pipe } from "valibot";
+import { boolean, description, object, optional, pipe } from "valibot";
 
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
@@ -32,13 +32,6 @@ export const enforceCanonicalClasses = createRule({
         description("Whether to convert between logical and physical properties when collapsing utilities.")
       ),
       true
-    ),
-    rootFontSize: optional(
-      pipe(
-        number(),
-        description("The root font size in pixels.")
-      ),
-      undefined
     )
   }),
 

@@ -82,6 +82,16 @@ To set the settings object, add a `settings` key to the eslint config.
 
 <br/>
 
+### `rootFontSize`
+
+The font size of the `<html>` element in pixels. By default, the root font size is `16px` unless it is changed with CSS.
+If provided, this will be used to determine if arbitrary values can be replaced with predefined sizing scales.
+
+**Type**: `number | undefined`  
+**Default**: `undefined`
+
+<br/>
+
 ### `messageStyle`
 
   Customize how linting messages are displayed.

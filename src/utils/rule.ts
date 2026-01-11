@@ -58,6 +58,13 @@ export function createRule<
   let eslintContext: Rule.RuleContext | undefined;
 
   const propertiesSchema = object({
+    // eslint injects the defaults from the settings to options, if not specified in the options
+    // because we want to have a specific order of precedence, we need to remove the defaults here and merge them
+    // manually in getOptions. The order of precedence is:
+    // 1. defaults from settings
+    // 2. defaults from option
+    // 3. configs from settings
+    // 4. configs from option
     ...removeDefaults(COMMON_OPTIONS.entries),
     ...schema?.entries
   });
@@ -65,13 +72,13 @@ export function createRule<
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
 
   const getOptions = () => {
-    const commonOptions = getDefaults(COMMON_OPTIONS);
+    const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
     const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
     return {
-      ...commonOptions,
+      ...defaultSettings,
       ...defaultOptions,
       ...settings,
       ...options

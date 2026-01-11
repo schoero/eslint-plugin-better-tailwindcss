@@ -32,7 +32,8 @@ A canonical class is a simpler representation of a less optimal way of writing t
 
 ### `rootFontSize`
 
-The root font size in pixels. If provided, this will be used to determine if arbitrary values can be replaced with predefined sizing scales.
+The font size of the `<html>` element in pixels. By default, the root font size is `16px` unless it is changed with CSS.
+If provided, this will be used to determine if arbitrary values can be replaced with predefined sizing scales. This can also be configured via the [`settings` object](../settings/settings.md).
 
 **Type**: `number | undefined`  
 **Default**: `undefined`

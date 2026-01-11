@@ -20,7 +20,8 @@ export const ENTRYPOINT_OPTION_SCHEMA = object({
     pipe(
       string(),
       description("The path to the css entry point of the project. If not specified, the plugin will fall back to the default tailwind classes.")
-    )
+    ),
+    undefined
   )
 });
 
@@ -31,7 +32,8 @@ export const TAILWIND_OPTION_SCHEMA = object({
     pipe(
       string(),
       description("The path to the tailwind config file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.")
-    )
+    ),
+    undefined
   )
 });
 
@@ -42,7 +44,8 @@ export const TSCONFIG_OPTION_SCHEMA = object({
     pipe(
       string(),
       description("The path to the tsconfig file. Is used to resolve path aliases in the tsconfig.")
-    )
+    ),
+    undefined
   )
 });
 
@@ -83,7 +86,8 @@ export const ROOT_FONT_SIZE_OPTION_SCHEMA = object({
     pipe(
       number(),
       description("The root font size in pixels.")
-    )
+    ),
+    undefined
   )
 });
 

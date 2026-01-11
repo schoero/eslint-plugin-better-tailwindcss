@@ -139,7 +139,9 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
 
 function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
+  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => {
+    return isAST(value) && isCallExpression(value) || isBoundAttributeName(ast);
+  });
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
 
   return literals.filter(deduplicateLiterals);

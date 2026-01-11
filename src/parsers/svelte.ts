@@ -13,6 +13,7 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
+  isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
@@ -322,7 +323,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node) ||
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
@@ -345,7 +346,8 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node)){
+            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node)){
             return false;
           }
 
@@ -371,6 +373,7 @@ function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBase
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||
+            isIndexedAccessLiteral(node) ||
 
             !isESStringLike(node) && !isSvelteStringLiteral(node)){
             return false;

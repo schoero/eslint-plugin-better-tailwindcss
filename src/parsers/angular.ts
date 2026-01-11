@@ -385,7 +385,7 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
 function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: LiteralPrimitive): Literal[] {
   const content = literal.value;
 
-  if(!literal.sourceSpan){
+  if(!literal.sourceSpan || typeof content !== "string"){
     return [];
   }
 

@@ -4,6 +4,7 @@ import {
   getLiteralNodesByMatchers,
   isCalleeMatchers,
   isCalleeName,
+  isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
@@ -509,7 +510,7 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node) ||
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
@@ -531,7 +532,8 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node)){
+            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node)){
             return false;
           }
 
@@ -557,6 +559,7 @@ function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||
+            isIndexedAccessLiteral(node) ||
 
             !isESStringLike(node)){
             return false;

@@ -3,6 +3,7 @@ import {
   isESArrowFunctionExpression,
   isESCallExpression,
   isESNode,
+  isESSimpleStringLiteral,
   isESVariableDeclarator
 } from "better-tailwindcss:parsers/es.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
@@ -134,4 +135,10 @@ export function isInsideMemberExpression(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type === "MemberExpression"){ return true; }
   return isInsideMemberExpression(node.parent);
+}
+
+export function isIndexedAccessLiteral(node: WithParent<ESNode>): boolean {
+  if(!hasESNodeParentExtension(node)){ return false; }
+  if(node.parent.type !== "MemberExpression"){ return false; }
+  return node.parent.property === node && isESSimpleStringLiteral(node);
 }

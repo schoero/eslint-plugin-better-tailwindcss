@@ -2,7 +2,7 @@
 
 ## v4.0.0
 
-[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0-rc.0...v4.0.0)
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.8.0...v4.0.0)
 
 This version includes a major rewrite of the internal architecture, improving performance and maintainability, resolving long-standing issues, and preparing the codebase for the future and for oxlint.
 

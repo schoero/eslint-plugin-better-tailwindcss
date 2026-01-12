@@ -5,6 +5,9 @@
 - [entryPoint](#entrypoint)
 - [tailwindConfig](#tailwindconfig)
 - [tsconfig](#tsconfig)
+- [detectComponentClasses](#detectcomponentclasses)
+- [rootFontSize](#rootfontsize)
+- [messageStyle](#messagestyle)
 - [attributes](#attributes)
 - [callees](#callees)
 - [variables](#variables)
@@ -102,6 +105,8 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   **Type**: `"visual" | "compact" | "raw"`  
   **Default**: `"visual"`, `"compact"` in CI environments
+
+<br/>
 
 ### `attributes`
 

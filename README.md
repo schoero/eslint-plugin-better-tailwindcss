@@ -23,7 +23,7 @@
 <br/>
 <br/>
 
-ESLint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
+ESLint/Oxlint plugin with formatting and linting rules to help you write cleaner, more maintainable Tailwind CSS.  
 
 The formatting rules focus on improving readability by automatically breaking up long Tailwind class strings into multiple lines and sorting/grouping them in a logical order. The linting rules enforce best practices and catch potential issues, ensuring that you're writing valid Tailwind CSS.  
 
@@ -73,43 +73,18 @@ npm i -D eslint-plugin-better-tailwindcss
 
 ## Quick start
 
-1. Follow the [parsers](#parsers) section below to learn how to configure the plugin for your specific requirements.
+Depending on the flavor you are using, you need to install and configure the corresponding parser:
 
-1. Configure the plugin to be able to read your tailwind configuration via [settings](docs/settings/settings.md) or for each [rule](#rules) separately.
-
-    ```jsonc
-    // eslint.config.js
-    {
-      //...
-      "settings": {
-        "better-tailwindcss": {
-          // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
-          "entryPoint": "src/global.css",
-          // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-          "tailwindConfig": "tailwind.config.js"
-        }
-      }
-    }
-    ```
-
-1. Configure your editor to conveniently [auto-fix on save](#auto-fix-on-save).
-
-<br/>
-<br/>
-
-### Parsers
-
-Depending on the flavor you are using, you may need to install and configure the corresponding parser:
-
-- [JSX (React, Solid.js, Qwik)](docs/parsers/jsx.md)
-- [TSX (React, Solid.js, Qwik) with TypeScript support](docs/parsers/tsx.md)
-- [Svelte](docs/parsers/svelte.md)
-- [Vue](docs/parsers/vue.md)
-- [Astro](docs/parsers/astro.md)
-- [Angular](docs/parsers/angular.md)
-- [HTML](docs/parsers/html.md)
-- [Plain JavaScript](docs/parsers/javascript.md)
-- [Plain TypeScript](docs/parsers/typescript.md)
+- React: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- SolidJS: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Qwik: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
+- Svelte: [.svelte](docs/parsers/svelte.md)  
+- Vue: [.vue](docs/parsers/vue.md)  
+- Astro: [.astro](docs/parsers/astro.md)  
+- Angular: [.html, .ts](docs/parsers/angular.md)  
+- HTML: [.html](docs/parsers/html.md)  
+- JavaScript: [.js](docs/parsers/javascript.md)  
+- TypeScript: [.ts](docs/parsers/typescript.md)  
 
 <br/>
 <br/>
@@ -138,6 +113,10 @@ You can change the severity by adding a suffix to the config name:
   
 For example, `recommended-warn` will report every rule as a warning and `stylistic-error` will report the formatting rules as errors.
   
+If you still use the old .eslintrc configuration format, you can prefix the config names with `legacy-`.
+
+For example, `legacy-recommended` or `legacy-correctness-warn`.
+
 The table below lists all available rules, the Tailwind CSS versions they support, and whether they are enabled by default in each recommended configuration:
 
 <br/>
@@ -152,15 +131,16 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 | [enforce-consistent-variable-syntax](docs/rules/enforce-consistent-variable-syntax.md) | Enforce consistent variable syntax. | ✔ | ✔ |  | ✔ |
 | [enforce-consistent-important-position](docs/rules/enforce-consistent-important-position.md) | Enforce consistent position of the important modifier. | ✔ | ✔ |  | ✔ |
 | [enforce-shorthand-classes](docs/rules/enforce-shorthand-classes.md) | Enforce shorthand class names. | ✔ | ✔ |  | ✔ |
+| [enforce-canonical-classes](docs/rules/enforce-canonical-classes.md) | Enforce canonical class names. |  | ✔ | ✔ | ✔ |
 | [no-duplicate-classes](docs/rules/no-duplicate-classes.md) | Remove duplicate classes. | ✔ | ✔ | ✔ | ✔ |
-| [no-deprecated-classes](docs/rules/no-deprecated-classes.md) | Remove deprecated classes. |  | ✔ |  | ✔ |
+| [no-deprecated-classes](docs/rules/no-deprecated-classes.md) | Remove deprecated classes. |  | ✔ | ✔ | ✔ |
 | [no-unnecessary-whitespace](docs/rules/no-unnecessary-whitespace.md) | Disallow unnecessary whitespace in tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 
 #### Correctness rules
 
 | Name | Description | `tw3` | `tw4` | `recommended` | autofix |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| [no-unregistered-classes](docs/rules/no-unregistered-classes.md) | Report classes not registered with tailwindcss. | ✔ | ✔ | ✔ |  |
+| [no-unknown-classes](docs/rules/no-unknown-classes.md) | Report classes not registered with Tailwind CSS. | ✔ | ✔ | ✔ |  |
 | [no-conflicting-classes](docs/rules/no-conflicting-classes.md) | Report classes that produce conflicting styles. |  | ✔ | ✔ |  |
 | [no-restricted-classes](docs/rules/no-restricted-classes.md) | Disallow restricted classes. | ✔ | ✔ |  | ✔ |
 
@@ -169,25 +149,25 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 
 ### Utilities
 
-This plugin works out of the box with most popular tailwind utilities:
+This plugin is pre-configured to lint tailwind classes for the most popular utilities:
 
-- [tailwind merge](https://github.com/dcastil/tailwind-merge)
-- [class variance authority](https://github.com/joe-bell/cva)
-- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file)
-- [shadcn](https://ui.shadcn.com/docs/installation/manual)
-- [classcat](https://github.com/jorgebucaran/classcat)
-- [class list builder](https://github.com/crswll/clb)
-- [clsx](https://github.com/lukeed/clsx)
-- [cnbuilder](https://github.com/xobotyi/cnbuilder)
-- [classnames template literals](https://github.com/netlify/classnames-template-literals)
-- [obj str](https://github.com/lukeed/obj-str)
+- [tailwind merge](https://github.com/dcastil/tailwind-merge): `twMerge` · `twJoin`
+- [class variance authority](https://github.com/joe-bell/cva): `cva`
+- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file): `tv`
+- [shadcn](https://ui.shadcn.com/docs/installation/manual): `cn`
+- [classcat](https://github.com/jorgebucaran/classcat): `cc`
+- [class list builder](https://github.com/crswll/clb): `clb`
+- [clsx](https://github.com/lukeed/clsx): `clsx`
+- [cnbuilder](https://github.com/xobotyi/cnbuilder): `cnb`
+- [classnames template literals](https://github.com/netlify/classnames-template-literals): `ctl`
+- [obj str](https://github.com/lukeed/obj-str): `objstr`
 
 <br/>
 <br/>
 
 ### Advanced configuration
 
-If an utility is not supported by default, or you want to customize the configuration, you can define which string literals should be linted for each rule.
+If an utility is not supported by default, or you want to customize the configuration, you can define which [`callees`](./docs/settings/settings.md#callees), [`attributes`](./docs/settings/settings.md#attributes), [`tags`](./docs/settings/settings.md#tags) and [`variables`](./docs/settings/settings.md#variables) should get linted.  
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>

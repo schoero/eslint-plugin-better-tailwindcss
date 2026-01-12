@@ -1,6 +1,6 @@
 # better-tailwindcss/no-deprecated-classes
 
-Disallow the use of [deprecated Tailwind CSS classes](https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities) in Tailwindcss v4.
+Disallow the use of [deprecated Tailwind CSS classes](https://tailwindcss.com/docs/upgrade-guide#removed-deprecated-utilities) in Tailwind CSS v4.
 
 The following classes will be reported as deprecated:
 

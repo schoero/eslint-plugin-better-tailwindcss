@@ -2,6 +2,8 @@ import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
+import { css } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 
 
 describe(enforceConsistentClassOrder.name, () => {
@@ -9,7 +11,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should sort simple class names in string literals by the defined order", () => {
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -116,7 +117,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should keep the quotes as they are", () => {
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -245,7 +245,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -320,7 +319,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -349,7 +347,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -375,84 +372,6 @@ describe(enforceConsistentClassOrder.name, () => {
         ]
       }
     );
-  });
-
-  it("should sort in string literals in call signature arguments matched by a regex", () => {
-
-    const dirtyDefined = `defined(
-      "b a",
-      {
-        "nested": {
-          "matched": "b a",
-        },
-        "deeply": {
-          "nested": {
-            "unmatched": "b a",
-            "matched": "b a"
-          },
-        },
-        "multiline": {
-          "matched": \`
-            d a
-            b c
-          \`
-        }
-      }
-    );`;
-
-    const cleanDefined = `defined(
-      "a b",
-      {
-        "nested": {
-          "matched": "a b",
-        },
-        "deeply": {
-          "nested": {
-            "unmatched": "b a",
-            "matched": "a b"
-          },
-        },
-        "multiline": {
-          "matched": \`
-            a b
-            c d
-          \`
-        }
-      }
-    );`;
-
-    lint(
-      enforceConsistentClassOrder,
-
-      {
-        invalid: [
-          {
-            jsx: dirtyDefined,
-            jsxOutput: cleanDefined,
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`,
-
-            errors: 4,
-            options: [{
-              callees: [
-                [
-                  "defined\\(([^)]*)\\)",
-                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ],
-                [
-                  "defined\\(([^)]*)\\)",
-                  "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
-                ]
-              ],
-              order: "asc"
-            }]
-          }
-        ]
-      }
-    );
-
   });
 
   it("should sort in call signature arguments in template literals", () => {
@@ -484,7 +403,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -529,7 +447,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -553,117 +470,6 @@ describe(enforceConsistentClassOrder.name, () => {
 
             errors: 1,
             options: [{ order: "asc", variables: ["defined"] }]
-          }
-        ],
-        valid: [
-          {
-            jsx: dirtyUndefined,
-            svelte: `<script>${dirtyUndefined}</script>`,
-            vue: `<script>${dirtyUndefined}</script>`,
-
-            options: [{ order: "asc" }]
-          }
-        ]
-      }
-    );
-
-  });
-
-  it("should sort in matching variable declarations matched by a regex", () => {
-
-    const dirtyDefined = "const defined = \"b a\";";
-    const cleanDefined = "const defined = \"a b\";";
-    const dirtyUndefined = "const notDefined = \"b a\";";
-
-    const dirtyObject = `const defined = {
-      "matched": "b a",
-      "unmatched": "b a",
-      "nested": {
-        "matched": "b a",
-        "unmatched": "b a"
-      }
-    };`;
-
-    const cleanObject = `const defined = {
-      "matched": "a b",
-      "unmatched": "b a",
-      "nested": {
-        "matched": "a b",
-        "unmatched": "b a"
-      }
-    };`;
-
-    const dirtyMultiline = `const defined = \`
-      b a
-      d c
-    \`;`;
-
-    const cleanMultiline = `const defined = \`
-      a b
-      c d
-    \`;`;
-
-    lint(
-      enforceConsistentClassOrder,
-
-      {
-        invalid: [
-          {
-            jsx: dirtyDefined,
-            jsxOutput: cleanDefined,
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`,
-
-            errors: 1,
-            options: [{
-              order: "asc",
-              variables: [
-                [
-                  "defined = ([\\S\\s]*)",
-                  "^\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ]
-              ]
-            }]
-          },
-          {
-            jsx: dirtyObject,
-            jsxOutput: cleanObject,
-            svelte: `<script>${dirtyObject}</script>`,
-            svelteOutput: `<script>${cleanObject}</script>`,
-            vue: `<script>${dirtyObject}</script>`,
-            vueOutput: `<script>${cleanObject}</script>`,
-
-            errors: 2,
-            options: [{
-              order: "asc",
-              variables: [
-                [
-                  "defined = ([\\S\\s]*)",
-                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ]
-              ]
-            }]
-          },
-          {
-            jsx: dirtyMultiline,
-            jsxOutput: cleanMultiline,
-            svelte: `<script>${dirtyMultiline}</script>`,
-            svelteOutput: `<script>${cleanMultiline}</script>`,
-            vue: `<script>${dirtyMultiline}</script>`,
-            vueOutput: `<script>${cleanMultiline}</script>`,
-
-            errors: 1,
-            options: [{
-              order: "asc",
-              variables: [
-                [
-                  "defined = ([\\S\\s]*)",
-                  "^\\s*['`\"]([^'`]+)['`\"]"
-                ]
-              ]
-            }]
           }
         ],
         valid: [
@@ -683,7 +489,6 @@ describe(enforceConsistentClassOrder.name, () => {
   it("should sort simple class names in tagged template literals", () => {
     lint(
       enforceConsistentClassOrder,
-
       {
         invalid: [
           {
@@ -705,6 +510,209 @@ describe(enforceConsistentClassOrder.name, () => {
             vue: "defined`a b`",
 
             options: [{ order: "asc", tags: ["defined"] }]
+          }
+        ]
+      }
+    );
+  });
+
+
+  it("should group variants together in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          angular: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          angularOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          html: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          htmlOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          jsx: `() => <img class="hover:text-black text-black hover:dark:text-black" />`,
+          jsxOutput: `() => <img class="text-black hover:text-black hover:dark:text-black" />`,
+          svelte: `<img class="hover:text-black text-black hover:dark:text-black" />`,
+          svelteOutput: `<img class="text-black hover:text-black hover:dark:text-black" />`,
+          vue: `<template><img class="hover:text-black text-black hover:dark:text-black" /></template>`,
+          vueOutput: `<template><img class="text-black hover:text-black hover:dark:text-black" /></template>`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should group arbitrary variants together in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<img class="data-[attr=a]:*:text-black text-black data-[attr=a]:text-black" />`,
+          jsxOutput: `<img class="text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should sort arbitrary variants last in the `strict` sorting order", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<img class="data-[attr=a]:*:text-black data-[attr=a]:text-black text-black md:dark:text-black md:text-black" />`,
+          jsxOutput: `<img class="text-black md:text-black md:dark:text-black data-[attr=a]:text-black data-[attr=a]:*:text-black" />`,
+
+          errors: 1,
+          options: [{ order: "strict" }]
+        }
+      ]
+    });
+  });
+
+  it("should sort unknown classes to the start by default", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex unknown" />`,
+            angularOutput: `<img class="unknown flex" />`,
+            html: `<img class="flex unknown" />`,
+            htmlOutput: `<img class="unknown flex" />`,
+            jsx: `() => <img class="flex unknown" />`,
+            jsxOutput: `() => <img class="unknown flex" />`,
+            svelte: `<img class="flex unknown" />`,
+            svelteOutput: `<img class="unknown flex" />`,
+            vue: `<template><img class="flex unknown" /></template>`,
+            vueOutput: `<template><img class="unknown flex" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort component classes to the start by default in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex custom-component" />`,
+            angularOutput: `<img class="custom-component flex" />`,
+            html: `<img class="flex custom-component" />`,
+            htmlOutput: `<img class="custom-component flex" />`,
+            jsx: `() => <img class="flex custom-component" />`,
+            jsxOutput: `() => <img class="custom-component flex" />`,
+            svelte: `<img class="flex custom-component" />`,
+            svelteOutput: `<img class="custom-component flex" />`,
+            vue: `<template><img class="flex custom-component" /></template>`,
+            vueOutput: `<template><img class="custom-component flex" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .custom-component {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should differentiate between custom component classes and unknown classes in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            angularOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            html: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            htmlOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            jsx: `() => <img class="g d h flex c b i a h-full k e w-full f j" />`,
+            jsxOutput: `() => <img class="a b c d e f flex h-full w-full k j i h g" />`,
+            svelte: `<img class="g d h flex c b i a h-full k e w-full f j" />`,
+            svelteOutput: `<img class="a b c d e f flex h-full w-full k j i h g" />`,
+            vue: `<template><img class="g d h flex c b i a h-full k e w-full f j" /></template>`,
+            vueOutput: `<template><img class="a b c d e f flex h-full w-full k j i h g" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .a, .b, .c, .d, .e, .f {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "asc",
+              componentClassPosition: "start",
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css",
+              unknownClassOrder: "desc",
+              unknownClassPosition: "end"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should be possible to move both custom component classes and unknown classes to the end and preserve the order in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            angularOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            html: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            htmlOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            jsx: `() => <img class="g d h flex c b i a w-full k e h-full f j" />`,
+            jsxOutput: `() => <img class="flex h-full w-full g h i k j d c b a e f" />`,
+            svelte: `<img class="g d h flex c b i a w-full k e h-full f j" />`,
+            svelteOutput: `<img class="flex h-full w-full g h i k j d c b a e f" />`,
+            vue: `<template><img class="g d h flex c b i a w-full k e h-full f j" /></template>`,
+            vueOutput: `<template><img class="flex h-full w-full g h i k j d c b a e f" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .a, .b, .c, .d, .e, .f {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "preserve",
+              componentClassPosition: "end",
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css",
+              unknownClassOrder: "preserve",
+              unknownClassPosition: "end"
+            }]
           }
         ]
       }

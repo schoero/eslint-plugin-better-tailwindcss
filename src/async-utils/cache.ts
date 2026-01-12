@@ -1,5 +1,3 @@
-import { env } from "node:process";
-
 import { getModifiedDate } from "./fs.js";
 
 
@@ -23,7 +21,7 @@ export function withCache<Result>(key: string, path: string | undefined, callbac
   const cacheKey = `${key}-${path}`;
   const cached = CACHE.get(cacheKey);
 
-  if(env.NODE_ENV !== "test" && cached && !invalidate(cached, path)){
+  if(cached && !invalidate(cached, path)){
     return cached.value;
   }
 
@@ -38,4 +36,8 @@ export function withCache<Result>(key: string, path: string | undefined, callbac
     CACHE.set(cacheKey, { date: new Date(), value });
     return value;
   }
+}
+
+export function clearCache() {
+  CACHE.clear();
 }

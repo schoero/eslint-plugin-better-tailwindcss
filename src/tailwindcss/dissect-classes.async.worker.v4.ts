@@ -1,16 +1,15 @@
 import { runAsWorker } from "synckit";
 
-import { getAsyncContext } from "../async-utils/context.js";
 import { createTailwindContext } from "./context.async.v4.js";
 import { getDissectedClasses } from "./dissect-classes.async.v4.js";
 
-import type { GetDissectedClassRequest, GetDissectedClassResponse } from "./dissect-classes.js";
+import type { Async } from "../types/async.js";
+import type { GetDissectedClasses } from "./dissect-classes.js";
 
 
-runAsWorker(async ({ classes, configPath, cwd, tsconfigPath }: GetDissectedClassRequest): Promise<GetDissectedClassResponse> => {
-  const { ctx, warnings } = await getAsyncContext({ configPath, cwd, tsconfigPath });
-  const context = await createTailwindContext(ctx);
+runAsWorker<Async<GetDissectedClasses>>(async (ctx, classes) => {
+  const tailwindContext = await createTailwindContext(ctx);
+  const dissectedClasses = getDissectedClasses(tailwindContext, classes);
 
-  const dissectedClasses = getDissectedClasses(context, classes);
-  return { dissectedClasses, warnings: [...warnings] };
+  return { dissectedClasses, warnings: ctx.warnings };
 });

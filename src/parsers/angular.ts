@@ -1,12 +1,13 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   createObjectPathElement,
   deduplicateLiterals,
   getIndentation,
@@ -37,8 +38,9 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { BracesMeta, Literal } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
@@ -51,25 +53,33 @@ export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplA
 }
 
 export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, attributes: Attributes): Literal[] {
+
+  const name = getAttributeName(attribute);
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...createLiteralsByAngularAttribute(ctx, attribute));
-    } else if(isAttributesRegex(attributes)){
-      // console.warn("Regex not supported for now");
     } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(attributes[0].toLowerCase(), getAttributeName(attribute).toLowerCase())){ return literals; }
+      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
       if(isTextAttribute(attribute)){
         literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
       }
-      if(isBoundAttribute(attribute) && isASTWithSource(attribute.value)){
-        literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, attributes[1]));
+      if(isBoundAttribute(attribute)){
+        if(isBoundAttributeName(attribute)){
+          literals.push(...getLiteralsByAngularMatchers(ctx, attribute, attributes[1]));
+        } else if(isASTWithSource(attribute.value)){
+          literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, attributes[1]));
+        }
       }
     }
 
     return literals;
   }, []);
-  return deduplicateLiterals(literals);
+
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 }
 
 function createLiteralsByAngularAst(ctx: Rule.RuleContext, ast: AST): Literal[] {
@@ -101,6 +111,9 @@ function createLiteralsByAngularAst(ctx: Rule.RuleContext, ast: AST): Literal[] 
     return createLiteralByAngularTemplateLiteralElement(ctx, ast);
   }
 
+  if(isBoundAttribute(ast) && isBoundAttributeName(ast)){
+    return createLiteralsByAngularBoundAttributeName(ctx, ast);
+  }
   return [];
 
 }
@@ -124,11 +137,14 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
   return [];
 }
 
-function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST, matchers: Matcher[]): Literal[] {
+function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: Matcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => isAST(value) && isCallExpression(value));
+  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => {
+    return isAST(value) && isCallExpression(value) || isBoundAttributeName(ast);
+  });
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]): MatcherFunctions<AST> {
@@ -148,7 +164,7 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]):
             return false;
           }
 
-          return isStringLike(ast);
+          return isStringLike(ast) || isBoundAttributeName(ast);
         });
         break;
       }
@@ -249,6 +265,44 @@ function getAngularObjectPath(ctx: Rule.RuleContext, ast: AST): string | undefin
 
 }
 
+function createLiteralsByAngularBoundAttributeName(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute): Literal[] {
+
+  if(!attribute.keySpan){
+    return [];
+  }
+
+  const content = attribute.name;
+
+  const startOffset = attribute.keySpan.toString()?.indexOf(content) ?? 0;
+
+  const start = attribute.keySpan.fullStart;
+  const end = attribute.keySpan.end;
+  const range = [start.offset + startOffset, end.offset] satisfies [number, number];
+  const raw = attribute.sourceSpan.start.file.content.slice(...range);
+  const quotes = getQuotes(raw);
+  const whitespaces = getWhitespace(content);
+  const loc = convertParseSourceSpanToLoc(attribute.keySpan);
+
+  loc.start.column += startOffset;
+  loc.end.column = loc.start.column + content.length;
+
+  const line = ctx.sourceCode.lines[loc.start.line - 1];
+  const indentation = getIndentation(line);
+  const supportsMultiline = false;
+
+  return [{
+    ...quotes,
+    ...whitespaces,
+    content,
+    indentation,
+    loc,
+    range,
+    raw,
+    supportsMultiline,
+    type: "StringLiteral"
+  }];
+}
+
 function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey): Literal[] {
   // @ts-expect-error - angular types are faulty
   const literalMap = key?.parent as LiteralMap | undefined;
@@ -331,7 +385,7 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
 function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: LiteralPrimitive): Literal[] {
   const content = literal.value;
 
-  if(!literal.sourceSpan){
+  if(!literal.sourceSpan || typeof content !== "string"){
     return [];
   }
 
@@ -398,17 +452,6 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
     supportsMultiline,
     type: "TemplateLiteral"
   }];
-}
-
-function getLocByRange(ctx: Rule.RuleContext, range: [number, number]): SourceLocation {
-  const [rangeStart, rangeEnd] = range;
-
-  const loc: SourceLocation = {
-    end: ctx.sourceCode.getLocFromIndex(rangeEnd),
-    start: ctx.sourceCode.getLocFromIndex(rangeStart)
-  };
-
-  return loc;
 }
 
 function convertParseSourceSpanToLoc(sourceSpan: ParseSourceSpan): SourceLocation {
@@ -562,6 +605,10 @@ function findParent(ctx: Rule.RuleContext, astNode: AST): AST | undefined {
   return visitChildNode(ast);
 }
 
+function isBoundAttributeName(ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute): boolean {
+  return isBoundAttribute(ast) && getAttributeName(ast)?.startsWith("[class.");
+}
+
 function isObjectValue(ast: AST): ast is LiteralPrimitive {
   return isStringLiteral(ast) && hasParent(ast) && isLiteralMap(ast.parent);
 }
@@ -593,5 +640,5 @@ const isTemplateLiteral = (ast: AST) => is<TemplateLiteral>(ast, "TemplateLitera
 const isTemplateLiteralElement = (ast: AST) => is<TemplateLiteralElement>(ast, "TemplateLiteralElement");
 const isLiteralPrimitive = (ast: AST) => is<LiteralPrimitive>(ast, "LiteralPrimitive");
 
-const isTextAttribute = (ast: TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstTextAttribute>(ast, "TextAttribute");
-const isBoundAttribute = (ast: TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstBoundAttribute>(ast, "BoundAttribute");
+const isTextAttribute = (ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstTextAttribute>(ast, "TextAttribute");
+const isBoundAttribute = (ast: AST | TmplAstBoundAttribute | TmplAstTextAttribute) => is<TmplAstBoundAttribute>(ast, "BoundAttribute");

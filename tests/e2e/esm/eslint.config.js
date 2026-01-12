@@ -3,12 +3,10 @@ import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 
 export default {
+  ...eslintPluginBetterTailwindcss.configs["stylistic-warn"],
+
   files: ["**/*.html"],
   languageOptions: {
     parser: eslintParserHTML
-  },
-  plugins: {
-    "better-tailwindcss": eslintPluginBetterTailwindcss
-  },
-  rules: eslintPluginBetterTailwindcss.configs["stylistic-warn"].rules
+  }
 };

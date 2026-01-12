@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
+import { runAsWorker } from "synckit";
 import { tailwind4 } from "tailwind-csstree";
 
 import { withCache } from "../async-utils/cache.js";
@@ -9,8 +10,7 @@ import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
 
-import type { AsyncContext } from "../async-utils/context.js";
-import type { CustomComponentClasses } from "./custom-component-classes.js";
+import type { AsyncContext } from "../utils/context.js";
 
 
 interface ImportInfo {
@@ -29,8 +29,8 @@ interface CssFiles {
 
 const { findAll, generate, parse, walk } = fork(tailwind4);
 
-export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
 
+runAsWorker(async ctx => {
   const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
 
   if(!resolvedPath){
@@ -39,8 +39,10 @@ export async function getCustomComponentClasses(ctx: AsyncContext): Promise<Cust
 
   const files = await parseCssFilesDeep(ctx, resolvedPath);
 
-  return getCustomComponentUtilities(files, resolvedPath);
-}
+  const customComponentClasses = getCustomComponentUtilities(files, resolvedPath);
+
+  return { customComponentClasses, warnings: ctx.warnings };
+});
 
 async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
   const cssFiles: CssFiles = {};

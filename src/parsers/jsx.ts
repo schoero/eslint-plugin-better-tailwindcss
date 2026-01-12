@@ -2,7 +2,6 @@ import {
   ES_CONTAINER_TYPES_TO_INSERT_BRACES,
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getLiteralsByESMatchers,
-  getLiteralsByESNodeAndRegex,
   getLiteralsByESTemplateLiteral,
   getStringLiteralByESStringLiteral,
   hasESNodeParentExtension,
@@ -10,37 +9,36 @@ import {
   isESSimpleStringLiteral,
   isESTemplateLiteral
 } from "better-tailwindcss:parsers/es.js";
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils/matchers.js";
-import { deduplicateLiterals, matchesName } from "better-tailwindcss:utils/utils.js";
+import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
+import { addAttribute, deduplicateLiterals, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
 import type { BaseNode as ESBaseNode, TemplateLiteral as ESTemplateLiteral } from "estree";
 import type { JSXAttribute, BaseNode as JSXBaseNode, JSXExpressionContainer, JSXOpeningElement } from "estree-jsx";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { ESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta } from "better-tailwindcss:types/ast.js";
-import type { Attributes } from "better-tailwindcss:types/rule.js";
+import type { } from "better-tailwindcss:types/rule.js";
 
 
 export const JSX_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
   ...ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
-  "JSXAttribute",
   "JSXExpressionContainer"
 ];
 
 export const JSX_CONTAINER_TYPES_TO_INSERT_BRACES = [
-  ...ES_CONTAINER_TYPES_TO_INSERT_BRACES,
-  "JSXAttribute"
+  ...ES_CONTAINER_TYPES_TO_INSERT_BRACES
 ];
 
 
 export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXAttribute, attributes: Attributes): Literal[] {
+
+  const name = getAttributeName(attribute);
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(!value){ return literals; }
-
-    const name = getAttributeName(attribute);
 
     if(typeof name !== "string"){
       return literals;
@@ -49,8 +47,6 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
     if(isAttributesName(attributes)){
       if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByJSXAttributeValue(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
       if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByESMatchers(ctx, value, attributes[1]));
@@ -59,8 +55,9 @@ export function getLiteralsByJSXAttribute(ctx: Rule.RuleContext, attribute: JSXA
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
-
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 }
 
 export function getAttributesByJSXElement(ctx: Rule.RuleContext, node: JSXOpeningElement): JSXAttribute[] {

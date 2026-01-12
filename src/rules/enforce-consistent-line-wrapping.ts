@@ -1,161 +1,121 @@
 import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  ENTRYPOINT_SCHEMA,
-  TAG_SCHEMA,
-  TAILWIND_CONFIG_SCHEMA,
-  TSCONFIG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
-import { createGetPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
-import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
+  boolean,
+  description,
+  literal,
+  minValue,
+  number,
+  object,
+  optional,
+  pipe,
+  union
+} from "valibot";
+
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, display, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
+import { display, splitClasses } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
+import type { DissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { BracesMeta, Literal, QuoteMeta, WhitespaceMeta } from "better-tailwindcss:types/ast.js";
-import type { Warning } from "better-tailwindcss:types/async.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
-
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      classesPerLine?: number;
-      entryPoint?: string;
-      group?: "emptyLine" | "never" | "newLine";
-      indent?: "tab" | number;
-      lineBreakStyle?: "unix" | "windows";
-      preferSingleLine?: boolean;
-      printWidth?: number;
-      tailwindConfig?: string;
-      tsconfig?: string;
-    }
-  >
-];
 
 interface Meta extends QuoteMeta, BracesMeta, WhitespaceMeta {
   indentation?: string;
 }
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  classesPerLine: 0,
-  group: "newLine",
-  indent: 2,
-  lineBreakStyle: "unix",
-  preferSingleLine: false,
-  printWidth: 80,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-line-wrapping.md";
+export const enforceConsistentLineWrapping = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Enforce consistent line wrapping for tailwind classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-line-wrapping.md",
+  name: "enforce-consistent-line-wrapping",
+  recommended: true,
 
-export const enforceConsistentLineWrapping: ESLintRule<Options> = {
-  name: "enforce-consistent-line-wrapping" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        category: "Stylistic Issues",
-        description: "Enforce consistent line wrapping for tailwind classes.",
-        recommended: true,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA,
-            ...TSCONFIG_SCHEMA,
-            classesPerLine: {
-              default: defaultOptions.classesPerLine,
-              description: "The maximum amount of classes per line. Lines are wrapped appropriately to stay within this limit . The value `0` disables line wrapping by `classesPerLine`.",
-              type: "integer"
-            },
-            group: {
-              default: defaultOptions.group,
-              description: "Defines how different groups of classes should be separated. A group is a set of classes that share the same variant.",
-              enum: ["emptyLine", "never", "newLine"],
-              type: "string"
-            },
-            indent: {
-              default: defaultOptions.indent,
-              description: "Determines how the code should be indented.",
-              oneOf: [
-                {
-                  enum: ["tab"],
-                  type: "string"
-                },
-                {
-                  minimum: 0,
-                  type: "integer"
-                }
-              ]
-            },
-            lineBreakStyle: {
-              default: defaultOptions.lineBreakStyle,
-              description: "The line break style. The style `windows` will use `\\r\\n` as line breaks and `unix` will use `\\n`.",
-              enum: ["unix", "windows"],
-              type: "string"
-            },
-            preferSingleLine: {
-              default: defaultOptions.preferSingleLine,
-              description: "Prefer a single line for the classes. When set to `true`, the rule will keep all classes on a single line until the line exceeds the `printWidth` or `classesPerLine` limit.",
-              type: "boolean"
-            },
-            printWidth: {
-              default: defaultOptions.printWidth,
-              description: "The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.",
-              type: "integer"
-            }
-          },
-          type: "object"
-        }
-      ],
-      type: "layout"
-    }
-  }
-};
+  messages: {
+    missing: "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}",
+    unnecessary: "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
+  },
 
-function initialize() {
-  createGetPrefix();
-}
+  schema: object({
+    classesPerLine: optional(
+      pipe(
+        number(),
+        minValue(0),
+        description("The maximum amount of classes per line.")
+      ),
+      0
+    ),
+    group: optional(
+      pipe(
+        union([
+          literal("newLine"),
+          literal("emptyLine"),
+          literal("never")
+        ]),
+        description("Defines how different groups of classes should be separated.")
+      ),
+      "newLine"
+    ),
+    indent: optional(
+      pipe(
+        union([
+          literal("tab"),
+          pipe(number(), minValue(0))
+        ]),
+        description("Determines how the code should be indented.")
+      ),
+      2
+    ),
+    lineBreakStyle: optional(
+      pipe(
+        union([literal("unix"),
+          literal("windows")]),
+        description("The line break style.")
+      ),
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-  const getPrefix = createGetPrefix();
+      "unix"
+    ),
+    preferSingleLine: optional(
+      pipe(
+        boolean(),
+        description("Prefer a single line for different variants.")
+      ),
 
-  const options = getOptions(ctx);
-  const { classesPerLine, group: groupSeparator, indent, lineBreakStyle, preferSingleLine, printWidth, tailwindConfig, tsconfig } = options;
+      false
+    ),
+    printWidth: optional(
+      pipe(
+        number(),
+        minValue(0),
+        description("The maximum line length before it gets wrapped.")
+      ),
+      80
+    ),
+    strictness: optional(
+      pipe(
+        union([
+          literal("strict"),
+          literal("loose")
+        ]),
+        description("Enable this option if prettier is used in your project.")
+      ),
+      "strict"
+    )
+  }),
 
-  const { prefix, suffix } = getPrefix({ configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
+  },
+
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
+
+
+function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, literals: Literal[]) {
+  const { classesPerLine, group: groupSeparator, messageStyle, preferSingleLine, printWidth, strictness } = ctx.options;
 
   for(const literal of literals){
 
@@ -163,19 +123,22 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       continue;
     }
 
-    const lineStartPosition = literal.indentation + getIndentation(ctx, indent);
+    const lineStartPosition = literal.indentation + getIndentation(ctx);
     const literalStartPosition = literal.loc.start.column;
-
-    const classChunks = splitClasses(literal.content);
-    const groupedClasses = groupClasses(ctx, classChunks, prefix, suffix);
+    const prettierStartPosition = lineStartPosition + (literal.attribute ? literal.attribute.length + 1 : 0);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
+
+    const classes = splitClasses(literal.content);
+
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+
+    const groupedClasses = groupClasses(classes, dissectedClasses);
+
     if(literal.openingQuote){
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ openingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ openingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ openingQuote: literal.openingQuote });
@@ -369,11 +332,9 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     if(literal.closingQuote){
       multilineClasses.addLine();
-      multilineClasses.line.indent(lineStartPosition - getIndentation(ctx, indent));
+      multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
 
-      if(literal.multilineQuotes?.includes("\\`")){
-        multilineClasses.line.addMeta({ closingQuote: "\\`" });
-      } else if(literal.multilineQuotes?.includes("`")){
+      if(literal.multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
       } else {
         multilineClasses.line.addMeta({ closingQuote: literal.closingQuote });
@@ -394,7 +355,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       }
 
       // disallow collapsing if the original literal was a single line (keeps original whitespace)
-      if(!literal.content.includes(getLineBreaks(lineBreakStyle))){
+      if(!literal.content.includes(getLineBreaks(ctx))){
         break collapse;
       }
 
@@ -416,14 +377,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
       ctx.report({
         data: {
-          notReadable: display(literal.raw),
-          readable: display(fixedClasses)
+          notReadable: display(messageStyle, literal.raw),
+          readable: display(messageStyle, fixedClasses)
         },
-        fix(fixer) {
-          return fixer.replaceTextRange(literal.range, fixedClasses);
-        },
-        loc: literal.loc,
-        message: augmentMessage(literal.raw, options, "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
+        fix: fixedClasses,
+        id: "unnecessary",
+        range: literal.range,
+        warnings
       });
 
       return;
@@ -446,6 +406,13 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       ) ||
       printWidth === 0 && classesPerLine === 0
     ){
+      continue;
+    }
+
+    // force skip if prettier would wrap the attribute to a new line and then the single line would fit
+    if(strictness === "loose" &&
+      literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0 &&
+      prettierStartPosition + singlelineClasses.line.length <= printWidth){
       continue;
     }
 
@@ -494,7 +461,7 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     }
 
-    const fixedClasses = multilineClasses.toString(lineBreakStyle);
+    const fixedClasses = multilineClasses.toString();
 
     if(literal.raw === fixedClasses){
       continue;
@@ -502,49 +469,24 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
 
     ctx.report({
       data: {
-        notReadable: display(literal.raw),
-        readable: display(fixedClasses)
+        notReadable: display(messageStyle, literal.raw),
+        readable: display(messageStyle, fixedClasses)
       },
-      fix(fixer) {
-        return literal.surroundingBraces
-          ? fixer.replaceTextRange(literal.range, `{${fixedClasses}}`)
-          : fixer.replaceTextRange(literal.range, fixedClasses);
-      },
-      loc: literal.loc,
-      message: augmentMessage(literal.raw, options, "Incorrect line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}")
+      fix: literal.surroundingBraces
+        ? `{${fixedClasses}}`
+        : fixedClasses,
+      id: "missing",
+      range: literal.range,
+      warnings
     });
 
   }
 
 }
 
-function getIndentation(ctx: Rule.RuleContext, indentation: Options[0]["indent"]): number {
-  return indentation === "tab" ? 1 : indentation ?? 0;
-}
-
-function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-
-  const common = getCommonOptions(ctx);
-
-  const printWidth = options.printWidth ?? defaultOptions.printWidth;
-  const classesPerLine = options.classesPerLine ?? defaultOptions.classesPerLine;
-  const indent = options.indent ?? defaultOptions.indent;
-  const group = options.group ?? defaultOptions.group;
-  const preferSingleLine = options.preferSingleLine ?? defaultOptions.preferSingleLine;
-  const lineBreakStyle = options.lineBreakStyle ?? defaultOptions.lineBreakStyle;
-
-  return {
-    ...common,
-    classesPerLine,
-    group,
-    indent,
-    lineBreakStyle,
-    preferSingleLine,
-    printWidth
-  };
-
+function getIndentation(ctx: Context<typeof enforceConsistentLineWrapping>): number {
+  const { indent } = ctx.options;
+  return indent === "tab" ? 1 : indent ?? 0;
 }
 
 
@@ -553,9 +495,9 @@ class Lines {
   private lines: Line[] = [];
   private currentLine: Line | undefined;
   private indentation = 0;
-  private ctx: Rule.RuleContext;
+  private ctx: Context<typeof enforceConsistentLineWrapping>;
 
-  constructor(ctx: Rule.RuleContext, indentation: number) {
+  constructor(ctx: Context<typeof enforceConsistentLineWrapping>, indentation: number) {
     this.ctx = ctx;
     this.indentation = indentation;
 
@@ -583,8 +525,8 @@ class Lines {
     return this;
   }
 
-  public toString(lineBreakStyle: Options[0]["lineBreakStyle"] = "unix") {
-    const lineBreaks = getLineBreaks(lineBreakStyle);
+  public toString() {
+    const lineBreaks = getLineBreaks(this.ctx);
 
     return this.lines.map(
       line => line.toString()
@@ -596,16 +538,16 @@ class Line {
 
   private classes: string[] = [];
   private meta: Meta = {};
-  private ctx: Rule.RuleContext;
+  private ctx: Context<typeof enforceConsistentLineWrapping>;
   private indentation = 0;
 
-  constructor(ctx: Rule.RuleContext, indentation: number) {
+  constructor(ctx: Context<typeof enforceConsistentLineWrapping>, indentation: number) {
     this.ctx = ctx;
     this.indentation = indentation;
   }
 
   public indent(start: number = this.indentation) {
-    const indent = getOptions(this.ctx).indent;
+    const { indent } = this.ctx.options;
 
     if(indent === "tab"){
       this.meta.indentation = "\t".repeat(start);
@@ -668,13 +610,11 @@ class Line {
   }
 }
 
-function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, suffix: string) {
+function groupClasses(classes: string[], dissectedClasses: DissectedClasses) {
 
   if(classes.length === 0){
     return;
   }
-
-  const prefixRegex = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}`);
 
   const groups = new Groups();
 
@@ -686,14 +626,17 @@ function groupClasses(ctx: Rule.RuleContext, classes: string[], prefix: string, 
     const lastGroup = groups.at(-1);
     const lastClassName = lastGroup?.at(-1);
 
-    const unprefixedLastClassName = lastClassName?.replace(prefixRegex, "");
-    const unprefixedClassName = className.replace(prefixRegex, "");
+    if(lastClassName){
+      const lastDissectedClass = dissectedClasses[lastClassName];
+      const currentDissectedClass = dissectedClasses[className];
 
-    const lastVariant = unprefixedLastClassName?.match(/^.*?:/)?.[0];
-    const variant = unprefixedClassName.match(/^.*?:/)?.[0];
+      // parse variants manually for custom component classes
+      const lastVariant = lastDissectedClass.variants?.join() ?? lastClassName.match(/^(.*):/)?.[1] ?? "";
+      const variant = currentDissectedClass.variants?.join() ?? className.match(/^(.*):/)?.[1] ?? "";
 
-    if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
-      groups.addGroup();
+      if(lastVariant !== variant && !(isFirstClass && isFirstGroup)){
+        groups.addGroup();
+      }
     }
 
     groups.group.addClass(className);
@@ -751,45 +694,7 @@ class Group {
   }
 }
 
-function getLineBreaks(lineBreakStyle: Options[0]["lineBreakStyle"]) {
+function getLineBreaks(ctx: Context<typeof enforceConsistentLineWrapping>) {
+  const { lineBreakStyle } = ctx.options;
   return lineBreakStyle === "unix" ? "\n" : "\r\n";
-}
-
-function augmentMessage(original: string, options: ReturnType<typeof getOptions>, message: string) {
-  const invalidLineBreaks = isLineBreakStyleLikelyMisconfigured(original, options);
-  const invalidIndentations = isIndentationLikelyMisconfigured(original, options);
-
-  const warnings: Warning<Options[0]>[] = [];
-
-  if(invalidLineBreaks){
-    warnings.push({
-      option: "lineBreakStyle",
-      title: "Inconsistent line endings detected",
-      url: `${DOCUMENTATION_URL}#linebreakstyle`
-    });
-  }
-
-  if(invalidIndentations){
-    warnings.push({
-      option: "indent",
-      title: "Inconsistent indentation detected",
-      url: `${DOCUMENTATION_URL}#indent`
-    });
-  }
-
-  return augmentMessageWithWarnings(message, DOCUMENTATION_URL, warnings);
-}
-
-function isLineBreakStyleLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {
-  return (
-    original.includes("\r") && options.lineBreakStyle === "unix" ||
-    !original.includes("\r") && options.lineBreakStyle === "windows"
-  );
-}
-
-function isIndentationLikelyMisconfigured(original: string, options: ReturnType<typeof getOptions>) {
-  return (
-    original.includes("  ") && options.indent === "tab" ||
-    original.includes("\t") && typeof options.indent === "number"
-  );
 }

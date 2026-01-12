@@ -64,6 +64,34 @@ describe("jsx", () => {
     });
   });
 
+  // #286
+  it("should not match index access string literals", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: "<img class={{ ' a b c ': ' d e f '}[' a b c ']} />",
+          jsxOutput: "<img class={{ ' a b c ': 'd e f'}[' a b c ']} />",
+
+          errors: 2,
+
+          options: [{
+            attributes: [["class", [{ match: MatcherType.ObjectValue }]]]
+          }]
+        },
+        {
+          jsx: "<img class={cx(' a b c ')[' d e f ']} />",
+          jsxOutput: "<img class={cx('a b c')[' d e f ']} />",
+
+          errors: 2,
+
+          options: [{
+            callees: [["cx", [{ match: MatcherType.String }]]]
+          }]
+        }
+      ]
+    });
+  });
+
 });
 
 describe("astro (jsx)", () => {

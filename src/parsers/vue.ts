@@ -3,7 +3,6 @@ import {
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
   getESObjectPath,
   getLiteralsByESLiteralNode,
-  getLiteralsByESNodeAndRegex,
   hasESNodeParentExtension,
   isESNode,
   isESObjectKey,
@@ -15,7 +14,7 @@ import {
   getLiteralNodesByMatchers,
   isAttributesMatchers,
   isAttributesName,
-  isAttributesRegex,
+  isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
@@ -23,6 +22,7 @@ import {
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
+  addAttribute,
   deduplicateLiterals,
   getContent,
   getIndentation,
@@ -36,8 +36,9 @@ import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 import type { VLiteral } from "vue-eslint-parser/ast/index";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Attributes, Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -59,23 +60,24 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
     return [];
   }
 
+  const name = getVueAttributeName(attribute);
   const value = attribute.value;
 
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(getVueBoundName(attributes).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+      if(!matchesName(getVueBoundName(attributes).toLowerCase(), name?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
-    } else if(isAttributesRegex(attributes)){
-      literals.push(...getLiteralsByESNodeAndRegex(ctx, attribute, attributes));
     } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), getVueAttributeName(attribute)?.toLowerCase())){ return literals; }
+      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), name?.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));
     }
 
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 
@@ -99,7 +101,8 @@ function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, match
   const matcherFunctions = getVueMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
-  return deduplicateLiterals(literals);
+
+  return literals.filter(deduplicateLiterals);
 }
 
 function getLiteralsByVueESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode & Rule.NodeParentExtension): Literal[] {
@@ -195,7 +198,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node) ||
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
@@ -217,7 +220,8 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             isInsideBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node)){
+            isInsideMemberExpression(node) ||
+            isIndexedAccessLiteral(node)){
             return false;
           }
 
@@ -243,6 +247,7 @@ function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNod
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||
+            isIndexedAccessLiteral(node) ||
 
             !isESStringLike(node) && !isVueLiteralNode(node)){
             return false;

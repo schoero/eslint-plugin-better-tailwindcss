@@ -2,6 +2,7 @@ import { describe, it } from "vitest";
 
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
+import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
@@ -121,4 +122,33 @@ describe("svelte", () => {
     });
   });
 
+  // https://svelte.dev/docs/svelte/class#The-class:-directive
+  it("should class name directive", () => {
+    lint(noRestrictedClasses, {
+      invalid: [
+        {
+          svelte: `<img class:restricted={true} />`,
+          svelteOutput: `<img class:allowed={true} />`,
+
+          errors: 1,
+          options: [{
+            restrict: [
+              { fix: "allowed", pattern: "restricted" }
+            ]
+          }]
+        },
+        {
+          svelte: `<img class:restricted />`,
+          svelteOutput: `<img class:allowed />`,
+
+          errors: 1,
+          options: [{
+            restrict: [
+              { fix: "allowed", pattern: "restricted" }
+            ]
+          }]
+        }
+      ]
+    });
+  });
 });

@@ -1,106 +1,42 @@
 import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  ENTRYPOINT_SCHEMA,
-  TAG_SCHEMA,
-  TAILWIND_CONFIG_SCHEMA,
-  TSCONFIG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
-import { createGetConflictingClasses } from "better-tailwindcss:tailwindcss/conflicting-classes.js";
+  createGetConflictingClasses,
+  getConflictingClasses
+} from "better-tailwindcss:tailwindcss/conflicting-classes.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import { augmentMessageWithWarnings, splitClasses } from "better-tailwindcss:utils/utils.js";
-
-import type { Rule } from "eslint";
+import { createRule } from "better-tailwindcss:utils/rule.js";
+import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      entryPoint?: string;
-      tailwindConfig?: string;
-      tsconfig?: string;
-    }
-  >
-];
+export const noConflictingClasses = createRule({
+  autofix: true,
+  category: "correctness",
+  description: "Disallow classes that produce conflicting styles.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md",
+  name: "no-conflicting-classes",
+  recommended: true,
 
+  messages: {
+    conflicting: "Conflicting class detected: \"{{ className }}\" and \"{{ conflictingClassString }}\" apply the same CSS properties: \"{{ conflictingPropertiesString }}\"."
+  },
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
+  initialize(ctx) {
+    createGetConflictingClasses(ctx);
+  },
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/no-conflicting-classes.md";
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
 
-export const noConflictingClasses: ESLintRule<Options> = {
-  name: "no-conflicting-classes" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        description: "Disallow classes that produce conflicting styles.",
-        recommended: true,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA,
-            ...TSCONFIG_SCHEMA
-          },
-          type: "object"
-        }
-      ],
-      type: "problem"
-    }
-  }
-};
-
-function initialize() {
-  createGetConflictingClasses();
-}
-
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
-
-  const getConflictingClasses = createGetConflictingClasses();
+function lintLiterals(ctx: Context<typeof noConflictingClasses>, literals: Literal[]) {
 
   for(const literal of literals){
 
-    const { tailwindConfig, tsconfig } = getOptions(ctx);
-
     const classes = splitClasses(literal.content);
 
-    const { conflictingClasses, warnings } = getConflictingClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+    const { conflictingClasses, warnings } = getConflictingClasses(async(ctx), classes);
 
     if(Object.keys(conflictingClasses).length === 0){
       continue;
@@ -131,20 +67,16 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
       const conflictingPropertiesString = conflictingProperties.map(conflictingProperty => `"${conflictingProperty}"`).join(", ");
 
       return {
-        message: augmentMessageWithWarnings(
-          `Conflicting class detected: "${className}" and "${conflictingClassString}" apply the same CSS properties: ${conflictingPropertiesString}.`,
-          DOCUMENTATION_URL,
-          warnings
-        )
-
-      };
+        data: {
+          className,
+          conflictingClassString,
+          conflictingPropertiesString
+        },
+        id: "conflicting",
+        warnings
+      } as const;
 
     });
 
   }
-}
-
-
-export function getOptions(ctx: Rule.RuleContext) {
-  return getCommonOptions(ctx);
 }

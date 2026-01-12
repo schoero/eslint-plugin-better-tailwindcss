@@ -1,3 +1,4 @@
+import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
@@ -36,19 +37,39 @@ export function splitClasses(classes: string): string[] {
     .split(/\s+/);
 }
 
-export function display(classes: string): string {
-  return classes
-    .replaceAll(" ", "·")
-    .replaceAll("\n", "↵\n")
-    .replaceAll("\r", "↩\r")
-    .replaceAll("\t", "→");
+export function deduplicateClasses(classes: string[]): string[] {
+  return classes.filter((className, index) => {
+    return classes.indexOf(className) === index;
+  });
 }
 
+export function display(messageStyle: MessageStyleOption["messageStyle"], classes: string): string {
+  if(messageStyle === "raw"){
+    return escapeMessage(messageStyle, classes);
+  }
 
-export function augmentMessageWithWarnings(message: string, documentationUrl: string, warnings?: (Warning | undefined)[]) {
+  return escapeMessage(
+    messageStyle,
+    classes
+      .replaceAll(" ", "·")
+      .replaceAll("\n", "↵\n")
+      .replaceAll("\r", "↩\r")
+      .replaceAll("\t", "→")
+  );
+}
+/**
+ * Augments a message with additional warnings and documentation links.
+ *
+ * @template Options
+ * @param message The original message to augment.
+ * @param docs The documentation URL to include.
+ * @param warnings Any warnings to include in the message.
+ * @returns The augmented message.
+ */
+export function augmentMessageWithWarnings<Options extends Record<string, any>>(message: string, docs: string, warnings?: (Warning<Options> | undefined)[]) {
   const ruleWarnings = warnings
     ?.filter(warning => warning)
-    .map(warning => ({ ...warning, url: documentationUrl }));
+    .map(warning => ({ ...warning, url: docs }));
 
   if(!ruleWarnings || ruleWarnings.length === 0){
     return message;
@@ -61,6 +82,16 @@ export function augmentMessageWithWarnings(message: string, documentationUrl: st
     ]).join("\n"),
     message
   ].join("\n\n");
+}
+
+export function escapeMessage(messageStyle: MessageStyleOption["messageStyle"], message: string): string {
+  if(messageStyle === "compact"){
+    return message
+      .replaceAll("\r", "")
+      .replaceAll("\n", "");
+  }
+
+  return message;
 }
 
 export function splitWhitespaces(classes: string): string[] {
@@ -124,14 +155,23 @@ export function replacePlaceholders(template: string, match: RegExpMatchArray | 
   });
 }
 
-export function deduplicateLiterals(literals: Literal[]): Literal[] {
-  return literals.filter((l1, index) => {
-    return literals.findIndex(l2 => {
-      return l1.content === l2.content &&
-        l1.range[0] === l2.range[0] &&
-        l1.range[1] === l2.range[1];
-    }) === index;
-  });
+export function addAttribute(name: string | undefined): (literal: Literal, index: number, literals: Literal[]) => Literal {
+  return (literal: Literal) => {
+    if(!name){
+      return literal;
+    }
+
+    literal.attribute = name;
+    return literal;
+  };
+}
+
+export function deduplicateLiterals(literal: Literal, index: number, literals: Literal[]): boolean {
+  return literals.findIndex(l2 => {
+    return literal.content === l2.content &&
+      literal.range[0] === l2.range[0] &&
+      literal.range[1] === l2.range[1];
+  }) === index;
 }
 
 export function createObjectPathElement(path?: string): string {

@@ -1,6 +1,6 @@
-# better-tailwindcss/no-unregistered-classes
+# better-tailwindcss/no-unknown-classes
 
-Disallow unregistered classes in tailwindcss class strings. Unregistered classes are classes that are not defined in your tailwind config file and therefore not recognized by tailwindcss.
+Disallow unknown classes in Tailwind CSS class strings. Unknown classes are classes that are not defined in your Tailwind CSS config file and therefore not recognized by Tailwind CSS.
 
 <br/>
 
@@ -17,9 +17,9 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
 
 ### `detectComponentClasses`
 
-  Tailwindcss v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
+  Tailwind CSS v4 allows you to define custom [component classes](https://tailwindcss.com/docs/adding-custom-styles#adding-component-classes) like `card`, `btn`, `badge` etc.
   
-  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unregistered classes.
+  If you want to create such classes, you can set this option to `true` to allow the rule to detect those classes and not report them as unknown classes. This can also be configured via the [`settings` object](../settings/settings.md).
   
   **Type**: `boolean`  
   **Default**: `false`
@@ -88,7 +88,7 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`  
   **Default**: `undefined`
@@ -112,7 +112,7 @@ Disallow unregistered classes in tailwindcss class strings. Unregistered classes
 ## Examples
 
 ```tsx
-// ❌ BAD: unregistered class
+// ❌ BAD: unknown class
 <div class="my-class" />;
 ```
 

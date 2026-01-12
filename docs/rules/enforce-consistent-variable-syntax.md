@@ -1,6 +1,11 @@
 # better-tailwindcss/enforce-consistent-variable-syntax
 
-Enforce consistent css variable syntax in tailwindcss class strings.
+Enforce consistent css variable syntax in Tailwind CSS class strings.
+
+<br/>
+
+> [!NOTE]
+> This rule might interfere with [`better-tailwindcss/enforce-canonical-classes`](./enforce-canonical-classes.md) if both rules are enabled. It is recommended to use only one of them to avoid conflicting fixes.
 
 <br/>
 
@@ -8,7 +13,7 @@ Enforce consistent css variable syntax in tailwindcss class strings.
 
 ### `syntax`
 
-  The syntax to enforce for css variables in tailwindcss class strings.
+  The syntax to enforce for css variables in Tailwind CSS class strings.
 
   The `shorthand` syntax uses the `(--variable)` syntax in Tailwind CSS v4 and `[--variable]` syntax in Tailwind CSS v3.
 

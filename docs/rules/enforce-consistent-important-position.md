@@ -6,6 +6,11 @@ Tailwind CSS v4 introduces the "recommended" position as the new standard. This 
 
 <br/>
 
+> [!NOTE]
+> This rule might interfere with [`better-tailwindcss/enforce-canonical-classes`](./enforce-canonical-classes.md) if both rules are enabled. It is recommended to use only one of them to avoid conflicting fixes.
+
+<br/>
+
 ## Options
 
 ### `position`
@@ -16,7 +21,7 @@ Controls where the important modifier (`!`) should be placed in class names.
 - `recommended`: Places the important modifier at the end of the class name.
 
   **Type**: `"legacy" | "recommended"`  
-  **Default**: `"recommended"` in Tailwind CSS v4, `"legacy"` in Tailwind CSS v3 and earlier.
+  **Default**: `"recommended"` in Tailwind CSS v4, `"legacy"` in Tailwind CSS v3 and earlier.  
 
 <br/>
 
@@ -82,7 +87,7 @@ Controls where the important modifier (`!`) should be placed in class names.
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`  
   **Default**: `undefined`

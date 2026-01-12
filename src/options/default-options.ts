@@ -13,7 +13,10 @@ import { TW_JOIN } from "better-tailwindcss:options/callees/twJoin.js";
 import { TW_MERGE } from "better-tailwindcss:options/callees/twMerge.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
-import type { Attributes, Callees, Tags, Variables } from "better-tailwindcss:types/rule.js";
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
+import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
+import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
 
 
 export const DEFAULT_CALLEE_NAMES = [
@@ -43,8 +46,24 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
     ]
   ],
 
+  // svelte
+  [
+    "^class:.*", [
+      {
+        match: MatcherType.String
+      }
+    ]
+  ],
+
   // angular
   "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)",
+  [
+    "(?:^\\[class\\..*\\]$)", [
+      {
+        match: MatcherType.String
+      }
+    ]
+  ],
   [
     "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)", [
       {

@@ -8,7 +8,12 @@ import type { SynckitOptions } from "synckit";
 export function getWorkerOptions(): SynckitOptions | undefined {
   if(env.NODE_ENV === "test"){
     return {
-      tsRunner: TsRunner.TsNode
+      timeout: 30_000,
+      tsRunner: TsRunner.OXC
+    };
+  } else {
+    return {
+      timeout: 30_000
     };
   }
 }

@@ -1,10 +1,15 @@
-import { describe, it } from "vitest";
+import eslintParserHTML from "@html-eslint/parser";
+import { describe, expect, it } from "vitest";
 
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
+import { eslint } from "better-tailwindcss:tests/utils/eslint.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
-import { css, dedent, ts } from "better-tailwindcss:tests/utils/template.js";
+import { prettier } from "better-tailwindcss:tests/utils/prettier.js";
+import { css, dedent, jsx, ts } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
-import { getTailwindcssVersion, TailwindcssVersion } from "better-tailwindcss:utils/tailwindcss.js";
+
+import eslintPluginBetterTailwindcss from "../configs/config.js";
 
 
 describe(enforceConsistentLineWrapping.name, () => {
@@ -12,7 +17,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should not wrap empty strings", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -49,7 +53,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should not wrap short lines", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -93,7 +96,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -119,7 +121,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should not clean up whitespace in single line strings", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -151,7 +152,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -180,7 +180,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -189,7 +188,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -212,7 +211,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -221,7 +219,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -238,7 +236,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should disable the `printWidth` limit when set to `0`", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -269,7 +266,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -295,7 +291,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -335,7 +330,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -368,7 +362,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -393,7 +386,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -418,7 +410,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -436,171 +427,7 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   });
 
-  it("should wrap string literals in call signature arguments matched by a regex", () => {
-
-    const dirtyDefined = `defined(
-      " a b c d e f g h ",
-      {
-        "nested": {
-          "matched": " a b c d e f g h ",
-        },
-        "deeply": {
-          "nested": {
-            "unmatched": " a b c d e f g h ",
-            "matched": " a b c d e f g h "
-          },
-        },
-        "multiline": {
-          "matched": \`
-            a b c d e f g h 
-          \`
-        }
-      }
-    );`;
-
-    const cleanDefined = `defined(
-      \`
-        a b c
-        d e f
-        g h
-      \`,
-      {
-        "nested": {
-          "matched": \`
-            a b c
-            d e f
-            g h
-          \`,
-        },
-        "deeply": {
-          "nested": {
-            "unmatched": " a b c d e f g h ",
-            "matched": \`
-              a b c
-              d e f
-              g h
-            \`
-          },
-        },
-        "multiline": {
-          "matched": \`
-            a b c
-            d e f
-            g h
-          \`
-        }
-      }
-    );`;
-
-    lint(
-      enforceConsistentLineWrapping,
-
-      {
-        invalid: [
-          {
-            jsx: dirtyDefined,
-            jsxOutput: cleanDefined,
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`,
-
-            errors: 4,
-            options: [{
-              callees: [
-                [
-                  "defined\\(([^)]*)\\)",
-                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ],
-                [
-                  "defined\\(([^)]*)\\)",
-                  "^\\s*[\"'`]([^\"'`]+)[\"'`](?!:)"
-                ]
-              ],
-              classesPerLine: 3,
-              indent: 2
-            }]
-          }
-        ]
-      }
-    );
-
-  });
-
-  it("should change to a jsx expression correctly", () => {
-
-    const singleLine = " a b c d e f g h ";
-    const multipleLines = dedent`
-      a b c
-      d e f
-      g h
-    `;
-
-    lint(
-      enforceConsistentLineWrapping,
-
-      {
-        invalid: [
-          {
-            jsx: `() => <img class="${singleLine}" />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class='${singleLine}' />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class={"${singleLine}"} />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={"${singleLine}"} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            jsx: `() => <img class={'${singleLine}'} />`,
-            jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={'${singleLine}'} />`,
-            svelteOutput: `<img class={\`${multipleLines}\`} />`,
-
-            errors: 1,
-            options: [{ classesPerLine: 3, indent: 2 }]
-          }
-        ],
-        valid: [
-          {
-            jsx: `() => <img class={\`${multipleLines}\`} />`,
-            svelte: `<img class={\`${multipleLines}\`} />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            angular: `<img class="${multipleLines}" />`,
-            html: `<img class="${multipleLines}" />`,
-            svelte: `<img class="${multipleLines}" />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          },
-          {
-            angular: `<img class='${multipleLines}' />`,
-            html: `<img class='${multipleLines}' />`,
-            svelte: `<img class='${multipleLines}' />`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
-          }
-        ]
-      }
-    );
-  });
-
-  it("should wrap long lines on to multiple lines", () => {
+  it("should always preserve the original quotes in attributes", () => {
 
     const singleLine = " a b c d e f g h ";
     const multipleLines = dedent`
@@ -617,7 +444,7 @@ describe(enforceConsistentLineWrapping.name, () => {
           html: `<img class="${singleLine}" />`,
           htmlOutput: `<img class="${multipleLines}" />`,
           jsx: `() => <img class="${singleLine}" />`,
-          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+          jsxOutput: `() => <img class="${multipleLines}" />`,
           svelte: `<img class="${singleLine}" />`,
           svelteOutput: `<img class="${multipleLines}" />`,
           vue: `<template><img class="${singleLine}" /></template>`,
@@ -632,7 +459,7 @@ describe(enforceConsistentLineWrapping.name, () => {
           html: `<img class='${singleLine}' />`,
           htmlOutput: `<img class='${multipleLines}' />`,
           jsx: `() => <img class='${singleLine}' />`,
-          jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
+          jsxOutput: `() => <img class='${multipleLines}' />`,
           svelte: `<img class='${singleLine}' />`,
           svelteOutput: `<img class='${multipleLines}' />`,
           vue: `<template><img class='${singleLine}' /></template>`,
@@ -640,7 +467,22 @@ describe(enforceConsistentLineWrapping.name, () => {
 
           errors: 1,
           options: [{ classesPerLine: 3, indent: 2 }]
-        },
+        }
+      ]
+    });
+  });
+
+  it("should change the quotes to backticks in attribute expressions", () => {
+
+    const singleLine = " a b c d e f g h ";
+    const multipleLines = dedent`
+      a b c
+      d e f
+      g h
+    `;
+
+    lint(enforceConsistentLineWrapping, {
+      invalid: [
         {
           jsx: `() => <img class={\`${singleLine}\`} />`,
           jsxOutput: `() => <img class={\`${multipleLines}\`} />`,
@@ -710,7 +552,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -793,7 +634,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -848,7 +688,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -875,7 +714,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -896,101 +734,6 @@ describe(enforceConsistentLineWrapping.name, () => {
             svelte: `<script>${dirtyUndefined}</script>`,
 
             options: [{ classesPerLine: 3, indent: 2, variables: ["defined"] }]
-          }
-        ]
-      }
-    );
-
-  });
-
-  it("should wrap string literals in variable declarations matched by a regex", () => {
-
-    const dirtyDefined = "const defined = 'a b c d e f g h';";
-    const dirtyUndefined = "const notDefined = 'a b c d e f g h';";
-    const cleanDefined = dedent`const defined = \`
-      a b c
-      d e f
-      g h
-    \`;`;
-
-    const dirtyObject = dedent`const defined = {
-      "matched": " a b c d e f g h ",
-      "unmatched": " a b c d e f g h ",
-      "nested": {
-        "matched": " a b c d e f g h ",
-        "unmatched": " a b c d e f g h "
-      }
-    };`;
-
-    const cleanObject = dedent`const defined = {
-      "matched": \`
-        a b c
-        d e f
-        g h
-      \`,
-      "unmatched": " a b c d e f g h ",
-      "nested": {
-        "matched": \`
-          a b c
-          d e f
-          g h
-        \`,
-        "unmatched": " a b c d e f g h "
-      }
-    };`;
-
-    lint(
-      enforceConsistentLineWrapping,
-
-      {
-        invalid: [
-          {
-            jsx: dirtyDefined,
-            jsxOutput: cleanDefined,
-            svelte: `<script>${dirtyDefined}</script>`,
-            svelteOutput: `<script>${cleanDefined}</script>`,
-            vue: `<script>${dirtyDefined}</script>`,
-            vueOutput: `<script>${cleanDefined}</script>`,
-
-            errors: 1,
-            options: [{
-              classesPerLine: 3,
-              indent: 2,
-              variables: [
-                [
-                  "defined = ([\\S\\s]*)",
-                  "^\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ]
-              ]
-            }]
-          },
-          {
-            jsx: dirtyObject,
-            jsxOutput: cleanObject,
-            svelte: `<script>${dirtyObject}</script>`,
-            svelteOutput: `<script>${cleanObject}</script>`,
-            vue: `<script>${dirtyObject}</script>`,
-            vueOutput: `<script>${cleanObject}</script>`,
-
-            errors: 2,
-            options: [{
-              classesPerLine: 3,
-              indent: 2,
-              variables: [
-                [
-                  "defined = ([\\S\\s]*)",
-                  "\"matched\"?:\\s*[\"'`]([^\"'`]+)[\"'`]"
-                ]
-              ]
-            }]
-          }
-        ],
-        valid: [
-          {
-            jsx: dirtyUndefined,
-            svelte: `<script>${dirtyUndefined}</script>`,
-
-            options: [{ classesPerLine: 3, indent: 2 }]
           }
         ]
       }
@@ -1013,7 +756,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1046,7 +788,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1055,7 +796,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />`,
-            jsxOutput: `() => <img class={\`${clean}\`} />`,
+            jsxOutput: `() => <img class="${clean}" />`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -1077,7 +818,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1086,7 +826,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="${dirty}" />`,
             htmlOutput: `<img class="${clean}" />`,
             jsx: `() => <img class="${dirty}" />;`,
-            jsxOutput: `() => <img class={\`${clean}\`} />;`,
+            jsxOutput: `() => <img class="${clean}" />;`,
             svelte: `<img class="${dirty}" />`,
             svelteOutput: `<img class="${clean}" />`,
             vue: `<template><img class="${dirty}" /></template>`,
@@ -1113,7 +853,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
     lint(
       enforceConsistentLineWrapping,
-
       {
         valid: [
           {
@@ -1131,7 +870,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should be possible to change group separation by emptyLines", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1140,7 +878,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -1157,7 +895,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should be possible to change group separation to emptyLine", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1166,7 +903,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n\n  g-1:a g-1:b\n\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -1183,7 +920,6 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should be wrap groups according to preferSingleLine", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1207,7 +943,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             htmlOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             jsx: `() => <img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
-            jsxOutput: `() => <img class={\`\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n\`} />`,
+            jsxOutput: `() => <img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             svelte: `<img class="a b c g-1:a g-1:b g-2:a g-2:b" />`,
             svelteOutput: `<img class="\n  a b c\n  g-1:a g-1:b\n  g-2:a g-2:b\n" />`,
             vue: `<template><img class="a b c g-1:a g-1:b g-2:a g-2:b" /></template>`,
@@ -1236,16 +972,15 @@ describe(enforceConsistentLineWrapping.name, () => {
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
-            jsx: "defined` a b c d e f g h `",
-            jsxOutput: "defined`\n  a b c\n  d e f\n  g h\n`",
-            svelte: "<script>defined` a b c d e f g h `</script>",
-            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
-            vue: "<script>defined` a b c d e f g h `</script>",
-            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g h\n`</script>",
+            jsx: "defined` a b c d e f g `",
+            jsxOutput: "defined`\n  a b c\n  d e f\n  g\n`",
+            svelte: "<script>defined` a b c d e f g`</script>",
+            svelteOutput: "<script>defined`\n  a b c\n  d e f\n  g\n`</script>",
+            vue: "<script>defined` a b c d e f g`</script>",
+            vueOutput: "<script>defined`\n  a b c\n  d e f\n  g\n`</script>",
 
             errors: 1,
             options: [{
@@ -1257,9 +992,9 @@ describe(enforceConsistentLineWrapping.name, () => {
         ],
         valid: [
           {
-            jsx: "notDefined` a b c d e f g h `",
-            svelte: "<script>notDefined` a b c d e f g h `</script>",
-            vue: "notDefined` a b c d e f g h `",
+            jsx: "notDefined` a b c d e f g`",
+            svelte: "<script>notDefined` a b c d e f g`</script>",
+            vue: "notDefined` a b c d e f g`",
 
             options: [{
               classesPerLine: 3,
@@ -1273,10 +1008,9 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   });
 
-  it.runIf(getTailwindcssVersion().major <= TailwindcssVersion.V3)("should ignore prefixed variants in tailwind <= 3", () => {
+  it.runIf(getTailwindCSSVersion().major <= 3)("should ignore prefixed variants in tailwind <= 3", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1285,7 +1019,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
             htmlOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             jsx: `() => <img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
-            jsxOutput: `() => <img class={\`\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n\`} />`,
+            jsxOutput: `() => <img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             svelte: `<img class="tw-a tw-b hover:tw-c focus:tw-d" />`,
             svelteOutput: `<img class="\n  tw-a tw-b\n  hover:tw-c\n  focus:tw-d\n" />`,
             vue: `<template><img class="tw-a tw-b hover:tw-c focus:tw-d" /></template>`,
@@ -1308,10 +1042,9 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
-  it.runIf(getTailwindcssVersion().major >= TailwindcssVersion.V4)("should ignore prefixed variants in tailwind >= 4", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should ignore prefixed variants in tailwind >= 4", () => {
     lint(
       enforceConsistentLineWrapping,
-
       {
         invalid: [
           {
@@ -1320,7 +1053,7 @@ describe(enforceConsistentLineWrapping.name, () => {
             html: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
             htmlOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             jsx: `() => <img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
-            jsxOutput: `() => <img class={\`\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n\`} />`,
+            jsxOutput: `() => <img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             svelte: `<img class="tw:a tw:b tw:hover:c tw:focus:d" />`,
             svelteOutput: `<img class="\n  tw:a tw:b\n  tw:hover:c\n  tw:focus:d\n" />`,
             vue: `<template><img class="tw:a tw:b tw:hover:c tw:focus:d" /></template>`,
@@ -1341,4 +1074,126 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  it("should not group arbitrary styles differently", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        valid: [
+          {
+            jsx: `() => <div class="md:w-full md:[height:_100px]" />`
+          }
+        ]
+      }
+    );
+  });
+
+  describe("prettier compatibility", () => {
+    const iterations = [
+      jsx`
+        () => (
+          <img class="font-bold text-blue" />
+        );
+      `,
+      jsx`
+        () => (
+          <img class="
+            font-bold text-blue
+          " />
+        );
+      `,
+      jsx`
+        () => (
+          <img
+            class="
+            font-bold text-blue
+          "
+          />
+        );
+      `,
+      jsx`
+        () => (
+          <img
+            class="font-bold text-blue"
+          />
+        );
+      `,
+      jsx`
+        () => (
+          <img class="font-bold text-blue" />
+        );
+      `
+    ];
+
+    const cases = [
+      { input: iterations[0], name: "eslint line wrapping", output: iterations[1] },
+      { input: iterations[1], name: "prettier class attribute newline", output: iterations[2] },
+      { input: iterations[2], name: "eslint line collapsing", output: iterations[3] },
+      { input: iterations[3], name: "prettier class attribute collapsing", output: iterations[4] }
+    ];
+
+    it.each(cases)("should conflict with prettier iteration $name", async currentCase => {
+      const index = cases.indexOf(currentCase);
+
+      const output = index % 2 === 0
+        ? await eslint(
+          currentCase.input,
+          [{
+            languageOptions: {
+              parser: eslintParserHTML
+            },
+            plugins: {
+              "better-tailwindcss": eslintPluginBetterTailwindcss
+            },
+            rules: {
+              "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+                printWidth: 32,
+                strictness: "strict"
+              }]
+            }
+          }]
+        )
+        : await prettier(
+          currentCase.input,
+          {
+            parser: "babel",
+            printWidth: 32
+          }
+        );
+
+      expect(output.trim()).toBe(currentCase.output);
+    });
+
+    it(`should not conflict with prettier when "strictness" is set to "loose"`, async () => {
+      const input = iterations[0];
+
+      const eslintOutput = await eslint(
+        input,
+        [{
+          languageOptions: {
+            parser: eslintParserHTML
+          },
+          plugins: {
+            "better-tailwindcss": eslintPluginBetterTailwindcss
+          },
+          rules: {
+            "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+              printWidth: 32,
+              strictness: "loose"
+            }]
+          }
+        }]
+      );
+
+      const prettierOutput = await prettier(
+        eslintOutput,
+        {
+          parser: "babel",
+          printWidth: 32
+        }
+      );
+
+      expect(eslintOutput.trim()).toBe(input.trim());
+      expect(eslintOutput.trim()).toBe(prettierOutput.trim());
+    });
+  });
 });

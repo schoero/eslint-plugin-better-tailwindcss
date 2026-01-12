@@ -1,11 +1,11 @@
 # better-tailwindcss/no-conflicting-classes
 
-Disallow conflicting classes in tailwindcss class strings. Conflicting classes are classes that apply the same CSS property on the same element. This can cause unexpected behavior as it is not clear which class will take precedence.
+Disallow conflicting classes in Tailwind CSS class strings. Conflicting classes are classes that apply the same CSS property on the same element. This can cause unexpected behavior as it is not clear which class will take precedence.
 
 <br/>
 
 > [!NOTE]
-> This rule is similar to `cssConflict` from the [TailwindCSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension. It is recommended to disable `cssConflict` in your projects `.vscode/settings.json` to avoid confusion:
+> This rule is similar to `cssConflict` from the [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss) VSCode extension. It is recommended to disable `cssConflict` in your projects `.vscode/settings.json` to avoid confusion:
 >
 > ```jsonc
 > {
@@ -81,7 +81,7 @@ Disallow conflicting classes in tailwindcss class strings. Conflicting classes a
   The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
   This can also be set globally via the [`settings` object](../settings/settings.md#tailwindConfig).  
 
-  For tailwindcss v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
+  For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
   **Type**: `string`  
   **Default**: `undefined`

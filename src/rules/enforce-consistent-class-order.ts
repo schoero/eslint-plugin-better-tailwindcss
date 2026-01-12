@@ -1,155 +1,136 @@
+import { description, literal, object, optional, pipe, union } from "valibot";
+
+import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import {
-  DEFAULT_ATTRIBUTE_NAMES,
-  DEFAULT_CALLEE_NAMES,
-  DEFAULT_TAG_NAMES,
-  DEFAULT_VARIABLE_NAMES
-} from "better-tailwindcss:options/default-options.js";
-import {
-  ATTRIBUTE_SCHEMA,
-  CALLEE_SCHEMA,
-  ENTRYPOINT_SCHEMA,
-  TAG_SCHEMA,
-  TAILWIND_CONFIG_SCHEMA,
-  TSCONFIG_SCHEMA,
-  VARIABLE_SCHEMA
-} from "better-tailwindcss:options/descriptions.js";
-import { createGetClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
-import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
-import { getCommonOptions } from "better-tailwindcss:utils/options.js";
+  createGetCustomComponentClasses,
+  getCustomComponentClasses
+} from "better-tailwindcss:tailwindcss/custom-component-classes.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { async } from "better-tailwindcss:utils/context.js";
 import { escapeNestedQuotes } from "better-tailwindcss:utils/quotes.js";
-import { createRuleListener } from "better-tailwindcss:utils/rule.js";
-import {
-  augmentMessageWithWarnings,
-  display,
-  splitClasses,
-  splitWhitespaces
-} from "better-tailwindcss:utils/utils.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
+import { display, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
-import type { Rule } from "eslint";
-
-import type { Literal } from "better-tailwindcss:types/ast.js";
+import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
-import type {
-  AttributeOption,
-  CalleeOption,
-  ESLintRule,
-  TagOption,
-  VariableOption
-} from "better-tailwindcss:types/rule.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
 
 
-export type Options = [
-  Partial<
-    AttributeOption &
-    CalleeOption &
-    TagOption &
-    VariableOption &
-    {
-      entryPoint?: string;
-      order?: "asc" | "desc" | "improved" | "official";
-      tailwindConfig?: string;
-      tsconfig?: string;
-    }
-  >
-];
+export const enforceConsistentClassOrder = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Enforce a consistent order for tailwind classes.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-class-order.md",
+  name: "enforce-consistent-class-order",
+  recommended: true,
 
-const defaultOptions = {
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  order: "improved",
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-} as const satisfies Options[0];
+  messages: {
+    order: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
+  },
 
-const DOCUMENTATION_URL = "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-consistent-class-order.md";
+  schema: object({
+    componentClassOrder: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("preserve")
+        ]),
+        description("Defines how component classes should be ordered among themselves.")
+      ),
+      "preserve"
+    ),
+    componentClassPosition: optional(
+      pipe(
+        union([
+          literal("start"),
+          literal("end")
+        ]),
+        description("Defines where component classes should be placed in relation to the whole string literal.")
+      ),
+      "start"
+    ),
+    order: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("official"),
+          literal("strict")
+        ]),
+        description("The algorithm to use when sorting classes.")
+      ),
+      "official"
+    ),
+    unknownClassOrder: optional(
+      pipe(
+        union([
+          literal("asc"),
+          literal("desc"),
+          literal("preserve")
+        ]),
+        description("Defines how component classes should be ordered among themselves.")
+      ),
+      "preserve"
+    ),
+    unknownClassPosition: optional(
+      pipe(
+        union([
+          literal("start"),
+          literal("end")
+        ]),
+        description("Defines where component classes should be placed in relation to the whole string literal.")
+      ),
+      "start"
+    )
+  }),
 
-export const enforceConsistentClassOrder: ESLintRule<Options> = {
-  name: "enforce-consistent-class-order" as const,
-  rule: {
-    create: ctx => createRuleListener(ctx, initialize, getOptions, lintLiterals),
-    meta: {
-      docs: {
-        category: "Stylistic Issues",
-        description: "Enforce a consistent order for tailwind classes.",
-        recommended: true,
-        url: DOCUMENTATION_URL
-      },
-      fixable: "code",
-      schema: [
-        {
-          additionalProperties: false,
-          properties: {
-            ...CALLEE_SCHEMA,
-            ...ATTRIBUTE_SCHEMA,
-            ...VARIABLE_SCHEMA,
-            ...TAG_SCHEMA,
-            ...ENTRYPOINT_SCHEMA,
-            ...TAILWIND_CONFIG_SCHEMA,
-            ...TSCONFIG_SCHEMA,
-            order: {
-              default: defaultOptions.order,
-              description: "The algorithm to use when sorting classes.",
-              enum: [
-                "asc",
-                "desc",
-                "official",
-                "improved"
-              ],
-              type: "string"
-            }
-          },
-          type: "object"
-        }
-      ],
-      type: "layout"
-    }
-  }
-};
+  initialize: ctx => {
+    createGetClassOrder(ctx);
+    createGetDissectedClasses(ctx);
+    createGetCustomComponentClasses(ctx);
+  },
 
-function initialize() {
-  createGetClassOrder();
-  createGetDissectedClasses();
-}
+  lintLiterals: (ctx, literals) => {
 
-function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
+    const { messageStyle } = ctx.options;
 
-  for(const literal of literals){
+    for(const literal of literals){
 
-    const classChunks = splitClasses(literal.content);
-    const whitespaceChunks = splitWhitespaces(literal.content);
+      const classChunks = splitClasses(literal.content);
+      const whitespaceChunks = splitWhitespaces(literal.content);
 
-    const unsortableClasses: [string, string] = ["", ""];
+      const unsortableClasses: [string, string] = ["", ""];
 
-    // remove sticky classes
-    if(literal.closingBraces && whitespaceChunks[0] === ""){
-      whitespaceChunks.shift();
-      unsortableClasses[0] = classChunks.shift() ?? "";
-    }
-    if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
-      whitespaceChunks.pop();
-      unsortableClasses[1] = classChunks.pop() ?? "";
-    }
+      // remove sticky classes
+      if(literal.closingBraces && whitespaceChunks[0] === ""){
+        whitespaceChunks.shift();
+        unsortableClasses[0] = classChunks.shift() ?? "";
+      }
+      if(literal.openingBraces && whitespaceChunks[whitespaceChunks.length - 1] === ""){
+        whitespaceChunks.pop();
+        unsortableClasses[1] = classChunks.pop() ?? "";
+      }
 
-    const [sortedClassChunks, warnings] = sortClassNames(ctx, classChunks);
+      const [sortedClassChunks, warnings] = sortClassNames(ctx, classChunks);
 
-    const classes: string[] = [];
+      const classes: string[] = [];
 
-    for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
-      whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
-      sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
-    }
+      for(let i = 0; i < Math.max(sortedClassChunks.length, whitespaceChunks.length); i++){
+        whitespaceChunks[i] && classes.push(whitespaceChunks[i]);
+        sortedClassChunks[i] && classes.push(sortedClassChunks[i]);
+      }
 
-    const escapedClasses = escapeNestedQuotes(
-      [
-        unsortableClasses[0],
-        ...classes,
-        unsortableClasses[1]
-      ].join(""),
-      literal.openingQuote ?? literal.closingQuote ?? "`"
-    );
+      const escapedClasses = escapeNestedQuotes(
+        [
+          unsortableClasses[0],
+          ...classes,
+          unsortableClasses[1]
+        ].join(""),
+        literal.openingQuote ?? literal.closingQuote ?? "`"
+      );
 
-    const fixedClasses =
-      [
+      const fixedClasses = [
         literal.openingQuote ?? "",
         literal.isInterpolated && literal.closingBraces ? literal.closingBraces : "",
         escapedClasses,
@@ -157,35 +138,28 @@ function lintLiterals(ctx: Rule.RuleContext, literals: Literal[]) {
         literal.closingQuote ?? ""
       ].join("");
 
-    if(literal.raw === fixedClasses){
-      continue;
-    }
+      if(literal.raw === fixedClasses){
+        continue;
+      }
 
-    ctx.report({
-      data: {
-        notSorted: display(literal.raw),
-        sorted: display(fixedClasses)
-      },
-      fix(fixer) {
-        return fixer.replaceTextRange(literal.range, fixedClasses);
-      },
-      loc: literal.loc,
-      message: augmentMessageWithWarnings(
-        "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}",
-        DOCUMENTATION_URL,
+      ctx.report({
+        data: {
+          notSorted: display(messageStyle, literal.raw),
+          sorted: display(messageStyle, fixedClasses)
+        },
+        fix: fixedClasses,
+        id: "order",
+        range: literal.range,
         warnings
-      )
-    });
-
+      });
+    }
   }
-}
+});
 
-function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const getClassOrder = createGetClassOrder();
-  const getDissectedClasses = createGetDissectedClasses();
+function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classes: string[]): [classes: string[], warnings?: (Warning | undefined)[]] {
 
-  const { order, tailwindConfig, tsconfig } = getOptions(ctx);
+  const { componentClassOrder, componentClassPosition, order, unknownClassOrder, unknownClassPosition } = ctx.options;
 
   if(order === "asc"){
     return [classes.toSorted((a, b) => a.localeCompare(b))];
@@ -195,15 +169,47 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
-  const { classOrder, warnings } = getClassOrder({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
-  const { dissectedClasses } = getDissectedClasses({ classes, configPath: tailwindConfig, cwd: ctx.cwd, tsconfigPath: tsconfig });
+  const { classOrder, warnings } = getClassOrder(async(ctx), classes);
+  const { customComponentClasses } = getCustomComponentClasses(async(ctx));
 
   const officiallySortedClasses = classOrder
-    .toSorted(([, a], [, z]) => {
-      if(a === z){ return 0; }
-      if(a === null){ return -1; }
-      if(z === null){ return +1; }
-      return +(a - z > 0n) - +(a - z < 0n);
+    .toSorted((a, b) => {
+      const [classA, aIndex] = a;
+      const [classB, bIndex] = b;
+
+      const componentClassSorting = getCustomOrder(
+        componentClassPosition,
+        componentClassOrder,
+        classA,
+        classB,
+        className => customComponentClasses.includes(className)
+      );
+
+      if(componentClassSorting !== undefined){
+        return componentClassSorting;
+      }
+
+      const unknownClassSorting = getCustomOrder(
+        unknownClassPosition,
+        unknownClassOrder,
+        classA,
+        classB,
+        className => {
+          return (
+            (classA === className && aIndex === null || classB === className && bIndex === null) &&
+            !customComponentClasses.includes(className)
+          );
+        }
+      );
+
+      if(unknownClassSorting !== undefined){
+        return unknownClassSorting;
+      }
+
+      if(aIndex === bIndex){ return 0; }
+      if(aIndex === null){ return -1; }
+      if(bIndex === null){ return +1; }
+      return +(aIndex - bIndex > 0n) - +(aIndex - bIndex < 0n);
     })
     .map(([className]) => className);
 
@@ -211,30 +217,137 @@ function sortClassNames(ctx: Rule.RuleContext, classes: string[]): [classes: str
     return [officiallySortedClasses, warnings];
   }
 
-  const groupedByVariant = new Map<string, string[]>();
+  const { dissectedClasses } = getDissectedClasses(async(ctx), classes);
 
-  for(const className of officiallySortedClasses){
-    const dissectedClass = dissectedClasses.find(dissectedClass => dissectedClass.className === className);
-    const variants = dissectedClass?.variants.join(":") ?? "";
-    groupedByVariant.set(variants, [...groupedByVariant.get(variants) ?? [], className]);
+  const variantMap: VariantMap = {};
+
+  for(const originalClass in dissectedClasses){
+    const dissectedClass = dissectedClasses[originalClass];
+
+    // parse variants manually for custom component classes
+    const variants = dissectedClass.variants ?? originalClass.match(/^(.*):/)?.[1]?.split(":") ?? [];
+
+    variants.unshift("");
+
+    for(let v = 0, variantMapLevel = variantMap; v < variants.length; v++){
+      const isLastVariant = v === variants.length - 1;
+
+      variantMapLevel[variants[v]] ??= {
+        dissectedClasses: [],
+        nested: {}
+      };
+
+      if(isLastVariant){
+        variantMapLevel[variants[v]].dissectedClasses.push(dissectedClass);
+        continue;
+      }
+
+      variantMapLevel = variantMapLevel[variants[v]].nested;
+
+    }
   }
 
-  return [Array.from(groupedByVariant.values()).flat(), warnings];
+  const strictOrder = getStrictOrder(variantMap);
+
+  return [strictOrder, warnings];
 
 }
 
 
-export function getOptions(ctx: Rule.RuleContext) {
-
-  const options: Options[0] = ctx.options[0] ?? {};
-
-  const common = getCommonOptions(ctx);
-
-  const order = options.order ?? defaultOptions.order;
-
-  return {
-    ...common,
-    order
+type VariantMap = {
+  [variant: string]: {
+    dissectedClasses: DissectedClass[];
+    nested: VariantMap;
   };
+};
 
+function getStrictOrder(variantMap: VariantMap): string[] {
+  const orderedClasses: string[] = [];
+
+  const orderedVariants = Object.keys(variantMap).sort((a, b) => {
+    const aIsArbitrary = isArbitrary(a);
+    const bIsArbitrary = isArbitrary(b);
+
+    // sort arbitrary variants last
+    if(aIsArbitrary && !bIsArbitrary){ return +1; }
+    if(!aIsArbitrary && bIsArbitrary){ return -1; }
+
+    return 0;
+  });
+
+  for(let v = 0; v < orderedVariants.length; v++){
+    const variant = orderedVariants[v];
+    const nextVariant = orderedVariants[v + 1];
+
+    const variantIsArbitrary = isArbitrary(variant);
+    const nextVariantIsArbitrary = isArbitrary(nextVariant);
+
+    const { dissectedClasses, nested } = variantMap[variant];
+
+    orderedClasses.push(...dissectedClasses.map(dissectedClass => dissectedClass.className));
+
+    if(dissectedClasses.length > 0 || !variantIsArbitrary && nextVariantIsArbitrary){
+      orderedClasses.push(...getStrictOrder(nested));
+    }
+  }
+
+  for(let v = 0; v < orderedVariants.length; v++){
+    const variant = orderedVariants[v];
+    const nextVariant = orderedVariants[v + 1];
+
+    const variantIsArbitrary = isArbitrary(variant);
+    const nextVariantIsArbitrary = isArbitrary(nextVariant);
+
+    const { dissectedClasses, nested } = variantMap[variant];
+
+    if(!(dissectedClasses.length > 0 || !variantIsArbitrary && nextVariantIsArbitrary)){
+      orderedClasses.push(...getStrictOrder(nested));
+    }
+  }
+
+  return orderedClasses;
+
+}
+
+function getCustomOrder(position: "end" | "start", order: "asc" | "desc" | "preserve", classA: string, classB: string, isCustomClass: (className: string) => boolean): number | undefined {
+  const aIsCustomClass = isCustomClass(classA);
+  const bIsCustomClass = isCustomClass(classB);
+
+  if(position === "start"){
+    if(aIsCustomClass && !bIsCustomClass){ return -1; }
+    if(!aIsCustomClass && bIsCustomClass){ return +1; }
+
+    if(aIsCustomClass && bIsCustomClass){
+      if(order === "asc"){
+        return classA.localeCompare(classB);
+      }
+      if(order === "desc"){
+        return classB.localeCompare(classA);
+      }
+      return 0;
+    }
+  }
+  if(position === "end"){
+    if(aIsCustomClass && !bIsCustomClass){ return +1; }
+    if(!aIsCustomClass && bIsCustomClass){ return -1; }
+
+    if(aIsCustomClass && bIsCustomClass){
+      if(order === "asc"){
+        return classA.localeCompare(classB);
+      }
+      if(order === "desc"){
+        return classB.localeCompare(classA);
+      }
+      return 0;
+    }
+  }
+
+}
+
+function isArbitrary(variant?: string): boolean {
+  if(!variant){
+    return false;
+  }
+
+  return variant.includes("[") && variant.includes("]");
 }

@@ -1,8 +1,9 @@
 import { runAsWorker } from "synckit";
 
-import type { GetConflictingClassesRequest, GetConflictingClassesResponse } from "./conflicting-classes.js";
+import type { Async } from "../types/async.js";
+import type { GetConflictingClasses } from "./conflicting-classes.js";
 
 
-runAsWorker(async (_: GetConflictingClassesRequest): Promise<GetConflictingClassesResponse> => {
+runAsWorker<Async<GetConflictingClasses>>(async () => {
   return { conflictingClasses: {}, warnings: [] };
 });

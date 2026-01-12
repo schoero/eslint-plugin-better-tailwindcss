@@ -1,4 +1,4 @@
-export type LiteralValueQuotes = "'" | "\"" | "\\`" | "`";
+export type LiteralValueQuotes = "'" | "\"" | "`";
 
 export interface Range {
   range: [number, number];
@@ -49,6 +49,7 @@ interface NodeBase extends Range, Loc {
 interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
+  attribute?: string;
   isInterpolated?: boolean;
   priorLiterals?: Literal[];
 }

@@ -1,20 +1,27 @@
-import { isAttributesMatchers, isAttributesName, isAttributesRegex } from "better-tailwindcss:utils/matchers.js";
-import { deduplicateLiterals, getContent, getIndentation, matchesName } from "better-tailwindcss:utils/utils.js";
+import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
+import {
+  addAttribute,
+  deduplicateLiterals,
+  getContent,
+  getIndentation,
+  matchesName
+} from "better-tailwindcss:utils/utils.js";
 
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
-import type { Attributes } from "better-tailwindcss:types/rule.js";
 
 
 export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+
+  const name = attribute.key.value;
+
   const literals = attributes.reduce<Literal[]>((literals, attributes) => {
     if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), attribute.key.value.toLowerCase())){ return literals; }
+      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
-    } else if(isAttributesRegex(attributes)){
-      // console.warn("Regex not supported in HTML");
     } else if(isAttributesMatchers(attributes)){
       // console.warn("Matchers not supported in HTML");
     }
@@ -22,7 +29,9 @@ export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: Att
     return literals;
   }, []);
 
-  return deduplicateLiterals(literals);
+  return literals
+    .filter(deduplicateLiterals)
+    .map(addAttribute(name));
 
 }
 
@@ -40,7 +49,6 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
 
   const line = ctx.sourceCode.lines[attribute.loc.start.line - 1];
   const raw = attribute.startWrapper?.value + value.value + attribute.endWrapper?.value;
-
 
   const quotes = getQuotesByHTMLAttribute(ctx, attribute);
   const indentation = getIndentation(line);

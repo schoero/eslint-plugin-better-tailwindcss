@@ -1,4 +1,4 @@
-import { object } from "valibot";
+import { strictObject } from "valibot";
 
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
@@ -16,7 +16,7 @@ import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/vari
 import type { InferOutput } from "valibot";
 
 
-export const COMMON_OPTIONS = object({
+export const COMMON_OPTIONS = strictObject({
   ...CALLEES_OPTION_SCHEMA.entries,
   ...ATTRIBUTES_OPTION_SCHEMA.entries,
   ...VARIABLES_OPTION_SCHEMA.entries,

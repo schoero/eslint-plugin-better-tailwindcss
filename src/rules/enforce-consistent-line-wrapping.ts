@@ -4,9 +4,9 @@ import {
   literal,
   minValue,
   number,
-  object,
   optional,
   pipe,
+  strictObject,
   union
 } from "valibot";
 
@@ -39,7 +39,7 @@ export const enforceConsistentLineWrapping = createRule({
     unnecessary: "Unnecessary line wrapping. Expected\n\n{{ notReadable }}\n\nto be\n\n{{ readable }}"
   },
 
-  schema: object({
+  schema: strictObject({
     classesPerLine: optional(
       pipe(
         number(),

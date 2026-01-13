@@ -1,9 +1,9 @@
 import {
   array,
   description,
-  object,
   optional,
   pipe,
+  strictObject,
   string,
   union
 } from "valibot";
@@ -24,11 +24,11 @@ export const noRestrictedClasses = createRule({
   name: "no-restricted-classes",
   recommended: false,
 
-  schema: object({
+  schema: strictObject({
     restrict: optional(
       array(
         union([
-          object(
+          strictObject(
             {
               fix: optional(
                 pipe(

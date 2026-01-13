@@ -1,9 +1,9 @@
 import {
   array,
   description,
-  object,
   optional,
   pipe,
+  strictObject,
   string,
   tuple,
   union
@@ -16,7 +16,6 @@ import {
   STRING_MATCHER_SCHEMA
 } from "better-tailwindcss:options/schemas/matchers.js";
 
-import type { Rule } from "eslint";
 import type { InferOutput } from "valibot";
 
 
@@ -61,8 +60,8 @@ export const TAGS_SCHEMA = pipe(
 
 export type Tags = InferOutput<typeof TAGS_SCHEMA>;
 
-export const TAGS_OPTIONS_SCHEMA = object({
+export const TAGS_OPTIONS_SCHEMA = strictObject({
   tags: optional(TAGS_SCHEMA, DEFAULT_TAG_NAMES)
-}) satisfies Rule.RuleMetaData["schema"];
+});
 
 export type TagsOptions = InferOutput<typeof TAGS_OPTIONS_SCHEMA>;

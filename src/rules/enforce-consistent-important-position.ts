@@ -1,4 +1,4 @@
-import { description, literal, object, optional, pipe, union } from "valibot";
+import { description, literal, optional, pipe, strictObject, union } from "valibot";
 
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
@@ -20,7 +20,7 @@ export const enforceConsistentImportantPosition = createRule({
     position: "Incorrect important position. '{{ className }}' should be '{{ fix }}'."
   },
 
-  schema: object({
+  schema: strictObject({
     position: optional(
       pipe(
         union([

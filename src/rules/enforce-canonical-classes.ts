@@ -1,4 +1,4 @@
-import { boolean, description, object, optional, pipe } from "valibot";
+import { boolean, description, optional, pipe, strictObject } from "valibot";
 
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
@@ -18,7 +18,7 @@ export const enforceCanonicalClasses = createRule({
   name: "enforce-canonical-classes",
   recommended: true,
 
-  schema: object({
+  schema: strictObject({
     collapse: optional(
       pipe(
         boolean(),

@@ -1,4 +1,4 @@
-import { boolean, description, object, optional, pipe } from "valibot";
+import { boolean, description, optional, pipe, strictObject } from "valibot";
 
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
@@ -19,7 +19,7 @@ export const noUnnecessaryWhitespace = createRule({
     unnecessary: "Unnecessary whitespace."
   },
 
-  schema: object({
+  schema: strictObject({
     allowMultiline: optional(pipe(
       boolean(),
       description("Allow multi-line class declarations. If this option is disabled, template literal strings will be collapsed into a single line string wherever possible. Must be set to `true` when used in combination with [better-tailwindcss/enforce-consistent-line-wrapping](./enforce-consistent-line-wrapping.md).")

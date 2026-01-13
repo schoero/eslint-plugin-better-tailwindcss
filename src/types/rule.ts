@@ -1,5 +1,5 @@
 import type { JSRuleDefinition } from "eslint";
-import type { BaseIssue, BaseSchema, Default, InferOutput, ObjectSchema, OptionalSchema } from "valibot";
+import type { BaseIssue, BaseSchema, Default, InferOutput, OptionalSchema, StrictObjectSchema } from "valibot";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
@@ -50,7 +50,7 @@ export type TSConfig = {
   tsconfig?: string;
 };
 
-export type Schema = ObjectSchema<Record<string, OptionalSchema<BaseSchema<unknown, unknown, BaseIssue<unknown>>, Default<BaseSchema<unknown, unknown, BaseIssue<unknown>>, undefined>>>, undefined>;
+export type Schema = StrictObjectSchema<Record<string, OptionalSchema<BaseSchema<unknown, unknown, BaseIssue<unknown>>, Default<BaseSchema<unknown, unknown, BaseIssue<unknown>>, undefined>>>, undefined>;
 export type JsonSchema<RawSchema extends Schema> = InferOutput<RawSchema>;
 
 export interface CreateRuleOptions<

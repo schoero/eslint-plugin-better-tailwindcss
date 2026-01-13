@@ -1,4 +1,4 @@
-import { description, literal, object, optional, pipe, union } from "valibot";
+import { description, literal, optional, pipe, strictObject, union } from "valibot";
 
 import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { buildClass } from "better-tailwindcss:utils/class.js";
@@ -23,7 +23,7 @@ export const enforceConsistentVariableSyntax = createRule({
     incorrect: "Incorrect variable syntax: {{ className }}."
   },
 
-  schema: object({
+  schema: strictObject({
     syntax: optional(
       pipe(
         union([

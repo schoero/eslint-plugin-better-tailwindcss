@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.0.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0...v4.0.1)
+
+### Fixes
+
+- Disallow extra properties in rule options (valibot schemas) ([#295](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/295))
+- Configuration warnings getting lost ([#297](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/297))
+
+### ❤️ Contributors
+
+- Andrew Kazakov ([@andreww2012](https://github.com/andreww2012))
+
 ## v4.0.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v3.8.0...v4.0.0)

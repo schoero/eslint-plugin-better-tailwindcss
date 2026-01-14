@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, object } from "valibot";
+import { getDefaults, strictObject } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
@@ -57,7 +57,7 @@ export function createRule<
 
   let eslintContext: Rule.RuleContext | undefined;
 
-  const propertiesSchema = object({
+  const propertiesSchema = strictObject({
     // eslint injects the defaults from the settings to options, if not specified in the options
     // because we want to have a specific order of precedence, we need to remove the defaults here and merge them
     // manually in getOptions. The order of precedence is:

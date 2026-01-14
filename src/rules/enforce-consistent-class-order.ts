@@ -1,4 +1,4 @@
-import { description, literal, object, optional, pipe, union } from "valibot";
+import { description, literal, optional, pipe, strictObject, union } from "valibot";
 
 import { createGetClassOrder, getClassOrder } from "better-tailwindcss:tailwindcss/class-order.js";
 import {
@@ -28,7 +28,7 @@ export const enforceConsistentClassOrder = createRule({
     order: "Incorrect class order. Expected\n\n{{ notSorted }}\n\nto be\n\n{{ sorted }}"
   },
 
-  schema: object({
+  schema: strictObject({
     componentClassOrder: optional(
       pipe(
         union([

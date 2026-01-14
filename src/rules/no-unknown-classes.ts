@@ -1,4 +1,4 @@
-import { array, description, object, optional, pipe, string } from "valibot";
+import { array, description, optional, pipe, strictObject, string } from "valibot";
 
 import {
   createGetCustomComponentClasses,
@@ -28,7 +28,7 @@ export const noUnknownClasses = createRule({
     unknown: "Unknown class detected: {{ className }}"
   },
 
-  schema: object({
+  schema: strictObject({
     ignore: optional(
       pipe(
         array(

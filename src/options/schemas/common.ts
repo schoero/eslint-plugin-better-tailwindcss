@@ -5,9 +5,9 @@ import {
   description,
   literal,
   number,
-  object,
   optional,
   pipe,
+  strictObject,
   string,
   union
 } from "valibot";
@@ -15,7 +15,7 @@ import {
 import type { InferOutput } from "valibot";
 
 
-export const ENTRYPOINT_OPTION_SCHEMA = object({
+export const ENTRYPOINT_OPTION_SCHEMA = strictObject({
   entryPoint: optional(
     pipe(
       string(),
@@ -27,7 +27,7 @@ export const ENTRYPOINT_OPTION_SCHEMA = object({
 
 export type EntryPointOption = InferOutput<typeof ENTRYPOINT_OPTION_SCHEMA>;
 
-export const TAILWIND_OPTION_SCHEMA = object({
+export const TAILWIND_OPTION_SCHEMA = strictObject({
   tailwindConfig: optional(
     pipe(
       string(),
@@ -39,7 +39,7 @@ export const TAILWIND_OPTION_SCHEMA = object({
 
 export type TailwindConfigOption = InferOutput<typeof TAILWIND_OPTION_SCHEMA>;
 
-export const TSCONFIG_OPTION_SCHEMA = object({
+export const TSCONFIG_OPTION_SCHEMA = strictObject({
   tsconfig: optional(
     pipe(
       string(),
@@ -51,7 +51,7 @@ export const TSCONFIG_OPTION_SCHEMA = object({
 
 export type TSConfigOption = InferOutput<typeof TSCONFIG_OPTION_SCHEMA>;
 
-export const MESSAGE_STYLE_OPTION_SCHEMA = object({
+export const MESSAGE_STYLE_OPTION_SCHEMA = strictObject({
   messageStyle: optional(
     pipe(
       union([
@@ -69,7 +69,7 @@ export const MESSAGE_STYLE_OPTION_SCHEMA = object({
 
 export type MessageStyleOption = InferOutput<typeof MESSAGE_STYLE_OPTION_SCHEMA>;
 
-export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
+export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = strictObject({
   detectComponentClasses: optional(
     pipe(
       boolean(),
@@ -81,7 +81,7 @@ export const DETECT_COMPONENT_CLASSES_OPTION_SCHEMA = object({
 
 export type DetectComponentClassesOption = InferOutput<typeof DETECT_COMPONENT_CLASSES_OPTION_SCHEMA>;
 
-export const ROOT_FONT_SIZE_OPTION_SCHEMA = object({
+export const ROOT_FONT_SIZE_OPTION_SCHEMA = strictObject({
   rootFontSize: optional(
     pipe(
       number(),

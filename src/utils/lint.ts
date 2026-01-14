@@ -1,4 +1,4 @@
-import { augmentMessageWithWarnings, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -81,15 +81,12 @@ export function lintClasses<
     }
 
     ctx.report({
-      message: augmentMessageWithWarnings(
-        `Expected ${className} to be ${result.fix ?? ""}.`,
-        ctx.docs,
-        result.warnings
-      ),
+      message: `Expected ${className} to be ${result.fix ?? ""}.`,
       range: [
         literalStart + startIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0),
         literalStart + endIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0)
       ],
+      ..."warnings" in result && { warnings: result.warnings },
       ..."data" in result && { data: result.data },
       ..."message" in result && { id: undefined, message: result.message },
       ..."id" in result && { id: result.id, message: undefined },

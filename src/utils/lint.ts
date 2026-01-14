@@ -90,6 +90,7 @@ export function lintClasses<
         literalStart + startIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0),
         literalStart + endIndex + (literal.openingQuote?.length ?? 0) + (literal.closingBraces?.length ?? 0)
       ],
+      ..."warnings" in result && { warnings: result.warnings },
       ..."data" in result && { data: result.data },
       ..."message" in result && { id: undefined, message: result.message },
       ..."id" in result && { id: result.id, message: undefined },

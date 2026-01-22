@@ -44,32 +44,23 @@ export function getCanonicalClasses(tailwindContext: any, classes: string[], opt
     return result;
   }
 
-  const originalClassesToCheck: string[] = [];
+  for(const canonicalClass of canonicalClasses){
+    const necessaryClasses = removedClasses.filter(originalClass => {
+      const subset = removedClasses.filter(className => className !== originalClass);
+      const subsetCanonical = tailwindContext.canonicalizeCandidates(
+        subset,
+        options
+      );
+      return !subsetCanonical.includes(canonicalClass);
+    });
 
-  for(const originalClass of removedClasses){
-    originalClassesToCheck.push(originalClass);
-
-    const nestedCanonicalizedClasses = tailwindContext.canonicalizeCandidates(originalClassesToCheck, options);
-
-    for(const canonicalClass of canonicalClasses){
-      if(nestedCanonicalizedClasses.includes(canonicalClass)){
-        const originalClasses = originalClassesToCheck.filter(originalClass => {
-          return !nestedCanonicalizedClasses.includes(originalClass);
-        });
-
-        for(const originalClass of originalClasses){
-          result[originalClass] = {
-            input: originalClasses,
-            output: canonicalClass
-          };
-        }
-
-        originalClassesToCheck.length = 0;
-        break;
-      }
+    for(const originalClass of necessaryClasses){
+      result[originalClass] = {
+        input: necessaryClasses,
+        output: canonicalClass
+      };
     }
   }
 
   return result;
-
 }

@@ -3,6 +3,7 @@ import { describe, it } from "vitest";
 import { enforceCanonicalClasses } from "better-tailwindcss:rules/enforce-canonical-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
+import { values } from "better-tailwindcss:tests/utils/values.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 
 
@@ -23,7 +24,21 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="[color:red]/100" /></template>`,
           vueOutput: `<template><img class="text-[red]" /></template>`,
 
-          errors: 1
+          errors: [{
+            message: values(enforceCanonicalClasses.messages!.single, {
+              canonicalClass: "text-[red]",
+              className: "[color:red]/100"
+            })
+          }],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            entryPoint: "styles.css"
+          }]
         }
       ]
     });
@@ -44,7 +59,29 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="[@media_print]:flex [color:red]/50" /></template>`,
           vueOutput: `<template><img class="print:flex text-[red]/50" /></template>`,
 
-          errors: 2
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.single, {
+                canonicalClass: "print:flex",
+                className: "[@media_print]:flex"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.single, {
+                canonicalClass: "text-[red]/50",
+                className: "[color:red]/50"
+              })
+            }
+          ],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            entryPoint: "styles.css"
+          }]
         }
       ]
     });
@@ -53,6 +90,67 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
   it("should collapse multiple utilities into a single utility", () => {
     lint(enforceCanonicalClasses, {
       invalid: [
+        {
+          angular: `<img class="w-10 flex h-10 top-0 underline right-0 bottom-0 left-0" />`,
+          angularOutput: `<img class="size-10 flex  inset-0 underline   " />`,
+          html: `<img class="w-10 flex h-10 top-0 underline right-0 bottom-0 left-0" />`,
+          htmlOutput: `<img class="size-10 flex  inset-0 underline   " />`,
+          jsx: `() => <img class="w-10 flex h-10 top-0 underline right-0 bottom-0 left-0" />`,
+          jsxOutput: `() => <img class="size-10 flex  inset-0 underline   " />`,
+          svelte: `<img class="w-10 flex h-10 top-0 underline right-0 bottom-0 left-0" />`,
+          svelteOutput: `<img class="size-10 flex  inset-0 underline   " />`,
+          vue: `<template><img class="w-10 flex h-10 top-0 underline right-0 bottom-0 left-0" /></template>`,
+          vueOutput: `<template><img class="size-10 flex  inset-0 underline   " /></template>`,
+
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "inset-0",
+                classNames: "top-0, right-0, bottom-0, left-0"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "inset-0",
+                classNames: "top-0, right-0, bottom-0, left-0"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "inset-0",
+                classNames: "top-0, right-0, bottom-0, left-0"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "inset-0",
+                classNames: "top-0, right-0, bottom-0, left-0"
+              })
+            }
+          ],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        },
         {
           angular: `<img class="w-10 h-10 flex" />`,
           angularOutput: `<img class="size-10  flex" />`,
@@ -65,10 +163,29 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="w-10 h-10 flex" /></template>`,
           vueOutput: `<template><img class="size-10  flex" /></template>`,
 
-          errors: 2,
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            }
+          ],
 
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
           options: [{
-            collapse: true
+            collapse: true,
+            entryPoint: "styles.css"
           }]
         }
       ]
@@ -90,12 +207,25 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="w-[20px] h-[20px]" /></template>`,
           vueOutput: `<template><img class="size-5 " /></template>`,
 
-          errors: 2,
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-5",
+                classNames: "w-[20px], h-[20px]"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-5",
+                classNames: "w-[20px], h-[20px]"
+              })
+            }
+          ],
 
           files: {
             "styles.css": css`
-              @import "tailwindcss";
-            `
+                @import "tailwindcss";
+              `
           },
           settings: {
             "better-tailwindcss": {
@@ -123,12 +253,25 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="mr-2 ml-2" /></template>`,
           vueOutput: `<template><img class="mx-2 " /></template>`,
 
-          errors: 2,
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "mx-2",
+                classNames: "mr-2, ml-2"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "mx-2",
+                classNames: "mr-2, ml-2"
+              })
+            }
+          ],
 
           files: {
             "styles.css": css`
-              @import "tailwindcss";
-            `
+                @import "tailwindcss";
+              `
           },
           options: [{
             entryPoint: "styles.css",
@@ -155,14 +298,141 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
           vue: `<template><img class="w-10 h-10 unknown" /></template>`,
           vueOutput: `<template><img class="size-10  unknown" /></template>`,
 
-          errors: 2,
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            }
+          ],
 
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
           options: [{
-            collapse: true
+            collapse: true,
+            entryPoint: "styles.css"
           }]
         }
       ]
     });
   });
 
+  // #304
+  it("should not remove unrelated classes when simplifying", () => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          angular: `<img class="flex grid aspect-[4/3]" />`,
+          angularOutput: `<img class="flex grid aspect-4/3" />`,
+          html: "<img class='flex grid aspect-[4/3]' />",
+          htmlOutput: "<img class='flex grid aspect-4/3' />",
+          jsx: `() => <img className="flex grid aspect-[4/3]" />`,
+          jsxOutput: `() => <img className="flex grid aspect-4/3" />`,
+          svelte: `<img class="flex grid aspect-[4/3]" />`,
+          svelteOutput: `<img class="flex grid aspect-4/3" />`,
+          vue: `<template><img class="flex grid aspect-[4/3]" /></template>`,
+          vueOutput: `<template><img class="flex grid aspect-4/3" /></template>`,
+
+          errors: [{
+            message: values(enforceCanonicalClasses.messages!.single, {
+              canonicalClass: "aspect-4/3",
+              className: "aspect-[4/3]"
+            })
+          }],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        },
+        {
+          angular: `<img class="flex grid block aspect-[4/3] inline" />`,
+          angularOutput: `<img class="flex grid block aspect-4/3 inline" />`,
+          html: `<img class="flex grid block aspect-[4/3] inline" />`,
+          htmlOutput: `<img class="flex grid block aspect-4/3 inline" />`,
+          jsx: `() => <img className="flex grid block aspect-[4/3] inline" />`,
+          jsxOutput: `() => <img className="flex grid block aspect-4/3 inline" />`,
+          svelte: `<img class="flex grid block aspect-[4/3] inline" />`,
+          svelteOutput: `<img class="flex grid block aspect-4/3 inline" />`,
+          vue: `<template><img class="flex grid block aspect-[4/3] inline" /></template>`,
+          vueOutput: `<template><img class="flex grid block aspect-4/3 inline" /></template>`,
+
+          errors: [{
+            message: values(enforceCanonicalClasses.messages!.single, {
+              canonicalClass: "aspect-4/3",
+              className: "aspect-[4/3]"
+            })
+          }],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        },
+        {
+          angular: `<img class="w-10 h-10 flex grid aspect-[4/3] inline" />`,
+          angularOutput: `<img class="size-10  flex grid aspect-4/3 inline" />`,
+          html: `<img class="w-10 h-10 flex grid aspect-[4/3] inline" />`,
+          htmlOutput: `<img class="size-10  flex grid aspect-4/3 inline" />`,
+          jsx: `() => <img className="w-10 h-10 flex grid aspect-[4/3] inline" />`,
+          jsxOutput: `() => <img className="size-10  flex grid aspect-4/3 inline" />`,
+          svelte: `<img class="w-10 h-10 flex grid aspect-[4/3] inline" />`,
+          svelteOutput: `<img class="size-10  flex grid aspect-4/3 inline" />`,
+          vue: `<template><img class="w-10 h-10 flex grid aspect-[4/3] inline" /></template>`,
+          vueOutput: `<template><img class="size-10  flex grid aspect-4/3 inline" /></template>`,
+
+          errors: [
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.multiple, {
+                canonicalClass: "size-10",
+                classNames: "w-10, h-10"
+              })
+            },
+            {
+              message: values(enforceCanonicalClasses.messages!.single, {
+                canonicalClass: "aspect-4/3",
+                className: "aspect-[4/3]"
+              })
+            }
+          ],
+
+          files: {
+            "styles.css": css`
+                @import "tailwindcss";
+              `
+          },
+          options: [{
+            collapse: true,
+            entryPoint: "styles.css"
+          }]
+        }
+      ]
+    });
+  });
 });

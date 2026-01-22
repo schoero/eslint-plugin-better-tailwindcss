@@ -97,6 +97,16 @@ export const DEFAULT_ATTRIBUTE_NAMES = [
         match: MatcherType.ObjectKey
       }
     ]
+  ],
+
+  // solid
+  [
+    "^classList$",
+    [
+      {
+        match: MatcherType.ObjectKey
+      }
+    ]
   ]
 ] satisfies Attributes;
 

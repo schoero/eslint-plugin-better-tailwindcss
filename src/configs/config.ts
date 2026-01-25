@@ -11,7 +11,7 @@ import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-clas
 import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 
-import type { ESLint } from "eslint";
+import type { ESLint, Linter } from "eslint";
 
 import type { RuleCategory } from "better-tailwindcss:types/rule.js";
 
@@ -19,14 +19,16 @@ import type { RuleCategory } from "better-tailwindcss:types/rule.js";
 type ConfigName = "recommended" | RuleCategory;
 type Severity = "error" | "warn";
 
-type Rules = typeof rules[number];
+type PluginRules = typeof rules[number];
+
+type PluginName = typeof plugin.meta.name;
 
 type RuleObject = {
-  [Rule in Rules as Rule extends any ? Rule["name"] : never]: Rule["rule"]
+  [Rule in PluginRules as Rule extends any ? Rule["name"] : never]: Rule["rule"]
 };
 
 type GetRules<Category extends RuleCategory> = Extract<
-  Rules,
+  PluginRules,
   { category: Category; }
 >;
 
@@ -66,7 +68,7 @@ const getStylisticRules = <SeverityLevel extends Severity = "warn">(severity: Se
 
     acc[`${plugin.meta.name}/${name}`] = severity;
     return acc;
-  }, {} as Record<GetRules<"stylistic">["name"], SeverityLevel>);
+  }, {} as Record<`${PluginName}/${GetRules<"stylistic">["name"]}`, SeverityLevel>);
 };
 
 const getCorrectnessRules = <SeverityLevel extends Severity = "error">(severity: SeverityLevel = "error" as SeverityLevel) => {
@@ -77,7 +79,7 @@ const getCorrectnessRules = <SeverityLevel extends Severity = "error">(severity:
 
     acc[`${plugin.meta.name}/${name}`] = severity;
     return acc;
-  }, {} as Record<GetRules<"correctness">["name"], SeverityLevel>);
+  }, {} as Record<`${PluginName}/${GetRules<"correctness">["name"]}`, SeverityLevel>);
 };
 
 const getRecommendedRules = <SeverityLevel extends Severity>(severity?: SeverityLevel) => ({
@@ -85,17 +87,17 @@ const getRecommendedRules = <SeverityLevel extends Severity>(severity?: Severity
   ...getCorrectnessRules(severity)
 });
 
-const createLegacyConfig = <Rules>(rules: Rules) => ({
+const createLegacyConfig = <Rules extends Linter.RulesRecord>(rules: Rules) => ({
   plugins: [plugin.meta.name],
   rules
-});
+} satisfies Linter.LegacyConfig<Rules>);
 
-const createFlatConfig = <Rules>(rules: Rules) => ({
+const createFlatConfig = <Rules extends Linter.RulesRecord>(rules: Rules) => ({
   plugins: {
     [plugin.meta.name]: plugin
   },
   rules
-});
+} satisfies Linter.Config<Rules>);
 
 const configEntry = <ConfigName extends string, Config>(key: ConfigName, value: Config) => {
   return { [key]: value } as { [Name in ConfigName]: Config };

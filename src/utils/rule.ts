@@ -42,16 +42,19 @@ import type {
   CreateRuleOptions,
   ESLintRule,
   JsonSchema,
+  RuleCategory,
   RuleContext,
   Schema
 } from "better-tailwindcss:types/rule.js";
 
 
 export function createRule<
+  const Name extends string,
   const Messages extends Record<string, string>,
   const OptionsSchema extends Schema = Schema,
-  const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>
->(options: CreateRuleOptions<Messages, OptionsSchema, Options>): ESLintRule<Messages, Options> {
+  const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
+  const Category extends RuleCategory = RuleCategory
+>(options: CreateRuleOptions<Name, Messages, OptionsSchema, Options, Category>) {
 
   const { autofix, category, description, docs, initialize, lintLiterals, messages, name, recommended, schema } = options;
 
@@ -86,6 +89,7 @@ export function createRule<
   };
 
   return {
+    category,
     messages,
     name,
     get options() { return getOptions(); },
@@ -164,7 +168,7 @@ export function createRule<
         ...messages && { messages }
       }
     }
-  };
+  } satisfies ESLintRule<Name, Messages, Options, Category>;
 }
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {

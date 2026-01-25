@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.0.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.1...v4.0.2)
+
+### Fixes
+
+- `enforce-canonical-classes`: removal of unrelated classes ([#309](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/309))
+- `enforce-consistent-variable-syntax`: Support custom css functions ([#308](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/308))
+- Config types ([#310](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/310))
+
 ## v4.0.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.0...v4.0.1)

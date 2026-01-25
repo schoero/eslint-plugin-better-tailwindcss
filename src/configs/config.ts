@@ -11,10 +11,26 @@ import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-clas
 import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 
-import type { ESLint, JSRuleDefinition } from "eslint";
+import type { ESLint, Linter } from "eslint";
+
+import type { RuleCategory } from "better-tailwindcss:types/rule.js";
 
 
+type ConfigName = "recommended" | RuleCategory;
 type Severity = "error" | "warn";
+
+type PluginRules = typeof rules[number];
+
+type PluginName = typeof plugin.meta.name;
+
+type RuleObject = {
+  [Rule in PluginRules as Rule extends any ? Rule["name"] : never]: Rule["rule"]
+};
+
+type GetRules<Category extends RuleCategory> = Extract<
+  PluginRules,
+  { category: Category; }
+>;
 
 const rules = [
   enforceConsistentClassOrder,
@@ -29,78 +45,81 @@ const rules = [
   noUnnecessaryWhitespace,
   noUnknownClasses,
   enforceCanonicalClasses
-];
+] as const;
 
 const plugin = {
   meta: {
     name: "better-tailwindcss"
   },
-  rules: rules.reduce<Record<string, JSRuleDefinition>>((acc, { name, rule }) => {
-    acc[name] = rule;
-    return acc;
-  }, {})
-} satisfies ESLint.Plugin;
+  rules: rules.reduce(
+    (acc, { name, rule }) => {
+      acc[name] = rule;
+      return acc;
+    },
+    {}
+  ) as RuleObject
+} as const satisfies ESLint.Plugin;
 
-const getStylisticRules = (severity: Severity = "warn") => {
-  return rules.reduce<Record<string, Severity>>((acc, { name, rule }) => {
-    if(rule.meta?.type !== "layout"){
+const getStylisticRules = <SeverityLevel extends Severity = "warn">(severity: SeverityLevel = "warn" as SeverityLevel) => {
+  return rules.reduce((acc, { category, name }) => {
+    if(category !== "stylistic"){
       return acc;
     }
 
     acc[`${plugin.meta.name}/${name}`] = severity;
     return acc;
-  }, {});
+  }, {} as Record<`${PluginName}/${GetRules<"stylistic">["name"]}`, SeverityLevel>);
 };
 
-const getCorrectnessRules = (severity: Severity = "error") => {
-  return rules.reduce<Record<string, Severity>>((acc, { name, rule }) => {
-    if(rule.meta?.type !== "problem"){
+const getCorrectnessRules = <SeverityLevel extends Severity = "error">(severity: SeverityLevel = "error" as SeverityLevel) => {
+  return rules.reduce((acc, { category, name }) => {
+    if(category !== "correctness"){
       return acc;
     }
 
     acc[`${plugin.meta.name}/${name}`] = severity;
     return acc;
-  }, {});
+  }, {} as Record<`${PluginName}/${GetRules<"correctness">["name"]}`, SeverityLevel>);
 };
 
-const createConfig = (
-  name: string,
-  getRulesFunction: (severity?: Severity) => {
-    [x: string]: Severity;
-  }
-) => {
+const getRecommendedRules = <SeverityLevel extends Severity>(severity?: SeverityLevel) => ({
+  ...getStylisticRules(severity),
+  ...getCorrectnessRules(severity)
+});
+
+const createLegacyConfig = <Rules extends Linter.RulesRecord>(rules: Rules) => ({
+  plugins: [plugin.meta.name],
+  rules
+} satisfies Linter.LegacyConfig<Rules>);
+
+const createFlatConfig = <Rules extends Linter.RulesRecord>(rules: Rules) => ({
+  plugins: {
+    [plugin.meta.name]: plugin
+  },
+  rules
+} satisfies Linter.Config<Rules>);
+
+const configEntry = <ConfigName extends string, Config>(key: ConfigName, value: Config) => {
+  return { [key]: value } as { [Name in ConfigName]: Config };
+};
+
+const createConfig = <Name extends ConfigName, RuleName extends string>(name: Name, getRules: <SeverityLevel extends Severity>(severity?: SeverityLevel) => Record<RuleName, SeverityLevel>) => {
   return {
-    [`legacy-${name}-error`]: {
-      plugins: [plugin.meta.name],
-      rules: getRulesFunction("error")
-    },
-    [`legacy-${name}-warn`]: {
-      plugins: [plugin.meta.name],
-      rules: getRulesFunction("warn")
-    },
-    [`legacy-${name}`]: {
-      plugins: [plugin.meta.name],
-      rules: getRulesFunction()
-    },
-
-    [`${name}-error`]: {
-      plugins: {
-        [plugin.meta.name]: plugin
-      },
-      rules: getRulesFunction("error")
-    },
-    [`${name}-warn`]: {
-      plugins: {
-        [plugin.meta.name]: plugin
-      },
-      rules: getRulesFunction("warn")
-    },
-    [name]: {
-      plugins: {
-        [plugin.meta.name]: plugin
-      },
-      rules: getRulesFunction()
-    }
+    ...configEntry(`legacy-${name}` as const, createLegacyConfig(getRules())),
+    ...configEntry(
+      `legacy-${name}-error` as const,
+      createLegacyConfig(getRules("error"))
+    ),
+    ...configEntry(
+      `legacy-${name}-warn` as const,
+      createLegacyConfig(getRules("warn"))
+    ),
+    ...configEntry(name, createFlatConfig(getRules())),
+    ...configEntry(
+      `${name}-error` as const,
+      createFlatConfig(getRules("error"))
+    ),
+    ...configEntry(`${name}-warn` as const, createFlatConfig(getRules("warn")))
   };
 };
 
@@ -110,12 +129,10 @@ const config = {
   configs: {
     ...createConfig("stylistic", getStylisticRules),
     ...createConfig("correctness", getCorrectnessRules),
-    ...createConfig("recommended", severity => ({
-      ...getStylisticRules(severity),
-      ...getCorrectnessRules(severity)
-    }))
+    ...createConfig("recommended", getRecommendedRules)
   }
 } satisfies ESLint.Plugin;
 
 export default config;
+
 export { config as "module.exports" };

@@ -53,15 +53,19 @@ export type TSConfig = {
 export type Schema = StrictObjectSchema<Record<string, OptionalSchema<BaseSchema<unknown, unknown, BaseIssue<unknown>>, Default<BaseSchema<unknown, unknown, BaseIssue<unknown>>, undefined>>>, undefined>;
 export type JsonSchema<RawSchema extends Schema> = InferOutput<RawSchema>;
 
+export type RuleCategory = "correctness" | "stylistic";
+
 export interface CreateRuleOptions<
+  Name extends string,
   Messages extends Record<string, string>,
   OptionsSchema extends Schema = Schema,
-  Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>
+  Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
+  Category extends RuleCategory = RuleCategory
 > {
   /** Whether the rule should automatically fix problems. */
   autofix: boolean;
   /** The category of the rule. */
-  category: "correctness" | "stylistic";
+  category: Category;
   /** A brief description of the rule. */
   description: string;
   /** The URL to the rule documentation. */
@@ -69,7 +73,7 @@ export interface CreateRuleOptions<
   /** Lint the literals in the given context. */
   lintLiterals: (ctx: RuleContext<Messages, Options>, literals: Literal[]) => void;
   /** The name of the rule. */
-  name: string;
+  name: Name;
   /** Whether the rule is enabled in the recommended configs. */
   recommended: boolean;
   initialize?: (ctx: RuleContext<Messages, Options>) => void;
@@ -80,11 +84,14 @@ export interface CreateRuleOptions<
 }
 
 export interface ESLintRule<
+  Name extends string = string,
   Messages extends Record<string, string> = Record<string, string>,
-  Options extends Record<string, any> = Record<string, any>
+  Options extends Record<string, any> = Record<string, any>,
+  Category extends RuleCategory = RuleCategory
 > {
+  category: Category;
   messages: Messages | undefined;
-  name: string;
+  name: Name;
   get options(): Options;
   rule: JSRuleDefinition<{
     MessageIds: keyof Messages & string;

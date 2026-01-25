@@ -33,8 +33,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             entryPoint: "styles.css"
@@ -76,8 +76,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             entryPoint: "styles.css"
@@ -143,8 +143,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,
@@ -180,8 +180,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,
@@ -224,8 +224,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           settings: {
             "better-tailwindcss": {
@@ -270,8 +270,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             entryPoint: "styles.css",
@@ -315,8 +315,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,
@@ -352,8 +352,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,
@@ -381,8 +381,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,
@@ -424,8 +424,8 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
 
           files: {
             "styles.css": css`
-                @import "tailwindcss";
-              `
+              @import "tailwindcss";
+            `
           },
           options: [{
             collapse: true,

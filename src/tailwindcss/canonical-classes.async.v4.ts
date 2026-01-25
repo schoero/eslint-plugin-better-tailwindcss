@@ -45,8 +45,8 @@ export function getCanonicalClasses(tailwindContext: any, classes: string[], opt
   }
 
   for(const canonicalClass of canonicalClasses){
-    const necessaryClasses = removedClasses.filter(originalClass => {
-      const subset = removedClasses.filter(className => className !== originalClass);
+    const necessaryClasses = removedClasses.filter(removedClass => {
+      const subset = removedClasses.filter(className => className !== removedClass);
       const subsetCanonical = tailwindContext.canonicalizeCandidates(
         subset,
         options

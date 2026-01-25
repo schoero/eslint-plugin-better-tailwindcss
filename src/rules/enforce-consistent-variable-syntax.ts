@@ -171,7 +171,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
 }
 
 function isBeginningOfArbitraryShorthand(base: string): boolean {
-  return !!base.match(/^_*--/);
+  return !!base.match(/^_*--(?![\w-]+\()/);
 }
 
 function isBeginningOfArbitraryVariable(base: string): boolean {

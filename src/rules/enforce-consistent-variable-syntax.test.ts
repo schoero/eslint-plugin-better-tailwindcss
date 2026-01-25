@@ -1045,4 +1045,49 @@ describe(enforceConsistentVariableSyntax.name, () => {
     );
   });
 
+  it.runIf(getTailwindCSSVersion().major >= 4)(
+    "should not report on custom css functions",
+    () => {
+      lint(enforceConsistentVariableSyntax, {
+        valid: [
+          {
+            angular: `<img class="grid-cols-[--spacing(24)_1fr]" />`,
+            html: `<img class="grid-cols-[--spacing(24)_1fr]" />`,
+            jsx: `() => <img class="grid-cols-[--spacing(24)_1fr]" />`,
+            svelte: `<img class="grid-cols-[--spacing(24)_1fr]" />`,
+            vue: `<template><img class="grid-cols-[--spacing(24)_1fr]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          },
+          {
+            angular: `<img class="grid-cols-[--fn()]" />`,
+            html: `<img class="grid-cols-[--fn()]" />`,
+            jsx: `() => <img class="grid-cols-[--fn()]" />`,
+            svelte: `<img class="grid-cols-[--fn()]" />`,
+            vue: `<template><img class="grid-cols-[--fn()]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          },
+          {
+            angular: `<img class="grid-cols-[--spacing(1,2,3)]" />`,
+            html: `<img class="grid-cols-[--spacing(1,2,3)]" />`,
+            jsx: `() => <img class="grid-cols-[--spacing(1,2,3)]" />`,
+            svelte: `<img class="grid-cols-[--spacing(1,2,3)]" />`,
+            vue: `<template><img class="grid-cols-[--spacing(1,2,3)]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          },
+          {
+            angular: `<img class="grid-cols-[--my-func(x)]" />`,
+            html: `<img class="grid-cols-[--my-func(x)]" />`,
+            jsx: `() => <img class="grid-cols-[--my-func(x)]" />`,
+            svelte: `<img class="grid-cols-[--my-func(x)]" />`,
+            vue: `<template><img class="grid-cols-[--my-func(x)]" /></template>`,
+
+            options: [{ syntax: "shorthand" }]
+          }
+        ]
+      });
+    }
+  );
 });

@@ -25,7 +25,7 @@ import type {
   Interpolation,
   LiteralArray,
   LiteralMap,
-  LiteralMapKey,
+  LiteralMapPropertyKey,
   LiteralPrimitive,
   ParseSourceSpan,
   TemplateLiteral,
@@ -303,7 +303,7 @@ function createLiteralsByAngularBoundAttributeName(ctx: Rule.RuleContext, attrib
   }];
 }
 
-function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapKey): Literal[] {
+function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapPropertyKey): Literal[] {
   // @ts-expect-error - angular types are faulty
   const literalMap = key?.parent as LiteralMap | undefined;
   // @ts-expect-error - angular types are faulty
@@ -613,7 +613,7 @@ function isObjectValue(ast: AST): ast is LiteralPrimitive {
   return isStringLiteral(ast) && hasParent(ast) && isLiteralMap(ast.parent);
 }
 
-function isObjectKey(ast: Record<string, any>): ast is LiteralMapKey {
+function isObjectKey(ast: Record<string, any>): ast is LiteralMapPropertyKey {
   return "type" in ast && ast.type === "Object" && "key" in ast && ast.key !== undefined;
 }
 

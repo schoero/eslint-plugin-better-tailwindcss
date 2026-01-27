@@ -18,23 +18,23 @@ export interface Loc {
 }
 
 export interface MultilineMeta {
-  multilineQuotes?: LiteralValueQuotes[];
-  supportsMultiline?: boolean;
-  surroundingBraces?: boolean;
+  multilineQuotes?: LiteralValueQuotes[] | undefined;
+  supportsMultiline?: boolean | undefined;
+  surroundingBraces?: boolean | undefined;
 }
 
 export interface WhitespaceMeta {
-  leadingWhitespace?: string;
-  trailingWhitespace?: string;
+  leadingWhitespace?: string | undefined;
+  trailingWhitespace?: string | undefined;
 }
 
 export interface QuoteMeta {
-  closingQuote?: LiteralValueQuotes;
-  openingQuote?: LiteralValueQuotes;
+  closingQuote?: LiteralValueQuotes | undefined;
+  openingQuote?: LiteralValueQuotes | undefined;
 }
 export interface BracesMeta {
-  closingBraces?: string;
-  openingBraces?: string;
+  closingBraces?: string | undefined;
+  openingBraces?: string | undefined;
 }
 
 export interface Indentation {
@@ -49,9 +49,9 @@ interface NodeBase extends Range, Loc {
 interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
-  attribute?: string;
-  isInterpolated?: boolean;
-  priorLiterals?: Literal[];
+  attribute?: string | undefined;
+  isInterpolated?: boolean | undefined;
+  priorLiterals?: Literal[] | undefined;
 }
 
 export interface TemplateLiteral extends LiteralBase {

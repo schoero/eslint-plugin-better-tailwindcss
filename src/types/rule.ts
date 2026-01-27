@@ -23,12 +23,12 @@ export type StringMatcher = {
 
 export type ObjectKeyMatcher = {
   match: MatcherType.ObjectKey;
-  pathPattern?: Regex;
+  pathPattern?: Regex | undefined;
 };
 
 export type ObjectValueMatcher = {
   match: MatcherType.ObjectValue;
-  pathPattern?: Regex;
+  pathPattern?: Regex | undefined;
 };
 
 export type MatcherFunction<Node> = (node: unknown) => node is Node;
@@ -124,7 +124,7 @@ export interface RuleContext<
                   : never;
                 id: MsgId;
                 fix?: string;
-                warnings?: (Warning | undefined)[];
+                warnings?: (Warning | undefined)[] | undefined;
               }
               : never
             : never
@@ -133,7 +133,7 @@ export interface RuleContext<
       | {
         fix?: string;
         message?: string;
-        warnings?: (Warning<Options> | undefined)[];
+        warnings?: (Warning<Options> | undefined)[] | undefined;
       }
     ) & {
       range: [number, number];

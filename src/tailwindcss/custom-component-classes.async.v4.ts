@@ -15,7 +15,7 @@ import type { AsyncContext } from "../utils/context.js";
 
 interface ImportInfo {
   path: string;
-  layer?: string;
+  layer?: string | undefined;
 }
 
 interface CssFile {

@@ -182,7 +182,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const callExpressionNode = node as CallExpression;
 
       const literals = getLiteralsByESCallExpression(ctx, callExpressionNode, callees);
-      lintLiterals(context, literals);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
     }
   };
 
@@ -191,7 +194,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const variableDeclaratorNode = node as VariableDeclarator;
 
       const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
-      lintLiterals(context, literals);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
     }
   };
 
@@ -200,7 +206,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
 
       const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
-      lintLiterals(context, literals);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
     }
   };
 
@@ -216,7 +225,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
         if(!attributeValue){ continue; }
 
         const literals = getLiteralsByJSXAttribute(ctx, jsxAttribute, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
     }
   };
@@ -233,12 +245,18 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
         if(typeof attributeName !== "string"){ continue; }
 
         const literals = getLiteralsBySvelteAttribute(ctx, svelteAttribute, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
 
       for(const svelteDirective of svelteDirectives){
         const literals = getLiteralsBySvelteDirective(ctx, svelteDirective, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
     }
   };
@@ -250,7 +268,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
 
       for(const attribute of vueAttributes){
         const literals = getLiteralsByVueAttribute(ctx, attribute, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
     }
   };
@@ -262,7 +283,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
 
       for(const htmlAttribute of htmlAttributes){
         const literals = getLiteralsByHTMLAttribute(ctx, htmlAttribute, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
     }
   };
@@ -274,7 +298,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
 
       for(const angularAttribute of angularAttributes){
         const literals = getLiteralsByAngularAttribute(ctx, angularAttribute, attributes);
-        lintLiterals(context, literals);
+
+        if(literals.length > 0){
+          lintLiterals(context, literals);
+        }
       }
     }
   };
@@ -284,7 +311,10 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const atRuleNode = node as unknown as Atrule;
 
       const literals = getLiteralsByCSSAtRule(ctx, atRuleNode);
-      lintLiterals(context, literals);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
     }
   };
 

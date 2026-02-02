@@ -47,7 +47,6 @@ export const enforceCanonicalClasses = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
-
 function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Literal[]) {
   for(const literal of literals){
 

@@ -29,7 +29,7 @@ type RuleObject = {
 
 type GetRules<Category extends RuleCategory> = Extract<
   PluginRules,
-  { category: Category; }
+  { category: Category; recommended: true; }
 >;
 
 const rules = [
@@ -61,8 +61,8 @@ const plugin = {
 } as const satisfies ESLint.Plugin;
 
 const getStylisticRules = <SeverityLevel extends Severity = "warn">(severity: SeverityLevel = "warn" as SeverityLevel) => {
-  return rules.reduce((acc, { category, name }) => {
-    if(category !== "stylistic"){
+  return rules.reduce((acc, { category, name, recommended }) => {
+    if(category !== "stylistic" || !recommended){
       return acc;
     }
 
@@ -72,8 +72,8 @@ const getStylisticRules = <SeverityLevel extends Severity = "warn">(severity: Se
 };
 
 const getCorrectnessRules = <SeverityLevel extends Severity = "error">(severity: SeverityLevel = "error" as SeverityLevel) => {
-  return rules.reduce((acc, { category, name }) => {
-    if(category !== "correctness"){
+  return rules.reduce((acc, { category, name, recommended }) => {
+    if(category !== "correctness" || !recommended){
       return acc;
     }
 

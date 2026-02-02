@@ -60,7 +60,8 @@ export interface CreateRuleOptions<
   Messages extends Record<string, string>,
   OptionsSchema extends Schema = Schema,
   Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
-  Category extends RuleCategory = RuleCategory
+  Category extends RuleCategory = RuleCategory,
+  Recommended extends boolean = boolean
 > {
   /** Whether the rule should automatically fix problems. */
   autofix: boolean;
@@ -75,7 +76,7 @@ export interface CreateRuleOptions<
   /** The name of the rule. */
   name: Name;
   /** Whether the rule is enabled in the recommended configs. */
-  recommended: boolean;
+  recommended: Recommended;
   initialize?: (ctx: RuleContext<Messages, Options>) => void;
   /** The messages for the rule. */
   messages?: Messages;
@@ -87,12 +88,14 @@ export interface ESLintRule<
   Name extends string = string,
   Messages extends Record<string, string> = Record<string, string>,
   Options extends Record<string, any> = Record<string, any>,
-  Category extends RuleCategory = RuleCategory
+  Category extends RuleCategory = RuleCategory,
+  Recommended extends boolean = boolean
 > {
   category: Category;
   messages: Messages | undefined;
   name: Name;
   get options(): Options;
+  recommended: Recommended;
   rule: JSRuleDefinition<{
     MessageIds: keyof Messages & string;
     RuleOptions: [Required<Options>];

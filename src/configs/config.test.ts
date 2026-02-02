@@ -25,7 +25,7 @@ describe("configs", () => {
   });
 
   describe("correctness", () => {
-    it("should only contain recommended stylistic rules", () => {
+    it("should only contain recommended correctness rules", () => {
       expect(Object.keys(config.configs.correctness.rules)).toEqual(correctnessRules);
     });
   });

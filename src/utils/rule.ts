@@ -55,8 +55,9 @@ export function createRule<
   const Messages extends Record<string, string>,
   const OptionsSchema extends Schema = Schema,
   const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
-  const Category extends RuleCategory = RuleCategory
->(options: CreateRuleOptions<Name, Messages, OptionsSchema, Options, Category>) {
+  const Category extends RuleCategory = RuleCategory,
+  const Recommended extends boolean = boolean
+>(options: CreateRuleOptions<Name, Messages, OptionsSchema, Options, Category, Recommended>) {
 
   const { autofix, category, description, docs, initialize, lintLiterals, messages, name, recommended, schema } = options;
 
@@ -95,6 +96,7 @@ export function createRule<
     messages,
     name,
     get options() { return getOptions(); },
+    recommended,
     rule: {
       create: ctx => {
 
@@ -170,7 +172,7 @@ export function createRule<
         ...messages && { messages }
       }
     }
-  } satisfies ESLintRule<Name, Messages, Options, Category>;
+  } satisfies ESLintRule<Name, Messages, Options, Category, Recommended>;
 }
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {

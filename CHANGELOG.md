@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.1.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.1.0...v4.1.1)
+
+### Fixes
+
+- Filter unrecommended rules ([#317](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/317))
+
 ## v4.1.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.2...v4.1.0)

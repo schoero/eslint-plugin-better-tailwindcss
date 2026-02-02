@@ -109,3 +109,19 @@ describe("astro (jsx)", () => {
     });
   });
 });
+
+describe("solid (jsx)", () => {
+  it("should match solid classList attribute", () => {
+    lint(enforceConsistentClassOrder, {
+      invalid: [
+        {
+          jsx: `<div classList={{ "b a": true }} />`,
+          jsxOutput: `<div classList={{ "a b": true }} />`,
+
+          errors: 1,
+          options: [{ order: "asc" }]
+        }
+      ]
+    });
+  });
+});

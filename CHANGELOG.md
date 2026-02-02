@@ -1,5 +1,24 @@
 # Changelog
 
+## v4.1.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.2...v4.1.0)
+
+### Features
+
+- Experimental css linting ([#314](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/314))
+- Add solid `classList` matcher ([#315](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/315))
+
+### Fixes
+
+- Type errors ([c3c9c40](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/c3c9c40))
+- Prevent linting when no literals are found ([51333c6](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/51333c6))
+- Add `exactOptionalPropertyTypes` to `tsconfig` ([#311](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/311))
+
+### ❤️ Contributors
+
+- Alexander Kachkaev ([@kachkaev](https://github.com/kachkaev))
+
 ## v4.0.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.0.1...v4.0.2)

@@ -1,4 +1,3 @@
-```markdown
 # CSS
 
 To use ESLint with CSS files containing Tailwind CSS `@apply` directives, first install the [@eslint/css](https://github.com/eslint/css) plugin and the [tailwind-csstree](https://www.npmjs.com/package/tailwind-csstree) custom syntax.

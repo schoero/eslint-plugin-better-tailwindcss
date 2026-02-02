@@ -76,7 +76,7 @@ export function createRule<
 
   const jsonSchema = toJsonSchema(propertiesSchema).properties;
 
-  const getOptions = () => {
+  const getOptions = (): Options => {
     const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
     const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};

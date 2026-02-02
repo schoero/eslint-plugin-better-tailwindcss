@@ -15,7 +15,12 @@ export type CanonicalClasses = {
     output: string;
   };
 };
-export type CanonicalClassOptions = { collapse?: boolean; logicalToPhysical?: boolean; rem?: number; };
+
+export type CanonicalClassOptions = {
+  collapse: boolean | undefined;
+  logicalToPhysical: boolean | undefined;
+  rem: number | undefined;
+};
 
 export type GetCanonicalClasses = (ctx: AsyncContext, classes: string[], options: CanonicalClassOptions) => {
   canonicalClasses: CanonicalClasses;

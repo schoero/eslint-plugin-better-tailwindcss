@@ -21,6 +21,7 @@ body:
         - Astro
         - Angular
         - HTML
+        - CSS
         - JavaScript
         - TypeScript
     id: flavor

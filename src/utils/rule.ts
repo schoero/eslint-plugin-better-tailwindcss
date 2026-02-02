@@ -6,6 +6,7 @@ import { getDefaults, strictObject } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
+import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
@@ -28,6 +29,7 @@ import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
+import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
@@ -277,6 +279,15 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     }
   };
 
+  const css = {
+    Atrule(node: Node) {
+      const atRuleNode = node as unknown as Atrule;
+
+      const literals = getLiteralsByCSSAtRule(ctx, atRuleNode);
+      lintLiterals(context, literals);
+    }
+  };
+
   // Vue
   if(typeof ctx.sourceCode.parserServices?.defineTemplateBodyVisitor === "function"){
     return {
@@ -301,6 +312,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     ...svelte,
     ...vue,
     ...html,
-    ...angular
+    ...angular,
+    ...css
   };
 }

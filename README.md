@@ -83,6 +83,7 @@ Depending on the flavor you are using, you need to install and configure the cor
 - Astro: [.astro](docs/parsers/astro.md)  
 - Angular: [.html, .ts](docs/parsers/angular.md)  
 - HTML: [.html](docs/parsers/html.md)  
+- CSS: [.css](docs/parsers/css.md)  
 - JavaScript: [.js](docs/parsers/javascript.md)  
 - TypeScript: [.ts](docs/parsers/typescript.md)  
 

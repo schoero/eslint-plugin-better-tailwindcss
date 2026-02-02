@@ -37,6 +37,11 @@ export interface BracesMeta {
   openingBraces?: string | undefined;
 }
 
+export interface CSSMeta {
+  leadingApply?: string | undefined;
+  trailingSemicolon?: string | undefined;
+}
+
 export interface Indentation {
   indentation: number;
 }
@@ -46,7 +51,7 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, Indentation, Range, Loc {
+interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, WhitespaceMeta, CSSMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
   attribute?: string | undefined;
@@ -62,4 +67,8 @@ export interface StringLiteral extends LiteralBase {
   type: "StringLiteral";
 }
 
-export type Literal = StringLiteral | TemplateLiteral;
+export interface CSSClassListLiteral extends LiteralBase {
+  type: "CSSClassListLiteral";
+}
+
+export type Literal = CSSClassListLiteral | StringLiteral | TemplateLiteral;

@@ -2,10 +2,12 @@ import { readdirSync } from "node:fs";
 import { normalize } from "node:path";
 
 import eslintParserAngular from "@angular-eslint/template-parser";
+import css from "@eslint/css";
 import eslintParserHTML from "@html-eslint/parser";
 import eslintParserAstro from "astro-eslint-parser";
 import { RuleTester } from "eslint";
 import eslintParserSvelte from "svelte-eslint-parser";
+import { tailwind4 } from "tailwind-csstree";
 import eslintParserVue from "vue-eslint-parser";
 
 import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
@@ -23,6 +25,14 @@ const TEST_SYNTAXES = {
   },
   astro: {
     languageOptions: { parser: eslintParserAstro }
+  },
+  css: {
+    language: "css/css",
+    languageOptions: {
+      customSyntax: tailwind4,
+      tolerant: true
+    },
+    plugins: { css }
   },
   html: {
     languageOptions: { parser: eslintParserHTML }

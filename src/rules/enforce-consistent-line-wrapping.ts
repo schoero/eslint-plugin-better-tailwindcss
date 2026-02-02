@@ -130,7 +130,6 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
 
-
     const classes = splitClasses(literal.content);
 
     const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
@@ -330,7 +329,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     }
 
-    if(literal.closingQuote){
+    if(literal.closingQuote || literal.trailingSemicolon){
       multilineClasses.addLine();
       multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
 
@@ -367,6 +366,11 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
       // disallow collapsing if the single line including the element and all previous characters is longer than the printWidth
       if(literalStartPosition + singlelineClasses.line.length > printWidth && printWidth !== 0){
         break collapse;
+      }
+
+      // add leading space for apply collapse
+      if(literal.leadingApply && !literal.leadingApply.endsWith(" ")){
+        singlelineClasses.line.addMeta({ leadingWhitespace: " " });
       }
 
       const fixedClasses = singlelineClasses.line.toString(false);

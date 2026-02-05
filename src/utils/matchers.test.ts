@@ -259,6 +259,68 @@ describe("matchers", () => {
       });
     });
 
+    it("should match callees names with curried", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `(state) => testStyles(state)(" lint ");`,
+            jsxOutput: `(state) => testStyles(state)("lint");`,
+            svelte: `<script>(state) => testStyles(state)(" lint ");</script>`,
+            svelteOutput: `<script>(state) => testStyles(state)("lint");</script>`,
+            vue: `<script>(state) => testStyles(state)(" lint ");</script>`,
+            vueOutput: `<script>(state) => testStyles(state)("lint");</script>`,
+
+            errors: 2,
+            options: [{
+              callees: [{ curried: true, name: "^.*Styles$" }]
+            }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `(state) => testStyles(state)(" lint ");`,
+            svelte: `<script>(state) => testStyles(state)(" lint ");</script>`,
+            vue: `<script>(state) => testStyles(state)(" lint ");</script>`,
+
+            options: [{
+              callees: ["^.*Styles$"]
+            }]
+          }
+        ]
+      });
+    });
+
+    it("should match callees names with multiple curried", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `const x = testStyles(1)(2)(" lint ");`,
+            jsxOutput: `const x = testStyles(1)(2)("lint");`,
+            svelte: `<script>const x = testStyles(1)(2)(" lint ");</script>`,
+            svelteOutput: `<script>const x = testStyles(1)(2)("lint");</script>`,
+            vue: `<script>const x = testStyles(1)(2)(" lint ");</script>`,
+            vueOutput: `<script>const x = testStyles(1)(2)("lint");</script>`,
+
+            errors: 2,
+            options: [{
+              callees: [{ curried: true, name: "^.*Styles$" }]
+            }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `const x = testStyles(1)(2)(" lint ");`,
+            svelte: `<script>const x = testStyles(1)(2)(" lint ");</script>`,
+            vue: `<script>const x = testStyles(1)(2)(" lint ");</script>`,
+
+            options: [{
+              callees: ["^.*Styles$"]
+            }]
+          }
+        ]
+      });
+    });
+
     it("should match variable names via regex", () => {
       lint(noUnnecessaryWhitespace, {
         invalid: [

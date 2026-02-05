@@ -81,11 +81,11 @@ export function matchesPathPattern(path: string, pattern: string): boolean {
 }
 
 export function isCalleeName(callee: Callees[number]): callee is CalleeName {
-  return typeof callee === "string";
+  return typeof callee === "string" || typeof callee === "object" && !Array.isArray(callee) && callee !== null && "name" in callee;
 }
 
 export function isCalleeMatchers(callee: Callees[number]): callee is CalleeMatchers {
-  return Array.isArray(callee) && typeof callee[0] === "string" && Array.isArray(callee[1]);
+  return Array.isArray(callee) && isCalleeName(callee[0]) && Array.isArray(callee[1]);
 }
 
 export function isVariableName(variable: Variables[number]): variable is VariableName {

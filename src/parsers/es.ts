@@ -2,7 +2,6 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   findMatchingParentNodes,
   getLiteralNodesByMatchers,
-  isCalleeMatchers,
   isCalleeName,
   isIndexedAccessLiteral,
   isInsideBinaryExpression,
@@ -42,7 +41,12 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type {
+  CalleeName,
+  CalleeNameObject,
+  Callees,
+  NormalizedCallee
+} from "better-tailwindcss:options/schemas/callees.js";
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
 import type {
@@ -96,14 +100,22 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
 export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
 
   const literals = callees.reduce<Literal[]>((literals, callee) => {
-    if(!isESCalleeSymbol(node.callee)){ return literals; }
 
-    if(isCalleeName(callee)){
-      if(!matchesName(callee, node.callee.name)){ return literals; }
+    const [{ curried = false, name: calleeName }, matchers] = normalizeCallee(callee);
+    const baseCallee = resolveCallee(node.callee, curried);
+
+    if(!baseCallee){ return literals; }
+
+    const actualName = getESMemberExpressionName(baseCallee);
+
+    if(!actualName || !matchesName(calleeName, actualName)){
+      return literals;
+    }
+
+    if(!matchers){
       literals.push(...getLiteralsByESExpression(ctx, node.arguments));
-    } else if(isCalleeMatchers(callee)){
-      if(!matchesName(callee[0], node.callee.name)){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
+    } else {
+      literals.push(...getLiteralsByESMatchers(ctx, node, matchers));
     }
 
     return literals;
@@ -458,8 +470,49 @@ export function isESArrowFunctionExpression(node: ESBaseNode): node is ESArrowFu
   return node.type === "ArrowFunctionExpression";
 }
 
-function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
-  return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
+function normalizeCalleeName(calleeName: CalleeName): CalleeNameObject {
+  if(typeof calleeName === "string"){
+    return { name: calleeName };
+  }
+  return calleeName;
+}
+
+function normalizeCallee(callee: Callees[number]): NormalizedCallee {
+  const calleeName = normalizeCalleeName(
+    isCalleeName(callee) ? callee : callee[0]
+  );
+  if(typeof callee === "string"){
+    return [calleeName];
+  }
+  return [calleeName, callee[1]];
+}
+
+function resolveCallee(node: ESNode, curried: boolean): ESIdentifier | WithParent<ESNode> | undefined {
+  if(node.type === "Identifier" || node.type === "MemberExpression"){
+    return node as ESIdentifier | WithParent<ESNode>;
+  }
+  if(curried && node.type === "CallExpression"){
+    return resolveCallee(node.callee as ESNode, curried);
+  }
+  return undefined;
+}
+
+function getESMemberExpressionName(node: ESNode): string | undefined {
+  if(node.type === "Identifier"){
+    return node.name;
+  }
+  if(node.type === "MemberExpression"){
+    const object = getESMemberExpressionName(node.object as ESNode);
+    if(!object){ return undefined; }
+
+    if(node.property.type === "Identifier"){
+      return `${object}.${node.property.name}`;
+    }
+    if(node.property.type === "Literal" && typeof node.property.value === "string"){
+      return `${object}.${node.property.value}`;
+    }
+  }
+  return undefined;
 }
 
 function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {

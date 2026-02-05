@@ -30,14 +30,19 @@ export let getConflictingClasses: GetConflictingClasses = () => { throw new Erro
 export function createGetConflictingClasses(ctx: Context): GetConflictingClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions) as (
+    operation: "conflicting-classes",
+    ctx: AsyncContext,
+    classes: string[]
+  ) => ReturnType<GetConflictingClasses>;
 
-  getConflictingClasses = createSyncFn(workerPath, workerOptions);
+  getConflictingClasses = (asyncCtx, classes) => runWorker("conflicting-classes", asyncCtx, classes);
 
   return getConflictingClasses;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./conflicting-classes.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

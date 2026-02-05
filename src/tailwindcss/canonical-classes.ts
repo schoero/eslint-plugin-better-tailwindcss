@@ -32,14 +32,20 @@ export let getCanonicalClasses: GetCanonicalClasses = () => { throw new Error("g
 export function createGetCanonicalClasses(ctx: Context): GetCanonicalClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions) as (
+    operation: "canonical-classes",
+    ctx: AsyncContext,
+    classes: string[],
+    options: CanonicalClassOptions
+  ) => ReturnType<GetCanonicalClasses>;
 
-  getCanonicalClasses = createSyncFn(workerPath, workerOptions);
+  getCanonicalClasses = (asyncCtx, classes, options) => runWorker("canonical-classes", asyncCtx, classes, options);
 
   return getCanonicalClasses;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./canonical-classes.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

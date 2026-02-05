@@ -8,7 +8,7 @@ import { getPrefix, getSuffix } from "./prefix.async.v3.js";
 import { getUnknownClasses } from "./unknown-classes.async.v3.js";
 
 import type { AsyncContext } from "../utils/context.js";
-import type { CanonicalClassOptions, CanonicalClasses } from "./canonical-classes.js";
+import type { CanonicalClasses, CanonicalClassOptions } from "./canonical-classes.js";
 import type { ConflictingClasses } from "./conflicting-classes.js";
 
 

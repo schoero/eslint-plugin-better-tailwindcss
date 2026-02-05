@@ -21,14 +21,19 @@ export let getClassOrder: GetClassOrder = () => { throw new Error("getClassOrder
 export function createGetClassOrder(ctx: Context): GetClassOrder {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions) as (
+    operation: "class-order",
+    ctx: AsyncContext,
+    classes: string[]
+  ) => ReturnType<GetClassOrder>;
 
-  getClassOrder = createSyncFn(workerPath, workerOptions);
+  getClassOrder = (asyncCtx, classes) => runWorker("class-order", asyncCtx, classes);
 
   return getClassOrder;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./class-order.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

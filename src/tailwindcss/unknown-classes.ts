@@ -21,14 +21,19 @@ export let getUnknownClasses: GetUnknownClasses = () => { throw new Error("getUn
 export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions) as (
+    operation: "unknown-classes",
+    ctx: AsyncContext,
+    classes: string[]
+  ) => ReturnType<GetUnknownClasses>;
 
-  getUnknownClasses = createSyncFn(workerPath, workerOptions);
+  getUnknownClasses = (asyncCtx, classes) => runWorker("unknown-classes", asyncCtx, classes);
 
   return getUnknownClasses;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./unknown-classes.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

@@ -34,14 +34,19 @@ export let getDissectedClasses: GetDissectedClasses = () => { throw new Error("g
 export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions) as (
+    operation: "dissect-classes",
+    ctx: AsyncContext,
+    classes: string[]
+  ) => ReturnType<GetDissectedClasses>;
 
-  getDissectedClasses = createSyncFn(workerPath, workerOptions);
+  getDissectedClasses = (asyncCtx, classes) => runWorker("dissect-classes", asyncCtx, classes);
 
   return getDissectedClasses;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./dissect-classes.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

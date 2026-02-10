@@ -29,11 +29,5 @@ export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
-}
-
-function getCurrentDirectory() {
-  // eslint-disable-next-line eslint-plugin-typescript/prefer-ts-expect-error
-  // @ts-ignore - `import.meta` doesn't exist in CommonJS -> will be transformed in build step
-  return import.meta.dirname;
+  return resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
 }

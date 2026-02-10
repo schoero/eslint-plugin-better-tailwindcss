@@ -24,14 +24,15 @@ export let getCustomComponentClasses: GetCustomComponentClasses = () => { throw 
 export function createGetCustomComponentClasses(ctx: Context): GetCustomComponentClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCustomComponentClasses = createSyncFn(workerPath, workerOptions);
+  getCustomComponentClasses = ctx => runWorker("getCustomComponentClasses", ctx);
 
   return getCustomComponentClasses;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./custom-component-classes.async.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

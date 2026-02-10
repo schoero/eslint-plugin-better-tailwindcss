@@ -1,9 +1,7 @@
-import { runAsWorker } from "synckit";
-
-import type { Async } from "../types/async.js";
-import type { GetCustomComponentClasses } from "./custom-component-classes.js";
+import type { AsyncContext } from "../utils/context.js";
+import type { CustomComponentClasses } from "./custom-component-classes.js";
 
 
-runAsWorker<Async<GetCustomComponentClasses>>(async ctx => {
-  return { customComponentClasses: [], warnings: ctx.warnings };
-});
+export async function getCustomComponentClasses(_ctx: AsyncContext): Promise<CustomComponentClasses> {
+  return [];
+}

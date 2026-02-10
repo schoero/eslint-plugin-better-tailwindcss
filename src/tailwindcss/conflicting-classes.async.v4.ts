@@ -1,13 +1,13 @@
 import type { ConflictingClasses } from "./conflicting-classes.js";
 
 
-export async function getConflictingClasses(context: any, classes: string[]): Promise<ConflictingClasses> {
+export async function getConflictingClasses(tailwindContext: any, classes: string[]): Promise<ConflictingClasses> {
   const conflicts: ConflictingClasses = {};
 
   const classRules = classes.reduce<Record<string, RuleContext>>((classRules, className) => ({
     ...classRules,
-    [className]: context.parseCandidate(className).reduce((classRules, candidate) => {
-      const [rule] = context.compileAstNodes(candidate);
+    [className]: tailwindContext.parseCandidate(className).reduce((classRules, candidate) => {
+      const [rule] = tailwindContext.compileAstNodes(candidate);
       return {
         ...classRules,
         ...getRuleContext(rule?.node?.nodes)

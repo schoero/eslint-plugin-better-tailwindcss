@@ -23,14 +23,15 @@ export let getPrefix: GetPrefix = () => { throw new Error("getPrefix() called be
 export function createGetPrefix(ctx: Context): GetPrefix {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getPrefix = createSyncFn(workerPath, workerOptions);
+  getPrefix = ctx => runWorker("getPrefix", ctx);
 
   return getPrefix;
 }
 
 function getWorkerPath(ctx: Context) {
-  return resolve(getCurrentDirectory(), `./prefix.async.worker.v${ctx.version.major}.js`);
+  return resolve(getCurrentDirectory(), `./tailwind.async.worker.v${ctx.version.major}.js`);
 }
 
 function getCurrentDirectory() {

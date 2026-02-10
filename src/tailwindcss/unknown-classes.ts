@@ -21,13 +21,9 @@ export let getUnknownClasses: GetUnknownClasses = () => { throw new Error("getUn
 export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "unknown-classes",
-    ctx: AsyncContext,
-    classes: string[]
-  ) => ReturnType<GetUnknownClasses>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getUnknownClasses = (asyncCtx, classes) => runWorker("unknown-classes", asyncCtx, classes);
+  getUnknownClasses = (ctx, classes) => runWorker("getUnknownClasses", ctx, classes);
 
   return getUnknownClasses;
 }

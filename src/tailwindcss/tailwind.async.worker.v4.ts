@@ -9,72 +9,54 @@ import { getDissectedClasses } from "./dissect-classes.async.v4.js";
 import { getPrefix, getSuffix } from "./prefix.async.v4.js";
 import { getUnknownClasses } from "./unknown-classes.async.v4.js";
 
-import type { AsyncContext } from "../utils/context.js";
-import type { CanonicalClassOptions } from "./canonical-classes.js";
+import type { OperationHandlers, Operations } from "../async-utils/operations.js";
 
 
-type TailwindOperation =
-  | "canonical-classes"
-  | "class-order"
-  | "conflicting-classes"
-  | "custom-component-classes"
-  | "dissect-classes"
-  | "prefix"
-  | "unknown-classes";
+const handlers: OperationHandlers = {
+  getCanonicalClasses: async (ctx, classes, options) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const canonicalClasses = getCanonicalClasses(tailwindContext, classes, options);
 
-runAsWorker(async (operation: TailwindOperation, ctx: AsyncContext, ...args: unknown[]) => {
-  const context = await createTailwindContext(ctx);
+    return { canonicalClasses, warnings: ctx.warnings };
+  },
+  getClassOrder: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const classOrder = getClassOrder(tailwindContext, classes);
 
-  switch (operation){
-    case "prefix": {
-      const prefix = getPrefix(context);
-      const suffix = getSuffix(context);
+    return { classOrder, warnings: ctx.warnings };
+  },
+  getConflictingClasses: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const conflictingClasses = await getConflictingClasses(tailwindContext, classes);
 
-      return { prefix, suffix, warnings: ctx.warnings };
-    }
+    return { conflictingClasses, warnings: ctx.warnings };
+  },
+  getCustomComponentClasses: async ctx => {
+    const customComponentClasses = await getCustomComponentClasses(ctx);
 
-    case "class-order": {
-      const [classes] = args as [string[]];
-      const classOrder = getClassOrder(context, classes);
+    return { customComponentClasses, warnings: ctx.warnings };
+  },
+  getDissectedClasses: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const dissectedClasses = getDissectedClasses(tailwindContext, classes);
 
-      return { classOrder, warnings: ctx.warnings };
-    }
+    return { dissectedClasses, warnings: ctx.warnings };
+  },
+  getPrefix: async ctx => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const prefix = getPrefix(tailwindContext);
+    const suffix = getSuffix(tailwindContext);
 
-    case "custom-component-classes": {
-      const customComponentClasses = await getCustomComponentClasses(ctx);
+    return { prefix, suffix, warnings: ctx.warnings };
+  },
+  getUnknownClasses: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const unknownClasses = getUnknownClasses(tailwindContext, classes);
 
-      return { customComponentClasses, warnings: ctx.warnings };
-    }
-
-    case "dissect-classes": {
-      const [classes] = args as [string[]];
-      const dissectedClasses = getDissectedClasses(context, classes);
-
-      return { dissectedClasses, warnings: ctx.warnings };
-    }
-
-    case "unknown-classes": {
-      const [classes] = args as [string[]];
-      const unknownClasses = getUnknownClasses(context, classes);
-
-      return { unknownClasses, warnings: ctx.warnings };
-    }
-
-    case "conflicting-classes": {
-      const [classes] = args as [string[]];
-      const conflictingClasses = await getConflictingClasses(context, classes);
-
-      return { conflictingClasses, warnings: ctx.warnings };
-    }
-
-    case "canonical-classes": {
-      const [classes, options] = args as [string[], CanonicalClassOptions];
-      const canonicalClasses = getCanonicalClasses(context, classes, options);
-
-      return { canonicalClasses, warnings: ctx.warnings };
-    }
-
-    default:
-      throw new Error(`Unknown tailwind worker operation: ${operation as string}`);
+    return { unknownClasses, warnings: ctx.warnings };
   }
+};
+
+runAsWorker(async <Operation extends keyof Operations>(operation: Operation, ...args: Parameters<Operations[Operation]>) => {
+  return handlers[operation](...args);
 });

@@ -30,13 +30,9 @@ export let getConflictingClasses: GetConflictingClasses = () => { throw new Erro
 export function createGetConflictingClasses(ctx: Context): GetConflictingClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "conflicting-classes",
-    ctx: AsyncContext,
-    classes: string[]
-  ) => ReturnType<GetConflictingClasses>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getConflictingClasses = (asyncCtx, classes) => runWorker("conflicting-classes", asyncCtx, classes);
+  getConflictingClasses = (ctx, classes) => runWorker("getConflictingClasses", ctx, classes);
 
   return getConflictingClasses;
 }

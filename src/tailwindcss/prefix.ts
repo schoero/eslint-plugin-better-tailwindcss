@@ -23,12 +23,9 @@ export let getPrefix: GetPrefix = () => { throw new Error("getPrefix() called be
 export function createGetPrefix(ctx: Context): GetPrefix {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "prefix",
-    ctx: AsyncContext
-  ) => ReturnType<GetPrefix>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getPrefix = asyncCtx => runWorker("prefix", asyncCtx);
+  getPrefix = ctx => runWorker("getPrefix", ctx);
 
   return getPrefix;
 }

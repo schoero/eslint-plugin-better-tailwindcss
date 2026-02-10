@@ -21,13 +21,9 @@ export let getClassOrder: GetClassOrder = () => { throw new Error("getClassOrder
 export function createGetClassOrder(ctx: Context): GetClassOrder {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "class-order",
-    ctx: AsyncContext,
-    classes: string[]
-  ) => ReturnType<GetClassOrder>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getClassOrder = (asyncCtx, classes) => runWorker("class-order", asyncCtx, classes);
+  getClassOrder = (ctx, classes) => runWorker("getClassOrder", ctx, classes);
 
   return getClassOrder;
 }

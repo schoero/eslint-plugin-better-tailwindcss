@@ -34,13 +34,9 @@ export let getDissectedClasses: GetDissectedClasses = () => { throw new Error("g
 export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "dissect-classes",
-    ctx: AsyncContext,
-    classes: string[]
-  ) => ReturnType<GetDissectedClasses>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getDissectedClasses = (asyncCtx, classes) => runWorker("dissect-classes", asyncCtx, classes);
+  getDissectedClasses = (ctx, classes) => runWorker("getDissectedClasses", ctx, classes);
 
   return getDissectedClasses;
 }

@@ -24,12 +24,9 @@ export let getCustomComponentClasses: GetCustomComponentClasses = () => { throw 
 export function createGetCustomComponentClasses(ctx: Context): GetCustomComponentClasses {
   const workerPath = getWorkerPath(ctx);
   const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions) as (
-    operation: "custom-component-classes",
-    ctx: AsyncContext
-  ) => ReturnType<GetCustomComponentClasses>;
+  const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCustomComponentClasses = asyncCtx => runWorker("custom-component-classes", asyncCtx);
+  getCustomComponentClasses = ctx => runWorker("getCustomComponentClasses", ctx);
 
   return getCustomComponentClasses;
 }

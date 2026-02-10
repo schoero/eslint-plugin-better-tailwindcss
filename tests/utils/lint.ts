@@ -59,7 +59,7 @@ export function lint<const Rule extends ESLintRule>(
       } & {
         [Key in keyof Syntaxes as `${Key & string}Output`]?: string;
       } & {
-        errors: { message: string; type?: string; }[] | number;
+        errors: { message: string; }[] | number;
       } & {
         files?: Record<string, string>;
         options?: [Partial<CommonOptions & Context<Rule>["options"]>];

@@ -1,5 +1,22 @@
 # Changelog
 
+## v4.2.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.1.1...v4.2.0)
+
+### Features
+
+- Add support for ESLint 10 ([#323](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/323))
+
+### Performance
+
+- Use shared worker to handle async calls ([#319](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/319))
+
+### ❤️ Contributors
+
+- Stephen Zhou ([@hyoban](https://github.com/hyoban))
+- Bjorn Antonissen ([@Bjornftw](https://github.com/Bjornftw))
+
 ## v4.1.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.1.0...v4.1.1)

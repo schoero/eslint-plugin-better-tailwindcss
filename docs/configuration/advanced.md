@@ -34,7 +34,7 @@ Each selector targets one kind of source location and tells the plugin how to ex
 
 ```ts
 type Selector = {
-  kind: "attribute" | "callee" | "variable" | "tag";
+  kind: "attribute" | "callee" | "tag" | "variable";
   name: string;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";

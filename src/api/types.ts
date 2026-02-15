@@ -5,6 +5,7 @@ export type {
   Regex,
   Selector,
   SelectorMatcher,
+  Selectors,
   StringMatcher
 } from "better-tailwindcss:types/rule.js";
 

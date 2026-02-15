@@ -1,6 +1,6 @@
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { Selector, SelectorMatcher } from "better-tailwindcss:types/rule.js";
+import type { SelectorMatcher, Selectors } from "better-tailwindcss:types/rule.js";
 
 
 type LegacyMatcher = {
@@ -18,8 +18,8 @@ type LegacySelectorsByKind = {
 };
 
 
-export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByKind): Selector[] {
-  const selectors: Selector[] = [];
+export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByKind): Selectors {
+  const selectors: Selectors = [];
 
   const kinds = [
     SelectorKind.Attribute,

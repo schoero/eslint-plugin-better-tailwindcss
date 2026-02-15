@@ -50,7 +50,7 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
-  Selector
+  Selectors
 } from "better-tailwindcss:types/rule.js";
 
 
@@ -202,7 +202,7 @@ export function createRule<
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
-  const selectors = context.options.selectors as Selector[];
+  const selectors = context.options.selectors as Selectors;
 
   const attributes = selectors.filter(isSelectorKind(SelectorKind.Attribute));
   const callees = selectors.filter(isSelectorKind(SelectorKind.Callee));

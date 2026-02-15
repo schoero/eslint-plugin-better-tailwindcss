@@ -16,9 +16,9 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
-import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
+import type { Selectors } from "better-tailwindcss:types/rule.js";
 
 
 export const DEFAULT_CALLEE_NAMES = [

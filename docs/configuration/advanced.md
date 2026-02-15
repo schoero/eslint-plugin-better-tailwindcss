@@ -4,6 +4,8 @@ The [rules](../../README.md#rules) in this plugin lint Tailwind classes inside s
 
 To do that safely, the plugin must know **which strings are expected to contain Tailwind classes**. If it would lint every string literal in your codebase, it would produce many false positives and potentially unsafe fixes.
 
+To configure this, you can provide an array of [selectors](#selectors) that specify where the plugin should look for class strings and how to extract them.
+
 The plugin already ships with defaults that support [most popular tailwind utilities](../../README.md#utilities). You only need advanced configuration when:
 
 - you use custom utilities/APIs not covered by defaults,
@@ -34,11 +36,13 @@ type Selectors = (
 )[];
 ```
 
-### `attribute` selector
+<br/>
+
+### `attribute`
 
 - **kind**: `"attribute"`.
 - **name**: regular expression for attribute names.
-- **match** `optional`: matcher list.
+- **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -53,15 +57,17 @@ type AttributeSelector = {
 };
 ```
 
-### `callee` selector
+<br/>
+
+### `callee`
 
 - **kind**: `"callee"`.
 - **name** `optional`: regular expression for callee names.
 - **path** `optional`: regular expression for callee member paths like `classes.push`.
   When `path` is provided, `name` is not required.
-- **callTarget** `optional`: curried call target.
+- **callTarget** `optional`: curried call target for example for `fn()("my classes")`.
   When omitted, the first call in a curried chain is used.
-- **match** `optional`: matcher list.
+- **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -77,11 +83,13 @@ type CalleeSelector = {
 };
 ```
 
-### `variable` selector
+<br/>
+
+### `variable`
 
 - **kind**: `"variable"`.
 - **name**: regular expression for variable names.
-- **match** `optional`: matcher list.
+- **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -95,11 +103,13 @@ type VariableSelector = {
 };
 ```
 
-### `tag` selector
+<br/>
+
+### `tag`
 
 - **kind**: must be `"tag"`.
 - **name**: regular expression for tagged template names.
-- **match** `optional`: matcher list.
+- **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -112,6 +122,8 @@ type TagSelector = {
   }[];
 };
 ```
+
+<br/>
 
 ### How selector matching works
 
@@ -132,8 +144,11 @@ type TagSelector = {
 ```
 
 <br/>
+<br/>
 
-### Matcher types
+### Matchers
+
+#### Matcher types
 
 There are 3 matcher types:
 
@@ -143,7 +158,7 @@ There are 3 matcher types:
 
 <br/>
 
-### `path`
+##### `path`
 
 The `path` lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.
 
@@ -196,28 +211,6 @@ For example, the object path for `value` in the object below is `root["nested-ke
       ]
     }
   }
-}
-```
-
-### Callee `callTarget`
-
-Use `callTarget` on callee selectors to control which call in a curried chain gets linted.
-
-- `"first"`: first call in the chain (`fn("a")("b")` → lint `"a"`)
-- `"last"`: last call in the chain (`fn("a")("b")` → lint `"b"`)
-- `"all"`: lint all calls in the chain
-- `number`: zero-based call index (`0` first, `1` second, etc.)
-- negative number: index from the end (`-1` last)
-
-```jsonc
-{
-  "selectors": [
-    {
-      "kind": "callee",
-      "name": "^classNames$",
-      "callTarget": "last"
-    }
-  ]
 }
 ```
 

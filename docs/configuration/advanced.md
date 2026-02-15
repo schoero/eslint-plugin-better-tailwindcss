@@ -36,11 +36,11 @@ Each selector targets one kind of source location and tells the plugin how to ex
 type Selector = {
   kind: "attribute" | "callee" | "tag" | "variable";
   name: string;
+  callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
   }[];
-  callTarget?: number | "all" | "first" | "last";
 };
 ```
 

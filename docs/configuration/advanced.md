@@ -45,6 +45,7 @@ type Selectors = (
 type AttributeSelector = {
   kind: "attribute";
   name: string;
+  callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;

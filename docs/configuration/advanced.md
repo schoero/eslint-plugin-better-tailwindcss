@@ -40,7 +40,6 @@ type Selector = {
     pathPattern?: string;
   }[];
 }[];
-};
 ```
 
 ### How name matching works

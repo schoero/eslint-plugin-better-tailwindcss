@@ -12,7 +12,7 @@ The plugin already ships with defaults that support [most popular tailwind utili
 
 To extend defaults instead of replacing them, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults`.
 
-You can find the default selectors in the [defaults documentation](../defaults.md).
+You can find the default selectors in the [defaults documentation](../api/defaults.md).
 
 <br/>
 <br/>

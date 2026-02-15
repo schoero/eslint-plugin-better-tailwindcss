@@ -22,9 +22,10 @@ import {
   getLiteralsBySvelteDirective
 } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
-import { isSelectorKind, SelectorKind } from "better-tailwindcss:types/rule.js";
+import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
+import { isSelectorKind } from "better-tailwindcss:utils/selectors.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";

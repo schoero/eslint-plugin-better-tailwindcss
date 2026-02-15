@@ -187,6 +187,7 @@ describe("descriptions", () => {
     const selectors = {
       selectors: [
         {
+          callTarget: -1,
           kind: "callee",
           match: [
             {

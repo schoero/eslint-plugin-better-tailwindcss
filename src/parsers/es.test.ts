@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 
 describe("es", () => {
@@ -21,6 +21,101 @@ describe("es", () => {
           errors: 2,
           options: [{
             callees: ["^.*Styles$"]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support callee target last for curried calls", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" keep ")(" lint ");`,
+          jsxOutput: `testStyles(" keep ")("lint");`,
+          svelte: `<script>testStyles(" keep ")(" lint ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ")("lint");</script>`,
+          vue: `<script>testStyles(" keep ")(" lint ");</script>`,
+          vueOutput: `<script>testStyles(" keep ")("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                callTarget: "last",
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support callee target all for curried calls", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" first ")(" second ");`,
+          jsxOutput: `testStyles("first")("second");`,
+          svelte: `<script>testStyles(" first ")(" second ");</script>`,
+          svelteOutput: `<script>testStyles("first")("second");</script>`,
+          vue: `<script>testStyles(" first ")(" second ");</script>`,
+          vueOutput: `<script>testStyles("first")("second");</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [
+              {
+                callTarget: "all",
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support numeric and negative callee targets", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" keep ")(" middle ")(" lint ");`,
+          jsxOutput: `testStyles(" keep ")(" middle ")("lint");`,
+          svelte: `<script>testStyles(" keep ")(" middle ")(" lint ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ")(" middle ")("lint");</script>`,
+          vue: `<script>testStyles(" keep ")(" middle ")(" lint ");</script>`,
+          vueOutput: `<script>testStyles(" keep ")(" middle ")("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                callTarget: -1,
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `testStyles(" keep ")(" middle ")(" lint ");`,
+          svelte: `<script>testStyles(" keep ")(" middle ")(" lint ");</script>`,
+          vue: `<script>testStyles(" keep ")(" middle ")(" lint ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                callTarget: 5,
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
           }]
         }
       ]

@@ -49,7 +49,7 @@ describe("migrate", () => {
       },
       {
         kind: SelectorKind.Variable,
-        match: [{ pathPattern: "^foo$", type: MatcherType.ObjectKey }],
+        match: [{ path: "^foo$", type: MatcherType.ObjectKey }],
         name: "^classes$"
       }
     ]);

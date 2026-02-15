@@ -79,7 +79,7 @@ export function hasLegacySelectorConfig(options: LegacySelectorsByKind): boolean
   );
 }
 
-function toSelectorMatch(matcher: Matcher): SelectorMatcher {
+function toSelectorMatcher(matcher: Matcher): SelectorMatcher {
   if(matcher.match === MatcherType.String){
     return {
       type: matcher.match
@@ -88,7 +88,7 @@ function toSelectorMatch(matcher: Matcher): SelectorMatcher {
 
   return {
     ...matcher.pathPattern !== undefined && {
-      pathPattern: matcher.pathPattern
+      path: matcher.pathPattern
     },
     type: matcher.match
   };
@@ -102,8 +102,8 @@ function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
   }
 
   return {
-    ...matcher.pathPattern !== undefined && {
-      pathPattern: matcher.pathPattern
+    ...matcher.path !== undefined && {
+      pathPattern: matcher.path
     },
     match: matcher.type
   };
@@ -119,7 +119,7 @@ function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
 
   return {
     kind,
-    match: selector[1].map(toSelectorMatch),
+    match: selector[1].map(toSelectorMatcher),
     name: selector[0]
   };
 }

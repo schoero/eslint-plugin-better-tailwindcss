@@ -176,11 +176,11 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
 
           const path = getAngularObjectPath(ctx, ast);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }
@@ -202,11 +202,11 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
 
           const path = getAngularObjectPath(ctx, ast);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }

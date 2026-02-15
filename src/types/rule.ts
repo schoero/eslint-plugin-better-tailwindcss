@@ -48,12 +48,12 @@ export type SelectorStringMatcher = {
 
 export type SelectorObjectKeyMatcher = {
   type: MatcherType.ObjectKey;
-  pathPattern?: Regex | undefined;
+  path?: Regex | undefined;
 };
 
 export type SelectorObjectValueMatcher = {
   type: MatcherType.ObjectValue;
-  pathPattern?: Regex | undefined;
+  path?: Regex | undefined;
 };
 
 export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;

@@ -48,7 +48,7 @@ type AttributeSelector = {
   callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
-    pathPattern?: string;
+    path?: string;
   }[];
 };
 ```
@@ -58,6 +58,7 @@ type AttributeSelector = {
 - **kind**: `"callee"`.
 - **name** `optional`: regular expression for callee names.
 - **path** `optional`: regular expression for callee member paths like `classes.push`.
+  When `path` is provided, `name` is not required.
 - **callTarget** `optional`: curried call target.
   When omitted, the first call in a curried chain is used.
 - **match** `optional`: matcher list.
@@ -69,7 +70,7 @@ type CalleeSelector = {
   callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
-    pathPattern?: string;
+    path?: string;
   }[];
   name?: string;
   path?: string;
@@ -89,7 +90,7 @@ type VariableSelector = {
   name: string;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
-    pathPattern?: string;
+    path?: string;
   }[];
 };
 ```
@@ -107,7 +108,7 @@ type TagSelector = {
   name: string;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
-    pathPattern?: string;
+    path?: string;
   }[];
 };
 ```
@@ -142,13 +143,13 @@ There are 3 matcher types:
 
 <br/>
 
-### `pathPattern`
+### `path`
 
-`pathPattern` lets you narrow `objectKeys` and `objectValues` matching to specific object paths.
+The `path` lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.
 
 This is especially useful for libraries like [Class Variance Authority (cva)](https://cva.style/docs/getting-started/installation#intellisense), where class names appear in nested object structures.
 
-`pathPattern` is a regex matched against the object path.  
+`path` is a regex matched against the object path.  
 
 For example, the following matcher will only match object values for the `compoundVariants.class` key:
 
@@ -157,7 +158,7 @@ For example, the following matcher will only match object values for the `compou
 ```json
 {
   "type": "objectValues",
-  "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+  "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
 }
 ```
 
@@ -238,7 +239,7 @@ Use `callTarget` on callee selectors to control which call in a curried chain ge
         },
         {
           "type": "objectValues",
-          "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
         }
       ]
     }

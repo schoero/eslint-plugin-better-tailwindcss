@@ -17,7 +17,7 @@ export const TV_VARIANT_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^variants.*$",
+      path: "^variants.*$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -28,7 +28,7 @@ export const TV_BASE_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^base$",
+      path: "^base$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -39,7 +39,7 @@ export const TV_SLOTS_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^slots.*$",
+      path: "^slots.*$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -50,7 +50,7 @@ export const TV_COMPOUND_VARIANTS_CLASS = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class).*$",
+      path: "^compoundVariants\\[\\d+\\]\\.(?:className|class).*$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -61,7 +61,7 @@ export const TV_COMPOUND_SLOTS_CLASS = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^compoundSlots\\[\\d+\\]\\.(?:className|class).*$",
+      path: "^compoundSlots\\[\\d+\\]\\.(?:className|class).*$",
       type: MatcherType.ObjectValue
     }
   ],

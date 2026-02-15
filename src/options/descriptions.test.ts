@@ -2,6 +2,7 @@ import { toJsonSchema } from "@valibot/to-json-schema";
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
+import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
@@ -175,6 +176,44 @@ describe("descriptions", () => {
 
     expect(
       validate(variable, toJsonSchema(VARIABLES_OPTION_SCHEMA))
+    ).toStrictEqual(
+      { errors: [], valid: true }
+    );
+
+  });
+
+  test("selectors config", () => {
+
+    const selectors = {
+      selectors: [
+        {
+          kind: "callee",
+          match: [
+            {
+              type: MatcherType.String
+            }
+          ],
+          name: "^classes\\.push$"
+        },
+        {
+          kind: "tag",
+          name: "^tw$"
+        },
+        {
+          kind: "attribute",
+          match: [
+            {
+              pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
+              type: MatcherType.ObjectValue
+            }
+          ],
+          name: "^class(?:Name)?$"
+        }
+      ]
+    };
+
+    expect(
+      validate(selectors, toJsonSchema(COMMON_OPTIONS))
     ).toStrictEqual(
       { errors: [], valid: true }
     );

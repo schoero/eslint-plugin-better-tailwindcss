@@ -1,7 +1,7 @@
 
 # Defaults
 
-The plugin comes with a set of default [matchers](../configuration/advanced.md#matchers) for `attributes`, `callees`, `variables` and `tags`. These matchers are used to [determine how the rules should behave](../configuration/advanced.md#advanced-configuration) when checking your code.
+The plugin comes with a set of default [selectors](../configuration/advanced.md#selectors). These selectors are used to [determine how the rules should behave](../configuration/advanced.md#advanced-configuration) when checking your code.
 In order to extend the default configuration instead of overwriting it, you can import the default options from `eslint-plugin-better-tailwindcss/defaults` and merge them with your own options.
 
 <br/>
@@ -11,13 +11,8 @@ In order to extend the default configuration instead of overwriting it, you can 
 
 ```ts
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import {
-  getDefaultAttributes,
-  getDefaultCallees,
-  getDefaultTags,
-  getDefaultVariables
-} from "eslint-plugin-better-tailwindcss/defaults";
-import { MatcherType } from "eslint-plugin-better-tailwindcss/types";
+import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/defaults";
+import { MatcherType, SelectorKind } from "eslint-plugin-better-tailwindcss/types";
 
 
 export default [
@@ -27,51 +22,48 @@ export default [
     },
     rules: {
       "better-tailwindcss/enforce-consistent-class-order": ["warn", {
-        attributes: [
-          ...getDefaultTags(),
-          [
-            "myTag", [
+        selectors: [
+          ...getDefaultSelectors(),
+          // custom tag
+          {
+            kind: SelectorKind.Tag,
+            match: [
               {
-                match: MatcherType.String
+                type: MatcherType.String
               }
-            ]
-          ]
-        ]
-      }],
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
-        callees: [
-          ...getDefaultCallees(),
-          [
-            "myFunction", [
+            ],
+            name: "^myTag$"
+          },
+          // custom callee
+          {
+            kind: SelectorKind.Callee,
+            match: [
               {
-                match: MatcherType.String
+                type: MatcherType.String
               }
-            ]
-          ]
-        ]
-      }],
-      "better-tailwindcss/no-duplicate-classes": ["warn", {
-        attributes: [
-          ...getDefaultAttributes(),
-          [
-            "myAttribute", [
+            ],
+            name: "^myFunction$"
+          },
+          // custom attribute
+          {
+            kind: SelectorKind.Attribute,
+            match: [
               {
-                match: MatcherType.String
+                type: MatcherType.String
               }
-            ]
-          ]
-        ]
-      }],
-      "better-tailwindcss/no-unnecessary-whitespace": ["warn", {
-        variables: [
-          ...getDefaultVariables(),
-          [
-            "myVariable", [
+            ],
+            name: "^myAttribute$"
+          },
+          // custom variable
+          {
+            kind: SelectorKind.Variable,
+            match: [
               {
-                match: MatcherType.String
+                type: MatcherType.String
               }
-            ]
-          ]
+            ],
+            name: "^myVariable$"
+          }
         ]
       }]
     }

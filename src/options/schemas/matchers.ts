@@ -31,3 +31,32 @@ export const OBJECT_VALUE_MATCHER_SCHEMA = strictObject({
     description("Regular expression that filters the object value and matches the content for further processing in a group.")
   ))
 });
+
+export const STRING_SELECTOR_MATCHER_SCHEMA = strictObject({
+  type: pipe(
+    literal(MatcherType.String),
+    description("Matcher type that will be applied.")
+  )
+});
+
+export const OBJECT_KEY_SELECTOR_MATCHER_SCHEMA = strictObject({
+  pathPattern: optional(pipe(
+    string(),
+    description("Regular expression that filters the object key and matches the content for further processing in a group.")
+  )),
+  type: pipe(
+    literal(MatcherType.ObjectKey),
+    description("Matcher type that will be applied.")
+  )
+});
+
+export const OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA = strictObject({
+  pathPattern: optional(pipe(
+    string(),
+    description("Regular expression that filters the object value and matches the content for further processing in a group.")
+  )),
+  type: pipe(
+    literal(MatcherType.ObjectValue),
+    description("Matcher type that will be applied.")
+  )
+});

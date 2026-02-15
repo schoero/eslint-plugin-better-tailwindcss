@@ -1,121 +1,58 @@
 # Advanced Configuration
 
-The [rules](../../README.md#rules) in this plugin lint string literals that contain Tailwind CSS classes. To do this accurately, the plugin needs to know which strings actually contain Tailwind classes. Otherwise it would try to lint every string literal, leading to false errors and potentially broken code.
+The [rules](../../README.md#rules) in this plugin lint Tailwind classes inside string literals.
 
-By default, the plugin is configured to work with [most popular tailwind utilities](../../README.md#utilities).  
+To do that safely, the plugin must know **which strings are expected to contain Tailwind classes**. If it would lint every string literal in your codebase, it would produce many false positives and potentially unsafe fixes.
 
-It is possible to override the default configuration by defining the [`callees`](../settings/settings.md#callees), [`attributes`](../settings/settings.md#attributes), [`tags`](../settings/settings.md#tags) and [`variables`](../settings/settings.md#variables) option for each rule individually, or globally via the [settings](../settings/settings.md) object in ESLint.
+The plugin already ships with defaults that support [most popular tailwind utilities](../../README.md#utilities). You only need advanced configuration when:
 
-In order to extend the default configuration instead of overriding it, you can import the default options from `eslint-plugin-better-tailwindcss/defaults` and merge them with your own config.
+- you use custom utilities/APIs not covered by defaults,
+- you want to narrow down linting behavior,
+- or you want to lint additional locations.
 
-You can read more about the default configuration in the [defaults documentation](../defaults.md).
+To extend defaults instead of replacing them, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults`.
 
-<br/>
-<br/>
-
-## Name based matching
-
-The simplest way to tell the plugin what to lint is by a name.
-
-If an `attribute`, `variable`, `callee` or `tag` matches one of the names you define, its string literals will be linted.
-
-### How names work
-
-- Names are treated as regular expressions
-- Reserved characters in regular expressions must be escaped.
-- The regular expression must match the whole name. Partial matches are ignored.
+You can find the default selectors in the [defaults documentation](../defaults.md).
 
 <br/>
+<br/>
+
+## Selectors
+
+Selectors are a flat object-based configuration format.
+
+Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
+
+- **kind**: what to match (`attribute`, `callee`, `variable`, `tag`)
+- **name**: regular expression for the attribute/callee/variable/tag name
+- **match** `optional`: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
+  When `match` is omitted, only the direct string literals will get collected.
+- **match** *(optional)*: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
 
 ### Type
 
 ```ts
-type Name = string;
-```
-
-<br/>
-
-### Examples
-
-```jsonc
-{
-  "attributes": [
-    "myAttribute",
-    ".*Classes"
-  ]
-}
-```
-
-```tsx
-<img myAttribute="this will get linted" myClasses="this will get linted" />;
-```
-
-<br/>
-
-```jsonc
-{
-  "callees": [
-    "myFunction",
-    ".*Styles"
-  ]
-}
-```
-
-```tsx
-const name = myFunction("this will get linted");
-const regex = myStyles("this will get linted");
-```
-
-<br/>
-
-```jsonc
-{
-  "variables": [
-    "myVariable",
-    ".*Styles"
-  ]
-}
-```
-
-```tsx
-const myVariable = "this will get linted";
-const myStyles = "this will get linted";
-```
-
-<br/>
-<br/>
-
-## Matchers
-
-For more advanced use cases, you can define matchers. Matchers let you target string literals based on their structure or context, not just their name.
-
-Matchers are defined as a tuple of a name and a list of configurations for predefined matchers.
-
-### How matchers work
-
-- Names are treated as regular expressions
-- Reserved characters in regular expressions must be escaped.
-- The regular expression must match the whole name. Partial matches are ignored.
-
-<br/>
-
-### Type
-
-```ts
-type Matchers = [
-  name: string,
-  configurations: {
-    match: "objectKeys" | "objectValues" | "strings";
+type Selector = {
+  kind: "attribute" | "callee" | "tag" | "variable";
+  name: string;
+  match?: {
+    type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
-  }[]
-][];
+  }[];
+}[];
 ```
+
+### How name matching works
+
+- Names are treated as regular expressions.
+- Reserved regex characters must be escaped.
+- The regex must match the whole name (not a substring).
 
 <br/>
 
-### Types of matchers
+### Matcher types
 
-There are currently 3 types of matchers:
+There are 3 matcher types:
 
 - `objectKeys`: matches all object keys
 - `objectValues`: matches all object values
@@ -123,13 +60,13 @@ There are currently 3 types of matchers:
 
 <br/>
 
-### Path pattern
+### `pathPattern`
 
-It is possible to narrow down which keys/values are matched by providing a `pathPattern` to the `objectKeys` and `objectValues` matchers, to only match keys/values that match the `pathPattern`.
+`pathPattern` lets you narrow `objectKeys` and `objectValues` matching to specific object paths.
 
 This is especially useful for libraries like [Class Variance Authority (cva)](https://cva.style/docs/getting-started/installation#intellisense), where class names appear in nested object structures.
 
-The `pathPattern` is a regular expression that is matched against the object path.  
+`pathPattern` is a regex matched against the object path.  
 
 For example, the following matcher will only match object values for the `compoundVariants.class` key:
 
@@ -137,7 +74,7 @@ For example, the following matcher will only match object values for the `compou
 
 ```json
 {
-  "match": "objectValues",
+  "type": "objectValues",
   "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
 }
 ```
@@ -163,7 +100,7 @@ The path reflects how the string is nested in the object:
 - Square brackets for arrays: `values[0]`
 - Quoted brackets for special characters: `root["some-key"]`
 
-For example, the object path for the `value` key in the following object would be `root["nested-key"].values[0].value`:
+For example, the object path for `value` in the object below is `root["nested-key"].values[0].value`:
 
 ```json
 {
@@ -179,25 +116,50 @@ For example, the object path for the `value` key in the following object would b
 }
 ```
 
+### Callee `target`
+
+Use `target` on callee selectors to control which call in a curried chain gets linted.
+
+- `"first"`: first call in the chain (`fn("a")("b")` → lint `"a"`)
+- `"last"`: last call in the chain (`fn("a")("b")` → lint `"b"`)
+- `"all"`: lint all calls in the chain
+- `number`: zero-based call index (`0` first, `1` second, etc.)
+- negative number: index from the end (`-1` last)
+
+```jsonc
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^classNames$",
+      "target": "last"
+    }
+  ]
+}
+```
+
 <br/>
 
 ### Examples
 
-```jsonc
+#### Example: lint `cva` strings + specific nested values
 
+```jsonc
 {
-  "callees": [
-    [
-      "cva", [
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^cva$",
+      "match": [
         {
-          "match": "strings"
+          "type": "strings"
         },
         {
-          "match": "objectValues",
+          "type": "objectValues",
           "pathPattern": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
         }
       ]
-    ]
+    }
   ]
 }
 ```
@@ -215,9 +177,9 @@ For example, the object path for the `value` key in the following object would b
 } />;
 ```
 
-#### Full example: custom Algolia attribute matcher
+#### Full example: custom Algolia attribute selector
 
-You can match custom attributes by modifying your `attributes` matcher configuration. Here is an example on how to match the values inside the Algolia `classNames` objects:
+You can match custom attributes by modifying your `selectors` configuration. Here is an example on how to match the values inside the Algolia `classNames` objects:
 
 ```tsx
 <SearchBox
@@ -233,7 +195,8 @@ You can match custom attributes by modifying your `attributes` matcher configura
 ```js
 // eslint.config.js
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { getDefaultAttributes } from "eslint-plugin-better-tailwindcss/defaults";
+import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/defaults";
+import { SelectorKind } from "eslint-plugin-better-tailwindcss/types";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig({
@@ -242,11 +205,15 @@ export default defineConfig({
   },
   settings: {
     "better-tailwindcss": {
-      attributes: [
-        ...getDefaultAttributes(), // preserve default attributes
-        ["^classNames$", [{ match: "objectValues" }]]
-      ],
-      entryPoint: "app/globals.css"
+      entryPoint: "app/globals.css",
+      selectors: [
+        ...getDefaultSelectors(), // preserve default selectors
+        {
+          kind: SelectorKind.Attribute,
+          match: [{ type: "objectValues" }],
+          name: "^classNames$"
+        }
+      ]
     }
   }
 });

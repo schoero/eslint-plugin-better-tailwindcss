@@ -12,8 +12,6 @@ import {
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
-  isAttributesMatchers,
-  isAttributesName,
   isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
@@ -36,9 +34,8 @@ import type { BaseNode as ESBaseNode, Node as ESNode } from "estree";
 import type { AST } from "vue-eslint-parser";
 import type { VLiteral } from "vue-eslint-parser/ast/index";
 
-import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, LiteralValueQuotes, MultilineMeta, StringLiteral } from "better-tailwindcss:types/ast.js";
-import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
 export const VUE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -54,7 +51,7 @@ export function getAttributesByVueStartTag(ctx: Rule.RuleContext, node: AST.VSta
   return node.attributes;
 }
 
-export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, attributes: Attributes): Literal[] {
+export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.VAttribute | AST.VDirective, selectors: AttributeSelector[]): Literal[] {
 
   if(attribute.value === null){
     return [];
@@ -63,14 +60,15 @@ export function getLiteralsByVueAttribute(ctx: Rule.RuleContext, attribute: AST.
   const name = getVueAttributeName(attribute);
   const value = attribute.value;
 
-  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
-    if(isAttributesName(attributes)){
-      if(!matchesName(getVueBoundName(attributes).toLowerCase(), name?.toLowerCase())){ return literals; }
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+    if(!matchesName(getVueBoundName(selector.name).toLowerCase(), name?.toLowerCase())){ return literals; }
+
+    if(!selector.match){
       literals.push(...getLiteralsByVueLiteralNode(ctx, value));
-    } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(getVueBoundName(attributes[0]).toLowerCase(), name?.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsByVueMatchers(ctx, value, attributes[1]));
+      return literals;
     }
+
+    literals.push(...getLiteralsByVueMatchers(ctx, value, selector.match));
 
     return literals;
   }, []);
@@ -97,7 +95,7 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
   return [];
 }
 
-function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getVueMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
@@ -185,9 +183,9 @@ function isVueLiteralNode(node: ESBaseNode): node is AST.VLiteral {
   return node.type === "VLiteral";
 }
 
-function getVueMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNode> {
+function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
   return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
-    switch (matcher.match){
+    switch (matcher.type){
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 

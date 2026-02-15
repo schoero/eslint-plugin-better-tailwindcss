@@ -5,6 +5,7 @@ import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
+import { hasLegacySelectorConfig, migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -21,6 +22,7 @@ import {
   getLiteralsBySvelteDirective
 } from "better-tailwindcss:parsers/svelte.js";
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
+import { isSelectorKind, SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
@@ -46,7 +48,8 @@ import type {
   JsonSchema,
   RuleCategory,
   RuleContext,
-  Schema
+  Schema,
+  Selector
 } from "better-tailwindcss:types/rule.js";
 
 
@@ -83,11 +86,32 @@ export function createRule<
     const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
-    return {
+    if(hasLegacySelectorConfig(settings) || hasLegacySelectorConfig(options)){
+      warnOnce("Legacy matcher config for (attributes/callees/variables/tags) is deprecated. Please migrate to the `selectors` option: https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/configuration/advanced.md#selectors");
+    }
+
+    const mergedOptions = {
       ...defaultSettings,
       ...defaultOptions,
       ...settings,
       ...options
+    };
+
+    const migratedSelectors = migrateLegacySelectorsToFlatSelectors({
+      attributes: mergedOptions.attributes,
+      callees: mergedOptions.callees,
+      tags: mergedOptions.tags,
+      variables: mergedOptions.variables
+    });
+
+    const selectors = [
+      ...migratedSelectors,
+      ...mergedOptions.selectors ?? []
+    ];
+
+    return {
+      ...mergedOptions,
+      selectors
     };
   };
 
@@ -177,7 +201,12 @@ export function createRule<
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
-  const { attributes, callees, tags, variables } = context.options;
+  const selectors = context.options.selectors as Selector[];
+
+  const attributes = selectors.filter(isSelectorKind(SelectorKind.Attribute));
+  const callees = selectors.filter(isSelectorKind(SelectorKind.Callee));
+  const tags = selectors.filter(isSelectorKind(SelectorKind.Tag));
+  const variables = selectors.filter(isSelectorKind(SelectorKind.Variable));
 
   const callExpression = {
     CallExpression(node: Node) {

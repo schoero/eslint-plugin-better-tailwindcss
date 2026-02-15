@@ -108,5 +108,5 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) (`Selector<Kind extends SelectorKind = SelectorKind>[]`)
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)

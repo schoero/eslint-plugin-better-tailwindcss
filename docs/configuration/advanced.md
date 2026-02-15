@@ -25,22 +25,23 @@ Each selector targets one kind of source location and tells the plugin how to ex
 
 - **kind**: what to match (`attribute`, `callee`, `variable`, `tag`)
 - **name**: regular expression for the attribute/callee/variable/tag name
+- **match** `optional`: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
+  When `match` is omitted, only the direct string literals will get collected.
 - **match** *(optional)*: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
 
 ### Type
 
 ```ts
-type Selectors = {
-  kind: "attribute" | "callee" | "tag" | "variable";
+type Selector = {
+  kind: "attribute" | "callee" | "variable" | "tag";
   name: string;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
   }[];
 }[];
+};
 ```
-
-When `match` is omitted, only the direct string literals will get collected.
 
 ### How name matching works
 
@@ -113,6 +114,28 @@ For example, the object path for `value` in the object below is `root["nested-ke
       ]
     }
   }
+}
+```
+
+### Callee `target`
+
+Use `target` on callee selectors to control which call in a curried chain gets linted.
+
+- `"first"`: first call in the chain (`fn("a")("b")` → lint `"a"`)
+- `"last"`: last call in the chain (`fn("a")("b")` → lint `"b"`)
+- `"all"`: lint all calls in the chain
+- `number`: zero-based call index (`0` first, `1` second, etc.)
+- negative number: index from the end (`-1` last)
+
+```jsonc
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^classNames$",
+      "target": "last"
+    }
+  ]
 }
 ```
 

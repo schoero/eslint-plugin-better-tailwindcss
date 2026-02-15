@@ -29,8 +29,8 @@ The plugin supports four selector types: `attribute`, `callee`, `variable`, and 
 type Selectors = (
   | AttributeSelector
   | CalleeSelector
-  | VariableSelector
   | TagSelector
+  | VariableSelector
 )[];
 ```
 
@@ -66,13 +66,13 @@ type AttributeSelector = {
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  name?: string;
-  path?: string;
-  callTarget?: number | "all" | "first" | "last";
+  callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
   }[];
+  name?: string;
+  path?: string;
 };
 ```
 

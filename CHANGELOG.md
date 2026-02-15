@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.3.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.2.0...v4.3.0)
+
+### Features
+
+- Support curried calls ([#325](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/325))
+- Support callee paths ([#326](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/326))
+
+### Refactors
+
+- Simplify matcher config ([#324](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/324))
+  The matcher config has been simplified from a nested tuple structure to a simple array of objects. This makes it easier
+  to understand while also allowing better flexibility to support the new features. The old structure is still supported
+  for now, but will be removed in the next major version.
+
+  Check the updated [configuration documentation](https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/configuration/advanced.md#selectors) for more information.
+
 ## v4.2.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.1.1...v4.2.0)

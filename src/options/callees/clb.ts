@@ -7,7 +7,7 @@ export const CLB_BASE_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^base$",
+      path: "^base$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -18,7 +18,7 @@ export const CLB_VARIANT_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^variants.*$",
+      path: "^variants.*$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -29,7 +29,7 @@ export const CLB_COMPOUND_VARIANTS_CLASSES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.classes$",
+      path: "^compoundVariants\\[\\d+\\]\\.classes$",
       type: MatcherType.ObjectValue
     }
   ],

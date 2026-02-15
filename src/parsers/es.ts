@@ -642,11 +642,11 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
 
           const path = getESObjectPath(node);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }
@@ -670,11 +670,11 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
 
           const path = getESObjectPath(node);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }

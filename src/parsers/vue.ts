@@ -225,11 +225,11 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
 
           const path = getESObjectPath(node);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }
@@ -253,11 +253,11 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
 
           const path = getESObjectPath(node);
 
-          if(!path || !matcher.pathPattern){
+          if(!path || !matcher.path){
             return true;
           }
 
-          return matchesPathPattern(path, matcher.pathPattern);
+          return matchesPathPattern(path, matcher.path);
         });
         break;
       }

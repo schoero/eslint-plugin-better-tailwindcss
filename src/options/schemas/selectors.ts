@@ -24,7 +24,7 @@ const STRING_SELECTOR_MATCHER_SCHEMA = strictObject({
 });
 
 const OBJECT_KEY_SELECTOR_MATCHER_SCHEMA = strictObject({
-  pathPattern: optional(pipe(
+  path: optional(pipe(
     string(),
     description("Regular expression that filters the object key and matches the content for further processing in a group.")
   )),
@@ -35,7 +35,7 @@ const OBJECT_KEY_SELECTOR_MATCHER_SCHEMA = strictObject({
 });
 
 const OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA = strictObject({
-  pathPattern: optional(pipe(
+  path: optional(pipe(
     string(),
     description("Regular expression that filters the object value and matches the content for further processing in a group.")
   )),

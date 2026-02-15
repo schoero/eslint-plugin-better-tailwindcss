@@ -17,7 +17,7 @@ export const CVA_VARIANT_VALUES = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^variants.*$",
+      path: "^variants.*$",
       type: MatcherType.ObjectValue
     }
   ],
@@ -28,7 +28,7 @@ export const CVA_COMPOUND_VARIANTS_CLASS = {
   kind: SelectorKind.Callee,
   match: [
     {
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
+      path: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
       type: MatcherType.ObjectValue
     }
   ],

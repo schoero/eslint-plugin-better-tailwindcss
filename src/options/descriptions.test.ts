@@ -194,7 +194,7 @@ describe("descriptions", () => {
               type: MatcherType.String
             }
           ],
-          name: "^classes\\.push$"
+          path: "^classes\\.push$"
         },
         {
           kind: "tag",

@@ -19,36 +19,115 @@ You can find the default selectors in the [defaults documentation](../defaults.m
 
 ## Selectors
 
-Selectors are a flat object-based configuration format.
-
 Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
 
-- **kind**: what to match (`attribute`, `callee`, `variable`, `tag`)
-- **name**: regular expression for the attribute/callee/variable/tag name
-- **match** `optional`: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
-  When `match` is omitted, only the direct string literals will get collected.
-- **callTarget** `optional`: which curried call to lint (`number`, `"all"`, `"first"`, `"last"`)
-  `callTarget` only available for callee selectors. When `callTarget` is omitted, the first call in a curried chain is used.
+The plugin supports four selector types: `attribute`, `callee`, `variable`, and `tag`.
 
 ### Type
 
 ```ts
-type Selector = {
-  kind: "attribute" | "callee" | "variable" | "tag";
+type Selectors = (
+  | AttributeSelector
+  | CalleeSelector
+  | VariableSelector
+  | TagSelector
+)[];
+```
+
+### `attribute` selector
+
+- **kind**: `"attribute"`.
+- **name**: regular expression for attribute names.
+- **match** `optional`: matcher list.
+  When omitted, only direct string literals are collected.
+
+```ts
+type AttributeSelector = {
+  kind: "attribute";
   name: string;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
   }[];
-  callTarget?: number | "all" | "first" | "last";
 };
 ```
 
-### How name matching works
+### `callee` selector
+
+- **kind**: `"callee"`.
+- **name** `optional`: regular expression for callee names.
+- **path** `optional`: regular expression for callee member paths like `classes.push`.
+- **callTarget** `optional`: curried call target.
+  When omitted, the first call in a curried chain is used.
+- **match** `optional`: matcher list.
+  When omitted, only direct string literals are collected.
+
+```ts
+type CalleeSelector = {
+  kind: "callee";
+  name?: string;
+  path?: string;
+  callTarget?: number | "all" | "first" | "last";
+  match?: {
+    type: "objectKeys" | "objectValues" | "strings";
+    pathPattern?: string;
+  }[];
+};
+```
+
+### `variable` selector
+
+- **kind**: `"variable"`.
+- **name**: regular expression for variable names.
+- **match** `optional`: matcher list.
+  When omitted, only direct string literals are collected.
+
+```ts
+type VariableSelector = {
+  kind: "variable";
+  name: string;
+  match?: {
+    type: "objectKeys" | "objectValues" | "strings";
+    pathPattern?: string;
+  }[];
+};
+```
+
+### `tag` selector
+
+- **kind**: must be `"tag"`.
+- **name**: regular expression for tagged template names.
+- **match** `optional`: matcher list.
+  When omitted, only direct string literals are collected.
+
+```ts
+type TagSelector = {
+  kind: "tag";
+  name: string;
+  match?: {
+    type: "objectKeys" | "objectValues" | "strings";
+    pathPattern?: string;
+  }[];
+};
+```
+
+### How selector matching works
 
 - Names are treated as regular expressions.
 - Reserved regex characters must be escaped.
 - The regex must match the whole name (not a substring).
+
+```jsonc
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "path": "^classes\\.push$",
+      "match": [{ "type": "strings" }]
+    }
+  ]
+}
+```
 
 <br/>
 

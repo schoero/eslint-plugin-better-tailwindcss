@@ -67,14 +67,19 @@ type BaseSelector<Kind extends SelectorKind> = {
 export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
 export type CallTarget = "all" | "first" | "last" | number;
-export type CalleeSelector = BaseSelector<SelectorKind.Callee> & {
+export type CalleeSelector = {
+  kind: SelectorKind.Callee;
   callTarget?: CallTarget | undefined;
+  match?: SelectorMatcher[] | undefined;
+  name?: Regex | undefined;
+  path?: Regex | undefined;
 };
 
 export type TagSelector = BaseSelector<SelectorKind.Tag>;
 export type VariableSelector = BaseSelector<SelectorKind.Variable>;
 
 export type Selector = AttributeSelector | CalleeSelector | TagSelector | VariableSelector;
+export type Selectors = Selector[];
 
 export type SelectorByKind<Kind extends SelectorKind> = Extract<Selector, { kind: Kind; }>;
 

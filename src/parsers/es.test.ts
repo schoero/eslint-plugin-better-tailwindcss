@@ -122,6 +122,78 @@ describe("es", () => {
     });
   });
 
+  it("should match member expression callee names", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `const classes = ["keep"]; classes.push(" lint ");`,
+          jsxOutput: `const classes = ["keep"]; classes.push("lint");`,
+          svelte: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
+          svelteOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
+          vue: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
+          vueOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            callees: [[
+              "^classes\\.push$",
+              [{ match: MatcherType.String }]
+            ]]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match nested member expression callee names", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `const foo = { bar: { push: (value) => value } }; foo.bar.push(" lint ");`,
+          jsxOutput: `const foo = { bar: { push: (value) => value } }; foo.bar.push("lint");`,
+          svelte: `<script>const foo = { bar: { push: (value) => value } }; foo.bar.push(" lint ");</script>`,
+          svelteOutput: `<script>const foo = { bar: { push: (value) => value } }; foo.bar.push("lint");</script>`,
+          vue: `<script>const foo = { bar: { push: (value) => value } }; foo.bar.push(" lint ");</script>`,
+          vueOutput: `<script>const foo = { bar: { push: (value) => value } }; foo.bar.push("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            callees: [[
+              "^foo\\.bar\\.push$",
+              [{ match: MatcherType.String }]
+            ]]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match callee selectors via path", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `const classes = ["keep"]; classes.push(" lint ");`,
+          jsxOutput: `const classes = ["keep"]; classes.push("lint");`,
+          svelte: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
+          svelteOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
+          vue: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
+          vueOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.String }],
+                path: "^classes\\.push$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match variable names via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

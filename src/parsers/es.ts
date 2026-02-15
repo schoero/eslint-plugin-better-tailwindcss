@@ -27,6 +27,7 @@ import type {
   CallExpression as ESCallExpression,
   Expression as ESExpression,
   Identifier as ESIdentifier,
+  MemberExpression as ESMemberExpression,
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
   SpreadElement as ESSpreadElement,
@@ -107,7 +108,9 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
   const { baseCalleeName, calls } = callChain;
 
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    if(!matchesName(selector.name, baseCalleeName)){ return literals; }
+    const selectorName = selector.path ?? selector.name;
+
+    if(!selectorName || !matchesName(selectorName, baseCalleeName)){ return literals; }
 
     const targetCalls = getTargetCalls(calls, selector.callTarget);
 
@@ -472,8 +475,41 @@ export function isESArrowFunctionExpression(node: ESBaseNode): node is ESArrowFu
   return node.type === "ArrowFunctionExpression";
 }
 
-function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
-  return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
+function getESMemberExpressionPropertyName(node: ESMemberExpression): string | undefined {
+  if(!node.computed && node.property.type === "Identifier"){
+    return node.property.name;
+  }
+
+  if(node.computed && isESSimpleStringLiteral(node.property)){
+    return node.property.value;
+  }
+}
+
+function getESCalleeName(node: ESBaseNode): string | undefined {
+  if(node.type === "Identifier" && "name" in node && typeof node.name === "string"){
+    return node.name;
+  }
+
+  if(node.type === "MemberExpression" && "object" in node){
+    const memberNode = node as ESMemberExpression;
+
+    if(memberNode.object.type === "Super"){
+      return;
+    }
+
+    const object = getESCalleeName(memberNode.object as ESBaseNode);
+    const property = getESMemberExpressionPropertyName(memberNode);
+
+    if(!object || !property){
+      return;
+    }
+
+    return `${object}.${property}`;
+  }
+
+  if(node.type === "ChainExpression" && "expression" in node){
+    return getESCalleeName(node.expression as ESBaseNode);
+  }
 }
 
 function isNestedCurriedCall(node: ESCallExpression): boolean {
@@ -489,12 +525,14 @@ function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeNa
     calls.unshift(currentCall);
   }
 
-  if(!isESCalleeSymbol(currentCall.callee)){
+  const baseCalleeName = getESCalleeName(currentCall.callee);
+
+  if(!baseCalleeName){
     return;
   }
 
   return {
-    baseCalleeName: currentCall.callee.name,
+    baseCalleeName,
     calls
   };
 }

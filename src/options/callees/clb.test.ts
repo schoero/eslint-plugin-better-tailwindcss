@@ -39,7 +39,7 @@ describe("clb", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 2,
-          options: [{ callees: [CLB_BASE_VALUES] }]
+          options: [{ selectors: [CLB_BASE_VALUES] }]
         }
       ]
     });
@@ -74,7 +74,7 @@ describe("clb", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 2,
-          options: [{ callees: [CLB_VARIANT_VALUES] }]
+          options: [{ selectors: [CLB_VARIANT_VALUES] }]
         }
       ]
     });
@@ -115,7 +115,7 @@ describe("clb", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 2,
-          options: [{ callees: [CLB_COMPOUND_VARIANTS_CLASSES] }]
+          options: [{ selectors: [CLB_COMPOUND_VARIANTS_CLASSES] }]
         }
       ]
     });

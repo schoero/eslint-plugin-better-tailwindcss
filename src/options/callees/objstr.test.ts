@@ -33,7 +33,7 @@ describe("objstr", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [OBJSTR_OBJECT_KEYS] }]
+          options: [{ selectors: [OBJSTR_OBJECT_KEYS] }]
         }
       ]
     });

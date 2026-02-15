@@ -11,17 +11,14 @@ import { OBJSTR } from "better-tailwindcss:options/callees/objstr.js";
 import { TV } from "better-tailwindcss:options/callees/tv.js";
 import { TW_JOIN } from "better-tailwindcss:options/callees/twJoin.js";
 import { TW_MERGE } from "better-tailwindcss:options/callees/twMerge.js";
-import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
-import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
 import type { Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const DEFAULT_CALLEE_NAMES = [
+export const DEFAULT_CALLEE_SELECTORS = [
   ...CC,
   ...CLB,
   ...CLSX,
@@ -35,82 +32,90 @@ export const DEFAULT_CALLEE_NAMES = [
   ...TV,
   ...TW_JOIN,
   ...TW_MERGE
-] satisfies Callees;
+] satisfies Selectors;
 
-export const DEFAULT_ATTRIBUTE_NAMES = [
-  // general
-  "^class(?:Name)?$",
-  [
-    "^class(?:Name)?$", [
+export const DEFAULT_ATTRIBUTE_SELECTORS = [
+  {
+    kind: SelectorKind.Attribute,
+    name: "^class(?:Name)?$"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       }
-    ]
-  ],
-
-  // svelte
-  [
-    "^class:.*", [
+    ],
+    name: "^class(?:Name)?$"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       }
-    ]
-  ],
-
-  // angular
-  "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)",
-  [
-    "(?:^\\[class\\..*\\]$)", [
+    ],
+    name: "^class:.*"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    name: "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       }
-    ]
-  ],
-  [
-    "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)", [
+    ],
+    name: "(?:^\\[class\\..*\\]$)"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       },
       {
-        match: MatcherType.ObjectKey
+        type: MatcherType.ObjectKey
       }
-    ]
-  ],
-
-  // vue
-  [
-    "^v-bind:class$", [
+    ],
+    name: "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       },
       {
-        match: MatcherType.ObjectKey
+        type: MatcherType.ObjectKey
       }
-    ]
-  ],
-
-  // astro
-  [
-    "^class:list$", [
+    ],
+    name: "^v-bind:class$"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.String
+        type: MatcherType.String
       },
       {
-        match: MatcherType.ObjectKey
+        type: MatcherType.ObjectKey
       }
-    ]
-  ],
-
-  // solid
-  [
-    "^classList$",
-    [
+    ],
+    name: "^class:list$"
+  },
+  {
+    kind: SelectorKind.Attribute,
+    match: [
       {
-        match: MatcherType.ObjectKey
+        type: MatcherType.ObjectKey
       }
-    ]
-  ]
-] satisfies Attributes;
+    ],
+    name: "^classList$"
+  }
+] satisfies Selectors;
 
 export const DEFAULT_VARIABLE_NAMES = [
   [
@@ -136,11 +141,40 @@ export const DEFAULT_VARIABLE_NAMES = [
   ]
 ] satisfies Variables;
 
+export const DEFAULT_VARIABLE_SELECTORS = [
+  {
+    kind: SelectorKind.Variable,
+    match: [
+      {
+        type: MatcherType.String
+      }
+    ],
+    name: "^classNames?$"
+  },
+  {
+    kind: SelectorKind.Variable,
+    match: [
+      {
+        type: MatcherType.String
+      }
+    ],
+    name: "^classes$"
+  },
+  {
+    kind: SelectorKind.Variable,
+    match: [
+      {
+        type: MatcherType.String
+      }
+    ],
+    name: "^styles?$"
+  }
+] satisfies Selectors;
+
 export const DEFAULT_TAG_NAMES = [] satisfies Tags;
 
-export const DEFAULT_SELECTORS = migrateLegacySelectorsToFlatSelectors({
-  attributes: DEFAULT_ATTRIBUTE_NAMES,
-  callees: DEFAULT_CALLEE_NAMES,
-  tags: DEFAULT_TAG_NAMES,
-  variables: DEFAULT_VARIABLE_NAMES
-}) satisfies Selectors;
+export const DEFAULT_SELECTORS = [
+  ...DEFAULT_ATTRIBUTE_SELECTORS,
+  ...DEFAULT_CALLEE_SELECTORS,
+  ...DEFAULT_VARIABLE_SELECTORS
+] satisfies Selectors;

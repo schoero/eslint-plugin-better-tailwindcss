@@ -10,6 +10,7 @@ import {
   union
 } from "valibot";
 
+import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { InferOutput } from "valibot";
@@ -146,7 +147,7 @@ export const SELECTORS_SCHEMA = pipe(
 export type Selectors = InferOutput<typeof SELECTORS_SCHEMA>;
 
 export const SELECTORS_OPTION_SCHEMA = strictObject({
-  selectors: optional(SELECTORS_SCHEMA, [])
+  selectors: optional(SELECTORS_SCHEMA, DEFAULT_SELECTORS)
 });
 
 export type SelectorsOptions = InferOutput<typeof SELECTORS_OPTION_SCHEMA>;

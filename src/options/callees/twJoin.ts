@@ -1,18 +1,19 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const TW_JOIN_STRINGS = [
-  "twJoin",
-  [
+export const TW_JOIN_STRINGS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.String
+      type: MatcherType.String
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "twJoin"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/dcastil/tailwind-merge */
 export const TW_JOIN = [
   TW_JOIN_STRINGS
-] satisfies Callees;
+] satisfies Selectors;

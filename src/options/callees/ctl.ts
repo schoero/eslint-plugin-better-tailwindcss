@@ -1,18 +1,19 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const CTL_STRINGS = [
-  "ctl",
-  [
+export const CTL_STRINGS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.String
+      type: MatcherType.String
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "ctl"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/netlify/classnames-template-literals */
 export const CTL = [
   CTL_STRINGS
-] satisfies Callees;
+] satisfies Selectors;

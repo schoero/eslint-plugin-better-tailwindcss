@@ -1,28 +1,30 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const CLSX_STRINGS = [
-  "clsx",
-  [
+export const CLSX_STRINGS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.String
+      type: MatcherType.String
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "clsx"
+} satisfies CalleeSelector;
 
-export const CLSX_OBJECT_KEYS = [
-  "clsx",
-  [
+export const CLSX_OBJECT_KEYS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectKey
+      type: MatcherType.ObjectKey
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "clsx"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/lukeed/clsx */
 export const CLSX = [
   CLSX_STRINGS,
   CLSX_OBJECT_KEYS
-] satisfies Callees;
+] satisfies Selectors;

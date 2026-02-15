@@ -23,7 +23,7 @@ describe("dcnb", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [DCNB_STRINGS] }]
+          options: [{ selectors: [DCNB_STRINGS] }]
         }
       ]
     });
@@ -56,7 +56,7 @@ describe("dcnb", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [DCNB_OBJECT_KEYS] }]
+          options: [{ selectors: [DCNB_OBJECT_KEYS] }]
         }
       ]
     });

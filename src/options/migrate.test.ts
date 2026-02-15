@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { hasLegacySelectorConfig, migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import {
+  hasLegacySelectorConfig,
+  migrateFlatSelectorsToLegacySelectors,
+  migrateLegacySelectorsToFlatSelectors
+} from "better-tailwindcss:options/migrate.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 
@@ -31,4 +35,30 @@ describe("migrate", () => {
     expect(hasLegacySelectorConfig({ tags: [] })).toBe(true);
     expect(hasLegacySelectorConfig({ variables: [] })).toBe(true);
   });
+
+  test("should migrate flat selectors to legacy selectors", () => {
+    const selectors = migrateFlatSelectorsToLegacySelectors([
+      {
+        kind: SelectorKind.Attribute,
+        name: "^class$"
+      },
+      {
+        kind: SelectorKind.Callee,
+        match: [{ type: MatcherType.String }],
+        name: "^cva$"
+      },
+      {
+        kind: SelectorKind.Variable,
+        match: [{ pathPattern: "^foo$", type: MatcherType.ObjectKey }],
+        name: "^classes$"
+      }
+    ]);
+
+    expect(selectors).toStrictEqual({
+      attributes: ["^class$"],
+      callees: [["^cva$", [{ match: MatcherType.String }]]],
+      variables: [["^classes$", [{ match: MatcherType.ObjectKey, pathPattern: "^foo$" }]]]
+    });
+  });
+
 });

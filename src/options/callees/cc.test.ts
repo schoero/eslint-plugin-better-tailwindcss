@@ -23,7 +23,7 @@ describe("cc", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [CC_STRINGS] }]
+          options: [{ selectors: [CC_STRINGS] }]
         }
       ]
     });
@@ -56,7 +56,7 @@ describe("cc", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [CC_OBJECT_KEYS] }]
+          options: [{ selectors: [CC_OBJECT_KEYS] }]
         }
       ]
     });

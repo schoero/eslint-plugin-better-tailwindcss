@@ -9,7 +9,6 @@ import {
   union
 } from "valibot";
 
-import { DEFAULT_CALLEE_NAMES } from "better-tailwindcss:options/default-options.js";
 import {
   OBJECT_KEY_MATCHER_SCHEMA,
   OBJECT_VALUE_MATCHER_SCHEMA,
@@ -61,7 +60,7 @@ export const CALLEES_SCHEMA = pipe(
 export type Callees = InferOutput<typeof CALLEES_SCHEMA>;
 
 export const CALLEES_OPTION_SCHEMA = strictObject({
-  callees: optional(CALLEES_SCHEMA, DEFAULT_CALLEE_NAMES)
+  callees: optional(CALLEES_SCHEMA)
 });
 
 export type CalleesOptions = InferOutput<typeof CALLEES_OPTION_SCHEMA>;

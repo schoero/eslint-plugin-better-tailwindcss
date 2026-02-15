@@ -23,7 +23,7 @@ describe("cx", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [CX_STRINGS] }]
+          options: [{ selectors: [CX_STRINGS] }]
         }
       ]
     });
@@ -56,7 +56,7 @@ describe("cx", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [CX_OBJECT_KEYS] }]
+          options: [{ selectors: [CX_OBJECT_KEYS] }]
         }
       ]
     });

@@ -1,42 +1,73 @@
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { SelectorMatcher, Selectors } from "better-tailwindcss:types/rule.js";
+import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
+import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
+import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
+import type { Matcher, Selector, SelectorMatcher, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-type LegacyMatcher = {
-  match: MatcherType;
-  pathPattern?: string;
-};
-
-type LegacySelector = string | [string, LegacyMatcher[]];
+type LegacySelector = Attributes[number] | Callees[number] | Tags[number] | Variables[number];
 
 type LegacySelectorsByKind = {
-  attributes?: LegacySelector[] | undefined;
-  callees?: LegacySelector[] | undefined;
-  tags?: LegacySelector[] | undefined;
-  variables?: LegacySelector[] | undefined;
+  attributes?: Attributes | undefined;
+  callees?: Callees | undefined;
+  tags?: Tags | undefined;
+  variables?: Variables | undefined;
 };
-
 
 export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByKind): Selectors {
   const selectors: Selectors = [];
 
-  const kinds = [
-    SelectorKind.Attribute,
-    SelectorKind.Callee,
-    SelectorKind.Tag,
-    SelectorKind.Variable
-  ] as const;
-
-  for(const kind of kinds){
-    const legacySelectors = getLegacySelectorsOfKind(legacy, kind);
-
-    for(const selector of legacySelectors){
-      selectors.push(migrateLegacySelector(selector, kind));
+  if(legacy.attributes){
+    for(const attributeSelector of legacy.attributes){
+      selectors.push(migrateLegacySelector(attributeSelector, SelectorKind.Attribute));
+    }
+  }
+  if(legacy.callees){
+    for(const calleeSelector of legacy.callees){
+      selectors.push(migrateLegacySelector(calleeSelector, SelectorKind.Callee));
+    }
+  }
+  if(legacy.tags){
+    for(const tagSelector of legacy.tags){
+      selectors.push(migrateLegacySelector(tagSelector, SelectorKind.Tag));
+    }
+  }
+  if(legacy.variables){
+    for(const variableSelector of legacy.variables){
+      selectors.push(migrateLegacySelector(variableSelector, SelectorKind.Variable));
     }
   }
 
   return selectors;
+}
+
+export function migrateFlatSelectorsToLegacySelectors(selectors: Selectors): LegacySelectorsByKind {
+  return selectors.reduce<LegacySelectorsByKind>((legacy, selector) => {
+    const migratedSelector = migrateFlatSelector(selector);
+
+    if(migratedSelector === undefined){
+      return legacy;
+    }
+
+    switch (selector.kind){
+      case SelectorKind.Attribute:
+        (legacy.attributes ??= []).push(migratedSelector);
+        break;
+      case SelectorKind.Callee:
+        (legacy.callees ??= []).push(migratedSelector);
+        break;
+      case SelectorKind.Tag:
+        (legacy.tags ??= []).push(migratedSelector);
+        break;
+      case SelectorKind.Variable:
+        (legacy.variables ??= []).push(migratedSelector);
+        break;
+    }
+
+    return legacy;
+  }, {});
 }
 
 export function hasLegacySelectorConfig(options: LegacySelectorsByKind): boolean {
@@ -48,8 +79,7 @@ export function hasLegacySelectorConfig(options: LegacySelectorsByKind): boolean
   );
 }
 
-
-function toSelectorMatch(matcher: LegacyMatcher): SelectorMatcher {
+function toSelectorMatch(matcher: Matcher): SelectorMatcher {
   if(matcher.match === MatcherType.String){
     return {
       type: matcher.match
@@ -64,17 +94,19 @@ function toSelectorMatch(matcher: LegacyMatcher): SelectorMatcher {
   };
 }
 
-function getLegacySelectorsOfKind(legacy: LegacySelectorsByKind, kind: SelectorKind): LegacySelector[] {
-  switch (kind){
-    case SelectorKind.Attribute:
-      return legacy.attributes ?? [];
-    case SelectorKind.Callee:
-      return legacy.callees ?? [];
-    case SelectorKind.Tag:
-      return legacy.tags ?? [];
-    case SelectorKind.Variable:
-      return legacy.variables ?? [];
+function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
+  if(matcher.type === MatcherType.String){
+    return {
+      match: matcher.type
+    };
   }
+
+  return {
+    ...matcher.pathPattern !== undefined && {
+      pathPattern: matcher.pathPattern
+    },
+    match: matcher.type
+  };
 }
 
 function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
@@ -90,4 +122,30 @@ function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
     match: selector[1].map(toSelectorMatch),
     name: selector[0]
   };
+}
+
+function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
+  if(selector.kind === SelectorKind.Callee){
+    if(selector.name === undefined){
+      return;
+    }
+
+    if(selector.match === undefined){
+      return selector.name;
+    }
+
+    return [
+      selector.name,
+      selector.match.map(toLegacyMatcher)
+    ];
+  }
+
+  if(selector.match === undefined){
+    return selector.name;
+  }
+
+  return [
+    selector.name,
+    selector.match.map(toLegacyMatcher)
+  ];
 }

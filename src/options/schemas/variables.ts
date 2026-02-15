@@ -9,7 +9,6 @@ import {
   union
 } from "valibot";
 
-import { DEFAULT_VARIABLE_NAMES } from "better-tailwindcss:options/default-options.js";
 import {
   OBJECT_KEY_MATCHER_SCHEMA,
   OBJECT_VALUE_MATCHER_SCHEMA,
@@ -61,7 +60,7 @@ export const VARIABLES_SCHEMA = pipe(
 export type Variables = InferOutput<typeof VARIABLES_SCHEMA>;
 
 export const VARIABLES_OPTION_SCHEMA = strictObject({
-  variables: optional(VARIABLES_SCHEMA, DEFAULT_VARIABLE_NAMES)
+  variables: optional(VARIABLES_SCHEMA)
 });
 
 export type VariablesOptions = InferOutput<typeof VARIABLES_OPTION_SCHEMA>;

@@ -23,7 +23,7 @@ describe("clsx", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [CLSX_STRINGS] }]
+          options: [{ selectors: [CLSX_STRINGS] }]
         }
       ]
     });
@@ -56,7 +56,7 @@ describe("clsx", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [CLSX_OBJECT_KEYS] }]
+          options: [{ selectors: [CLSX_OBJECT_KEYS] }]
         }
       ]
     });

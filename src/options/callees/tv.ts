@@ -1,66 +1,72 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const TV_STRINGS = [
-  "tv",
-  [
+export const TV_STRINGS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.String
+      type: MatcherType.String
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
-export const TV_VARIANT_VALUES = [
-  "tv",
-  [
+export const TV_VARIANT_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^variants.*$"
+      pathPattern: "^variants.*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
-export const TV_BASE_VALUES = [
-  "tv",
-  [
+export const TV_BASE_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^base$"
+      pathPattern: "^base$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
-export const TV_SLOTS_VALUES = [
-  "tv",
-  [
+export const TV_SLOTS_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^slots.*$"
+      pathPattern: "^slots.*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
-export const TV_COMPOUND_VARIANTS_CLASS = [
-  "tv",
-  [
+export const TV_COMPOUND_VARIANTS_CLASS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class).*$"
+      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class).*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
-export const TV_COMPOUND_SLOTS_CLASS = [
-  "tv",
-  [
+export const TV_COMPOUND_SLOTS_CLASS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^compoundSlots\\[\\d+\\]\\.(?:className|class).*$"
+      pathPattern: "^compoundSlots\\[\\d+\\]\\.(?:className|class).*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "tv"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file */
 export const TV = [
@@ -70,4 +76,4 @@ export const TV = [
   TV_BASE_VALUES,
   TV_SLOTS_VALUES,
   TV_COMPOUND_SLOTS_CLASS
-] satisfies Callees;
+] satisfies Selectors;

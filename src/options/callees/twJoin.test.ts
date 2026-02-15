@@ -23,7 +23,7 @@ describe("twJoin", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [TW_JOIN_STRINGS] }]
+          options: [{ selectors: [TW_JOIN_STRINGS] }]
         }
       ]
     });

@@ -5,7 +5,7 @@ import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
 
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
-import { hasLegacySelectorConfig, migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -87,10 +87,6 @@ export function createRule<
     const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
-    if(hasLegacySelectorConfig(settings) || hasLegacySelectorConfig(options)){
-      warnOnce("Legacy matcher config for (attributes/callees/variables/tags) is deprecated. Please migrate to the `selectors` option: https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/configuration/advanced.md#selectors");
-    }
-
     const mergedOptions = {
       ...defaultSettings,
       ...defaultOptions,
@@ -105,9 +101,34 @@ export function createRule<
       variables: mergedOptions.variables
     });
 
+    const hasAttributeOverride = mergedOptions.attributes !== undefined;
+    const hasCalleeOverride = mergedOptions.callees !== undefined;
+    const hasTagOverride = mergedOptions.tags !== undefined;
+    const hasVariableOverride = mergedOptions.variables !== undefined;
+
+    const preservedSelectors = (mergedOptions.selectors ?? []).filter(selector => {
+      if(hasAttributeOverride && selector.kind === SelectorKind.Attribute){
+        return false;
+      }
+
+      if(hasCalleeOverride && selector.kind === SelectorKind.Callee){
+        return false;
+      }
+
+      if(hasTagOverride && selector.kind === SelectorKind.Tag){
+        return false;
+      }
+
+      if(hasVariableOverride && selector.kind === SelectorKind.Variable){
+        return false;
+      }
+
+      return true;
+    });
+
     const selectors = [
       ...migratedSelectors,
-      ...mergedOptions.selectors ?? []
+      ...preservedSelectors
     ];
 
     return {

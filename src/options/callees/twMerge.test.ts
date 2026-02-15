@@ -23,7 +23,7 @@ describe("twMerge", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [TW_MERGE_STRINGS] }]
+          options: [{ selectors: [TW_MERGE_STRINGS] }]
         }
       ]
     });

@@ -9,7 +9,6 @@ import {
   union
 } from "valibot";
 
-import { DEFAULT_TAG_NAMES } from "better-tailwindcss:options/default-options.js";
 import {
   OBJECT_KEY_MATCHER_SCHEMA,
   OBJECT_VALUE_MATCHER_SCHEMA,
@@ -61,7 +60,7 @@ export const TAGS_SCHEMA = pipe(
 export type Tags = InferOutput<typeof TAGS_SCHEMA>;
 
 export const TAGS_OPTIONS_SCHEMA = strictObject({
-  tags: optional(TAGS_SCHEMA, DEFAULT_TAG_NAMES)
+  tags: optional(TAGS_SCHEMA)
 });
 
 export type TagsOptions = InferOutput<typeof TAGS_OPTIONS_SCHEMA>;

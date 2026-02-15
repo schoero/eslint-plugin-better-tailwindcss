@@ -1,40 +1,43 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const CVA_STRINGS = [
-  "cva",
-  [
+export const CVA_STRINGS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.String
+      type: MatcherType.String
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "cva"
+} satisfies CalleeSelector;
 
-export const CVA_VARIANT_VALUES = [
-  "cva",
-  [
+export const CVA_VARIANT_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^variants.*$"
+      pathPattern: "^variants.*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "cva"
+} satisfies CalleeSelector;
 
-export const CVA_COMPOUND_VARIANTS_CLASS = [
-  "cva",
-  [
+export const CVA_COMPOUND_VARIANTS_CLASS = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+      pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "cva"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/joe-bell/cva */
 export const CVA = [
   CVA_STRINGS,
   CVA_VARIANT_VALUES,
   CVA_COMPOUND_VARIANTS_CLASS
-] satisfies Callees;
+] satisfies Selectors;

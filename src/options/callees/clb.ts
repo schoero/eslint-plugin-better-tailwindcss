@@ -1,37 +1,40 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { CalleeMatchers, Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { CalleeSelector, Selectors } from "better-tailwindcss:types/rule.js";
 
 
-export const CLB_BASE_VALUES = [
-  "clb",
-  [
+export const CLB_BASE_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^base$"
+      pathPattern: "^base$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "clb"
+} satisfies CalleeSelector;
 
-export const CLB_VARIANT_VALUES = [
-  "clb",
-  [
+export const CLB_VARIANT_VALUES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^variants.*$"
+      pathPattern: "^variants.*$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "clb"
+} satisfies CalleeSelector;
 
-export const CLB_COMPOUND_VARIANTS_CLASSES = [
-  "clb",
-  [
+export const CLB_COMPOUND_VARIANTS_CLASSES = {
+  kind: SelectorKind.Callee,
+  match: [
     {
-      match: MatcherType.ObjectValue,
-      pathPattern: "^compoundVariants\\[\\d+\\]\\.classes$"
+      pathPattern: "^compoundVariants\\[\\d+\\]\\.classes$",
+      type: MatcherType.ObjectValue
     }
-  ]
-] satisfies CalleeMatchers;
+  ],
+  name: "clb"
+} satisfies CalleeSelector;
 
 /** @see https://github.com/crswll/clb */
 export const CLB = [
@@ -39,4 +42,4 @@ export const CLB = [
   CLB_VARIANT_VALUES,
   CLB_COMPOUND_VARIANTS_CLASSES
   // TODO: add object key matcher: classes
-] satisfies Callees;
+] satisfies Selectors;

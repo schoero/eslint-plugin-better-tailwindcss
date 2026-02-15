@@ -30,7 +30,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [TV_STRINGS] }]
+          options: [{ selectors: [TV_STRINGS] }]
         }
       ]
     });
@@ -65,7 +65,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 2,
-          options: [{ callees: [TV_VARIANT_VALUES] }]
+          options: [{ selectors: [TV_VARIANT_VALUES] }]
         }
       ]
     });
@@ -107,7 +107,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }]
+          options: [{ selectors: [TV_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
     });
@@ -230,7 +230,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 2,
-          options: [{ callees: [TV_BASE_VALUES] }]
+          options: [{ selectors: [TV_BASE_VALUES] }]
         }
       ]
     });
@@ -270,7 +270,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [TV_SLOTS_VALUES] }]
+          options: [{ selectors: [TV_SLOTS_VALUES] }]
         }
       ]
     });
@@ -314,7 +314,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 4,
-          options: [{ callees: [TV_COMPOUND_SLOTS_CLASS] }]
+          options: [{ selectors: [TV_COMPOUND_SLOTS_CLASS] }]
         }
       ]
     });
@@ -358,7 +358,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 10,
-          options: [{ callees: [TV_COMPOUND_VARIANTS_CLASS] }]
+          options: [{ selectors: [TV_COMPOUND_VARIANTS_CLASS] }]
         }
       ]
     });
@@ -403,7 +403,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 10,
-          options: [{ callees: [TV_COMPOUND_SLOTS_CLASS] }]
+          options: [{ selectors: [TV_COMPOUND_SLOTS_CLASS] }]
         }
       ]
     });
@@ -440,7 +440,7 @@ describe("tv", () => {
           vueOutput: `<script>${clean}</script>`,
 
           errors: 6,
-          options: [{ callees: [TV_BASE_VALUES] }]
+          options: [{ selectors: [TV_BASE_VALUES] }]
         }
       ]
     });

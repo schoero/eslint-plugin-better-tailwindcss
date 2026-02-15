@@ -11,10 +11,12 @@ import { OBJSTR } from "better-tailwindcss:options/callees/objstr.js";
 import { TV } from "better-tailwindcss:options/callees/tv.js";
 import { TW_JOIN } from "better-tailwindcss:options/callees/twJoin.js";
 import { TW_MERGE } from "better-tailwindcss:options/callees/twMerge.js";
+import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
+import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
 
@@ -135,3 +137,10 @@ export const DEFAULT_VARIABLE_NAMES = [
 ] satisfies Variables;
 
 export const DEFAULT_TAG_NAMES = [] satisfies Tags;
+
+export const DEFAULT_SELECTORS = migrateLegacySelectorsToFlatSelectors({
+  attributes: DEFAULT_ATTRIBUTE_NAMES,
+  callees: DEFAULT_CALLEE_NAMES,
+  tags: DEFAULT_TAG_NAMES,
+  variables: DEFAULT_VARIABLE_NAMES
+}) satisfies Selectors;

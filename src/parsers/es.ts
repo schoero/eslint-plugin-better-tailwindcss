@@ -2,17 +2,11 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   findMatchingParentNodes,
   getLiteralNodesByMatchers,
-  isCalleeMatchers,
-  isCalleeName,
   isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  isTagMatchers,
-  isTagName,
-  isVariableMatchers,
-  isVariableName,
   matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
@@ -42,9 +36,6 @@ import type {
   VariableDeclarator as ESVariableDeclarator
 } from "estree";
 
-import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
-import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
-import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
 import type {
   BracesMeta,
   Literal,
@@ -54,7 +45,13 @@ import type {
   TemplateLiteral
 } from "better-tailwindcss:types/ast.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
-import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type {
+  CalleeSelector,
+  MatcherFunctions,
+  SelectorMatcher,
+  TagSelector,
+  VariableSelector
+} from "better-tailwindcss:types/rule.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [
@@ -70,21 +67,22 @@ export const ES_CONTAINER_TYPES_TO_INSERT_BRACES: string[] = [
 ];
 
 
-export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, variables: Variables): Literal[] {
+export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: ESVariableDeclarator, selectors: VariableSelector[]): Literal[] {
 
-  const literals = variables.reduce<Literal[]>((literals, variable) => {
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
 
     if(!node.init){ return literals; }
     if(!isESVariableSymbol(node.id)){ return literals; }
+    if(!matchesName(selector.name, node.id.name)){ return literals; }
 
-    if(isVariableName(variable)){
-      if(!matchesName(variable, node.id.name)){ return literals; }
+    if(!selector.match){
       literals.push(...getLiteralsByESExpression(ctx, [node.init]));
-    } else if(isVariableMatchers(variable)){
-      if(!matchesName(variable[0], node.id.name)){ return literals; }
-      if(isESArrowFunctionExpression(node.init) || isESCallExpression(node.init)){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, node.init, variable[1]));
+      return literals;
     }
+
+    if(isESArrowFunctionExpression(node.init) || isESCallExpression(node.init)){ return literals; }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node.init, selector.match));
 
     return literals;
   }, []);
@@ -93,18 +91,18 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
 
 }
 
-export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, callees: Callees): Literal[] {
+export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, selectors: CalleeSelector[]): Literal[] {
 
-  const literals = callees.reduce<Literal[]>((literals, callee) => {
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
     if(!isESCalleeSymbol(node.callee)){ return literals; }
+    if(!matchesName(selector.name, node.callee.name)){ return literals; }
 
-    if(isCalleeName(callee)){
-      if(!matchesName(callee, node.callee.name)){ return literals; }
+    if(!selector.match){
       literals.push(...getLiteralsByESExpression(ctx, node.arguments));
-    } else if(isCalleeMatchers(callee)){
-      if(!matchesName(callee[0], node.callee.name)){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, node, callee[1]));
+      return literals;
     }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node, selector.match));
 
     return literals;
   }, []);
@@ -113,18 +111,18 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
 }
 
-export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, tags: Tags): Literal[] {
+export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, selectors: TagSelector[]): Literal[] {
 
-  const literals = tags.reduce<Literal[]>((literals, tag) => {
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
     if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
+    if(!matchesName(selector.name, node.tag.name)){ return literals; }
 
-    if(isTagName(tag)){
-      if(tag !== node.tag.name){ return literals; }
+    if(!selector.match){
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
-    } else if(isTagMatchers(tag)){
-      if(tag[0] !== node.tag.name){ return literals; }
-      literals.push(...getLiteralsByESMatchers(ctx, node, tag[1]));
+      return literals;
     }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node, selector.match));
 
     return literals;
   }, []);
@@ -153,7 +151,7 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 
 }
 
-export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getESMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
@@ -497,9 +495,9 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   return !!braces.closingBraces || !!braces.openingBraces;
 }
 
-function getESMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESNode> {
+function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
   return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
-    switch (matcher.match){
+    switch (matcher.type){
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESNode => {
 

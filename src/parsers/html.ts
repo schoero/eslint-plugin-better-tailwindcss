@@ -1,4 +1,3 @@
-import { isAttributesMatchers, isAttributesName } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
   deduplicateLiterals,
@@ -10,20 +9,19 @@ import {
 import type { AttributeNode, TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
 
-import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { AttributeSelector } from "better-tailwindcss:types/rule.js";
 
 
-export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, attributes: Attributes): Literal[] {
+export function getLiteralsByHTMLAttribute(ctx: Rule.RuleContext, attribute: AttributeNode, selectors: AttributeSelector[]): Literal[] {
 
   const name = attribute.key.value;
 
-  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
-    if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+    if(!matchesName(selector.name.toLowerCase(), name.toLowerCase())){ return literals; }
+    if(!selector.match){
       literals.push(...getLiteralsByHTMLAttributeNode(ctx, attribute));
-    } else if(isAttributesMatchers(attributes)){
-      // console.warn("Matchers not supported in HTML");
+      return literals;
     }
 
     return literals;

@@ -1,11 +1,6 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
-import {
-  getLiteralNodesByMatchers,
-  isAttributesMatchers,
-  isAttributesName,
-  matchesPathPattern
-} from "better-tailwindcss:utils/matchers.js";
+import { getLiteralNodesByMatchers, matchesPathPattern } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
   createObjectPathElement,
@@ -38,9 +33,8 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type { BracesMeta, Literal } from "better-tailwindcss:types/ast.js";
-import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
 // https://angular.dev/guide/templates/binding#css-class-and-style-property-bindings
@@ -52,25 +46,26 @@ export function getAttributesByAngularElement(ctx: Rule.RuleContext, node: TmplA
   ];
 }
 
-export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: TmplAstBoundAttribute | TmplAstTextAttribute, selectors: AttributeSelector[]): Literal[] {
 
   const name = getAttributeName(attribute);
 
-  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
-    if(isAttributesName(attributes)){
-      if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ return literals; }
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+    if(!matchesName(selector.name.toLowerCase(), name.toLowerCase())){ return literals; }
+
+    if(!selector.match){
       literals.push(...createLiteralsByAngularAttribute(ctx, attribute));
-    } else if(isAttributesMatchers(attributes)){
-      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
-      if(isTextAttribute(attribute)){
-        literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
-      }
-      if(isBoundAttribute(attribute)){
-        if(isBoundAttributeName(attribute)){
-          literals.push(...getLiteralsByAngularMatchers(ctx, attribute, attributes[1]));
-        } else if(isASTWithSource(attribute.value)){
-          literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, attributes[1]));
-        }
+      return literals;
+    }
+
+    if(isTextAttribute(attribute) && selector.match.some(matcher => matcher.type === MatcherType.String)){
+      literals.push(...createLiteralsByAngularTextAttribute(ctx, attribute));
+    }
+    if(isBoundAttribute(attribute)){
+      if(isBoundAttributeName(attribute)){
+        literals.push(...getLiteralsByAngularMatchers(ctx, attribute, selector.match));
+      } else if(isASTWithSource(attribute.value)){
+        literals.push(...getLiteralsByAngularMatchers(ctx, attribute.value.ast, selector.match));
       }
     }
 
@@ -137,7 +132,7 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
   return [];
 }
 
-function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: Matcher[]): Literal[] {
+function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
   const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => {
     return isAST(value) && isCallExpression(value) || isBoundAttributeName(ast);
@@ -147,9 +142,9 @@ function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstB
   return literals.filter(deduplicateLiterals);
 }
 
-function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: Matcher[]): MatcherFunctions<AST> {
+function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMatcher[]): MatcherFunctions<AST> {
   return matchers.reduce<MatcherFunctions<AST>>((matcherFunctions, matcher) => {
-    switch (matcher.match){
+    switch (matcher.type){
       case MatcherType.String: {
         matcherFunctions.push((ast): ast is AST => {
 

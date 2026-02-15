@@ -168,7 +168,7 @@ This plugin is pre-configured to lint tailwind classes for the most popular util
 
 ### Advanced configuration
 
-If an utility is not supported by default, or you want to customize the configuration, you can define which [`callees`](./docs/settings/settings.md#callees), [`attributes`](./docs/settings/settings.md#attributes), [`tags`](./docs/settings/settings.md#tags) and [`variables`](./docs/settings/settings.md#variables) should get linted.  
+If an utility is not supported by default, or you want to customize the configuration, you can define which [`attributes`, `callees`, `variables` and `tags`](./docs/settings/settings.md#selectors) should get linted.  
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>

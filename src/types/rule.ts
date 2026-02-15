@@ -15,6 +15,13 @@ export enum MatcherType {
   String = "strings"
 }
 
+export enum SelectorKind {
+  Attribute = "attribute",
+  Callee = "callee",
+  Tag = "tag",
+  Variable = "variable"
+}
+
 export type Regex = string;
 
 export type StringMatcher = {
@@ -34,6 +41,37 @@ export type ObjectValueMatcher = {
 export type MatcherFunction<Node> = (node: unknown) => node is Node;
 export type MatcherFunctions<Node> = MatcherFunction<Node>[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
+
+export type SelectorStringMatcher = {
+  type: MatcherType.String;
+};
+
+export type SelectorObjectKeyMatcher = {
+  type: MatcherType.ObjectKey;
+  pathPattern?: Regex | undefined;
+};
+
+export type SelectorObjectValueMatcher = {
+  type: MatcherType.ObjectValue;
+  pathPattern?: Regex | undefined;
+};
+
+export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
+
+export type Selector<Kind extends SelectorKind = SelectorKind> = {
+  kind: Kind;
+  name: Regex;
+  match?: SelectorMatcher[] | undefined;
+};
+
+export type AttributeSelector = Selector<SelectorKind.Attribute>;
+export type CalleeSelector = Selector<SelectorKind.Callee>;
+export type TagSelector = Selector<SelectorKind.Tag>;
+export type VariableSelector = Selector<SelectorKind.Variable>;
+
+export function isSelectorKind<Kind extends SelectorKind>(kind: Kind) {
+  return (selector: Selector): selector is Selector<Kind> => selector.kind === kind;
+}
 
 export type Version = {
   major: number;

@@ -11,8 +11,6 @@ import {
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
-  isAttributesMatchers,
-  isAttributesName,
   isIndexedAccessLiteral,
   isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
@@ -47,7 +45,6 @@ import type {
   SvelteStyleDirective
 } from "svelte-eslint-parser/lib/ast/index.js";
 
-import type { Attributes } from "better-tailwindcss:options/schemas/attributes.js";
 import type {
   BracesMeta,
   Literal,
@@ -55,7 +52,7 @@ import type {
   MultilineMeta,
   StringLiteral
 } from "better-tailwindcss:types/ast.js";
-import type { Matcher, MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
 export const SVELTE_CONTAINER_TYPES_TO_REPLACE_QUOTES = [
@@ -85,7 +82,7 @@ export function getDirectivesBySvelteTag(ctx: Rule.RuleContext, node: SvelteStar
   }, []);
 }
 
-export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, attributes: Attributes): Literal[] {
+export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: SvelteAttribute, selectors: AttributeSelector[]): Literal[] {
 
   // skip shorthand attributes #42
   if(!Array.isArray(attribute.value)){
@@ -94,16 +91,17 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
 
   const name = attribute.key.name;
 
-  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
 
     for(const value of attribute.value){
-      if(isAttributesName(attributes)){
-        if(!matchesName(attributes.toLowerCase(), name.toLowerCase())){ continue; }
+      if(!matchesName(selector.name.toLowerCase(), name.toLowerCase())){ continue; }
+
+      if(!selector.match){
         literals.push(...getLiteralsBySvelteLiteralNode(ctx, value));
-      } else if(isAttributesMatchers(attributes)){
-        if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ continue; }
-        literals.push(...getLiteralsBySvelteMatchers(ctx, value, attributes[1]));
+        continue;
       }
+
+      literals.push(...getLiteralsBySvelteMatchers(ctx, value, selector.match));
     }
 
     return literals;
@@ -115,7 +113,7 @@ export function getLiteralsBySvelteAttribute(ctx: Rule.RuleContext, attribute: S
 
 }
 
-export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: SvelteDirective, attributes: Attributes): Literal[] {
+export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: SvelteDirective, selectors: AttributeSelector[]): Literal[] {
 
   if(directive.kind !== "Class"){
     return [];
@@ -123,12 +121,15 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 
   const name = `class:${directive.key.name.name}`;
 
-  const literals = attributes.reduce<Literal[]>((literals, attributes) => {
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
 
-    if(isAttributesMatchers(attributes)){
-      if(!matchesName(attributes[0].toLowerCase(), name.toLowerCase())){ return literals; }
-      literals.push(...getLiteralsBySvelteMatchers(ctx, directive.key.name, attributes[1]));
+    if(!matchesName(selector.name.toLowerCase(), name.toLowerCase())){ return literals; }
+
+    if(!selector.match){
+      return literals;
     }
+
+    literals.push(...getLiteralsBySvelteMatchers(ctx, directive.key.name, selector.match));
 
     return literals;
   }, []);
@@ -139,7 +140,7 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 
 }
 
-function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: Matcher[]): Literal[] {
+function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
   const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
@@ -310,9 +311,9 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
     "kind" in node && node.kind === "text";
 }
 
-function getSvelteMatcherFunctions(matchers: Matcher[]): MatcherFunctions<ESBaseNode> {
+function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
   return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
-    switch (matcher.match){
+    switch (matcher.type){
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 

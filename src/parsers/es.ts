@@ -47,6 +47,7 @@ import type {
 import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
   CalleeSelector,
+  CallTarget,
   MatcherFunctions,
   SelectorMatcher,
   TagSelector,
@@ -93,16 +94,31 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
 
 export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCallExpression, selectors: CalleeSelector[]): Literal[] {
 
+  if(isNestedCurriedCall(node)){
+    return [];
+  }
+
+  const callChain = getCurriedCallChain(node);
+
+  if(!callChain){
+    return [];
+  }
+
+  const { baseCalleeName, calls } = callChain;
+
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    if(!isESCalleeSymbol(node.callee)){ return literals; }
-    if(!matchesName(selector.name, node.callee.name)){ return literals; }
+    if(!matchesName(selector.name, baseCalleeName)){ return literals; }
 
-    if(!selector.match){
-      literals.push(...getLiteralsByESExpression(ctx, node.arguments));
-      return literals;
+    const targetCalls = getTargetCalls(calls, selector.callTarget);
+
+    for(const targetCall of targetCalls){
+      if(!selector.match){
+        literals.push(...getLiteralsByESExpression(ctx, targetCall.arguments));
+        continue;
+      }
+
+      literals.push(...getLiteralsByESMatchers(ctx, targetCall, selector.match));
     }
-
-    literals.push(...getLiteralsByESMatchers(ctx, node, selector.match));
 
     return literals;
   }, []);
@@ -458,6 +474,57 @@ export function isESArrowFunctionExpression(node: ESBaseNode): node is ESArrowFu
 
 function isESCalleeSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
   return node.type === "Identifier" && !!node.parent && isESCallExpression(node.parent);
+}
+
+function isNestedCurriedCall(node: ESCallExpression): boolean {
+  return hasESNodeParentExtension(node) && isESCallExpression(node.parent) && node.parent.callee === node;
+}
+
+function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeName: string; calls: ESCallExpression[]; } {
+  const calls: ESCallExpression[] = [node];
+  let currentCall: ESCallExpression = node;
+
+  while(isESCallExpression(currentCall.callee)){
+    currentCall = currentCall.callee;
+    calls.unshift(currentCall);
+  }
+
+  if(!isESCalleeSymbol(currentCall.callee)){
+    return;
+  }
+
+  return {
+    baseCalleeName: currentCall.callee.name,
+    calls
+  };
+}
+
+function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | undefined): ESCallExpression[] {
+  if(calls.length === 0){
+    return [];
+  }
+
+  if(callTarget === "all"){
+    return calls;
+  }
+
+  if(callTarget === "last"){
+    return [calls[calls.length - 1]];
+  }
+
+  if(callTarget === undefined || callTarget === "first"){
+    return [calls[0]];
+  }
+
+  const index = callTarget >= 0
+    ? callTarget
+    : calls.length + callTarget;
+
+  if(index < 0 || index >= calls.length){
+    return [];
+  }
+
+  return [calls[index]];
 }
 
 function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {

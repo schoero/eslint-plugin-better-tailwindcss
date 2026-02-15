@@ -58,20 +58,25 @@ export type SelectorObjectValueMatcher = {
 
 export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
 
-export type Selector<Kind extends SelectorKind = SelectorKind> = {
+type BaseSelector<Kind extends SelectorKind> = {
   kind: Kind;
   name: Regex;
   match?: SelectorMatcher[] | undefined;
 };
 
-export type AttributeSelector = Selector<SelectorKind.Attribute>;
-export type CalleeSelector = Selector<SelectorKind.Callee>;
-export type TagSelector = Selector<SelectorKind.Tag>;
-export type VariableSelector = Selector<SelectorKind.Variable>;
+export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
-export function isSelectorKind<Kind extends SelectorKind>(kind: Kind) {
-  return (selector: Selector): selector is Selector<Kind> => selector.kind === kind;
-}
+export type CallTarget = "all" | "first" | "last" | number;
+export type CalleeSelector = BaseSelector<SelectorKind.Callee> & {
+  callTarget?: CallTarget | undefined;
+};
+
+export type TagSelector = BaseSelector<SelectorKind.Tag>;
+export type VariableSelector = BaseSelector<SelectorKind.Variable>;
+
+export type Selector = AttributeSelector | CalleeSelector | TagSelector | VariableSelector;
+
+export type SelectorByKind<Kind extends SelectorKind> = Extract<Selector, { kind: Kind; }>;
 
 export type Version = {
   major: number;

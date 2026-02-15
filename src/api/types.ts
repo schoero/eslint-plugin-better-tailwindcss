@@ -1,4 +1,5 @@
 export type {
+  CallTarget,
   ObjectKeyMatcher,
   ObjectValueMatcher,
   Regex,

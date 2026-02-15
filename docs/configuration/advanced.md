@@ -27,7 +27,8 @@ Each selector targets one kind of source location and tells the plugin how to ex
 - **name**: regular expression for the attribute/callee/variable/tag name
 - **match** `optional`: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
   When `match` is omitted, only the direct string literals will get collected.
-- **match** *(optional)*: which string literals to collect (`strings`, `objectKeys`, `objectValues`)
+- **callTarget** `optional`: which curried call to lint (`number`, `"all"`, `"first"`, `"last"`)
+  `callTarget` only available for callee selectors. When `callTarget` is omitted, the first call in a curried chain is used.
 
 ### Type
 
@@ -35,11 +36,12 @@ Each selector targets one kind of source location and tells the plugin how to ex
 type Selector = {
   kind: "attribute" | "callee" | "tag" | "variable";
   name: string;
+  callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     pathPattern?: string;
   }[];
-}[];
+};
 ```
 
 ### How name matching works
@@ -116,9 +118,9 @@ For example, the object path for `value` in the object below is `root["nested-ke
 }
 ```
 
-### Callee `target`
+### Callee `callTarget`
 
-Use `target` on callee selectors to control which call in a curried chain gets linted.
+Use `callTarget` on callee selectors to control which call in a curried chain gets linted.
 
 - `"first"`: first call in the chain (`fn("a")("b")` → lint `"a"`)
 - `"last"`: last call in the chain (`fn("a")("b")` → lint `"b"`)
@@ -132,7 +134,7 @@ Use `target` on callee selectors to control which call in a curried chain gets l
     {
       "kind": "callee",
       "name": "^classNames$",
-      "target": "last"
+      "callTarget": "last"
     }
   ]
 }

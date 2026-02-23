@@ -1,5 +1,10 @@
 # JSX
 
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
 To lint Tailwind CSS classes in JSX files, ensure that:
 
 - `jsx` parsing is enabled.
@@ -8,7 +13,7 @@ To lint Tailwind CSS classes in JSX files, ensure that:
 
 <br/>
 
-## Usage
+## ESLint
 
 ### Flat config
 
@@ -92,3 +97,35 @@ export default defineConfig({
   ```
 
 </details>
+
+<br/>
+
+## Oxlint
+
+The Oxlint configuration currently requires to set up each rule individually.  
+More info about the Oxlint configuration format can be found in the [Oxlint documentation](https://oxc.rs/docs/guide/usage/linter/config.html).
+
+```ts
+// oxlint.config.ts
+
+import { defineConfig } from "oxlint";
+
+export default defineConfig({
+  overrides: [{
+    files: ["**/*.{js,jsx,mjs,cjs}"],
+    jsPlugins: [
+      "eslint-plugin-better-tailwindcss"
+    ],
+    rules: {
+      "better-tailwindcss/no-duplicate-classes": "warn",
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }],
+      // ... add additional rules here
+    }
+  }],
+  settings: {
+    "better-tailwindcss": {
+      entryPoint: "src/global.css"
+    }
+  }
+});
+```

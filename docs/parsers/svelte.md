@@ -1,5 +1,10 @@
 # Svelte
 
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
 To use ESLint with Svelte files, first install the [svelte-eslint-parser](https://github.com/sveltejs/svelte-eslint-parser).
 
 ```sh
@@ -88,3 +93,12 @@ export default defineConfig({
   ```
 
 </details>
+
+<br/>
+
+## Oxlint
+
+Oxlint currently does **not** support Svelte files (`.svelte`).
+Framework-specific parsers like Svelte are not supported in Oxlint yet, so `eslint-plugin-better-tailwindcss` cannot currently lint Svelte templates through Oxlint.
+
+You can continue using ESLint for Svelte files until Oxlint adds framework parser support.

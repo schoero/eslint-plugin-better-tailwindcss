@@ -1,5 +1,10 @@
 # HTML
 
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
 To use ESLint with HTML files, first install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser).
 
 ```sh
@@ -89,3 +94,12 @@ export default defineConfig({
   ```
 
 </details>
+
+<br/>
+
+## Oxlint
+
+Oxlint currently does **not** support HTML parser integration for this use case.
+Because Oxlint currently only supports JavaScript-like files, `eslint-plugin-better-tailwindcss` cannot currently lint standalone HTML files through Oxlint.
+
+You can continue using ESLint for HTML files until broader parser support is available in Oxlint.

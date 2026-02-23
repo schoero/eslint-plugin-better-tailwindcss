@@ -1,6 +1,13 @@
 # Astro
 
-## Flat config
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
+## ESLint
+
+### Flat config
 
 To use ESLint with Astro files, first install the [astro-eslint-parser](https://github.com/ota-meshi/astro-eslint-parser) and optionally [TypeScript ESLint](https://typescript-eslint.io/getting-started). Then, configure ESLint to use this parser for Astro files.
 
@@ -115,3 +122,12 @@ export default defineConfig({
   ```
 
 </details>
+
+<br/>
+
+## Oxlint
+
+Oxlint currently does **not** support Astro files (`.astro`).
+Framework-specific parsers like Astro are not supported in Oxlint yet, so `eslint-plugin-better-tailwindcss` cannot currently lint Astro templates through Oxlint.
+
+You can continue using ESLint for Astro files until Oxlint adds framework parser support.

@@ -184,9 +184,12 @@ Most rules are intended to automatically fix the tailwind classes. If you have i
 
 ```jsonc
 {
-  // enable ESLint to fix tailwind classes on save
+  // enable VSCode to fix tailwind classes on save
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    // ESLint
+    "source.fixAll.eslint": "explicit",
+    // Oxlint
+    "source.fixAll.oxc": "explicit"
   }
 }
 ```

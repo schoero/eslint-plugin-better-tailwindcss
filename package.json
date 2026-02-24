@@ -89,7 +89,7 @@
   },
   "devDependencies": {
     "@angular/compiler": "^21.1.5",
-    "@angular-eslint/template-parser": "^12.7.0",
+    "@angular-eslint/template-parser": "^21.2.0",
     "@eslint/css": "^0.14.1",
     "@html-eslint/parser": "^0.46.0",
     "@oxc-node/core": "^0.0.35",

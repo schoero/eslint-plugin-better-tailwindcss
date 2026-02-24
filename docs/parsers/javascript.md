@@ -104,7 +104,7 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   overrides: [{
-    files: ["**/*.{js,ts,jsx,cjs,mjs,tsx}"],
+    files: ["**/*.{js,cjs,mjs}"],
     jsPlugins: [
       "eslint-plugin-better-tailwindcss"
     ],

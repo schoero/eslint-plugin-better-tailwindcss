@@ -127,8 +127,8 @@ export default defineConfig({
       "eslint-plugin-better-tailwindcss"
     ],
     rules: {
-      "better-tailwindcss/no-duplicate-classes": "warn",
       "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }],
+      "better-tailwindcss/no-duplicate-classes": "warn"
       // ... add additional rules here
     }
   }],

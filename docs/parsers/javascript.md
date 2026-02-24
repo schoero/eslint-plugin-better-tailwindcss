@@ -104,19 +104,19 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   overrides: [{
-    "files": ["**/*.{js,ts,jsx,cjs,mjs,tsx}"],
-    "jsPlugins": [
+    files: ["**/*.{js,ts,jsx,cjs,mjs,tsx}"],
+    jsPlugins: [
       "eslint-plugin-better-tailwindcss"
     ],
     rules: {
-        "better-tailwindcss/no-duplicate-classes": "warn",
-        'better-tailwindcss/enforce-consistent-line-wrapping': ["warn", { printWidth: 100 }],
-        // ... add additional rules here
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }],
+      "better-tailwindcss/no-duplicate-classes": "warn"
+      // ... add additional rules here
     }
   }],
   settings: {
-    'better-tailwindcss': {
-        entryPoint: 'src/global.css',
+    "better-tailwindcss": {
+      entryPoint: "src/global.css"
     }
   }
 });

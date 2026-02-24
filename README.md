@@ -180,15 +180,29 @@ See the [Advanced configuration guide](./docs/configuration/advanced.md) to lear
 
 ##### Auto-fix on save
 
-Most rules are intended to automatically fix the tailwind classes. If you have installed the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), you can configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+Most rules are intended to automatically fix the tailwind classes using VSCode extensions.
+
+###### ESLint
+
+For ESLint, you can install the [VSCode ESLint plugin](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) and configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
 
 ```jsonc
 {
   // enable VSCode to fix tailwind classes on save
   "editor.codeActionsOnSave": {
-    // ESLint
     "source.fixAll.eslint": "explicit",
-    // Oxlint
+  }
+}
+```
+
+###### Oxlint
+
+For Oxlint, you can install the [VSCode Oxc plugin](https://marketplace.visualstudio.com/items?itemName=oxc.oxc-vscode) and configure it to automatically fix the classes on save by adding the following options to your `.vscode/settings.json`:
+
+```jsonc
+{
+  // enable VSCode to fix tailwind classes on save
+  "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
   }
 }

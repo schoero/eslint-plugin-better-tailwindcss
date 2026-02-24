@@ -134,7 +134,7 @@ To lint Tailwind CSS classes in TypeScript files, ensure that:
 ```ts
 // oxlint.config.ts
 
-import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import { defineConfig } from "oxlint";
 
 export default defineConfig({

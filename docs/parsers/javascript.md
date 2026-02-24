@@ -99,7 +99,7 @@ To lint Tailwind CSS classes in JavaScript files, ensure that:
 ```js
 // oxlint.config.js
 
-import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import { defineConfig } from "oxlint";
 
 export default defineConfig({

@@ -12,6 +12,8 @@ To lint Tailwind CSS classes in JavaScript files, ensure that:
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
 
+<br/>
+
 ### Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)

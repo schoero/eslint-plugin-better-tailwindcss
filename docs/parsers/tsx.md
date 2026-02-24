@@ -7,8 +7,6 @@
 
 ## ESLint
 
-### Flat config
-
 To use ESLint with TSX files, first install the [typescript-eslint](https://typescript-eslint.io/getting-started) package.
 
 ```sh
@@ -24,7 +22,11 @@ To lint Tailwind CSS classes in TSX files, ensure that:
 
 <br/>
 
+### Flat config
+
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js

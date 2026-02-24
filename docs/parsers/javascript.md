@@ -86,7 +86,6 @@ export default defineConfig({
 
 ## Oxlint
 
-The Oxlint configuration currently requires setting up each rule individually.  
 More info about the Oxlint configuration format can be found in the [Oxlint documentation](https://oxc.rs/docs/guide/usage/linter/config.html).
 
 To lint Tailwind CSS classes in JavaScript files, ensure that:
@@ -100,6 +99,7 @@ To lint Tailwind CSS classes in JavaScript files, ensure that:
 ```js
 // oxlint.config.js
 
+import eslintPluginBetterTailwindcss from 'eslint-plugin-better-tailwindcss'
 import { defineConfig } from "oxlint";
 
 export default defineConfig({
@@ -109,9 +109,11 @@ export default defineConfig({
       "eslint-plugin-better-tailwindcss"
     ],
     rules: {
-      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }],
-      "better-tailwindcss/no-duplicate-classes": "warn"
-      // ... add additional rules here
+      // enable all recommended rules
+      ...eslintPluginBetterTailwindcss.configs.recommended.rules,
+
+      // if needed, override rules to configure them individually
+      "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", { printWidth: 100 }]
     }
   }],
   settings: {

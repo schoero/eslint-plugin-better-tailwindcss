@@ -7,8 +7,6 @@
 
 ## ESLint
 
-### Flat config
-
 To use ESLint with TypeScript files, first install the [typescript-eslint](https://typescript-eslint.io/getting-started) package.
 
 ```sh
@@ -23,7 +21,11 @@ To lint Tailwind CSS classes in TypeScript files, ensure that:
 
 <br/>
 
+### Flat config
+
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -67,7 +69,7 @@ export default defineConfig({
 <br/>
 
 <details>
-  <summary>Legacy config</summary>
+  <summary><h3>Legacy config</h3></summary>
 
   <br/>
 
@@ -121,6 +123,14 @@ export default defineConfig({
 
 The Oxlint configuration currently requires to set up each rule individually.  
 More info about the Oxlint configuration format can be found in the [Oxlint documentation](https://oxc.rs/docs/guide/usage/linter/config.html).
+
+To lint Tailwind CSS classes in TypeScript files, ensure that:
+
+- The plugin is added to the `jsPlugins` array.
+- The `settings` object contains the correct Tailwind CSS configuration paths.
+- All relevant rules are added to the `rules` object.
+
+<br/>
 
 ```ts
 // oxlint.config.ts

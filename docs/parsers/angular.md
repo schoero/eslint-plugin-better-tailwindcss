@@ -7,8 +7,6 @@
 
 ## ESLint
 
-### Flat config
-
 To use ESLint with Angular, install [Angular ESLint](https://github.com/angular-eslint/angular-eslint?tab=readme-ov-file#quick-start) and [TypeScript ESLint](https://typescript-eslint.io/getting-started). You can follow the [flat config](https://github.com/angular-eslint/angular-eslint/blob/main/docs/CONFIGURING_FLAT_CONFIG.md) setup, which includes rules from the Angular ESLint package or you can add the parser directly by following the steps below.
 
 ```sh
@@ -24,7 +22,11 @@ To lint Tailwind CSS classes in Angular files, ensure that:
 
 <br/>
 
+### Flat config
+
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -80,7 +82,7 @@ export default defineConfig([
 <br/>
 
 <details>
-  <summary>Legacy config</summary>
+  <summary><h3>Legacy config</h3></summary>
 
   <br/>
   

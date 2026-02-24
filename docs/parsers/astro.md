@@ -7,8 +7,6 @@
 
 ## ESLint
 
-### Flat config
-
 To use ESLint with Astro files, first install the [astro-eslint-parser](https://github.com/ota-meshi/astro-eslint-parser) and optionally [TypeScript ESLint](https://typescript-eslint.io/getting-started). Then, configure ESLint to use this parser for Astro files.
 
 ```sh
@@ -24,7 +22,11 @@ To lint Tailwind CSS classes in Astro files, ensure that:
 
 <br/>
 
+### Flat config
+
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -69,7 +71,7 @@ export default defineConfig({
 <br/>
 
 <details>
-  <summary>Legacy config</summary>
+  <summary><h3>Legacy config</h3></summary>
 
   <br/>
 

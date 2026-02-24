@@ -5,6 +5,8 @@
 
 <br/>
 
+## ESLint
+
 To use ESLint with HTML files, first install the [@html-eslint/parser](https://github.com/yeonjuan/html-eslint/tree/main/packages/parser).
 
 ```sh
@@ -19,9 +21,11 @@ To lint Tailwind CSS classes in HTML files, ensure that:
 
 <br/>
 
-## Flat config
+### Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -61,7 +65,7 @@ export default defineConfig({
 <br/>
 
 <details>
-  <summary>Legacy config</summary>
+  <summary><h3>Legacy config</h3></summary>
 
   <br/>
 

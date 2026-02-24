@@ -190,7 +190,7 @@ For ESLint, you can install the [VSCode ESLint plugin](https://marketplace.visua
 {
   // enable VSCode to fix tailwind classes on save
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
+    "source.fixAll.eslint": "explicit"
   }
 }
 ```

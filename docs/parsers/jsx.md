@@ -115,8 +115,8 @@ To lint Tailwind CSS classes in JSX files, ensure that:
 
 <br/>
 
-```ts
-// oxlint.config.ts
+```js
+// oxlint.config.js
 
 import { defineConfig } from "oxlint";
 

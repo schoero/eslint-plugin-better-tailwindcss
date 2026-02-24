@@ -121,7 +121,7 @@ export default defineConfig({
 
 ## Oxlint
 
-The Oxlint configuration currently requires to set up each rule individually.  
+The Oxlint configuration currently requires setting up each rule individually.  
 More info about the Oxlint configuration format can be found in the [Oxlint documentation](https://oxc.rs/docs/guide/usage/linter/config.html).
 
 To lint Tailwind CSS classes in TypeScript files, ensure that:

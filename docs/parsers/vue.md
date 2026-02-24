@@ -1,5 +1,12 @@
 # Vue
 
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
+## ESLint
+
 To use ESLint with Vue files, first install the [vue-eslint-parser](https://github.com/vuejs/vue-eslint-parser).
 
 ```sh
@@ -14,9 +21,11 @@ To lint Tailwind CSS classes in Vue files, ensure that:
 
 <br/>
 
-## Flat config
+### Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -56,7 +65,7 @@ export default defineConfig({
 <br/>
 
 <details>
-  <summary>Legacy config</summary>
+  <summary><h3>Legacy config</h3></summary>
 
   <br/>
 
@@ -88,3 +97,12 @@ export default defineConfig({
   ```
 
 </details>
+
+<br/>
+
+## Oxlint
+
+Oxlint currently does **not** support Vue files (`.vue`).
+Framework-specific parsers like Vue are not supported in Oxlint yet, so `eslint-plugin-better-tailwindcss` cannot currently lint Vue templates through Oxlint.
+
+You can continue using ESLint for Vue files until Oxlint adds framework parser support.

@@ -1,5 +1,12 @@
 # CSS
 
+- [ESLint](#eslint)
+- [Oxlint](#oxlint)
+
+<br/>
+
+## ESLint
+
 To use ESLint with CSS files containing Tailwind CSS `@apply` directives, first install the [@eslint/css](https://github.com/eslint/css) plugin and the [tailwind-csstree](https://www.npmjs.com/package/tailwind-csstree) custom syntax.
 
 ```sh
@@ -15,9 +22,11 @@ To lint Tailwind CSS classes in CSS files, ensure that:
 
 <br/>
 
-## Flat config
+### Flat config
 
 Read more about the [ESLint flat config format](https://eslint.org/docs/latest/use/configure/configuration-files-new)
+
+<br/>
 
 ```js
 // eslint.config.js
@@ -65,3 +74,12 @@ export default defineConfig({
 <br/>
 
 > **Note:** Legacy config is not supported for CSS files as the `@eslint/css` plugin requires the ESLint flat config format.
+
+<br/>
+
+## Oxlint
+
+Oxlint currently does **not** support CSS parser integration for this use case.
+Because Oxlint currently only supports JavaScript-like files, `eslint-plugin-better-tailwindcss` cannot currently lint CSS `@apply` directives through Oxlint.
+
+You can continue using ESLint for CSS files until broader parser support is available in Oxlint.

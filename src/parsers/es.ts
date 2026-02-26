@@ -26,6 +26,7 @@ import type {
   BaseNode as ESBaseNode,
   CallExpression as ESCallExpression,
   Expression as ESExpression,
+  FunctionExpression as ESFunctionExpression,
   Identifier as ESIdentifier,
   MemberExpression as ESMemberExpression,
   Node as ESNode,
@@ -82,7 +83,9 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
       return literals;
     }
 
-    if(isESArrowFunctionExpression(node.init) || isESCallExpression(node.init)){ return literals; }
+    if(isESArrowFunctionExpression(node.init) || isESCallExpression(node.init) || isESFunctionExpression(node.init)){
+      return literals;
+    }
 
     literals.push(...getLiteralsByESMatchers(ctx, node.init, selector.match));
 
@@ -297,6 +300,7 @@ function findPriorLiterals(ctx: Rule.RuleContext, node: ESNode) {
 
     if(isESCallExpression(parent)){ break; }
     if(isESArrowFunctionExpression(parent)){ break; }
+    if(isESFunctionExpression(parent)){ break; }
     if(isESVariableDeclarator(parent)){ break; }
 
     if(parent.type === "TemplateLiteral"){
@@ -427,6 +431,7 @@ export function isInsideObjectValue(node: WithParent<ESNode>) {
   // #34 allow call expressions as object values
   if(isESCallExpression(node)){ return false; }
   if(isESArrowFunctionExpression(node)){ return false; }
+  if(isESFunctionExpression(node)){ return false; }
 
   if(
     node.parent.type === "Property" &&
@@ -473,6 +478,10 @@ export function isESCallExpression(node: ESBaseNode): node is ESCallExpression {
 
 export function isESArrowFunctionExpression(node: ESBaseNode): node is ESArrowFunctionExpression {
   return node.type === "ArrowFunctionExpression";
+}
+
+export function isESFunctionExpression(node: ESBaseNode): node is ESFunctionExpression {
+  return node.type === "FunctionExpression";
 }
 
 function getESMemberExpressionPropertyName(node: ESMemberExpression): string | undefined {

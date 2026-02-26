@@ -258,7 +258,7 @@ describe("es", () => {
   });
 
   // #332
-  it.only("should not leak variable selectors into callee selectors when assigned to a variable", () => {
+  it("should not leak variable selectors into callee selectors when assigned to a variable", () => {
     lint(noUnnecessaryWhitespace, {
       valid: [
         {

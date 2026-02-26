@@ -257,4 +257,27 @@ describe("es", () => {
     });
   });
 
+  // #332
+  it("should not leak variable selectors into callee selectors when assigned to a variable", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const variable = function func({ classes = " sm " }) {}`,
+
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Variable,
+              match: [
+                {
+                  type: MatcherType.String
+                }
+              ],
+              name: "^variable$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
 });

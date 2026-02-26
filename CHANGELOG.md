@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.3.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.0...v4.3.1)
+
+### Fixes
+
+- Variable matchers leaking into function expressions ([#333](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/333))
+
+### Documentation
+
+- Add oxlint documentation ([#331](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/331))
+
 ## v4.3.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.2.0...v4.3.0)

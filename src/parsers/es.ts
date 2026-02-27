@@ -135,9 +135,11 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
 export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, selectors: TagSelector[]): Literal[] {
 
+  const tagName = getTaggedTemplateName(node.tag);
+  if(!tagName){ return []; }
+
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
-    if(!matchesName(selector.name, node.tag.name)){ return literals; }
+    if(!matchesName(selector.name, tagName)){ return literals; }
 
     if(!selector.match){
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
@@ -578,8 +580,16 @@ function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateE
   return node.type === "TaggedTemplateExpression";
 }
 
-function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
-  return node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent);
+function getTaggedTemplateName(node: ESBaseNode & Partial<Rule.NodeParentExtension>): string | undefined {
+  if(node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent)){
+    return (node as ESIdentifier).name;
+  }
+  if(node.type === "MemberExpression"){
+    return getESCalleeName(node);
+  }
+  if(node.type === "CallExpression"){
+    return getESCalleeName((node as ESCallExpression).callee as ESBaseNode);
+  }
 }
 
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {

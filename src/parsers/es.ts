@@ -124,6 +124,12 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
       }
 
       literals.push(...getLiteralsByESMatchers(ctx, targetCall, selector.match));
+
+      for(const arg of targetCall.arguments){
+        if(isESArrowFunctionExpression(arg) && arg.body){
+          literals.push(...getLiteralsByESMatchers(ctx, arg.body as ESBaseNode & Rule.NodeParentExtension, selector.match));
+        }
+      }
     }
 
     return literals;

@@ -86,9 +86,14 @@ export const enforceConsistentClassOrder = createRule({
   }),
 
   initialize: ctx => {
+    const { detectComponentClasses } = ctx.options;
+
     createGetClassOrder(ctx);
     createGetDissectedClasses(ctx);
-    createGetCustomComponentClasses(ctx);
+
+    if(detectComponentClasses){
+      createGetCustomComponentClasses(ctx);
+    }
   },
 
   lintLiterals: (ctx, literals) => {

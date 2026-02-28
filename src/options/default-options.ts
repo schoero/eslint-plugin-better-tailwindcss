@@ -11,6 +11,8 @@ import { OBJSTR } from "better-tailwindcss:options/callees/objstr.js";
 import { TV } from "better-tailwindcss:options/callees/tv.js";
 import { TW_JOIN } from "better-tailwindcss:options/callees/twJoin.js";
 import { TW_MERGE } from "better-tailwindcss:options/callees/twMerge.js";
+import { TWC } from "better-tailwindcss:options/tags/twc.js";
+import { TWX } from "better-tailwindcss:options/tags/twx.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
@@ -173,8 +175,14 @@ export const DEFAULT_VARIABLE_SELECTORS = [
 
 export const DEFAULT_TAG_NAMES = [] satisfies Tags;
 
+export const DEFAULT_TAG_SELECTORS = [
+  ...TWC,
+  ...TWX
+] satisfies Selectors;
+
 export const DEFAULT_SELECTORS = [
   ...DEFAULT_ATTRIBUTE_SELECTORS,
   ...DEFAULT_CALLEE_SELECTORS,
-  ...DEFAULT_VARIABLE_SELECTORS
+  ...DEFAULT_VARIABLE_SELECTORS,
+  ...DEFAULT_TAG_SELECTORS
 ] satisfies Selectors;

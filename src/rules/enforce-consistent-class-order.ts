@@ -86,9 +86,14 @@ export const enforceConsistentClassOrder = createRule({
   }),
 
   initialize: ctx => {
+    const { detectComponentClasses } = ctx.options;
+
     createGetClassOrder(ctx);
     createGetDissectedClasses(ctx);
-    createGetCustomComponentClasses(ctx);
+
+    if(detectComponentClasses){
+      createGetCustomComponentClasses(ctx);
+    }
   },
 
   lintLiterals: (ctx, literals) => {
@@ -98,6 +103,11 @@ export const enforceConsistentClassOrder = createRule({
     for(const literal of literals){
 
       const classChunks = splitClasses(literal.content);
+
+      if(classChunks.length <= 1){
+        continue;
+      }
+
       const whitespaceChunks = splitWhitespaces(literal.content);
 
       const unsortableClasses: [string, string] = ["", ""];
@@ -169,8 +179,15 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
     return [classes.toSorted((a, b) => b.localeCompare(a))];
   }
 
+  if(classes.length <= 1){
+    return [classes];
+  }
+
   const { classOrder, warnings } = getClassOrder(async(ctx), classes);
-  const { customComponentClasses } = getCustomComponentClasses(async(ctx));
+  const { detectComponentClasses } = ctx.options;
+  const customComponentClasses = detectComponentClasses
+    ? getCustomComponentClasses(async(ctx)).customComponentClasses
+    : [];
 
   const officiallySortedClasses = classOrder
     .toSorted((a, b) => {

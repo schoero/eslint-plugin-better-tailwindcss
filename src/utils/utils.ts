@@ -140,26 +140,26 @@ export function getExactClassLocation(literal: Literal, startIndex: number, endI
     }
   };
 }
+
 const REGEX_CACHE = new Map<string, RegExp>();
 const MAX_CACHE_SIZE = 500;
 
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
-  let regex = REGEX_CACHE.get(pattern);
+  const anchored = pattern.startsWith("^") && pattern.endsWith("$")
+    ? pattern
+    : `^${pattern}$`;
+
+  let regex = REGEX_CACHE.get(anchored);
 
   if(!regex){
     if(REGEX_CACHE.size >= MAX_CACHE_SIZE){
       const firstKey = REGEX_CACHE.keys().next().value;
       if(firstKey !== undefined){REGEX_CACHE.delete(firstKey);}
     }
-
-    const sanitizedPattern = pattern.startsWith("^") && pattern.endsWith("$")
-      ? pattern
-      : `^${pattern}$`;
-
-    regex = new RegExp(sanitizedPattern);
-    REGEX_CACHE.set(pattern, regex);
+    regex = new RegExp(anchored);
+    REGEX_CACHE.set(anchored, regex);
   }
 
   return regex.test(name);

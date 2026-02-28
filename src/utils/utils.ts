@@ -3,8 +3,6 @@ import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/as
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
-const REGEX_CACHE = new Map<string, RegExp>();
-
 export function getWhitespace(classes: string) {
   const leadingWhitespace = classes.match(/^\s*/)?.[0];
   const trailingWhitespace = classes.match(/\s*$/)?.[0];
@@ -142,6 +140,8 @@ export function getExactClassLocation(literal: Literal, startIndex: number, endI
     }
   };
 }
+const REGEX_CACHE = new Map<string, RegExp>();
+const MAX_CACHE_SIZE = 500;
 
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
@@ -149,12 +149,20 @@ export function matchesName(pattern: string, name: string | undefined): boolean 
   let regex = REGEX_CACHE.get(pattern);
 
   if(!regex){
-    regex = new RegExp(pattern);
+    if(REGEX_CACHE.size >= MAX_CACHE_SIZE){
+      const firstKey = REGEX_CACHE.keys().next().value;
+      if(firstKey !== undefined){REGEX_CACHE.delete(firstKey);}
+    }
+
+    const sanitizedPattern = pattern.startsWith("^") && pattern.endsWith("$")
+      ? pattern
+      : `^${pattern}$`;
+
+    regex = new RegExp(sanitizedPattern);
     REGEX_CACHE.set(pattern, regex);
   }
 
-  const match = name.match(regex);
-  return !!match && match[0] === name;
+  return regex.test(name);
 }
 
 export function replacePlaceholders(template: string, match: RegExpMatchArray | string[]): string {

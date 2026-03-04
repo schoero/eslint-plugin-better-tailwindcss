@@ -42,6 +42,32 @@ describe(noUnnecessaryWhitespace.name, () => {
           vueOutput: `<template><img :class="'a ' + ' b'" /></template>`,
 
           errors: 4
+        },
+        {
+          angular: `<img [class]="'  a  ' + '  b  ' + '  c  '" />`,
+          angularOutput: `<img [class]="'a ' + ' b ' + ' c'" />`,
+          jsx: `() => <img class={"  a  " + "  b  " + "  c  "} />`,
+          jsxOutput: `() => <img class={"a " + " b " + " c"} />`,
+          svelte: `<img class={"  a  " + "  b  " + "  c  "} />`,
+          svelteOutput: `<img class={"a " + " b " + " c"} />`,
+          vue: `<template><img :class="'  a  ' + '  b  ' + '  c  '" /></template>`,
+          vueOutput: `<template><img :class="'a ' + ' b ' + ' c'" /></template>`,
+
+          errors: 6
+        }
+      ],
+      valid: [
+        {
+          angular: `<img [class]="'a ' + ' b'" />`,
+          jsx: `() => <img class={"a " + " b"} />`,
+          svelte: `<img class={"a " + " b"} />`,
+          vue: `<template><img :class="'a ' + ' b'" /></template>`
+        },
+        {
+          angular: `<img [class]="'a ' + ' b ' + ' c'" />`,
+          jsx: `() => <img class={"a " + " b " + " c"} />`,
+          svelte: `<img class={"a " + " b " + " c"} />`,
+          vue: `<template><img :class="'a ' + ' b ' + ' c'" /></template>`
         }
       ]
     });
@@ -62,6 +88,14 @@ describe(noUnnecessaryWhitespace.name, () => {
 
           errors: 6
         }
+      ],
+      valid: [
+        {
+          angular: `<img [class]="'a ' + (someVar ? ' b' : ' c')" />`,
+          jsx: `() => <img class={"a " + (someVar ? " b" : " c")} />`,
+          svelte: `<img class={"a " + (someVar ? " b" : " c")} />`,
+          vue: `<template><img :class="'a ' + (someVar ? ' b' : ' c')" /></template>`
+        }
       ]
     });
   });
@@ -80,6 +114,14 @@ describe(noUnnecessaryWhitespace.name, () => {
           vueOutput: '<template><img :class="`a ` + (someVar ? ` b` : ` c`)" /></template>',
 
           errors: 6
+        }
+      ],
+      valid: [
+        {
+          angular: '<img [class]="`a ` + (someVar ? ` b` : ` c`)" />',
+          jsx: "() => <img class={`a ` + (someVar ? ` b` : ` c`)} />",
+          svelte: "<img class={`a ` + (someVar ? ` b` : ` c`)} />",
+          vue: '<template><img :class="`a ` + (someVar ? ` b` : ` c`)" /></template>'
         }
       ]
     });

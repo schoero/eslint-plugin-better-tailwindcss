@@ -197,11 +197,13 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
   const supportsMultiline = !isESObjectKey(node);
+  const concatenation = getStringConcatenationMeta(node);
 
   return {
     ...quotes,
     ...whitespaces,
     ...multilineQuotes,
+    ...concatenation,
     content,
     indentation,
     isInterpolated: false,
@@ -233,12 +235,14 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
+  const concatenation = getStringConcatenationMeta(node);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
     ...multilineQuotes,
+    ...concatenation,
     content,
     indentation,
     isInterpolated,
@@ -607,6 +611,27 @@ function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
 function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   const braces = getBracesByString(ctx, raw);
   return !!braces.closingBraces || !!braces.openingBraces;
+}
+
+function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {
+  if(!hasESNodeParentExtension(node)){
+    return {
+      isConcatenatedLeft,
+      isConcatenatedRight
+    };
+  }
+
+  const parent = node.parent;
+
+  if(parent.type === "BinaryExpression" && parent.operator === "+"){
+    return getStringConcatenationMeta(
+      parent,
+      isConcatenatedLeft || parent.right === node,
+      isConcatenatedRight || parent.left === node
+    );
+  }
+
+  return getStringConcatenationMeta(parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
 function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {

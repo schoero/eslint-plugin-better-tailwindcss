@@ -55,6 +55,8 @@ interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, Wh
   content: string;
   raw: string;
   attribute?: string | undefined;
+  isConcatenatedLeft?: boolean | undefined;
+  isConcatenatedRight?: boolean | undefined;
   isInterpolated?: boolean | undefined;
   priorLiterals?: Literal[] | undefined;
 }

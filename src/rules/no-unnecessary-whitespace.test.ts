@@ -28,6 +28,63 @@ describe(noUnnecessaryWhitespace.name, () => {
     });
   });
 
+  it("should trim unnecessary whitespace in concatenated strings", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: `<img [class]="'  a  ' + '  b  '" />`,
+          angularOutput: `<img [class]="'a ' + ' b'" />`,
+          jsx: `() => <img class={"  a  " + "  b  "} />`,
+          jsxOutput: `() => <img class={"a " + " b"} />`,
+          svelte: `<img class={"  a  " + "  b  "} />`,
+          svelteOutput: `<img class={"a " + " b"} />`,
+          vue: `<template><img :class="'  a  ' + '  b  '" /></template>`,
+          vueOutput: `<template><img :class="'a ' + ' b'" /></template>`,
+
+          errors: 4
+        }
+      ]
+    });
+  });
+
+  it("should trim unnecessary whitespace in conditionally concatenated strings", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: `<img [class]="'  a  ' + (someVar ? '  b  ' : '  c  ')" />`,
+          angularOutput: `<img [class]="'a ' + (someVar ? ' b' : ' c')" />`,
+          jsx: `() => <img class={"  a  " + (someVar ? "  b  " : "  c  ")} />`,
+          jsxOutput: `() => <img class={"a " + (someVar ? " b" : " c")} />`,
+          svelte: `<img class={"  a  " + (someVar ? "  b  " : "  c  ")} />`,
+          svelteOutput: `<img class={"a " + (someVar ? " b" : " c")} />`,
+          vue: `<template><img :class="'  a  ' + (someVar ? '  b  ' : '  c  ')" /></template>`,
+          vueOutput: `<template><img :class="'a ' + (someVar ? ' b' : ' c')" /></template>`,
+
+          errors: 6
+        }
+      ]
+    });
+  });
+
+  it("should trim unnecessary whitespace in conditionally concatenated template literal strings", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: '<img [class]="`  a  ` + (someVar ? `  b  ` : `  c  `)" />',
+          angularOutput: '<img [class]="`a ` + (someVar ? ` b` : ` c`)" />',
+          jsx: "() => <img class={`  a  ` + (someVar ? `  b  ` : `  c  `)} />",
+          jsxOutput: "() => <img class={`a ` + (someVar ? ` b` : ` c`)} />",
+          svelte: "<img class={`  a  ` + (someVar ? `  b  ` : `  c  `)} />",
+          svelteOutput: "<img class={`a ` + (someVar ? ` b` : ` c`)} />",
+          vue: '<template><img :class="`  a  ` + (someVar ? `  b  ` : `  c  `)" /></template>',
+          vueOutput: '<template><img :class="`a ` + (someVar ? ` b` : ` c`)" /></template>',
+
+          errors: 6
+        }
+      ]
+    });
+  });
+
   it("should remove whitespace in empty strings", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

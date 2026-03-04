@@ -3,8 +3,8 @@ import {
   findMatchingParentNodes,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
-  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
+  isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
   matchesPathPattern
@@ -619,7 +619,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isIndexedAccessLiteral(node) ||
@@ -641,7 +641,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -667,7 +667,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

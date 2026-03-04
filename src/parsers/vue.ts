@@ -13,8 +13,8 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
-  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
+  isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
   matchesPathPattern
@@ -192,7 +192,7 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isIndexedAccessLiteral(node) ||
@@ -214,7 +214,7 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -240,7 +240,7 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

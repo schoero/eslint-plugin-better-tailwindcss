@@ -235,7 +235,7 @@ describe("es", () => {
   });
 
   // #234
-  it("should ignore literals in binary expressions", () => {
+  it("should ignore literals in binary comparisons", () => {
     lint(noUnnecessaryWhitespace, {
       valid: [
         {

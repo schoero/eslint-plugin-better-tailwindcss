@@ -143,7 +143,6 @@ export function getExactClassLocation(literal: Literal, startIndex: number, endI
   };
 }
 
-
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 

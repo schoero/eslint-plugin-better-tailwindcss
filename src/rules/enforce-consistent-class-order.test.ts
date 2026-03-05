@@ -92,6 +92,46 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
+  it("should sort alphabetically in a locale-independent way for `asc` and `desc`", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="py-24 px-12" />`,
+            angularOutput: `<img class="px-12 py-24" />`,
+            html: `<img class="py-24 px-12" />`,
+            htmlOutput: `<img class="px-12 py-24" />`,
+            jsx: `() => <img class="py-24 px-12" />`,
+            jsxOutput: `() => <img class="px-12 py-24" />`,
+            svelte: `<img class="py-24 px-12" />`,
+            svelteOutput: `<img class="px-12 py-24" />`,
+            vue: `<template><img class="py-24 px-12" /></template>`,
+            vueOutput: `<template><img class="px-12 py-24" /></template>`,
+
+            errors: 1,
+            options: [{ order: "asc" }]
+          },
+          {
+            angular: `<img class="px-12 py-24" />`,
+            angularOutput: `<img class="py-24 px-12" />`,
+            html: `<img class="px-12 py-24" />`,
+            htmlOutput: `<img class="py-24 px-12" />`,
+            jsx: `() => <img class="px-12 py-24" />`,
+            jsxOutput: `() => <img class="py-24 px-12" />`,
+            svelte: `<img class="px-12 py-24" />`,
+            svelteOutput: `<img class="py-24 px-12" />`,
+            vue: `<template><img class="px-12 py-24" /></template>`,
+            vueOutput: `<template><img class="py-24 px-12" /></template>`,
+
+            errors: 1,
+            options: [{ order: "desc" }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should group all classes with the same variant together", () => {
     lint(enforceConsistentClassOrder, {
       invalid: [
@@ -591,6 +631,46 @@ describe(enforceConsistentClassOrder.name, () => {
     );
   });
 
+  it("should sort unknown classes alphabetically in a locale-independent way", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex cy-24 cx-12" />`,
+            angularOutput: `<img class="cx-12 cy-24 flex" />`,
+            html: `<img class="flex cy-24 cx-12" />`,
+            htmlOutput: `<img class="cx-12 cy-24 flex" />`,
+            jsx: `() => <img class="flex cy-24 cx-12" />`,
+            jsxOutput: `() => <img class="cx-12 cy-24 flex" />`,
+            svelte: `<img class="flex cy-24 cx-12" />`,
+            svelteOutput: `<img class="cx-12 cy-24 flex" />`,
+            vue: `<template><img class="flex cy-24 cx-12" /></template>`,
+            vueOutput: `<template><img class="cx-12 cy-24 flex" /></template>`,
+
+            errors: 1,
+            options: [{ order: "official", unknownClassOrder: "asc", unknownClassPosition: "start" }]
+          },
+          {
+            angular: `<img class="flex cx-12 cy-24" />`,
+            angularOutput: `<img class="flex cy-24 cx-12" />`,
+            html: `<img class="flex cx-12 cy-24" />`,
+            htmlOutput: `<img class="flex cy-24 cx-12" />`,
+            jsx: `() => <img class="flex cx-12 cy-24" />`,
+            jsxOutput: `() => <img class="flex cy-24 cx-12" />`,
+            svelte: `<img class="flex cx-12 cy-24" />`,
+            svelteOutput: `<img class="flex cy-24 cx-12" />`,
+            vue: `<template><img class="flex cx-12 cy-24" /></template>`,
+            vueOutput: `<template><img class="flex cy-24 cx-12" /></template>`,
+
+            errors: 1,
+            options: [{ order: "official", unknownClassOrder: "desc", unknownClassPosition: "end" }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindCSSVersion().major >= 4)("should sort component classes to the start by default in tailwind >= 4", () => {
     lint(
       enforceConsistentClassOrder,
@@ -622,6 +702,80 @@ describe(enforceConsistentClassOrder.name, () => {
               `
             },
             options: [{
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should sort component classes alphabetically in a locale-independent way in tailwind >= 4", () => {
+    lint(
+      enforceConsistentClassOrder,
+      {
+        invalid: [
+          {
+            angular: `<img class="flex cy-24 cx-12" />`,
+            angularOutput: `<img class="cx-12 cy-24 flex" />`,
+            html: `<img class="flex cy-24 cx-12" />`,
+            htmlOutput: `<img class="cx-12 cy-24 flex" />`,
+            jsx: `() => <img class="flex cy-24 cx-12" />`,
+            jsxOutput: `() => <img class="cx-12 cy-24 flex" />`,
+            svelte: `<img class="flex cy-24 cx-12" />`,
+            svelteOutput: `<img class="cx-12 cy-24 flex" />`,
+            vue: `<template><img class="flex cy-24 cx-12" /></template>`,
+            vueOutput: `<template><img class="cx-12 cy-24 flex" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .cx-12, .cy-24 {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "asc",
+              componentClassPosition: "start",
+              detectComponentClasses: true,
+              entryPoint: "./tailwind.css"
+            }]
+          },
+          {
+            angular: `<img class="flex cx-12 cy-24" />`,
+            angularOutput: `<img class="flex cy-24 cx-12" />`,
+            html: `<img class="flex cx-12 cy-24" />`,
+            htmlOutput: `<img class="flex cy-24 cx-12" />`,
+            jsx: `() => <img class="flex cx-12 cy-24" />`,
+            jsxOutput: `() => <img class="flex cy-24 cx-12" />`,
+            svelte: `<img class="flex cx-12 cy-24" />`,
+            svelteOutput: `<img class="flex cy-24 cx-12" />`,
+            vue: `<template><img class="flex cx-12 cy-24" /></template>`,
+            vueOutput: `<template><img class="flex cy-24 cx-12" /></template>`,
+
+            errors: 1,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss";
+                
+                @layer components {
+                  .cx-12, .cy-24 {
+                    @apply font-bold;
+                  }
+                }
+              `
+            },
+            options: [{
+              componentClassOrder: "desc",
+              componentClassPosition: "end",
               detectComponentClasses: true,
               entryPoint: "./tailwind.css"
             }]

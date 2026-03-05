@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.3.2
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.1...v4.3.2)
+
+### Fixes
+
+- **no-unnecessary-whitespace:** Preserve whitespaces in concatenated strings ([#339](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/339))
+- **enforce-consistent-class-order:** Non localized alphabetical sorting order ([#340](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/340))
+
+### Refactors
+
+- Lint concatenated strings ([#338](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/338))
+
 ## v4.3.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.0...v4.3.1)

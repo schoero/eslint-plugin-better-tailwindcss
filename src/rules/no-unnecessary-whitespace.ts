@@ -56,9 +56,27 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
       stringIndex += className.length;
 
       const [literalStart] = literal.range;
+      const keepLeadingWhitespace = literal.isConcatenatedLeft === true;
+      const keepTrailingWhitespace = literal.isConcatenatedRight === true;
 
       // whitespaces only
       if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
+        if(keepLeadingWhitespace || keepTrailingWhitespace){
+          if(whitespace.length <= 1){
+            continue;
+          }
+
+          ctx.report({
+            fix: " ",
+            id: "unnecessary",
+            range: [
+              literalStart + startIndex,
+              literalStart + endIndex
+            ]
+          });
+          continue;
+        }
+
         if(whitespace === ""){
           continue;
         }
@@ -121,6 +139,27 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
 
       // leading or trailing whitespace
       if(isFirstChunk || isLastChunk){
+        const keepCurrentWhitespace =
+          isFirstChunk && keepLeadingWhitespace ||
+          isLastChunk && keepTrailingWhitespace;
+
+        if(keepCurrentWhitespace){
+          if(whitespace.length <= 1){
+            continue;
+          }
+
+          ctx.report({
+            fix: " ",
+            id: "unnecessary",
+            range: [
+              literalStart + startIndex,
+              literalStart + endIndex
+            ]
+          });
+
+          continue;
+        }
+
         if(whitespace === ""){
           continue;
         }

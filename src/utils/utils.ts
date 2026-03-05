@@ -147,19 +147,15 @@ const MAX_CACHE_SIZE = 500;
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
-  const anchored = pattern.startsWith("^") && pattern.endsWith("$")
-    ? pattern
-    : `^${pattern}$`;
-
-  let regex = REGEX_CACHE.get(anchored);
+  let regex = REGEX_CACHE.get(pattern);
 
   if(!regex){
     if(REGEX_CACHE.size >= MAX_CACHE_SIZE){
       const firstKey = REGEX_CACHE.keys().next().value;
       if(firstKey !== undefined){REGEX_CACHE.delete(firstKey);}
     }
-    regex = new RegExp(anchored);
-    REGEX_CACHE.set(anchored, regex);
+    regex = new RegExp(pattern);
+    REGEX_CACHE.set(pattern, regex);
   }
 
   return regex.test(name);

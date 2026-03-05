@@ -9,6 +9,7 @@ import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:t
 import { async } from "better-tailwindcss:utils/context.js";
 import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -61,8 +62,8 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
   const { prefix, suffix } = getPrefix(async(ctx));
 
-  const ignoredGroups = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
-  const ignoredPeers = new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
+  const ignoredGroups = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}group(?:\\/(\\S*))?$`);
+  const ignoredPeers = getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}peer(?:\\/(\\S*))?$`);
 
   const customComponentClassRegexes = getCustomComponentClassRegexes(ctx);
 
@@ -113,5 +114,5 @@ function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>): 
   const { customComponentClasses } = getCustomComponentClasses(async(ctx));
   const { prefix, suffix } = getPrefix(async(ctx));
 
-  return customComponentClasses.map(className => new RegExp(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
+  return customComponentClasses.map(className => getCachedRegex(`^${escapeForRegex(`${prefix}${suffix}`)}(?:.*:)?${escapeForRegex(className)}$`));
 }

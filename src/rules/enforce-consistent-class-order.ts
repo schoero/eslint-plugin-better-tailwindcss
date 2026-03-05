@@ -172,11 +172,11 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, classe
   const { componentClassOrder, componentClassPosition, order, unknownClassOrder, unknownClassPosition } = ctx.options;
 
   if(order === "asc"){
-    return [classes.toSorted((a, b) => a.localeCompare(b))];
+    return [classes.toSorted((a, b) => compareClasses(a, b))];
   }
 
   if(order === "desc"){
-    return [classes.toSorted((a, b) => b.localeCompare(a))];
+    return [classes.toSorted((a, b) => compareClasses(b, a))];
   }
 
   if(classes.length <= 1){
@@ -336,10 +336,10 @@ function getCustomOrder(position: "end" | "start", order: "asc" | "desc" | "pres
 
     if(aIsCustomClass && bIsCustomClass){
       if(order === "asc"){
-        return classA.localeCompare(classB);
+        return compareClasses(classA, classB);
       }
       if(order === "desc"){
-        return classB.localeCompare(classA);
+        return compareClasses(classB, classA);
       }
       return 0;
     }
@@ -350,15 +350,20 @@ function getCustomOrder(position: "end" | "start", order: "asc" | "desc" | "pres
 
     if(aIsCustomClass && bIsCustomClass){
       if(order === "asc"){
-        return classA.localeCompare(classB);
+        return compareClasses(classA, classB);
       }
       if(order === "desc"){
-        return classB.localeCompare(classA);
+        return compareClasses(classB, classA);
       }
       return 0;
     }
   }
 
+}
+
+function compareClasses(classA: string, classB: string): number {
+  if(classA === classB){ return 0; }
+  return classA < classB ? -1 : +1;
 }
 
 function isArbitrary(variant?: string): boolean {

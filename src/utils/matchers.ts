@@ -120,10 +120,13 @@ export function isInsideConditionalExpressionTest(node: WithParent<ESNode>): boo
   return isInsideConditionalExpressionTest(node.parent);
 }
 
-export function isInsideBinaryExpression(node: WithParent<ESNode>): boolean {
+export function isInsideDisallowedBinaryExpression(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
-  if(node.parent.type === "BinaryExpression"){ return true; }
-  return isInsideBinaryExpression(node.parent);
+  if(
+    node.parent.type === "BinaryExpression" &&
+    node.parent.operator !== "+" // allow string concatenation
+  ){ return true; }
+  return isInsideDisallowedBinaryExpression(node.parent);
 }
 
 export function isInsideLogicalExpressionLeft(node: WithParent<ESNode>): boolean {

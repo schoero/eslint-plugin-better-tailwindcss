@@ -284,10 +284,15 @@ function createLiteralsByAngularBoundAttributeName(ctx: Rule.RuleContext, attrib
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
   const supportsMultiline = false;
+  const concatenation = {
+    isConcatenatedLeft: false,
+    isConcatenatedRight: false
+  };
 
   return [{
     ...quotes,
     ...whitespaces,
+    ...concatenation,
     content,
     indentation,
     loc,
@@ -332,10 +337,15 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapProp
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1] ?? "";
   const indentation = getIndentation(line);
+  const concatenation = {
+    isConcatenatedLeft: false,
+    isConcatenatedRight: false
+  };
 
   return [{
     ...quotes,
     ...whitespaces,
+    ...concatenation,
     content: keyContent,
     indentation,
     loc,
@@ -363,10 +373,15 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
   const supportsMultiline = true;
+  const concatenation = {
+    isConcatenatedLeft: false,
+    isConcatenatedRight: false
+  };
 
   return [{
     ...quotes,
     ...whitespaces,
+    ...concatenation,
     content,
     indentation,
     loc,
@@ -393,11 +408,13 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
+  const concatenation = getStringConcatenationMeta(ctx, literal);
   const supportsMultiline = true;
 
   return [{
     ...quotes,
     ...whitespaces,
+    ...concatenation,
     content,
     indentation,
     loc,
@@ -433,11 +450,13 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
   const parentLine = ctx.sourceCode.lines[parentLoc.start.line - 1];
   const indentation = getIndentation(parentLine);
   const supportsMultiline = true;
+  const concatenation = getStringConcatenationMeta(ctx, literal);
 
   return [{
     ...quotes,
     ...whitespaces,
     ...braces,
+    ...concatenation,
     content,
     indentation,
     isInterpolated,
@@ -532,6 +551,27 @@ function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean
   }
 
   return isInsideConditionalExpressionCondition(ctx, parent);
+}
+
+function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {
+  const parent = findParent(ctx, ast);
+  if(!parent){
+    return {
+      isConcatenatedLeft,
+      isConcatenatedRight
+    };
+  }
+
+  if(isBinary(parent) && parent.operation === "+"){
+    return getStringConcatenationMeta(
+      ctx,
+      parent,
+      isConcatenatedLeft || parent.right === ast,
+      isConcatenatedRight || parent.left === ast
+    );
+  }
+
+  return getStringConcatenationMeta(ctx, parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
 function isInsideObjectValue(ctx: Rule.RuleContext, ast: AST): boolean {

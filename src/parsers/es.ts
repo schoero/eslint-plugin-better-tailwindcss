@@ -3,8 +3,8 @@ import {
   findMatchingParentNodes,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
-  isInsideBinaryExpression,
   isInsideConditionalExpressionTest,
+  isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
   matchesPathPattern
@@ -197,11 +197,13 @@ export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: E
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
   const supportsMultiline = !isESObjectKey(node);
+  const concatenation = getStringConcatenationMeta(node);
 
   return {
     ...quotes,
     ...whitespaces,
     ...multilineQuotes,
+    ...concatenation,
     content,
     indentation,
     isInterpolated: false,
@@ -233,12 +235,14 @@ function getLiteralByESTemplateElement(ctx: Rule.RuleContext, node: ESTemplateEl
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
+  const concatenation = getStringConcatenationMeta(node);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
     ...multilineQuotes,
+    ...concatenation,
     content,
     indentation,
     isInterpolated,
@@ -609,6 +613,27 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   return !!braces.closingBraces || !!braces.openingBraces;
 }
 
+function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {
+  if(!hasESNodeParentExtension(node)){
+    return {
+      isConcatenatedLeft,
+      isConcatenatedRight
+    };
+  }
+
+  const parent = node.parent;
+
+  if(parent.type === "BinaryExpression" && parent.operator === "+"){
+    return getStringConcatenationMeta(
+      parent,
+      isConcatenatedLeft || parent.right === node,
+      isConcatenatedRight || parent.left === node
+    );
+  }
+
+  return getStringConcatenationMeta(parent, isConcatenatedLeft, isConcatenatedRight);
+}
+
 function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
   return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
@@ -619,7 +644,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isIndexedAccessLiteral(node) ||
@@ -641,7 +666,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !hasESNodeParentExtension(node) ||
             !isESObjectKey(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
@@ -667,7 +692,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !hasESNodeParentExtension(node) ||
             !isInsideObjectValue(node) ||
 
-            isInsideBinaryExpression(node) ||
+            isInsideDisallowedBinaryExpression(node) ||
             isInsideConditionalExpressionTest(node) ||
             isInsideLogicalExpressionLeft(node) ||
             isESObjectKey(node) ||

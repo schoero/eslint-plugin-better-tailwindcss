@@ -16,7 +16,7 @@ describe("default options", () => {
     const exportedFiles = getFilesInDirectory("./src/options/callees/");
     const fileNames = exportedFiles.map(file => file.replace(".ts", ""));
 
-    expect(callees.sort()).toStrictEqual(fileNames.sort());
+    expect(callees.sort()).toStrictEqual(fileNames.sort().map(name => `^${name}$`));
 
   });
 

@@ -10,7 +10,7 @@ export const CX_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "cx"
+  name: "^cx$"
 } satisfies CalleeSelector;
 
 export const CX_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const CX_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "cx"
+  name: "^cx$"
 } satisfies CalleeSelector;
 
 /** @see https://cva.style/docs/api-reference#cx */

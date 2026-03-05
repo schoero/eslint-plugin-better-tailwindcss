@@ -10,7 +10,7 @@ export const OBJSTR_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "objstr"
+  name: "^objstr$"
 } satisfies CalleeSelector;
 
 export const OBJSTR_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const OBJSTR_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "objstr"
+  name: "^objstr$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/lukeed/obj-str */

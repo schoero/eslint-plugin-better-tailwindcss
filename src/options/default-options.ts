@@ -55,7 +55,7 @@ export const DEFAULT_ATTRIBUTE_SELECTORS = [
         type: MatcherType.String
       }
     ],
-    name: "^class:.*"
+    name: "^class:.*$"
   },
   {
     kind: SelectorKind.Attribute,

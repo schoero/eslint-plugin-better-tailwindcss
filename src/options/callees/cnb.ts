@@ -10,7 +10,7 @@ export const CNB_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "cnb"
+  name: "^cnb$"
 } satisfies CalleeSelector;
 
 export const CNB_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const CNB_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "cnb"
+  name: "^cnb$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/xobotyi/cnbuilder */

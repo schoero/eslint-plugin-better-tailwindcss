@@ -10,7 +10,7 @@ export const CTL_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "ctl"
+  name: "^ctl$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/netlify/classnames-template-literals */

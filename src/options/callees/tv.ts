@@ -10,7 +10,7 @@ export const TV_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 export const TV_VARIANT_VALUES = {
@@ -21,7 +21,7 @@ export const TV_VARIANT_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 export const TV_BASE_VALUES = {
@@ -32,7 +32,7 @@ export const TV_BASE_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 export const TV_SLOTS_VALUES = {
@@ -43,7 +43,7 @@ export const TV_SLOTS_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 export const TV_COMPOUND_VARIANTS_CLASS = {
@@ -54,7 +54,7 @@ export const TV_COMPOUND_VARIANTS_CLASS = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 export const TV_COMPOUND_SLOTS_CLASS = {
@@ -65,7 +65,7 @@ export const TV_COMPOUND_SLOTS_CLASS = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "tv"
+  name: "^tv$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file */

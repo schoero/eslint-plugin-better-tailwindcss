@@ -13,7 +13,7 @@ describe("matchesName", () => {
   });
 
   it("should not match partial matches", () => {
-    expect(matchesName("class", "className")).toBe(false);
+    expect(matchesName("^class$", "className")).toBe(false);
   });
 
   it("should match by regex", () => {

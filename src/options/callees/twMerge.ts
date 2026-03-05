@@ -10,7 +10,7 @@ export const TW_MERGE_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "twMerge"
+  name: "^twMerge$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/dcastil/tailwind-merge */

@@ -94,7 +94,11 @@ function toSelectorMatcher(matcher: Matcher): SelectorMatcher {
   };
 }
 
-function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
+function isLegacyCompatibleMatcher(matcher: SelectorMatcher): matcher is Exclude<SelectorMatcher, { type: MatcherType.ArrowFunctionReturn; }> {
+  return matcher.type !== MatcherType.ArrowFunctionReturn;
+}
+
+function toLegacyMatcher(matcher: Exclude<SelectorMatcher, { type: MatcherType.ArrowFunctionReturn; }>): Matcher {
   if(matcher.type === MatcherType.String){
     return {
       match: matcher.type
@@ -136,7 +140,7 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
 
     return [
       selector.name,
-      selector.match.map(toLegacyMatcher)
+      selector.match.filter(isLegacyCompatibleMatcher).map(toLegacyMatcher)
     ];
   }
 
@@ -146,6 +150,6 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
 
   return [
     selector.name,
-    selector.match.map(toLegacyMatcher)
+    selector.match.filter(isLegacyCompatibleMatcher).map(toLegacyMatcher)
   ];
 }

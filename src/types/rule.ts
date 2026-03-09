@@ -7,6 +7,8 @@ import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export enum MatcherType {
+  /** Matches strings inside arrow function return positions (expression body or return statements). */
+  ArrowFunctionReturn = "arrowFunctionReturn",
   /** Matches all object keys that are strings. */
   ObjectKey = "objectKeys",
   /** Matches all object values that are strings. */
@@ -42,6 +44,10 @@ export type MatcherFunction<Node> = (node: unknown) => node is Node;
 export type MatcherFunctions<Node> = MatcherFunction<Node>[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 
+export type SelectorArrowFunctionReturnMatcher = {
+  type: MatcherType.ArrowFunctionReturn;
+};
+
 export type SelectorStringMatcher = {
   type: MatcherType.String;
 };
@@ -56,7 +62,7 @@ export type SelectorObjectValueMatcher = {
   path?: Regex | undefined;
 };
 
-export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
+export type SelectorMatcher = SelectorArrowFunctionReturnMatcher | SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
 
 type BaseSelector<Kind extends SelectorKind> = {
   kind: Kind;
@@ -66,6 +72,7 @@ type BaseSelector<Kind extends SelectorKind> = {
 
 export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
+export type ArgumentTarget = "all" | "first" | "last" | number;
 export type CallTarget = "all" | "first" | "last" | number;
 export type CalleeSelector = {
   kind: SelectorKind.Callee;
@@ -73,6 +80,7 @@ export type CalleeSelector = {
   match?: SelectorMatcher[] | undefined;
   name?: Regex | undefined;
   path?: Regex | undefined;
+  targetArgument?: ArgumentTarget | undefined;
 };
 
 export type TagSelector = BaseSelector<SelectorKind.Tag>;

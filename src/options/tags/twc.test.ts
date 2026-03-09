@@ -76,4 +76,81 @@ describe("twc", () => {
 
   });
 
+  it("should lint strings inside arrow function callbacks with block body", () => {
+
+    const dirty = `const Root = twc.div(({ $active }) => { return [" lint ", $active && " lint "]; });`;
+    const clean = `const Root = twc.div(({ $active }) => { return ["lint", $active && "lint"]; });`;
+
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: dirty,
+          jsxOutput: clean,
+          svelte: `<script>${dirty}</script>`,
+          svelteOutput: `<script>${clean}</script>`,
+          vue: `<script>${dirty}</script>`,
+          vueOutput: `<script>${clean}</script>`,
+
+          errors: 4,
+          options: [{ selectors: [TWC_CALLEE_STRINGS] }]
+        }
+      ]
+    });
+
+  });
+
+  it("should lint strings in conditional arrow function returns", () => {
+
+    const dirty = `const Root = twc.div(({ $active }) => $active ? " lint " : " lint2 ");`;
+    const clean = `const Root = twc.div(({ $active }) => $active ? "lint" : "lint2");`;
+
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: dirty,
+          jsxOutput: clean,
+
+          errors: 4,
+          options: [{ selectors: [TWC_CALLEE_STRINGS] }]
+        }
+      ]
+    });
+
+  });
+
+  it("should lint strings with multiple return paths in block body", () => {
+
+    const dirty = `const Root = twc.div(({ $active }) => { if($active) { return " lint "; } return " lint2 "; });`;
+    const clean = `const Root = twc.div(({ $active }) => { if($active) { return "lint"; } return "lint2"; });`;
+
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: dirty,
+          jsxOutput: clean,
+
+          errors: 4,
+          options: [{ selectors: [TWC_CALLEE_STRINGS] }]
+        }
+      ]
+    });
+
+  });
+
+  it("should not lint strings that are not inside twc member expressions", () => {
+
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const x = other.div(({ $active }) => [" ignore ", $active && " ignore "]);`,
+          svelte: `<script>const x = other.div(({ $active }) => [" ignore ", $active && " ignore "]);</script>`,
+          vue: `<script>const x = other.div(({ $active }) => [" ignore ", $active && " ignore "]);</script>`,
+
+          options: [{ selectors: [TWC_CALLEE_STRINGS] }]
+        }
+      ]
+    });
+
+  });
+
 });

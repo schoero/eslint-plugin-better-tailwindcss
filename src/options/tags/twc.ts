@@ -13,6 +13,9 @@ export const TWC_CALLEE_STRINGS = {
   match: [
     {
       type: MatcherType.String
+    },
+    {
+      type: MatcherType.ArrowFunctionReturn
     }
   ],
   path: "^twc\\.\\w+"

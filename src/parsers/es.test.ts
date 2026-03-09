@@ -280,4 +280,137 @@ describe("es", () => {
     });
   });
 
+  it("should support targetArgument first", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testFn(({ x }) => " lint ", " keep ");`,
+          jsxOutput: `testFn(({ x }) => "lint", " keep ");`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ArrowFunctionReturn }],
+                name: "^testFn$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support targetArgument last", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testFn(" keep ", ({ x }) => " lint ");`,
+          jsxOutput: `testFn(" keep ", ({ x }) => "lint");`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ArrowFunctionReturn }],
+                name: "^testFn$",
+                targetArgument: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support targetArgument with numeric index", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testFn(" keep ", ({ x }) => " lint ", " keep ");`,
+          jsxOutput: `testFn(" keep ", ({ x }) => "lint", " keep ");`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ArrowFunctionReturn }],
+                name: "^testFn$",
+                targetArgument: 1
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support arrowFunctionReturn matcher with expression body", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testFn(({ x }) => " lint ");`,
+          jsxOutput: `testFn(({ x }) => "lint");`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ArrowFunctionReturn }],
+                name: "^testFn$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support arrowFunctionReturn matcher with block body", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testFn(({ x }) => { return " lint "; });`,
+          jsxOutput: `testFn(({ x }) => { return "lint"; });`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ArrowFunctionReturn }],
+                name: "^testFn$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not match arrow function bodies without arrowFunctionReturn matcher", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `testFn(({ x }) => " ignore ");`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.String }],
+                name: "^testFn$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
 });

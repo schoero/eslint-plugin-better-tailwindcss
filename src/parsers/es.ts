@@ -48,6 +48,7 @@ import type {
 } from "better-tailwindcss:types/ast.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
+  ArgumentTarget,
   CalleeSelector,
   CallTarget,
   MatcherFunctions,
@@ -123,11 +124,19 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
         continue;
       }
 
-      literals.push(...getLiteralsByESMatchers(ctx, targetCall, selector.match));
+      const nonArrowMatchers = selector.match.filter(m => m.type !== MatcherType.ArrowFunctionReturn);
+      const hasArrowFunctionReturnMatcher = selector.match.some(m => m.type === MatcherType.ArrowFunctionReturn);
 
-      for(const arg of targetCall.arguments){
-        if(isESArrowFunctionExpression(arg) && arg.body){
-          literals.push(...getLiteralsByESMatchers(ctx, arg.body as ESBaseNode & Rule.NodeParentExtension, selector.match));
+      if(nonArrowMatchers.length > 0){
+        literals.push(...getLiteralsByESMatchers(ctx, targetCall, nonArrowMatchers));
+      }
+
+      if(hasArrowFunctionReturnMatcher){
+        const targetArgs = getTargetArguments(targetCall.arguments, selector.targetArgument);
+        for(const arg of targetArgs){
+          if(isESArrowFunctionExpression(arg) && arg.body){
+            literals.push(...getLiteralsByArrowFunctionReturn(ctx, arg));
+          }
         }
       }
     }
@@ -582,6 +591,91 @@ function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | unde
   return [calls[index]];
 }
 
+function getTargetArguments(args: (ESExpression | ESSpreadElement)[], targetArgument: ArgumentTarget | undefined): (ESExpression | ESSpreadElement)[] {
+  if(args.length === 0){
+    return [];
+  }
+
+  if(targetArgument === undefined || targetArgument === "all"){
+    return args;
+  }
+
+  if(targetArgument === "first"){
+    return [args[0]];
+  }
+
+  if(targetArgument === "last"){
+    return [args[args.length - 1]];
+  }
+
+  const index = targetArgument >= 0
+    ? targetArgument
+    : args.length + targetArgument;
+
+  if(index < 0 || index >= args.length){
+    return [];
+  }
+
+  return [args[index]];
+}
+
+function getLiteralsByArrowFunctionReturn(ctx: Rule.RuleContext, arrowFn: ESArrowFunctionExpression): Literal[] {
+  const stringMatchers: SelectorMatcher[] = [{ type: MatcherType.String }];
+
+  if(arrowFn.expression){
+    // Expression body: () => expr
+    return getLiteralsByESMatchers(ctx, arrowFn.body as ESBaseNode & Rule.NodeParentExtension, stringMatchers);
+  }
+
+  // Block body: () => { ... return expr; ... }
+  if(arrowFn.body.type === "BlockStatement"){
+    const literals: Literal[] = [];
+    for(const statement of (arrowFn.body as { body: ESBaseNode[]; }).body){
+      collectReturnStatementLiterals(ctx, statement, stringMatchers, literals);
+    }
+    return literals;
+  }
+
+  return [];
+}
+
+function collectReturnStatementLiterals(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[], literals: Literal[]): void {
+  if(node.type === "ReturnStatement"){
+    const argument = (node as ESBaseNode & { argument: ESBaseNode | null; }).argument;
+    if(argument){
+      literals.push(...getLiteralsByESMatchers(ctx, argument as ESBaseNode & Rule.NodeParentExtension, matchers));
+    }
+    return;
+  }
+
+  // Recurse into block-scoped structures but not into nested functions/arrow functions
+  if(isESArrowFunctionExpression(node) || isESFunctionExpression(node)){
+    return;
+  }
+
+  const nodeRecord = node as Record<string, unknown>;
+
+  if("body" in nodeRecord && Array.isArray(nodeRecord.body)){
+    for(const child of nodeRecord.body){
+      collectReturnStatementLiterals(ctx, child as ESBaseNode, matchers, literals);
+    }
+  }
+
+  if("consequent" in nodeRecord && nodeRecord.consequent){
+    if(Array.isArray(nodeRecord.consequent)){
+      for(const child of nodeRecord.consequent){
+        collectReturnStatementLiterals(ctx, child as ESBaseNode, matchers, literals);
+      }
+    } else {
+      collectReturnStatementLiterals(ctx, nodeRecord.consequent as ESBaseNode, matchers, literals);
+    }
+  }
+
+  if("alternate" in nodeRecord && nodeRecord.alternate){
+    collectReturnStatementLiterals(ctx, nodeRecord.alternate as ESBaseNode, matchers, literals);
+  }
+}
+
 function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {
   return node.type === "TaggedTemplateExpression";
 }
@@ -628,6 +722,10 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
 function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
   return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.ArrowFunctionReturn: {
+        // Handled at the call-site level in getLiteralsByESCallExpression
+        break;
+      }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESNode => {
 

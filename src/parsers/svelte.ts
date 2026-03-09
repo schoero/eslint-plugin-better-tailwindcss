@@ -314,6 +314,10 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
 function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
   return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.ArrowFunctionReturn: {
+        // Handled at the call-site level in getLiteralsByESCallExpression
+        break;
+      }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 

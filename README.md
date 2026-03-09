@@ -162,6 +162,7 @@ This plugin is pre-configured to lint tailwind classes for the most popular util
 - [cnbuilder](https://github.com/xobotyi/cnbuilder): `cnb`
 - [classnames template literals](https://github.com/netlify/classnames-template-literals): `ctl`
 - [obj str](https://github.com/lukeed/obj-str): `objstr`
+- [react-twc](https://github.com/gregberge/twc): `twc` · `twx`
 
 <br/>
 <br/>

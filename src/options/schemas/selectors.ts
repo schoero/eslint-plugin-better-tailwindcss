@@ -16,6 +16,13 @@ import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 import type { InferOutput } from "valibot";
 
 
+const ARROW_FUNCTION_RETURN_SELECTOR_MATCHER_SCHEMA = strictObject({
+  type: pipe(
+    literal(MatcherType.ArrowFunctionReturn),
+    description("Matcher type that will be applied.")
+  )
+});
+
 const STRING_SELECTOR_MATCHER_SCHEMA = strictObject({
   type: pipe(
     literal(MatcherType.String),
@@ -49,6 +56,7 @@ const SELECTOR_MATCH_SCHEMA = pipe(
   optional(
     array(
       union([
+        ARROW_FUNCTION_RETURN_SELECTOR_MATCHER_SCHEMA,
         STRING_SELECTOR_MATCHER_SCHEMA,
         OBJECT_KEY_SELECTOR_MATCHER_SCHEMA,
         OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA
@@ -80,6 +88,18 @@ const CALLEE_SELECTOR_CALL_TARGET_SCHEMA = pipe(
   description("Optional call target for curried callees: index, first, last, or all.")
 );
 
+const CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA = pipe(
+  optional(
+    union([
+      literal("all"),
+      literal("first"),
+      literal("last"),
+      number()
+    ])
+  ),
+  description("Optional target argument for callee selectors: index, first, last, or all.")
+);
+
 const ATTRIBUTE_SELECTOR_SCHEMA = strictObject({
   kind: pipe(
     literal(SelectorKind.Attribute),
@@ -98,7 +118,8 @@ const CALLEE_SELECTOR_SCHEMA = union([
     ),
     match: SELECTOR_MATCH_SCHEMA,
     name: SELECTOR_NAME_SCHEMA,
-    path: optional(CALLEE_SELECTOR_PATH_SCHEMA)
+    path: optional(CALLEE_SELECTOR_PATH_SCHEMA),
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA
   }),
   strictObject({
     callTarget: CALLEE_SELECTOR_CALL_TARGET_SCHEMA,
@@ -108,7 +129,8 @@ const CALLEE_SELECTOR_SCHEMA = union([
     ),
     match: SELECTOR_MATCH_SCHEMA,
     name: optional(SELECTOR_NAME_SCHEMA),
-    path: CALLEE_SELECTOR_PATH_SCHEMA
+    path: CALLEE_SELECTOR_PATH_SCHEMA,
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA
   })
 ]);
 

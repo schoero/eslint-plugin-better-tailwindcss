@@ -1,4 +1,5 @@
 export type {
+  ArgumentTarget,
   CallTarget,
   ObjectKeyMatcher,
   ObjectValueMatcher,

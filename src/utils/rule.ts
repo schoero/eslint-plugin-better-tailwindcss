@@ -153,7 +153,22 @@ export function createRule<
         const { entryPoint, messageStyle, tailwindConfig, tsconfig } = options;
 
         const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
-        const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
+        let packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
+        let resolvedCwd = ctx.cwd;
+
+        // Monorepo fallback: when the linter's cwd is the repo root (e.g. when
+        // run by a VS Code extension), tailwindcss may only be installed in a
+        // nested workspace.  Try resolving from the linted file's directory and
+        // derive the working directory from the resolved package location so
+        // that downstream resolution (entry point, theme.css, etc.) also works.
+        if(!packageJsonPath){
+          const fileDir = dirname(ctx.filename ?? ctx.getFilename());
+          packageJsonPath = resolveJson("tailwindcss/package.json", fileDir);
+
+          if(packageJsonPath){
+            resolvedCwd = dirname(dirname(dirname(packageJsonPath)));
+          }
+        }
 
         if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
@@ -165,7 +180,7 @@ export function createRule<
         const installation = dirname(packageJsonPath);
 
         const context = {
-          cwd: ctx.cwd,
+          cwd: resolvedCwd,
           docs,
           installation,
           options,

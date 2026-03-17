@@ -8,9 +8,15 @@ import type { Context } from "better-tailwindcss:types/rule.js";
 
 
 export function createTestContext(): Context {
+  const packageJsonPath = resolveJson("tailwindcss/package.json", cwd());
+
+  if(!packageJsonPath){
+    throw new Error("Tailwind CSS is not installed.");
+  }
+
   return {
     cwd: cwd(),
-    installation: dirname(resolveJson("tailwindcss/package.json", cwd())),
+    installation: dirname(packageJsonPath),
     options: {},
     version: getTailwindCSSVersion()
   } as Context;

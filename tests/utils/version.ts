@@ -8,6 +8,10 @@ import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 export function getTailwindCSSVersion() {
   const packageJsonPath = resolveJson("tailwindcss/package.json", cwd());
 
+  if(!packageJsonPath){
+    throw new Error("Tailwind CSS is not installed.");
+  }
+
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
   return parseSemanticVersion(packageJson.version);
 }

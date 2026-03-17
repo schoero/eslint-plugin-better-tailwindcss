@@ -1,9 +1,9 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Linter } from "eslint";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 
@@ -18,7 +18,7 @@ const WORKSPACE = join(MONOREPO_ROOT, "packages", "website");
 const TAILWIND_PKG = join(WORKSPACE, "node_modules", "tailwindcss");
 
 beforeAll(() => {
-  rmSync(MONOREPO_ROOT, { recursive: true, force: true });
+  rmSync(MONOREPO_ROOT, { force: true, recursive: true });
 
   // Create the workspace directory structure
   mkdirSync(join(WORKSPACE, "src"), { recursive: true });
@@ -28,8 +28,8 @@ beforeAll(() => {
   mkdirSync(TAILWIND_PKG, { recursive: true });
   writeFileSync(join(TAILWIND_PKG, "package.json"), JSON.stringify({
     name: "tailwindcss",
-    version: "4.0.0",
-    style: "index.css"
+    style: "index.css",
+    version: "4.0.0"
   }));
   writeFileSync(join(TAILWIND_PKG, "index.css"), "");
   mkdirSync(join(TAILWIND_PKG, "dist"), { recursive: true });
@@ -37,14 +37,14 @@ beforeAll(() => {
 });
 
 afterAll(() => {
-  rmSync(MONOREPO_ROOT, { recursive: true, force: true });
+  rmSync(MONOREPO_ROOT, { force: true, recursive: true });
 });
 
 
 describe("monorepo resolution", () => {
 
   it("should resolve tailwindcss from the file's directory when not found in cwd", () => {
-    const linter = new Linter({ cwd: MONOREPO_ROOT, configType: "flat" });
+    const linter = new Linter({ configType: "flat", cwd: MONOREPO_ROOT });
 
     const messages = linter.verify(
       `export default () => <div className="flex" />;`,

@@ -1,0 +1,149 @@
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
+import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
+import { buildClass } from "better-tailwindcss:utils/class.js";
+import { async } from "better-tailwindcss:utils/context.js";
+import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { createRule } from "better-tailwindcss:utils/rule.js";
+import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
+
+import type { Literal } from "better-tailwindcss:types/ast.js";
+import type { Context } from "better-tailwindcss:types/rule.js";
+
+
+export const enforceLogicalProperties = createRule({
+  autofix: true,
+  category: "stylistic",
+  description: "Enforce logical property class names instead of physical directions.",
+  docs: "https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/rules/enforce-logical-properties.md",
+  name: "enforce-logical-properties",
+  recommended: false,
+
+  messages: {
+    replaceable: "Physical class detected. Replace \"{{ className }}\" with logical class \"{{fix}}\"."
+  },
+
+  initialize: ctx => {
+    createGetDissectedClasses(ctx);
+    createGetUnknownClasses(ctx);
+  },
+
+  lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
+});
+
+const mappings = [
+  [/^pl-(.*)$/, "ps-$1"],
+  [/^pr-(.*)$/, "pe-$1"],
+  [/^pt-(.*)$/, "pbs-$1"],
+  [/^pb-(.*)$/, "pbe-$1"],
+  [/^ml-(.*)$/, "ms-$1"],
+  [/^mr-(.*)$/, "me-$1"],
+  [/^mt-(.*)$/, "mbs-$1"],
+  [/^mb-(.*)$/, "mbe-$1"],
+  [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
+  [/^scroll-mr-(.*)$/, "scroll-me-$1"],
+  [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
+  [/^scroll-pr-(.*)$/, "scroll-pe-$1"],
+  [/^scroll-mt-(.*)$/, "scroll-mbs-$1"],
+  [/^scroll-mb-(.*)$/, "scroll-mbe-$1"],
+  [/^scroll-pt-(.*)$/, "scroll-pbs-$1"],
+  [/^scroll-pb-(.*)$/, "scroll-pbe-$1"],
+
+  [/^left-(.*)$/, "inset-s-$1"],
+  [/^right-(.*)$/, "inset-e-$1"],
+  [/^top-(.*)$/, "inset-bs-$1"],
+  [/^bottom-(.*)$/, "inset-be-$1"],
+
+  [/^border-l$/, "border-s"],
+  [/^border-l-(.*)$/, "border-s-$1"],
+  [/^border-r$/, "border-e"],
+  [/^border-r-(.*)$/, "border-e-$1"],
+  [/^border-t$/, "border-bs"],
+  [/^border-t-(.*)$/, "border-bs-$1"],
+  [/^border-b$/, "border-be"],
+  [/^border-b-(.*)$/, "border-be-$1"],
+
+  [/^rounded-l$/, "rounded-s"],
+  [/^rounded-l-(.*)$/, "rounded-s-$1"],
+  [/^rounded-r$/, "rounded-e"],
+  [/^rounded-r-(.*)$/, "rounded-e-$1"],
+
+  [/^rounded-tl$/, "rounded-ss"],
+  [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
+  [/^rounded-tr$/, "rounded-se"],
+  [/^rounded-tr-(.*)$/, "rounded-se-$1"],
+  [/^rounded-br$/, "rounded-ee"],
+  [/^rounded-br-(.*)$/, "rounded-ee-$1"],
+  [/^rounded-bl$/, "rounded-es"],
+  [/^rounded-bl-(.*)$/, "rounded-es-$1"],
+
+  [/^text-left$/, "text-start"],
+  [/^text-right$/, "text-end"],
+
+  [/^float-left$/, "float-start"],
+  [/^float-right$/, "float-end"],
+  [/^clear-left$/, "clear-start"],
+  [/^clear-right$/, "clear-end"]
+] satisfies [before: RegExp, after: string][];
+
+
+function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
+  for(const literal of literals){
+    const classes = splitClasses(literal.content);
+
+    const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
+
+    const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
+      const replacementBase = getReplacementBase(dissectedClass.base);
+
+      if(!replacementBase){
+        return [];
+      }
+
+      return [buildClass(ctx, { ...dissectedClass, base: replacementBase })];
+    });
+
+    const { unknownClasses } = getUnknownClasses(async(ctx), possibleFixes);
+
+    lintClasses(ctx, literal, className => {
+      const dissectedClass = dissectedClasses[className];
+
+      if(!dissectedClass){
+        return;
+      }
+
+      const replacementBase = getReplacementBase(dissectedClass.base);
+
+      if(!replacementBase){
+        return;
+      }
+
+      const fix = buildClass(ctx, { ...dissectedClass, base: replacementBase });
+
+      if(unknownClasses.includes(fix)){
+        return;
+      }
+
+      return {
+        data: {
+          className,
+          fix
+        },
+        fix,
+        id: "replaceable",
+        warnings
+      } as const;
+    });
+  }
+}
+
+function getReplacementBase(base: string) {
+  for(const [pattern, replacement] of mappings){
+    const match = base.match(pattern);
+
+    if(!match){
+      continue;
+    }
+
+    return replacePlaceholders(replacement, match);
+  }
+}

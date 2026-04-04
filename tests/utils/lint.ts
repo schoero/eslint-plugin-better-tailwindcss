@@ -12,6 +12,7 @@ import { tailwind4 } from "tailwind-csstree";
 import eslintParserVue from "vue-eslint-parser";
 
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
+import { getNodeVersion } from "better-tailwindcss:tests/utils/version.js";
 import { clearCache } from "better-tailwindcss:utils/cache.js";
 
 import type { ESLint } from "eslint";
@@ -65,10 +66,12 @@ const LINTERS = {
       vue: TEST_SYNTAXES.vue
     }
   },
-  oxlint: {
-    RuleTester: OxlintRuleTester,
-    syntaxes: {
-      jsx: TEST_SYNTAXES.jsx
+  ...getNodeVersion().major >= 22 && {
+    oxlint: {
+      RuleTester: OxlintRuleTester,
+      syntaxes: {
+        jsx: TEST_SYNTAXES.jsx
+      }
     }
   }
 } as const;

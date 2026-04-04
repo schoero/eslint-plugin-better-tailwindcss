@@ -11,3 +11,7 @@ export function getTailwindCSSVersion() {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
   return parseSemanticVersion(packageJson.version);
 }
+
+export function getNodeVersion() {
+  return parseSemanticVersion(process.versions.node);
+}

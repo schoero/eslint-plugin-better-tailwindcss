@@ -1,4 +1,4 @@
-import { dirname, join } from "node:path";
+import { dirname, resolve } from "node:path";
 
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 
@@ -21,7 +21,7 @@ export function findProjectRoot(ctx: Rule.RuleContext, options: CommonOptions) {
   ];
 
   if(entryPoint || tailwindConfig || tsconfig){
-    const root = findPathRecursive(ctx.cwd, dirname(join(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig!)), rootItems);
+    const root = findPathRecursive(ctx.cwd, dirname(resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig!)), rootItems);
     if(root){
       return dirname(root);
     }

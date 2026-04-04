@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createGetDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { createTestContext } from "better-tailwindcss:tests/utils/context.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
-import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
+import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version";
 import { async } from "better-tailwindcss:utils/context.js";
 
@@ -17,9 +17,14 @@ function dissectClass(className: string) {
 }
 
 describe("getDissectedClass", () => {
+  let fs: TestDirectory;
+
   beforeEach(() => {
-    resetTestingDirectory();
-    createTestFile("global.css", css`@import "tailwindcss";`);
+    fs = new TestDirectory({ "global.css": css`@import "tailwindcss";` });
+  });
+
+  afterEach(() => {
+    fs.cleanUp();
   });
 
   describe("variants", () => {

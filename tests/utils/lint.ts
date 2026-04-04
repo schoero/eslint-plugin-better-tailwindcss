@@ -5,12 +5,13 @@ import eslintParserAngular from "@angular-eslint/template-parser";
 import css from "@eslint/css";
 import eslintParserHTML from "@html-eslint/parser";
 import eslintParserAstro from "astro-eslint-parser";
-import { RuleTester } from "eslint";
+import { RuleTester as ESLintRuleTester } from "eslint";
+import { RuleTester as OxlintRuleTester } from "oxlint/plugins-dev";
 import eslintParserSvelte from "svelte-eslint-parser";
 import { tailwind4 } from "tailwind-csstree";
 import eslintParserVue from "vue-eslint-parser";
 
-import { createTestFile, resetTestingDirectory } from "better-tailwindcss:tests/utils/tmp.js";
+import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { clearCache } from "better-tailwindcss:utils/cache.js";
 
 import type { Node as ESNode } from "estree";
@@ -19,7 +20,7 @@ import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Context, ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
-const TEST_SYNTAXES = {
+export const TEST_SYNTAXES = {
   angular: {
     languageOptions: { parser: eslintParserAngular }
   },
@@ -50,6 +51,27 @@ const TEST_SYNTAXES = {
 
 type Syntaxes = typeof TEST_SYNTAXES;
 
+const LINTERS = {
+  eslint: {
+    RuleTester: ESLintRuleTester,
+    syntaxes: {
+      angular: TEST_SYNTAXES.angular,
+      astro: TEST_SYNTAXES.astro,
+      css: TEST_SYNTAXES.css,
+      html: TEST_SYNTAXES.html,
+      jsx: TEST_SYNTAXES.jsx,
+      svelte: TEST_SYNTAXES.svelte,
+      vue: TEST_SYNTAXES.vue
+    }
+  },
+  oxlint: {
+    RuleTester: OxlintRuleTester,
+    syntaxes: {
+      jsx: TEST_SYNTAXES.jsx
+    }
+  }
+} as const;
+
 export function lint<const Rule extends ESLintRule>(
   eslintRule: Rule,
   tests: {
@@ -78,65 +100,59 @@ export function lint<const Rule extends ESLintRule>(
   }
 ) {
 
-
   for(const invalid of tests.invalid ?? []){
 
-    resetTestingDirectory();
     clearCache();
 
-    for(const file in invalid.files ?? {}){
-      invalid.settings ??= { "better-tailwindcss": {} };
-      createTestFile(file, invalid.files![file]);
-    }
+    using _ = new TestDirectory(invalid.files);
 
-    for(const syntax of Object.keys(TEST_SYNTAXES)){
+    for(const { RuleTester, syntaxes } of Object.values(LINTERS)){
+      for(const [name, options] of Object.entries(syntaxes)){
 
-      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
+        const ruleTester = new RuleTester(options) as ESLintRuleTester;
 
-      if(!invalid[syntax]){
-        continue;
+        if(!invalid[name]){
+          continue;
+        }
+
+        ruleTester.run(eslintRule.name, eslintRule.rule, {
+          invalid: [{
+            code: invalid[name],
+            errors: invalid.errors,
+            options: invalid.options ?? [],
+            output: invalid[`${name}Output`] ?? null,
+            settings: invalid.settings ?? {}
+          }],
+          valid: []
+        });
       }
-
-      ruleTester.run(eslintRule.name, eslintRule.rule, {
-        invalid: [{
-          code: invalid[syntax],
-          errors: invalid.errors,
-          options: invalid.options ?? [],
-          output: invalid[`${syntax}Output`] ?? null,
-          settings: invalid.settings ?? {}
-        }],
-        valid: []
-      });
     }
   }
 
-
   for(const valid of tests.valid ?? []){
 
-    resetTestingDirectory();
     clearCache();
 
-    for(const file in valid.files ?? {}){
-      valid.settings ??= { "better-tailwindcss": {} };
-      createTestFile(file, valid.files![file]);
-    }
+    using _ = new TestDirectory(valid.files);
 
-    for(const syntax of Object.keys(TEST_SYNTAXES)){
+    for(const { RuleTester, syntaxes } of Object.values(LINTERS)){
+      for(const [name, options] of Object.entries(syntaxes)){
 
-      const ruleTester = new RuleTester(TEST_SYNTAXES[syntax]);
+        const ruleTester = new RuleTester(options) as ESLintRuleTester;
 
-      if(!valid[syntax]){
-        continue;
+        if(!valid[name]){
+          continue;
+        }
+
+        ruleTester.run(eslintRule.name, eslintRule.rule, {
+          invalid: [],
+          valid: [{
+            code: valid[name],
+            options: valid.options ?? [],
+            settings: valid.settings ?? {}
+          }]
+        });
       }
-
-      ruleTester.run(eslintRule.name, eslintRule.rule, {
-        invalid: [],
-        valid: [{
-          code: valid[syntax],
-          options: valid.options ?? [],
-          settings: valid.settings ?? {}
-        }]
-      });
 
     }
   }

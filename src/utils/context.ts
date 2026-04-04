@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 
 import { withCache } from "better-tailwindcss:utils/cache.js";
-import { findFileRecursive } from "better-tailwindcss:utils/fs.js";
+import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -42,7 +42,7 @@ function getTSConfigPath({ configPath, cwd }: {
       "jsconfig.json"
     ];
 
-    const foundConfigPath = findFileRecursive(cwd, potentialPaths);
+    const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
     const warning = getConfigPathWarning(configPath, foundConfigPath);
 
     return {
@@ -60,7 +60,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
   return withCache("config-path", configPath, () => {
     if(version.major >= 4){
 
-      const foundConfigPath = configPath && findFileRecursive(cwd, [configPath]);
+      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
       const warning = getEntryPointWarning(configPath, foundConfigPath);
 
       if(foundConfigPath){
@@ -90,9 +90,9 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
         "tailwind.config.ts"
       ];
 
-      const foundConfigPath = configPath && findFileRecursive(cwd, [configPath]);
+      const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
 
-      const foundDefaultPath = findFileRecursive(cwd, defaultPaths);
+      const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
       const warning = getConfigPathWarning(configPath, foundConfigPath);
 
       return {

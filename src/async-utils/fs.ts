@@ -2,18 +2,12 @@ import { existsSync, statSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 
 
-export function findFileRecursive(cwd: string, paths: string[]): string | undefined {
-  const resolvedPaths = paths.map(p => resolve(cwd, p));
+export function findPathRecursive(cwd: string, startDirectory: string, entries: string[]): string | undefined {
+  const resolvedPaths = entries.map(p => resolve(startDirectory, p));
 
   for(let resolvedPath = resolvedPaths.shift(); resolvedPath !== undefined; resolvedPath = resolvedPaths.shift()){
 
     if(existsSync(resolvedPath)){
-      const stat = statSync(resolvedPath);
-
-      if(!stat.isFile()){
-        continue;
-      }
-
       return resolvedPath;
     }
 

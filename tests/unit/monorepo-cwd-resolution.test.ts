@@ -36,6 +36,35 @@ describe("monorepo cwd resolution", async () => {
 
   const ESLint = await loadESLint({ useFlatConfig: true });
 
+  it("should resolve tailwindcss from the explicitly configured cwd", async () => {
+    const linter = new ESLint({
+      cwd: fs.directory,
+      overrideConfig: {
+        ...TEST_SYNTAXES.jsx,
+        files: ["**/*.jsx"],
+        plugins: {
+          "better-tailwindcss": eslintPluginBetterTailwindCSS
+        },
+        rules: {
+          "better-tailwindcss/no-unnecessary-whitespace": "warn"
+        },
+        settings: {
+          "better-tailwindcss": {
+            cwd: "packages/website/"
+          }
+        }
+      },
+      overrideConfigFile: true
+    });
+
+    const results = await linter.lintFiles(fs.files["packages/website/src/index.jsx"].path);
+
+    expect(results).toHaveLength(1);
+    expect(results[0].messages).toHaveLength(2);
+    expect(results[0].messages[0].ruleId).toBe("better-tailwindcss/no-unnecessary-whitespace");
+    expect(results[0].messages[1].ruleId).toBe("better-tailwindcss/no-unnecessary-whitespace");
+  });
+
   it("should resolve tailwindcss from the entryPoint if provided", async () => {
     const linter = new ESLint({
       cwd: fs.directory,

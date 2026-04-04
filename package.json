@@ -88,8 +88,8 @@
     "valibot": "^1.3.1"
   },
   "devDependencies": {
-    "@angular-eslint/template-parser": "^21.3.1",
     "@angular/compiler": "^21.2.6",
+    "@angular-eslint/template-parser": "^21.3.1",
     "@eslint/css": "^1.1.0",
     "@html-eslint/parser": "0.58.1",
     "@oxc-node/core": "^0.0.35",

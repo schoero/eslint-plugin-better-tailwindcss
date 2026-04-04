@@ -112,7 +112,7 @@
     "svelte-eslint-parser": "^1.6.0",
     "tailwindcss": "^4.2.2",
     "tsc-alias": "^1.8.16",
-    "typescript": "^6.0.2",
+    "typescript": "^5.9.3",
     "vite-node": "^6.0.0",
     "vitest": "^4.1.2",
     "vue-eslint-parser": "^10.4.0"

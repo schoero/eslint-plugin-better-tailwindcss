@@ -14,6 +14,7 @@ import eslintParserVue from "vue-eslint-parser";
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { clearCache } from "better-tailwindcss:utils/cache.js";
 
+import type { ESLint } from "eslint";
 import type { Node as ESNode } from "estree";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
@@ -33,7 +34,7 @@ export const TEST_SYNTAXES = {
       customSyntax: tailwind4,
       tolerant: true
     },
-    plugins: { css }
+    plugins: { css: css as unknown as ESLint.Plugin }
   },
   html: {
     languageOptions: { parser: eslintParserHTML }

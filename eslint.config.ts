@@ -1,7 +1,8 @@
 import config from "@schoero/configs/eslint";
+import { defineConfig } from "eslint/config";
 
 
-export default [
+export default defineConfig([
   ...config,
   {
     files: ["**/*.test.{js,jsx,cjs,mjs,ts,tsx}", "**/*.test-d.{ts,tsx}"],
@@ -42,4 +43,4 @@ export default [
       "eslint-plugin-typescript/naming-convention": "off"
     }
   }
-];
+]);

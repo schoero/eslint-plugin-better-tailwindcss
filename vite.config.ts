@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     disableConsoleIntercept: true,
     fileParallelism: false,
+    globalSetup: "./tests/utils/setup.ts",
     testTimeout: 10_000
   }
 });

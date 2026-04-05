@@ -5,6 +5,7 @@
 - [entryPoint](#entrypoint)
 - [tailwindConfig](#tailwindconfig)
 - [tsconfig](#tsconfig)
+- [cwd](#cwd)
 - [detectComponentClasses](#detectcomponentclasses)
 - [rootFontSize](#rootfontsize)
 - [messageStyle](#messagestyle)
@@ -20,14 +21,13 @@ To set the settings object, add a `settings` key to the eslint config.
 <br />
 
 ```jsonc
+// eslint.config.js
 {
-  "plugins": { /* ... */ },
-  "rules": { /* ... */ },
+  // "plugins": {... },
+  // "rules": { ... },
   "settings": {
     "better-tailwindcss": {
-      "entryPoint": "...",
-      "tailwindConfig": "...",
-      "selectors": [/* ... */]
+      // ...
     }
   }
 }
@@ -38,8 +38,8 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `entryPoint`
 
-  The path to the entry file of the css based tailwind config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration.  
-  The tailwind config is used to determine the sorting order.
+  The path to the entry file of the css based tailwind config (eg: `src/global.css`). If not specified, the plugin will fall back to the default configuration. Relative to the [current working directory](#cwd).  
+  The tailwind config is used for various rules.
 
   **Type**: `string`
 
@@ -47,8 +47,8 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `tailwindConfig`
 
-  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration.  
-  The tailwind config is used to determine the sorting order.
+  The path to the `tailwind.config.js` file. If not specified, the plugin will try to find it automatically or falls back to the default configuration. Relative to the [current working directory](#cwd).  
+  The tailwind config is used for various rules.
 
   For Tailwind CSS v4 and the css based config, use the [`entryPoint`](#entrypoint) option instead.
 
@@ -59,9 +59,20 @@ To set the settings object, add a `settings` key to the eslint config.
 ### `tsconfig`
 
   The path to the `tsconfig.json` file. If not specified, the plugin will try to find it automatically.  
-  This can also be set globally via the [`settings` object](../settings/settings.md#tsconfig).  
+  Relative to the [current working directory](#cwd).  
 
   The tsconfig is used to resolve tsconfig [`path`](https://www.typescriptlang.org/tsconfig/#paths) aliases.
+
+  **Type**: `string`  
+  **Default**: `undefined`
+
+<br/>
+
+### `cwd`
+
+  The working directory used to resolve `tailwindcss` and related config files. This is useful for monorepos where linting runs from the repository root but each project has its own `node_modules` and Tailwind setup.
+
+  This path is resolved relative to the current working directory of the ESLint process. If not specified, it falls back to the current working directory of the ESLint process.
 
   **Type**: `string`  
   **Default**: `undefined`

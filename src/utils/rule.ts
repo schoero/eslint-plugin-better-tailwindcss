@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
@@ -24,6 +24,7 @@ import {
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
+import { findProjectRoot } from "better-tailwindcss:utils/project.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { isSelectorKind } from "better-tailwindcss:utils/selectors.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
@@ -58,7 +59,7 @@ export function createRule<
   const Name extends string,
   const Messages extends Record<string, string>,
   const OptionsSchema extends Schema = Schema,
-  const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
+  const Options extends CommonOptions & JsonSchema<OptionsSchema> = CommonOptions & JsonSchema<OptionsSchema>,
   const Category extends RuleCategory = RuleCategory,
   const Recommended extends boolean = boolean
 >(options: CreateRuleOptions<Name, Messages, OptionsSchema, Options, Category, Recommended>) {
@@ -150,10 +151,11 @@ export function createRule<
 
         const options = getOptions();
 
-        const { entryPoint, messageStyle, tailwindConfig, tsconfig } = options;
+        const { messageStyle } = options;
 
-        const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
-        const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
+        const cwd = options.cwd ?? findProjectRoot(ctx, options) ?? ctx.cwd;
+
+        const packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
 
         if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
@@ -165,7 +167,7 @@ export function createRule<
         const installation = dirname(packageJsonPath);
 
         const context = {
-          cwd: ctx.cwd,
+          cwd,
           docs,
           installation,
           options,

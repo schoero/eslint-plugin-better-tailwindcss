@@ -147,7 +147,8 @@ export function matchesName(pattern: string, name: string | undefined): boolean 
   if(!name){ return false; }
 
   const regex = getCachedRegex(pattern);
-  return regex.test(name);
+  const match = regex.exec(name);
+  return !!match && match[0] === name;
 }
 
 export function replacePlaceholders(template: string, match: RegExpMatchArray | string[]): string {

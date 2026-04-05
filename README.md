@@ -174,6 +174,38 @@ See the [Advanced configuration guide](./docs/configuration/advanced.md) to lear
 <br/>
 <br/>
 
+### Monorepo setup
+
+In monorepos, linting is often started from the repository root while each package has its own Tailwind setup.
+You can configure `settings["better-tailwindcss"].cwd` per file group so the plugin resolves `tailwindcss` and config files from the correct project directory.
+
+```js
+// eslint.config.js
+export default [
+  {
+    files: ["packages/website/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
+    settings: {
+      "better-tailwindcss": {
+        cwd: "./packages/website"
+      }
+    }
+  },
+  {
+    files: ["packages/app/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
+    settings: {
+      "better-tailwindcss": {
+        cwd: "./packages/app"
+      }
+    }
+  }
+];
+```
+
+See [Settings](./docs/settings/settings.md#cwd) for more details.
+
+<br/>
+<br/>
+
 ### Editor configuration
 
 #### VSCode

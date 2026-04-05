@@ -84,10 +84,10 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       }
 
       if(
-        ignore.some(ignoredClass => className.match(ignoredClass)) ||
-        customComponentClassRegexes?.some(customComponentClassesRegex => className.match(customComponentClassesRegex)) ||
-        className.match(ignoredGroups) ||
-        className.match(ignoredPeers)
+        ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(className)) ||
+        customComponentClassRegexes?.some(customComponentClassesRegex => customComponentClassesRegex.test(className)) ||
+        ignoredGroups.test(className) ||
+        ignoredPeers.test(className)
       ){
         return;
       }

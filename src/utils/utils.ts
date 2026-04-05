@@ -146,13 +146,12 @@ export function getExactClassLocation(literal: Literal, startIndex: number, endI
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
-  const regex = getCachedRegex(pattern);
-  const match = regex.exec(name);
+  const match = getCachedRegex(pattern).exec(name);
   return !!match && match[0] === name;
 }
 
 export function replacePlaceholders(template: string, match: RegExpMatchArray | string[]): string {
-  return template.replace(/\$(\d+)/g, (_, groupIndex) => {
+  return template.replace(getCachedRegex(/\$(\d+)/g), (_, groupIndex) => {
     const index = Number(groupIndex);
     return match[index] ?? "";
   });
@@ -180,7 +179,7 @@ export function deduplicateLiterals(literal: Literal, index: number, literals: L
 export function createObjectPathElement(path?: string): string {
   if(!path){ return ""; }
 
-  return path.match(/^[A-Z_a-z]\w*$/)
+  return getCachedRegex(/^[A-Z_a-z]\w*$/).test(path)
     ? path
     : `["${path}"]`;
 }

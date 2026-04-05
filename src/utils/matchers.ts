@@ -78,8 +78,7 @@ function isChildNodeOfNode(node: WithParent<ESNode>, parent: ESNode): boolean {
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {
-  const regex = getCachedRegex(pattern);
-  return regex.test(path);
+  return getCachedRegex(pattern).test(path);
 }
 
 export function isCalleeName(callee: Callees[number]): callee is CalleeName {

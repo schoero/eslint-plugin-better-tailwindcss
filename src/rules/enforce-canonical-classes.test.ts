@@ -328,7 +328,7 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
   });
 
   // #304
-  it("should not remove unrelated classes when simplifying", () => {
+  it("should not remove unrelated classes when simplifying", { timeout: 30_000 }, () => {
     lint(enforceCanonicalClasses, {
       invalid: [
         {

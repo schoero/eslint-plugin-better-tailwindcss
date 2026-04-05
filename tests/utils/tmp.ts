@@ -25,6 +25,10 @@ export class TestDirectory<Files extends Record<string, string> = Record<string,
 
     this.directory = resolve(getTestDirectoryBasePath(isolated), randomDir);
 
+    mkdirSync(this.directory, { recursive: true });
+
+    chdir(this.directory);
+
     if(files){
       this.storage = files;
 
@@ -32,9 +36,6 @@ export class TestDirectory<Files extends Record<string, string> = Record<string,
         mkdirSync(join(this.directory, dirname(name)), { recursive: true });
         writeFileSync(join(this.directory, name), files[name]);
       }
-
-      chdir(this.directory);
-
     }
 
   }

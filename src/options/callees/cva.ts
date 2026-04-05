@@ -10,7 +10,7 @@ export const CVA_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "cva"
+  name: "^cva$"
 } satisfies CalleeSelector;
 
 export const CVA_VARIANT_VALUES = {
@@ -21,7 +21,7 @@ export const CVA_VARIANT_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "cva"
+  name: "^cva$"
 } satisfies CalleeSelector;
 
 export const CVA_COMPOUND_VARIANTS_CLASS = {
@@ -32,7 +32,7 @@ export const CVA_COMPOUND_VARIANTS_CLASS = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "cva"
+  name: "^cva$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/joe-bell/cva */

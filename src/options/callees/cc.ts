@@ -10,7 +10,7 @@ export const CC_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "cc"
+  name: "^cc$"
 } satisfies CalleeSelector;
 
 export const CC_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const CC_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "cc"
+  name: "^cc$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/jorgebucaran/classcat */

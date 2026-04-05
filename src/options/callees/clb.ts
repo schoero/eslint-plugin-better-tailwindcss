@@ -11,7 +11,7 @@ export const CLB_BASE_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "clb"
+  name: "^clb$"
 } satisfies CalleeSelector;
 
 export const CLB_VARIANT_VALUES = {
@@ -22,7 +22,7 @@ export const CLB_VARIANT_VALUES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "clb"
+  name: "^clb$"
 } satisfies CalleeSelector;
 
 export const CLB_COMPOUND_VARIANTS_CLASSES = {
@@ -33,7 +33,7 @@ export const CLB_COMPOUND_VARIANTS_CLASSES = {
       type: MatcherType.ObjectValue
     }
   ],
-  name: "clb"
+  name: "^clb$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/crswll/clb */

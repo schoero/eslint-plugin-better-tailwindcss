@@ -1,4 +1,5 @@
 import { escapeForRegex } from "../async-utils/escape.js";
+import { getCachedRegex } from "../async-utils/regex.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
 import type { DissectedClass, DissectedClasses } from "./dissect-classes.js";
@@ -14,17 +15,17 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
     const variants = parsed?.variants?.map(variant => tailwindContext.printVariant(variant)).reverse();
 
     let base = className
-      .replace(new RegExp(`^${escapeForRegex(prefix + separator)}`), "")
-      .replace(new RegExp(`^${escapeForRegex((variants?.join(separator) ?? "") + separator)}`), "");
+      .replace(getCachedRegex(`^${escapeForRegex(prefix + separator)}`), "")
+      .replace(getCachedRegex(`^${escapeForRegex((variants?.join(separator) ?? "") + separator)}`), "");
 
     const isNegative = base.startsWith("-");
-    base = base.replace(/^-/, "");
+    base = base.replace(getCachedRegex(/^-/), "");
 
     const isImportantAtStart = base.startsWith("!");
-    base = base.replace(/^!/, "");
+    base = base.replace(getCachedRegex(/^!/), "");
 
     const isImportantAtEnd = base.endsWith("!");
-    base = base.replace(/!$/, "");
+    base = base.replace(getCachedRegex(/!$/), "");
 
     acc[className] = {
       base,

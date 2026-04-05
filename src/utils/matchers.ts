@@ -7,6 +7,7 @@ import {
   isESSimpleStringLiteral,
   isESVariableDeclarator
 } from "better-tailwindcss:parsers/es.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 import type { Rule } from "eslint";
@@ -77,8 +78,7 @@ function isChildNodeOfNode(node: WithParent<ESNode>, parent: ESNode): boolean {
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {
-  const regex = new RegExp(pattern);
-  return regex.test(path);
+  return getCachedRegex(pattern).test(path);
 }
 
 export function isCalleeName(callee: Callees[number]): callee is CalleeName {

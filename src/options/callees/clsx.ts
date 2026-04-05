@@ -10,7 +10,7 @@ export const CLSX_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "clsx"
+  name: "^clsx$"
 } satisfies CalleeSelector;
 
 export const CLSX_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const CLSX_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "clsx"
+  name: "^clsx$"
 } satisfies CalleeSelector;
 
 /** @see https://github.com/lukeed/clsx */

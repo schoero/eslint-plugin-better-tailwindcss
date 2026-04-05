@@ -1,5 +1,6 @@
 import { escapeForRegex } from "../async-utils/escape.js";
 import { normalize } from "../async-utils/path.js";
+import { getCachedRegex } from "../async-utils/regex.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
 import type { AsyncContext } from "../utils/context.js";
@@ -22,13 +23,13 @@ export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: an
       .replace(new RegExp(`^${escapeForRegex(prefix)}`), "");
 
     const isNegative = base.startsWith("-");
-    base = base.replace(/^-/, "");
+    base = base.replace(getCachedRegex(/^-/), "");
 
     const isImportantAtStart = base.startsWith("!");
-    base = base.replace(/^!/, "");
+    base = base.replace(getCachedRegex(/^!/), "");
 
     const isImportantAtEnd = base.endsWith("!");
-    base = base.replace(/!$/, "");
+    base = base.replace(getCachedRegex(/!$/), "");
 
     acc[className] = {
       base,

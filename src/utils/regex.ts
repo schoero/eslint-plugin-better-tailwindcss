@@ -2,7 +2,7 @@ const REGEX_CACHE = new Map<string, RegExp>();
 const MAX_CACHE_SIZE = 500;
 
 function getRegexCacheKey(pattern: string, flags?: string): string {
-  return flags ? `${flags}\u0000${pattern}` : pattern;
+  return `${flags}\u0000${pattern}`;
 }
 
 export function getCachedRegex(pattern: string, flags?: string): RegExp {

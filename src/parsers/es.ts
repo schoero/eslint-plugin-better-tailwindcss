@@ -25,6 +25,7 @@ import type {
   ArrowFunctionExpression as ESArrowFunctionExpression,
   BaseNode as ESBaseNode,
   CallExpression as ESCallExpression,
+  ExportDefaultDeclaration as ESExportDefaultDeclaration,
   Expression as ESExpression,
   FunctionExpression as ESFunctionExpression,
   Identifier as ESIdentifier,
@@ -88,6 +89,31 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
     }
 
     literals.push(...getLiteralsByESMatchers(ctx, node.init, selector.match));
+
+    return literals;
+  }, []);
+
+  return literals.filter(deduplicateLiterals);
+
+}
+
+export function getLiteralsByESExportDefaultDeclaration(ctx: Rule.RuleContext, node: ESExportDefaultDeclaration, selectors: VariableSelector[]): Literal[] {
+
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+
+    if(!matchesName(selector.name, "default")){ return literals; }
+    if(!isESExportDefaultExpression(node.declaration)){ return literals; }
+
+    if(!selector.match){
+      literals.push(...getLiteralsByESExpression(ctx, [node.declaration]));
+      return literals;
+    }
+
+    if(isESArrowFunctionExpression(node.declaration) || isESCallExpression(node.declaration) || isESFunctionExpression(node.declaration)){
+      return literals;
+    }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node.declaration, selector.match));
 
     return literals;
   }, []);
@@ -588,6 +614,18 @@ function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtens
 
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {
   return node.type === "VariableDeclarator";
+}
+
+function isESExportDefaultExpression(node: ESBaseNode): node is ESExpression {
+  if(node.type === "FunctionDeclaration"){
+    return false;
+  }
+
+  if(node.type === "ClassDeclaration"){
+    return false;
+  }
+
+  return true;
 }
 
 function isESVariableSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {

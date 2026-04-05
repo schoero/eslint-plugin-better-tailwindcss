@@ -214,6 +214,46 @@ describe("es", () => {
     });
   });
 
+  it("should match default exports via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default " lint ";`,
+          jsxOutput: `export default "lint";`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not dereference exported default identifiers for variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const classes = " lint "; export default classes;`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match attributes via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

@@ -89,6 +89,7 @@ type CalleeSelector = {
 
 - **kind**: `"variable"`.
 - **name**: regular expression for variable names.
+  Tip: The name `default` targets the `export default ...` declaration.
 - **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 

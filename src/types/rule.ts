@@ -66,13 +66,18 @@ type BaseSelector<Kind extends SelectorKind> = {
 
 export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
-export type CallTarget = "all" | "first" | "last" | number;
+export type Target = "all" | "first" | "last" | number;
+export type CallTarget = Target;
+export type ArgumentTarget = Target;
 export type CalleeSelector = {
   kind: SelectorKind.Callee;
+  /** @deprecated Use targetCall instead. */
   callTarget?: CallTarget | undefined;
   match?: SelectorMatcher[] | undefined;
   name?: Regex | undefined;
   path?: Regex | undefined;
+  targetArgument?: ArgumentTarget | undefined;
+  targetCall?: CallTarget | undefined;
 };
 
 export type TagSelector = BaseSelector<SelectorKind.Tag>;

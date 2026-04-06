@@ -49,7 +49,6 @@ type Selectors = (
 type AttributeSelector = {
   kind: "attribute";
   name: string;
-  callTarget?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     path?: string;
@@ -65,15 +64,19 @@ type AttributeSelector = {
 - **name** `optional`: regular expression for callee names.
 - **path** `optional`: regular expression for callee member paths like `classes.push`.
   When `path` is provided, `name` is not required.
-- **callTarget** `optional`: curried call target for example for `fn()("my classes")`.
+- **targetCall** `optional`: curried call target for example for `fn()("my classes")`.
   When omitted, the first call in a curried chain is used.
+- **targetArgument** `optional`: target specific call arguments.
+  When omitted, all arguments of the selected call are checked.
 - **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  callTarget?: "all" | "first" | "last" | number;
+  targetCall?: "all" | "first" | "last" | number;
+  targetArgument?: "all" | "first" | "last" | number;
+  callTarget?: "all" | "first" | "last" | number; // legacy fallback
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     path?: string;
@@ -217,6 +220,25 @@ For example, the object path for `value` in the object below is `root["nested-ke
 <br/>
 
 ### Examples
+
+#### Example: lint only the first argument of the last curried call
+
+```jsonc
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^testStyles$",
+      "targetCall": "last",
+      "targetArgument": "first"
+    }
+  ]
+}
+```
+
+```tsx
+testStyles("keep", "ignore")("this will get linted", "this will not");
+```
 
 #### Example: lint `cva` strings + specific nested values
 

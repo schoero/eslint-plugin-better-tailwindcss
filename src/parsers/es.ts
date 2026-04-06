@@ -566,7 +566,28 @@ function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | unde
 
 function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: CallTarget | undefined): ESExpression[] {
   const expressionArgs = args.filter((arg): arg is ESExpression => arg.type !== "SpreadElement");
-  return getTargetItems(expressionArgs, argumentTarget, "all");
+
+  if(typeof argumentTarget !== "number"){
+    return getTargetItems(expressionArgs, argumentTarget, "all");
+  }
+
+  if(args.length === 0){
+    return [];
+  }
+
+  const index = argumentTarget >= 0
+    ? argumentTarget
+    : args.length + argumentTarget;
+
+  if(index < 0 || index >= args.length){
+    return [];
+  }
+
+  const targetArg = args[index];
+
+  return targetArg.type === "SpreadElement"
+    ? []
+    : [targetArg];
 }
 
 function getTargetItems<T>(items: T[], target: CallTarget | undefined, defaultTarget: "all" | "first"): T[] {

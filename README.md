@@ -129,6 +129,7 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | [enforce-consistent-line-wrapping](docs/rules/enforce-consistent-line-wrapping.md) | Enforce consistent line wrapping for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
 | [enforce-consistent-class-order](docs/rules/enforce-consistent-class-order.md) | Enforce a consistent order for tailwind classes. | ✔ | ✔ | ✔ | ✔ |
+| [enforce-consistent-variant-order](docs/rules/enforce-consistent-variant-order.md) | Enforce a consistent variant order for tailwind classes. |  | ✔ |  | ✔ |
 | [enforce-consistent-variable-syntax](docs/rules/enforce-consistent-variable-syntax.md) | Enforce consistent variable syntax. | ✔ | ✔ |  | ✔ |
 | [enforce-consistent-important-position](docs/rules/enforce-consistent-important-position.md) | Enforce consistent position of the important modifier. | ✔ | ✔ |  | ✔ |
 | [enforce-shorthand-classes](docs/rules/enforce-shorthand-classes.md) | Enforce shorthand class names. | ✔ | ✔ |  | ✔ |

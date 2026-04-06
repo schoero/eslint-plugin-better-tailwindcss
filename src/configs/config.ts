@@ -3,6 +3,7 @@ import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-co
 import { enforceConsistentImportantPosition } from "better-tailwindcss:rules/enforce-consistent-important-position.js";
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
 import { enforceConsistentVariableSyntax } from "better-tailwindcss:rules/enforce-consistent-variable-syntax.js";
+import { enforceConsistentVariantOrder } from "better-tailwindcss:rules/enforce-consistent-variant-order.js";
 import { enforceShorthandClasses } from "better-tailwindcss:rules/enforce-shorthand-classes.js";
 import { noConflictingClasses } from "better-tailwindcss:rules/no-conflicting-classes.js";
 import { noDeprecatedClasses } from "better-tailwindcss:rules/no-deprecated-classes.js";
@@ -36,6 +37,7 @@ const rules = [
   enforceConsistentClassOrder,
   enforceConsistentImportantPosition,
   enforceConsistentLineWrapping,
+  enforceConsistentVariantOrder,
   enforceConsistentVariableSyntax,
   enforceShorthandClasses,
   noConflictingClasses,

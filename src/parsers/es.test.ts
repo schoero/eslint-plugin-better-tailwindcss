@@ -148,6 +148,31 @@ describe("es", () => {
     });
   });
 
+  it("should lint all targetArguments by default", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" lint ", " lint ");`,
+          jsxOutput: `testStyles("lint", "lint");`,
+          svelte: `<script>testStyles(" lint ", " lint ");</script>`,
+          svelteOutput: `<script>testStyles("lint", "lint");</script>`,
+          vue: `<script>testStyles(" lint ", " lint ");</script>`,
+          vueOutput: `<script>testStyles("lint", "lint");</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should support targetArgument for direct callee arguments", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

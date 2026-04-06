@@ -188,13 +188,32 @@ describe("es", () => {
               }
             ]
           }]
+        },
+        {
+          jsx: `testStyles(...foo, " lint ");`,
+          jsxOutput: `testStyles(...foo, "lint");`,
+          svelte: `<script>testStyles(...foo, " lint ");</script>`,
+          svelteOutput: `<script>testStyles(...foo, "lint");</script>`,
+          vue: `<script>testStyles(...foo, " lint ");</script>`,
+          vueOutput: `<script>testStyles(...foo, "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 1
+              }
+            ]
+          }]
         }
       ],
       valid: [
         {
-          jsx: `testStyles(" lint ", " keep ");`,
-          svelte: `<script>testStyles(" lint ", " keep ");</script>`,
-          vue: `<script>testStyles(" lint ", " keep ");</script>`,
+          jsx: `testStyles(" keep ", " keep ");`,
+          svelte: `<script>testStyles(" keep ", " keep ");</script>`,
+          vue: `<script>testStyles(" keep ", " keep ");</script>`,
 
           options: [{
             selectors: [
@@ -202,6 +221,21 @@ describe("es", () => {
                 kind: SelectorKind.Callee,
                 name: "^testStyles$",
                 targetArgument: 5
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(...foo, " keep ");`,
+          svelte: `<script>testStyles(...foo, " keep ");</script>`,
+          vue: `<script>testStyles(...foo, " keep ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 0
               }
             ]
           }]

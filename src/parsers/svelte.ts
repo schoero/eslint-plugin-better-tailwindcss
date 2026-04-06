@@ -13,6 +13,7 @@ import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
+  getSelectorMatcherTraversalGroups,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
@@ -143,12 +144,12 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 }
 
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const literalNodes = matchers.flatMap(matcher => {
+  const literalNodes = getSelectorMatcherTraversalGroups(matchers).flatMap(group => {
     return getLiteralNodesByMatchers(
       ctx,
       node,
-      getSvelteMatcherFunctions([matcher]),
-      getESMatcherDeadEnd(matcher.type === MatcherType.AnonymousFunctionReturn)
+      getSvelteMatcherFunctions(group.matchers),
+      getESMatcherDeadEnd(group.allowFunctionTraversal)
     );
   });
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
@@ -334,7 +335,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             return false;
           }
 
-          return matchesSvelteMatcherFunctions(node, nestedMatcherFunctions);
+          return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
         });
         break;
       }
@@ -417,14 +418,4 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
     }
     return matcherFunctions;
   }, []);
-}
-
-function matchesSvelteMatcherFunctions(node: unknown, matcherFunctions: MatcherFunctions<ESBaseNode>): node is ESBaseNode {
-  for(const matcherFunction of matcherFunctions){
-    if(matcherFunction(node)){
-      return true;
-    }
-  }
-
-  return false;
 }

@@ -7,6 +7,7 @@ import {
   isESSimpleStringLiteral,
   isESVariableDeclarator
 } from "better-tailwindcss:parsers/es.js";
+import { MatcherType } from "better-tailwindcss:types/rule.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
@@ -18,7 +19,7 @@ import type { CalleeMatchers, CalleeName, Callees } from "better-tailwindcss:opt
 import type { TagMatchers, TagName, Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { VariableMatchers, VariableName, Variables } from "better-tailwindcss:options/schemas/variables.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
-import type { MatcherFunctions } from "better-tailwindcss:types/rule.js";
+import type { MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
@@ -47,6 +48,42 @@ export function getESMatcherDeadEnd(allowFunctionTraversal = false): (node: unkn
 
     return false;
   };
+}
+
+export type SelectorMatcherTraversalGroup = {
+  allowFunctionTraversal: boolean;
+  matchers: SelectorMatcher[];
+};
+
+export function getSelectorMatcherTraversalGroups(matchers: SelectorMatcher[]): SelectorMatcherTraversalGroup[] {
+  const defaultTraversalMatchers: SelectorMatcher[] = [];
+  const functionTraversalMatchers: SelectorMatcher[] = [];
+
+  for(const matcher of matchers){
+    if(matcher.type === MatcherType.AnonymousFunctionReturn){
+      functionTraversalMatchers.push(matcher);
+    } else {
+      defaultTraversalMatchers.push(matcher);
+    }
+  }
+
+  const firstMatcherIsFunctionTraversal = matchers[0]?.type === MatcherType.AnonymousFunctionReturn;
+  const defaultTraversalGroup: SelectorMatcherTraversalGroup = {
+    allowFunctionTraversal: false,
+    matchers: defaultTraversalMatchers
+  };
+  const functionTraversalGroup: SelectorMatcherTraversalGroup = {
+    allowFunctionTraversal: true,
+    matchers: functionTraversalMatchers
+  };
+  const [firstGroup, secondGroup] = firstMatcherIsFunctionTraversal
+    ? [functionTraversalGroup, defaultTraversalGroup]
+    : [defaultTraversalGroup, functionTraversalGroup];
+
+  return [
+    ...firstGroup.matchers.length > 0 ? [firstGroup] : [],
+    ...secondGroup.matchers.length > 0 ? [secondGroup] : []
+  ];
 }
 
 function findMatchingNestedNodes<Node>(

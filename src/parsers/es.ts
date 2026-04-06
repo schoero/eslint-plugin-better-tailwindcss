@@ -3,6 +3,7 @@ import {
   findMatchingParentNodes,
   getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
+  getSelectorMatcherTraversalGroups,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
@@ -181,12 +182,12 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 }
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const literalNodes = matchers.flatMap(matcher => {
+  const literalNodes = getSelectorMatcherTraversalGroups(matchers).flatMap(group => {
     return getLiteralNodesByMatchers(
       ctx,
       node,
-      getESMatcherFunctions([matcher]),
-      getESMatcherDeadEnd(matcher.type === MatcherType.AnonymousFunctionReturn)
+      getESMatcherFunctions(group.matchers),
+      getESMatcherDeadEnd(group.allowFunctionTraversal)
     );
   });
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
@@ -692,7 +693,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             return false;
           }
 
-          return matchesESMatcherFunctions(node, nestedMatcherFunctions);
+          return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
         });
         break;
       }
@@ -774,16 +775,6 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
     }
     return matcherFunctions;
   }, []);
-}
-
-function matchesESMatcherFunctions(node: unknown, matcherFunctions: MatcherFunctions<ESNode>): node is ESNode {
-  for(const matcherFunction of matcherFunctions){
-    if(matcherFunction(node)){
-      return true;
-    }
-  }
-
-  return false;
 }
 
 export function isInsideESAnonymousFunctionReturn(node: ESNode): boolean {

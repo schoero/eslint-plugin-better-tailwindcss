@@ -3,6 +3,7 @@ import { describe, it } from "vitest";
 import { enforceLogicalProperties } from "better-tailwindcss:rules/enforce-logical-properties.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { css } from "better-tailwindcss:tests/utils/template.js";
+import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 
 
 const testCases = [
@@ -61,7 +62,7 @@ const testCases = [
   ["clear-right", "clear-end"]
 ] satisfies [string, string][];
 
-describe(enforceLogicalProperties.name, () => {
+describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name, () => {
 
   it("should not report valid classes", () => {
     lint(

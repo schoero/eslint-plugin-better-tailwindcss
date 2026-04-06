@@ -76,14 +76,14 @@ type AttributeSelector = {
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  targetCall?: "all" | "first" | "last" | number;
-  targetArgument?: "all" | "first" | "last" | number;
   match?: {
     type: "objectKeys" | "objectValues" | "strings";
     path?: string;
   }[];
   name?: string;
   path?: string;
+  targetArgument?: "all" | "first" | "last" | number;
+  targetCall?: "all" | "first" | "last" | number;
 };
 ```
 

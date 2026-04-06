@@ -169,6 +169,25 @@ describe("es", () => {
               }
             ]
           }]
+        },
+        {
+          jsx: `testStyles(" keep ", " lint ");`,
+          jsxOutput: `testStyles(" keep ", "lint");`,
+          svelte: `<script>testStyles(" keep ", " lint ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ", "lint");</script>`,
+          vue: `<script>testStyles(" keep ", " lint ");</script>`,
+          vueOutput: `<script>testStyles(" keep ", "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 1
+              }
+            ]
+          }]
         }
       ],
       valid: [

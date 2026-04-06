@@ -65,8 +65,10 @@ type AttributeSelector = {
 - **path** `optional`: regular expression for callee member paths like `classes.push`.
   When `path` is provided, `name` is not required.
 - **targetCall** `optional`: curried call target for example for `fn()("my classes")`.
+  If a number is provided, the zero-based call index is used.
   When omitted, the first call in a curried chain is used.
 - **targetArgument** `optional`: target specific call arguments.
+  If a number is provided, the zero-based argument index is used.
   When omitted, all arguments of the selected call are checked.
 - **match** `optional`: [matcher](#matcher-types) list.
   When omitted, only direct string literals are collected.

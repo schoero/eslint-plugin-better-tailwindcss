@@ -258,11 +258,7 @@ describe("descriptions", () => {
             match: [
               { type: MatcherType.String },
               { type: MatcherType.ObjectKey },
-              { path: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$", type: MatcherType.ObjectValue },
-              {
-                match: [{ type: MatcherType.String }],
-                type: MatcherType.AnonymousFunctionReturn
-              }
+              { path: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$", type: MatcherType.ObjectValue }
             ],
             type: MatcherType.AnonymousFunctionReturn
           }],

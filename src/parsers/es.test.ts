@@ -273,6 +273,28 @@ describe("es", () => {
 
   it("should apply matchers only inside selected arguments", () => {
     lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(...[{ className: " lint " }], " keep ");`,
+          jsxOutput: `testStyles(...[{ className: "lint" }], " keep ");`,
+          svelte: `<script>testStyles(...[{ className: " lint " }], " keep ");</script>`,
+          svelteOutput: `<script>testStyles(...[{ className: "lint" }], " keep ");</script>`,
+          vue: `<script>testStyles(...[{ className: " lint " }], " keep ");</script>`,
+          vueOutput: `<script>testStyles(...[{ className: "lint" }], " keep ");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ObjectValue }],
+                name: "^testStyles$",
+                targetArgument: 0
+              }
+            ]
+          }]
+        }
+      ],
       valid: [
         {
           jsx: `testStyles({ className: " keep " }, " keep ");`,

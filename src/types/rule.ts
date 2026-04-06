@@ -80,6 +80,7 @@ export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 export type Target = "all" | "first" | "last" | number;
 export type CallTarget = Target;
 export type ArgumentTarget = Target;
+
 export type CalleeSelector = {
   kind: SelectorKind.Callee;
   /** @deprecated Use targetCall instead. */

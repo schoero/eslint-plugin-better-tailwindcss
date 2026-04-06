@@ -244,6 +244,64 @@ describe("es", () => {
     });
   });
 
+  it("should apply first and last targetArgument to raw argument positions", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" lint ", ...foo);`,
+          jsxOutput: `testStyles("lint", ...foo);`,
+          svelte: `<script>testStyles(" lint ", ...foo);</script>`,
+          svelteOutput: `<script>testStyles("lint", ...foo);</script>`,
+          vue: `<script>testStyles(" lint ", ...foo);</script>`,
+          vueOutput: `<script>testStyles("lint", ...foo);</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `testStyles(...foo, " lint ");`,
+          svelte: `<script>testStyles(...foo, " lint ");</script>`,
+          vue: `<script>testStyles(...foo, " lint ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(" lint ", ...foo);`,
+          svelte: `<script>testStyles(" lint ", ...foo);</script>`,
+          vue: `<script>testStyles(" lint ", ...foo);</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should support combining targetCall and targetArgument", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

@@ -153,6 +153,35 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, nod
 
 }
 
+export function getLiteralsByESBareTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral, selectors: TagSelector[]): Literal[] {
+
+  if(isTaggedTemplateLiteral(node)){
+    return [];
+  }
+
+  const leadingComments = getLeadingComments(ctx, node);
+
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+    const hasMatchingMarker = leadingComments.some(comment => matchesName(selector.name, comment));
+
+    if(!hasMatchingMarker){
+      return literals;
+    }
+
+    if(!selector.match){
+      literals.push(...getLiteralsByESTemplateLiteral(ctx, node));
+      return literals;
+    }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node, selector.match));
+
+    return literals;
+  }, []);
+
+  return literals.filter(deduplicateLiterals);
+
+}
+
 export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(isESSimpleStringLiteral(node)){
@@ -582,6 +611,10 @@ function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateE
   return node.type === "TaggedTemplateExpression";
 }
 
+function isTaggedTemplateLiteral(node: ESBaseNode): node is ESTemplateLiteral {
+  return hasESNodeParentExtension(node) && isTaggedTemplateExpression(node.parent);
+}
+
 function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
   return node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent);
 }
@@ -611,6 +644,27 @@ function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
 function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   const braces = getBracesByString(ctx, raw);
   return !!braces.closingBraces || !!braces.openingBraces;
+}
+
+function getLeadingComments(ctx: Rule.RuleContext, node: Rule.Node): string[] {
+  const comments: string[] = [];
+  let token = ctx.sourceCode.getTokenBefore(node, { includeComments: true }) as ESTokenWithOptionalComment | null;
+
+  while(token && isESTokenComment(token)){
+    comments.unshift(token.value.trim());
+    token = ctx.sourceCode.getTokenBefore(token as unknown as Rule.Node, { includeComments: true }) as ESTokenWithOptionalComment | null;
+  }
+
+  return comments;
+}
+
+type ESTokenWithOptionalComment = {
+  type: string;
+  value?: string;
+};
+
+function isESTokenComment(token: ESTokenWithOptionalComment): token is ESTokenWithOptionalComment & { value: string; } {
+  return (token.type === "Block" || token.type === "Line") && typeof token.value === "string";
 }
 
 function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {

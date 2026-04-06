@@ -9,6 +9,7 @@ import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:option
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
+  getLiteralsByESBareTemplateLiteral,
   getLiteralsByESCallExpression,
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
@@ -36,7 +37,7 @@ import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
+import type { CallExpression, Node, TaggedTemplateExpression, TemplateLiteral, VariableDeclarator } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
@@ -268,6 +269,18 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     }
   };
 
+  const bareTemplateLiteral = {
+    TemplateLiteral(node: Node) {
+      const templateLiteralNode = node as TemplateLiteral;
+
+      const literals = getLiteralsByESBareTemplateLiteral(ctx, templateLiteralNode, tags);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
+    }
+  };
+
   const jsx = {
     JSXOpeningElement(node: Node) {
       const jsxNode = node as JSXOpeningElement;
@@ -379,6 +392,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       // script tag
       ...callExpression,
       ...variableDeclarators,
+      ...bareTemplateLiteral,
       ...taggedTemplateExpression,
 
       // bound classes
@@ -392,6 +406,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
   return {
     ...callExpression,
     ...variableDeclarators,
+    ...bareTemplateLiteral,
     ...taggedTemplateExpression,
     ...jsx,
     ...svelte,

@@ -254,6 +254,33 @@ describe("es", () => {
     });
   });
 
+  it("should match default-exported objects", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default { slots: { root: " lint ", icon: " keep " }, title: " keep " };`,
+          jsxOutput: `export default { slots: { root: "lint", icon: " keep " }, title: " keep " };`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                match: [
+                  {
+                    path: "^slots\\.root$",
+                    type: MatcherType.ObjectValue
+                  }
+                ],
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match attributes via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

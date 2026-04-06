@@ -49,7 +49,7 @@ export type SelectorStringMatcher = {
 };
 
 export type SelectorAnonymousFunctionReturnMatcher = {
-  match: SelectorMatcher[];
+  match: (SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher)[];
   type: MatcherType.AnonymousFunctionReturn;
 };
 

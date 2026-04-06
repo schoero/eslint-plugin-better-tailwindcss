@@ -34,6 +34,31 @@ type Selectors = (
   | TagSelector
   | VariableSelector
 )[];
+
+type SelectorStringMatcher = {
+  type: "strings";
+};
+
+type SelectorObjectKeyMatcher = {
+  path?: string;
+  type: "objectKeys";
+};
+
+type SelectorObjectValueMatcher = {
+  path?: string;
+  type: "objectValues";
+};
+
+type SelectorAnonymousFunctionReturnMatcher = {
+  match: SelectorMatcher[];
+  type: "anonymousFunctionReturn";
+};
+
+type SelectorMatcher =
+  | SelectorAnonymousFunctionReturnMatcher
+  | SelectorObjectKeyMatcher
+  | SelectorObjectValueMatcher
+  | SelectorStringMatcher;
 ```
 
 <br/>
@@ -49,10 +74,7 @@ type Selectors = (
 type AttributeSelector = {
   kind: "attribute";
   name: string;
-  match?: {
-    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 
@@ -78,10 +100,8 @@ type AttributeSelector = {
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  match?: {
-    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  callTarget?: "all" | "first" | "last" | number;
+  match?: SelectorMatcher[];
   name?: string;
   path?: string;
   targetArgument?: "all" | "first" | "last" | number;
@@ -102,10 +122,7 @@ type CalleeSelector = {
 type VariableSelector = {
   kind: "variable";
   name: string;
-  match?: {
-    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 
@@ -122,10 +139,7 @@ type VariableSelector = {
 type TagSelector = {
   kind: "tag";
   name: string;
-  match?: {
-    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 

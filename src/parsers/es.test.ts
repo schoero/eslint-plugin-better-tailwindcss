@@ -241,6 +241,91 @@ describe("es", () => {
     });
   });
 
+  it("should match anonymous arrow function returns", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => " lint ", () => { return " lint-return "; });`,
+          jsxOutput: `testStyles(() => "lint", () => { return "lint-return"; });`,
+          svelte: `<script>testStyles(() => " lint ", () => { return " lint-return "; });</script>`,
+          svelteOutput: `<script>testStyles(() => "lint", () => { return "lint-return"; });</script>`,
+          vue: `<script>testStyles(() => " lint ", () => { return " lint-return "; });</script>`,
+          vueOutput: `<script>testStyles(() => "lint", () => { return "lint-return"; });</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match anonymous normal function returns", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(function() { return " lint-function "; });`,
+          jsxOutput: `testStyles(function() { return "lint-function"; });`,
+          svelte: `<script>testStyles(function() { return " lint-function "; });</script>`,
+          svelteOutput: `<script>testStyles(function() { return "lint-function"; });</script>`,
+          vue: `<script>testStyles(function() { return " lint-function "; });</script>`,
+          vueOutput: `<script>testStyles(function() { return "lint-function"; });</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support all other nested matcher types inside anonymousFunctionReturn", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));`,
+          jsxOutput: `testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));`,
+          svelte: `<script>testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));</script>`,
+          svelteOutput: `<script>testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));</script>`,
+          vue: `<script>testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));</script>`,
+          vueOutput: `<script>testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));</script>`,
+
+          errors: 6,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.String },
+                  { type: MatcherType.ObjectKey },
+                  { type: MatcherType.ObjectValue }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match member expression callee names", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

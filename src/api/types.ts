@@ -5,6 +5,7 @@ export type {
   ObjectValueMatcher,
   Regex,
   Selector,
+  SelectorAnonymousFunctionReturnMatcher,
   SelectorMatcher,
   Selectors,
   StringMatcher,

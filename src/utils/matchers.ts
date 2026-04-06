@@ -31,10 +31,28 @@ export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unk
   return [...nestedLiterals, ...self];
 }
 
+export function getESMatcherDeadEnd(allowFunctionTraversal = false): (node: unknown) => boolean {
+  return value => {
+    if(!isESNode(value)){
+      return false;
+    }
+
+    if(isESCallExpression(value) || isESVariableDeclarator(value)){
+      return true;
+    }
+
+    if(!allowFunctionTraversal && (isESArrowFunctionExpression(value) || isESFunctionExpression(value))){
+      return true;
+    }
+
+    return false;
+  };
+}
+
 function findMatchingNestedNodes<Node>(
   node: GenericNodeWithParent,
   matcherFunctions: MatcherFunctions<Node>,
-  deadEnd: (node: unknown) => boolean = value => isESNode(value) && (isESCallExpression(value) || isESArrowFunctionExpression(value) || isESVariableDeclarator(value) || isESFunctionExpression(value))
+  deadEnd: (node: unknown) => boolean = getESMatcherDeadEnd()
 ): Node[] {
   return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){
@@ -69,12 +87,6 @@ function nodeMatches<Node>(node: unknown, matcherFunctions: MatcherFunctions<Nod
     if(matcherFunction(node)){ return true; }
   }
   return false;
-}
-
-function isChildNodeOfNode(node: WithParent<ESNode>, parent: ESNode): boolean {
-  if(!hasESNodeParentExtension(node)){ return false; }
-  if(node.parent === parent){ return true; }
-  return isChildNodeOfNode(node.parent, parent);
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {

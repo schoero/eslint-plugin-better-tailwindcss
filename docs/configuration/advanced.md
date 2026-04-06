@@ -50,7 +50,7 @@ type AttributeSelector = {
   kind: "attribute";
   name: string;
   match?: {
-    type: "objectKeys" | "objectValues" | "strings";
+    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
     path?: string;
   }[];
 };
@@ -74,15 +74,14 @@ type AttributeSelector = {
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  targetCall?: "all" | "first" | "last" | number;
-  targetArgument?: "all" | "first" | "last" | number;
-  callTarget?: "all" | "first" | "last" | number; // legacy fallback
   match?: {
-    type: "objectKeys" | "objectValues" | "strings";
+    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
     path?: string;
   }[];
   name?: string;
   path?: string;
+  targetArgument?: "all" | "first" | "last" | number;
+  targetCall?: "all" | "first" | "last" | number;
 };
 ```
 
@@ -100,7 +99,7 @@ type VariableSelector = {
   kind: "variable";
   name: string;
   match?: {
-    type: "objectKeys" | "objectValues" | "strings";
+    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
     path?: string;
   }[];
 };
@@ -120,7 +119,7 @@ type TagSelector = {
   kind: "tag";
   name: string;
   match?: {
-    type: "objectKeys" | "objectValues" | "strings";
+    type: "anonymousFunctionReturn" | "objectKeys" | "objectValues" | "strings";
     path?: string;
   }[];
 };
@@ -153,17 +152,158 @@ type TagSelector = {
 
 #### Matcher types
 
-There are 3 matcher types:
+##### `strings`
 
-- `objectKeys`: matches all object keys
-- `objectValues`: matches all object values
-- `strings`: matches all string literals that are not object keys or values
+Matches all string literals that are not object keys or object values.
+
+Options:
+
+- none
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        { "type": "strings" }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw(
+  "this will get linted",
+  { className: "this will not get linted by this matcher" }
+);
+```
+
+##### `objectKeys`
+
+Matches all object keys.
+
+Options:
+
+- `path` `optional`: regular expression to narrow matching to specific object key paths
+  See [Path option details](#path-option-details).
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "objectKeys",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw({
+  compoundVariants: [
+    {
+      className: "<- this key will get linted",
+      myVariant: "but this key will not get linted"
+    }
+  ]
+});
+```
+
+##### `objectValues`
+
+Matches all object values.
+
+Options:
+
+- `path` `optional`: regular expression to narrow matching to specific object value paths
+  See [Path option details](#path-option-details).
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "objectValues",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw({
+  compoundVariants: [
+    {
+      className: "this value will get linted",
+      myVariant: "but this value will not get linted"
+    }
+  ]
+});
+```
+
+##### `anonymousFunctionReturn`
+
+Matches values returned from anonymous functions and applies nested matchers to those return values.
+
+Options:
+
+- `match` `required`: nested matcher array
+  The nested `match` array can include `strings`, `objectKeys`, and `objectValues` matchers.
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "anonymousFunctionReturn",
+          "match": [
+            { "type": "strings" },
+            { "type": "objectKeys" },
+            { "type": "objectValues" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw(() => "this will get linted with a nested string matcher");
+tw(() => ({ className: "<- this key will get linted with a nested objectKeys matcher" }));
+tw(() => ({ className: "this will get linted with nested objectValues matcher" }));
+```
 
 <br/>
 
-##### `path`
+##### Path option details
 
-The `path` lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.
+The `path` option lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.
 
 This is especially useful for libraries like [Class Variance Authority (cva)](https://cva.style/docs/getting-started/installation#intellisense), where class names appear in nested object structures.
 
@@ -175,8 +315,18 @@ For example, the following matcher will only match object values for the `compou
 
 ```json
 {
-  "type": "objectValues",
-  "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^cva$",
+      "match": [
+        {
+          "type": "objectValues",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -228,7 +378,7 @@ For example, the object path for `value` in the object below is `root["nested-ke
   "selectors": [
     {
       "kind": "callee",
-      "name": "^testStyles$",
+      "name": "^tw$",
       "targetCall": "last",
       "targetArgument": "first"
     }
@@ -237,7 +387,7 @@ For example, the object path for `value` in the object below is `root["nested-ke
 ```
 
 ```tsx
-testStyles("keep", "ignore")("this will get linted", "this will not");
+tw("keep", "ignore")("this will get linted", "this will not");
 ```
 
 #### Example: lint `cva` strings + specific nested values

@@ -6,10 +6,12 @@ import {
   isESNode,
   isESObjectKey,
   isESStringLike,
+  isInsideESAnonymousFunctionReturn,
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
+  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
@@ -141,8 +143,14 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 }
 
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const matcherFunctions = getSvelteMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  const literalNodes = matchers.flatMap(matcher => {
+    return getLiteralNodesByMatchers(
+      ctx,
+      node,
+      getSvelteMatcherFunctions([matcher]),
+      getESMatcherDeadEnd(matcher.type === MatcherType.AnonymousFunctionReturn)
+    );
+  });
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
@@ -314,6 +322,22 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
 function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
   return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.AnonymousFunctionReturn: {
+        const nestedMatcherFunctions = getSvelteMatcherFunctions(matcher.match);
+
+        matcherFunctions.push((node): node is ESBaseNode => {
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isInsideESAnonymousFunctionReturn(node)
+          ){
+            return false;
+          }
+
+          return matchesSvelteMatcherFunctions(node, nestedMatcherFunctions);
+        });
+        break;
+      }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
@@ -393,4 +417,14 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
     }
     return matcherFunctions;
   }, []);
+}
+
+function matchesSvelteMatcherFunctions(node: unknown, matcherFunctions: MatcherFunctions<ESBaseNode>): node is ESBaseNode {
+  for(const matcherFunction of matcherFunctions){
+    if(matcherFunction(node)){
+      return true;
+    }
+  }
+
+  return false;
 }

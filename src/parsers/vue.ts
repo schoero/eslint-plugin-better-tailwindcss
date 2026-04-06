@@ -7,10 +7,12 @@ import {
   isESNode,
   isESObjectKey,
   isESStringLike,
+  isInsideESAnonymousFunctionReturn,
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
+  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
@@ -95,8 +97,14 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
 }
 
 function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const matcherFunctions = getVueMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  const literalNodes = matchers.flatMap(matcher => {
+    return getLiteralNodesByMatchers(
+      ctx,
+      node,
+      getVueMatcherFunctions([matcher]),
+      getESMatcherDeadEnd(matcher.type === MatcherType.AnonymousFunctionReturn)
+    );
+  });
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
@@ -185,6 +193,22 @@ function isVueLiteralNode(node: ESBaseNode): node is AST.VLiteral {
 function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
   return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.AnonymousFunctionReturn: {
+        const nestedMatcherFunctions = getVueMatcherFunctions(matcher.match);
+
+        matcherFunctions.push((node): node is ESBaseNode => {
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isInsideESAnonymousFunctionReturn(node)
+          ){
+            return false;
+          }
+
+          return matchesVueMatcherFunctions(node, nestedMatcherFunctions);
+        });
+        break;
+      }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
@@ -263,4 +287,14 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
     }
     return matcherFunctions;
   }, []);
+}
+
+function matchesVueMatcherFunctions(node: unknown, matcherFunctions: MatcherFunctions<ESBaseNode>): node is ESBaseNode {
+  for(const matcherFunction of matcherFunctions){
+    if(matcherFunction(node)){
+      return true;
+    }
+  }
+
+  return false;
 }

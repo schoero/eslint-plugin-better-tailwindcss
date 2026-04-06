@@ -7,6 +7,8 @@ import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export enum MatcherType {
+  /** Matches return values of anonymous functions via nested matchers. */
+  AnonymousFunctionReturn = "anonymousFunctionReturn",
   /** Matches all object keys that are strings. */
   ObjectKey = "objectKeys",
   /** Matches all object values that are strings. */
@@ -46,6 +48,11 @@ export type SelectorStringMatcher = {
   type: MatcherType.String;
 };
 
+export type SelectorAnonymousFunctionReturnMatcher = {
+  match: SelectorMatcher[];
+  type: MatcherType.AnonymousFunctionReturn;
+};
+
 export type SelectorObjectKeyMatcher = {
   type: MatcherType.ObjectKey;
   path?: Regex | undefined;
@@ -56,7 +63,11 @@ export type SelectorObjectValueMatcher = {
   path?: Regex | undefined;
 };
 
-export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
+export type SelectorMatcher =
+  | SelectorAnonymousFunctionReturnMatcher
+  | SelectorObjectKeyMatcher
+  | SelectorObjectValueMatcher
+  | SelectorStringMatcher;
 
 type BaseSelector<Kind extends SelectorKind> = {
   kind: Kind;

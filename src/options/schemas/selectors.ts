@@ -45,13 +45,30 @@ const OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA = strictObject({
   )
 });
 
+const ANONYMOUS_FUNCTION_RETURN_SELECTOR_MATCHER_SCHEMA = strictObject({
+  match: pipe(
+    array(union([
+      STRING_SELECTOR_MATCHER_SCHEMA,
+      OBJECT_KEY_SELECTOR_MATCHER_SCHEMA,
+      OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA
+    ])),
+    description("List of nested matchers that target the return value of anonymous functions.")
+  ),
+  type: pipe(
+    literal(MatcherType.AnonymousFunctionReturn),
+    description("Matcher type that will be applied.")
+  )
+});
+
+
 const SELECTOR_MATCH_SCHEMA = pipe(
   optional(
     array(
       union([
         STRING_SELECTOR_MATCHER_SCHEMA,
         OBJECT_KEY_SELECTOR_MATCHER_SCHEMA,
-        OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA
+        OBJECT_VALUE_SELECTOR_MATCHER_SCHEMA,
+        ANONYMOUS_FUNCTION_RETURN_SELECTOR_MATCHER_SCHEMA
       ])
     )
   ),

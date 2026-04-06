@@ -94,7 +94,11 @@ function toSelectorMatcher(matcher: Matcher): SelectorMatcher {
   };
 }
 
-function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
+function toLegacyMatcher(matcher: SelectorMatcher): Matcher | undefined {
+  if(matcher.type === MatcherType.AnonymousFunctionReturn){
+    return;
+  }
+
   if(matcher.type === MatcherType.String){
     return {
       match: matcher.type
@@ -134,9 +138,17 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
       return selector.name;
     }
 
+    const legacyMatchers = selector.match
+      .map(toLegacyMatcher)
+      .filter((matcher): matcher is Matcher => matcher !== undefined);
+
+    if(legacyMatchers.length !== selector.match.length){
+      return;
+    }
+
     return [
       selector.name,
-      selector.match.map(toLegacyMatcher)
+      legacyMatchers
     ];
   }
 
@@ -144,8 +156,16 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
     return selector.name;
   }
 
+  const legacyMatchers = selector.match
+    .map(toLegacyMatcher)
+    .filter((matcher): matcher is Matcher => matcher !== undefined);
+
+  if(legacyMatchers.length !== selector.match.length){
+    return;
+  }
+
   return [
     selector.name,
-    selector.match.map(toLegacyMatcher)
+    legacyMatchers
   ];
 }

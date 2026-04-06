@@ -1,6 +1,7 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   findMatchingParentNodes,
+  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
@@ -179,8 +180,14 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 }
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const matcherFunctions = getESMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  const literalNodes = matchers.flatMap(matcher => {
+    return getLiteralNodesByMatchers(
+      ctx,
+      node,
+      getESMatcherFunctions([matcher]),
+      getESMatcherDeadEnd(matcher.type === MatcherType.AnonymousFunctionReturn)
+    );
+  });
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return literals.filter(deduplicateLiterals);
 }
@@ -649,6 +656,22 @@ function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, is
 function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
   return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.AnonymousFunctionReturn: {
+        const nestedMatcherFunctions = getESMatcherFunctions(matcher.match);
+
+        matcherFunctions.push((node): node is ESNode => {
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isInsideESAnonymousFunctionReturn(node)
+          ){
+            return false;
+          }
+
+          return matchesESMatcherFunctions(node, nestedMatcherFunctions);
+        });
+        break;
+      }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESNode => {
 
@@ -727,4 +750,60 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
     }
     return matcherFunctions;
   }, []);
+}
+
+function matchesESMatcherFunctions(node: unknown, matcherFunctions: MatcherFunctions<ESNode>): node is ESNode {
+  for(const matcherFunction of matcherFunctions){
+    if(matcherFunction(node)){
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function isInsideESAnonymousFunctionReturn(node: ESNode): boolean {
+  if(!hasESNodeParentExtension(node)){
+    return false;
+  }
+
+  let currentNode: ESNode = node;
+
+  while(hasESNodeParentExtension(currentNode)){
+    const parent = currentNode.parent;
+
+    if(parent.type === "ReturnStatement" && parent.argument === currentNode){
+      return hasAnonymousFunctionBoundary(parent);
+    }
+
+    if(isESArrowFunctionExpression(parent) && parent.body === currentNode){
+      return true;
+    }
+
+    currentNode = parent;
+  }
+
+  return false;
+}
+
+function hasAnonymousFunctionBoundary(node: ESNode): boolean {
+  let currentNode: ESNode = node;
+
+  while(hasESNodeParentExtension(currentNode)){
+    currentNode = currentNode.parent;
+
+    if(isESArrowFunctionExpression(currentNode)){
+      return true;
+    }
+
+    if(isESFunctionExpression(currentNode)){
+      return currentNode.id === null;
+    }
+
+    if(currentNode.type === "FunctionDeclaration"){
+      return false;
+    }
+  }
+
+  return false;
 }

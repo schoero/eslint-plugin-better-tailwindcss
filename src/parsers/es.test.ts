@@ -269,9 +269,9 @@ describe("es", () => {
       ],
       valid: [
         {
-          jsx: `testStyles(...foo, " lint ");`,
-          svelte: `<script>testStyles(...foo, " lint ");</script>`,
-          vue: `<script>testStyles(...foo, " lint ");</script>`,
+          jsx: `testStyles(...foo, " keep ");`,
+          svelte: `<script>testStyles(...foo, " keep ");</script>`,
+          vue: `<script>testStyles(...foo, " keep ");</script>`,
 
           options: [{
             selectors: [
@@ -284,9 +284,9 @@ describe("es", () => {
           }]
         },
         {
-          jsx: `testStyles(" lint ", ...foo);`,
-          svelte: `<script>testStyles(" lint ", ...foo);</script>`,
-          vue: `<script>testStyles(" lint ", ...foo);</script>`,
+          jsx: `testStyles(" keep ", ...foo);`,
+          svelte: `<script>testStyles(" keep ", ...foo);</script>`,
+          vue: `<script>testStyles(" keep ", ...foo);</script>`,
 
           options: [{
             selectors: [

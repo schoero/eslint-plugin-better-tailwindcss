@@ -48,6 +48,7 @@ import type {
 } from "better-tailwindcss:types/ast.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
+  ArgumentTarget,
   CalleeSelector,
   CallTarget,
   MatcherFunctions,
@@ -557,8 +558,12 @@ function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | unde
   return getTargetItems(calls, callTarget, "first");
 }
 
-function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: CallTarget | undefined): ESExpression[] {
-  const expressionArgs = args.filter((arg): arg is ESExpression => arg.type !== "SpreadElement");
+function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: ArgumentTarget | undefined): ESExpression[] {
+  const expressionArgs = args.map((arg): ESExpression => {
+    return arg.type === "SpreadElement"
+      ? arg.argument
+      : arg;
+  });
 
   if(typeof argumentTarget !== "number"){
     return getTargetItems(expressionArgs, argumentTarget, "all");
@@ -578,9 +583,7 @@ function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTa
 
   const targetArg = args[index];
 
-  return targetArg.type === "SpreadElement"
-    ? []
-    : [targetArg];
+  return [targetArg.type === "SpreadElement" ? targetArg.argument : targetArg];
 }
 
 function getTargetItems<T>(items: T[], target: CallTarget | undefined, defaultTarget: "all" | "first"): T[] {

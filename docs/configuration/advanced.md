@@ -40,13 +40,13 @@ type SelectorStringMatcher = {
 };
 
 type SelectorObjectKeyMatcher = {
-  path?: string;
   type: "objectKeys";
+  path?: string;
 };
 
 type SelectorObjectValueMatcher = {
-  path?: string;
   type: "objectValues";
+  path?: string;
 };
 
 type SelectorAnonymousFunctionReturnMatcher = {

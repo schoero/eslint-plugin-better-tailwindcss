@@ -48,6 +48,7 @@ import type {
 } from "better-tailwindcss:types/ast.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
+  ArgumentTarget,
   CalleeSelector,
   CallTarget,
   MatcherFunctions,
@@ -115,15 +116,20 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
     if(!selectorName || !matchesName(selectorName, baseCalleeName)){ return literals; }
 
-    const targetCalls = getTargetCalls(calls, selector.callTarget);
+    const targetCall = selector.targetCall ?? selector.callTarget;
+    const targetCalls = getTargetCalls(calls, targetCall);
 
     for(const targetCall of targetCalls){
+      const targetArguments = getTargetArguments(targetCall.arguments, selector.targetArgument);
+
       if(!selector.match){
-        literals.push(...getLiteralsByESExpression(ctx, targetCall.arguments));
+        literals.push(...getLiteralsByESExpression(ctx, targetArguments));
         continue;
       }
 
-      literals.push(...getLiteralsByESMatchers(ctx, targetCall, selector.match));
+      for(const targetArgument of targetArguments){
+        literals.push(...getLiteralsByESMatchers(ctx, targetArgument, selector.match));
+      }
     }
 
     return literals;
@@ -268,10 +274,8 @@ function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineM
   };
 }
 
-function getLiteralsByESExpression(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
+function getLiteralsByESExpression(ctx: Rule.RuleContext, args: ESExpression[]): Literal[] {
   return args.reduce<Literal[]>((acc, node) => {
-    if(node.type === "SpreadElement"){ return acc; }
-
     acc.push(...getLiteralsByESLiteralNode(ctx, node));
     return acc;
   }, []);
@@ -551,31 +555,63 @@ function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeNa
 }
 
 function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | undefined): ESCallExpression[] {
-  if(calls.length === 0){
+  return getTargetItems(calls, callTarget, "first");
+}
+
+function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: ArgumentTarget | undefined): ESExpression[] {
+  const expressionArgs = args.map((arg): ESExpression => {
+    return arg.type === "SpreadElement"
+      ? arg.argument
+      : arg;
+  });
+
+  if(typeof argumentTarget !== "number"){
+    return getTargetItems(expressionArgs, argumentTarget, "all");
+  }
+
+  if(args.length === 0){
     return [];
   }
 
-  if(callTarget === "all"){
-    return calls;
-  }
+  const index = argumentTarget >= 0
+    ? argumentTarget
+    : args.length + argumentTarget;
 
-  if(callTarget === "last"){
-    return [calls[calls.length - 1]];
-  }
-
-  if(callTarget === undefined || callTarget === "first"){
-    return [calls[0]];
-  }
-
-  const index = callTarget >= 0
-    ? callTarget
-    : calls.length + callTarget;
-
-  if(index < 0 || index >= calls.length){
+  if(index < 0 || index >= args.length){
     return [];
   }
 
-  return [calls[index]];
+  const targetArg = args[index];
+
+  return [targetArg.type === "SpreadElement" ? targetArg.argument : targetArg];
+}
+
+function getTargetItems<T>(items: T[], target: CallTarget | undefined, defaultTarget: "all" | "first"): T[] {
+  if(items.length === 0){
+    return [];
+  }
+
+  if(target === "all" || target === undefined && defaultTarget === "all"){
+    return items;
+  }
+
+  if(target === "last"){
+    return [items[items.length - 1]];
+  }
+
+  if(target === undefined || target === "first"){
+    return [items[0]];
+  }
+
+  const index = target >= 0
+    ? target
+    : items.length + target;
+
+  if(index < 0 || index >= items.length){
+    return [];
+  }
+
+  return [items[index]];
 }
 
 function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {

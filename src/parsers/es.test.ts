@@ -122,6 +122,261 @@ describe("es", () => {
     });
   });
 
+  it("should support targetCall for curried calls", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" keep ")(" lint ");`,
+          jsxOutput: `testStyles(" keep ")("lint");`,
+          svelte: `<script>testStyles(" keep ")(" lint ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ")("lint");</script>`,
+          vue: `<script>testStyles(" keep ")(" lint ");</script>`,
+          vueOutput: `<script>testStyles(" keep ")("lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetCall: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should lint all targetArguments by default", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" lint ", " lint ");`,
+          jsxOutput: `testStyles("lint", "lint");`,
+          svelte: `<script>testStyles(" lint ", " lint ");</script>`,
+          svelteOutput: `<script>testStyles("lint", "lint");</script>`,
+          vue: `<script>testStyles(" lint ", " lint ");</script>`,
+          vueOutput: `<script>testStyles("lint", "lint");</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support targetArgument for direct callee arguments", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" lint ", " keep ");`,
+          jsxOutput: `testStyles("lint", " keep ");`,
+          svelte: `<script>testStyles(" lint ", " keep ");</script>`,
+          svelteOutput: `<script>testStyles("lint", " keep ");</script>`,
+          vue: `<script>testStyles(" lint ", " keep ");</script>`,
+          vueOutput: `<script>testStyles("lint", " keep ");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(" keep ", " lint ");`,
+          jsxOutput: `testStyles(" keep ", "lint");`,
+          svelte: `<script>testStyles(" keep ", " lint ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ", "lint");</script>`,
+          vue: `<script>testStyles(" keep ", " lint ");</script>`,
+          vueOutput: `<script>testStyles(" keep ", "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 1
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(...foo, " lint ");`,
+          jsxOutput: `testStyles(...foo, "lint");`,
+          svelte: `<script>testStyles(...foo, " lint ");</script>`,
+          svelteOutput: `<script>testStyles(...foo, "lint");</script>`,
+          vue: `<script>testStyles(...foo, " lint ");</script>`,
+          vueOutput: `<script>testStyles(...foo, "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 1
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `testStyles(" keep ", " keep ");`,
+          svelte: `<script>testStyles(" keep ", " keep ");</script>`,
+          vue: `<script>testStyles(" keep ", " keep ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 5
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(...foo, " keep ");`,
+          svelte: `<script>testStyles(...foo, " keep ");</script>`,
+          vue: `<script>testStyles(...foo, " keep ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: 0
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should apply first and last targetArgument to raw argument positions", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" lint ", ...foo);`,
+          jsxOutput: `testStyles("lint", ...foo);`,
+          svelte: `<script>testStyles(" lint ", ...foo);</script>`,
+          svelteOutput: `<script>testStyles("lint", ...foo);</script>`,
+          vue: `<script>testStyles(" lint ", ...foo);</script>`,
+          vueOutput: `<script>testStyles("lint", ...foo);</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `testStyles(...foo, " keep ");`,
+          svelte: `<script>testStyles(...foo, " keep ");</script>`,
+          vue: `<script>testStyles(...foo, " keep ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first"
+              }
+            ]
+          }]
+        },
+        {
+          jsx: `testStyles(" keep ", ...foo);`,
+          svelte: `<script>testStyles(" keep ", ...foo);</script>`,
+          vue: `<script>testStyles(" keep ", ...foo);</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support combining targetCall and targetArgument", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(" keep ", " ignore ")(" lint ", " keep ");`,
+          jsxOutput: `testStyles(" keep ", " ignore ")("lint", " keep ");`,
+          svelte: `<script>testStyles(" keep ", " ignore ")(" lint ", " keep ");</script>`,
+          svelteOutput: `<script>testStyles(" keep ", " ignore ")("lint", " keep ");</script>`,
+          vue: `<script>testStyles(" keep ", " ignore ")(" lint ", " keep ");</script>`,
+          vueOutput: `<script>testStyles(" keep ", " ignore ")("lint", " keep ");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                name: "^testStyles$",
+                targetArgument: "first",
+                targetCall: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should apply matchers only inside selected arguments", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `testStyles({ className: " keep " }, " keep ");`,
+          svelte: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
+          vue: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ObjectValue }],
+                name: "^testStyles$",
+                targetArgument: "last"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match member expression callee names", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

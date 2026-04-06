@@ -1,4 +1,5 @@
 export type {
+  ArgumentTarget,
   CallTarget,
   ObjectKeyMatcher,
   ObjectValueMatcher,
@@ -6,7 +7,8 @@ export type {
   Selector,
   SelectorMatcher,
   Selectors,
-  StringMatcher
+  StringMatcher,
+  Target
 } from "better-tailwindcss:types/rule.js";
 
 export { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";

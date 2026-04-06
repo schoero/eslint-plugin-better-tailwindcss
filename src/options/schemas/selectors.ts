@@ -68,7 +68,26 @@ const CALLEE_SELECTOR_PATH_SCHEMA = pipe(
   description("Regular expression for callee paths that should be linted.")
 );
 
-const CALLEE_SELECTOR_CALL_TARGET_SCHEMA = pipe(
+const CALLEE_SELECTOR_TARGET_VALUE_SCHEMA = optional(
+  union([
+    literal("all"),
+    literal("first"),
+    literal("last"),
+    number()
+  ])
+);
+
+const CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA = pipe(
+  CALLEE_SELECTOR_TARGET_VALUE_SCHEMA,
+  description("Optional argument target for call arguments: index, first, last, or all.")
+);
+
+const CALLEE_SELECTOR_TARGET_CALL_SCHEMA = pipe(
+  CALLEE_SELECTOR_TARGET_VALUE_SCHEMA,
+  description("Optional call target for curried callees: index, first, last, or all.")
+);
+
+const CALLEE_SELECTOR_LEGACY_CALL_TARGET_SCHEMA = pipe(
   optional(
     union([
       literal("all"),
@@ -91,24 +110,28 @@ const ATTRIBUTE_SELECTOR_SCHEMA = strictObject({
 
 const CALLEE_SELECTOR_SCHEMA = union([
   strictObject({
-    callTarget: CALLEE_SELECTOR_CALL_TARGET_SCHEMA,
+    callTarget: CALLEE_SELECTOR_LEGACY_CALL_TARGET_SCHEMA,
     kind: pipe(
       literal(SelectorKind.Callee),
       description("Selector kind that determines where matching is applied.")
     ),
     match: SELECTOR_MATCH_SCHEMA,
     name: SELECTOR_NAME_SCHEMA,
-    path: optional(CALLEE_SELECTOR_PATH_SCHEMA)
+    path: optional(CALLEE_SELECTOR_PATH_SCHEMA),
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA,
+    targetCall: CALLEE_SELECTOR_TARGET_CALL_SCHEMA
   }),
   strictObject({
-    callTarget: CALLEE_SELECTOR_CALL_TARGET_SCHEMA,
+    callTarget: CALLEE_SELECTOR_LEGACY_CALL_TARGET_SCHEMA,
     kind: pipe(
       literal(SelectorKind.Callee),
       description("Selector kind that determines where matching is applied.")
     ),
     match: SELECTOR_MATCH_SCHEMA,
     name: optional(SELECTOR_NAME_SCHEMA),
-    path: CALLEE_SELECTOR_PATH_SCHEMA
+    path: CALLEE_SELECTOR_PATH_SCHEMA,
+    targetArgument: CALLEE_SELECTOR_TARGET_ARGUMENT_SCHEMA,
+    targetCall: CALLEE_SELECTOR_TARGET_CALL_SCHEMA
   })
 ]);
 

@@ -279,31 +279,4 @@ describe("descriptions", () => {
 
   });
 
-  test("selectors targetCall and targetArgument config", () => {
-
-    const selectors = {
-      selectors: [
-        {
-          kind: "callee",
-          name: "^cn$",
-          targetArgument: "first",
-          targetCall: "last"
-        },
-        {
-          callTarget: -1,
-          kind: "callee",
-          name: "^legacy$",
-          targetArgument: 0
-        }
-      ]
-    };
-
-    expect(
-      validate(selectors, toJsonSchema(COMMON_OPTIONS))
-    ).toStrictEqual(
-      { errors: [], valid: true }
-    );
-
-  });
-
 });

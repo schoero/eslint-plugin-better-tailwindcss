@@ -13,7 +13,7 @@ import {
   isInsideESAnonymousFunctionReturn,
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
@@ -21,8 +21,7 @@ import {
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  matchesPathPattern,
-  UNCROSSABLE_BOUNDARY
+  matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
@@ -148,7 +147,8 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-arguments
+  const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
@@ -317,19 +317,19 @@ function isSvelteMustacheTag(node: ESBaseNode): node is SvelteMustacheTagText {
     "kind" in node && node.kind === "text";
 }
 
-function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESBaseNode> {
-  return matchers.reduce<MatcherFunctions<ESBaseNode>>((matcherFunctions, matcher) => {
+function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
+  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
         const nestedMatcherFunctions = getSvelteMatcherFunctions(matcher.match);
 
-        matcherFunctions.push((node): node is ESBaseNode => {
+        matcherFunctions.push(node => {
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
             !isInsideESAnonymousFunctionReturn(node)
           ){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
@@ -337,7 +337,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
         break;
       }
       case MatcherType.String: {
-        matcherFunctions.push((node): node is ESBaseNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -345,7 +345,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -359,7 +359,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           return isESStringLike(node) || isSvelteStringLiteral(node) || isSvelteName(node);
@@ -367,7 +367,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push((node): node is ESBaseNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -375,7 +375,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -388,13 +388,13 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
             isIndexedAccessLiteral(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);
@@ -402,7 +402,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push((node): node is ESBaseNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -410,7 +410,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -425,13 +425,13 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             isIndexedAccessLiteral(node) ||
 
             !isESStringLike(node) && !isSvelteStringLiteral(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);

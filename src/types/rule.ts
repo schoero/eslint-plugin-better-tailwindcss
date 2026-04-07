@@ -42,8 +42,15 @@ export type ObjectValueMatcher = {
   pathPattern?: Regex | undefined;
 };
 
-export type MatcherFunction<Node> = (node: unknown) => node is Node;
-export type MatcherFunctions<Node> = MatcherFunction<Node>[];
+export const MATCHER_RESULT = {
+  MATCH: true,
+  NO_MATCH: false,
+  UNCROSSABLE_BOUNDARY: "UNCROSSABLE_BOUNDARY"
+} as const;
+type MatcherFunctionResult = typeof MATCHER_RESULT[keyof typeof MATCHER_RESULT];
+
+export type MatcherFunction = (node: unknown) => MatcherFunctionResult | MatcherFunctions;
+export type MatcherFunctions = MatcherFunction[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
 
 /* New selector matchers */

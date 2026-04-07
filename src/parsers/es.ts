@@ -1,6 +1,5 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import {
-  findMatchingParentNodes,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
   isInsideAnonymousFunction,
@@ -8,8 +7,7 @@ import {
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  matchesPathPattern,
-  UNCROSSABLE_BOUNDARY
+  matchesPathPattern
 } from "better-tailwindcss:utils/matchers.js";
 import {
   createObjectPathElement,
@@ -59,6 +57,7 @@ import type {
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
+import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [
@@ -185,7 +184,8 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getESMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-arguments
+  const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return literals.filter(deduplicateLiterals);
 }
@@ -391,11 +391,13 @@ export function getESObjectPath(node: WithParent<ESNode>): string | undefined {
   }
 
   if(isESStringLike(node) && isInsideObjectValue(node)){
-    const property = findMatchingParentNodes<ESNode>(node, [(node): node is ESNode => {
+    const property = findMatchingParentNodes<ESNode>(node, (node): node is ESNode => {
       return isESNode(node) && node.type === "Property";
-    }])[0];
+    });
 
-    return getESObjectPath(property);
+    if(property){
+      return getESObjectPath(property);
+    }
   }
 
   if(isESObjectKey(node)){
@@ -455,6 +457,17 @@ export function isInsideObjectValue(node: WithParent<ESNode>) {
   }
 
   return isInsideObjectValue(node.parent);
+}
+
+
+function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matchesNode: (node: unknown) => node is Node): Node | undefined {
+  if(!isGenericNodeWithParent(node)){ return; }
+
+  if(matchesNode(node.parent)){
+    return node.parent as Node;
+  }
+
+  return findMatchingParentNodes(node.parent, matchesNode);
 }
 
 export function isESSimpleStringLiteral(node: ESBaseNode): node is ESSimpleStringLiteral {
@@ -679,19 +692,19 @@ function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, is
   return getStringConcatenationMeta(parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
-function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
-  return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
+function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
+  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
         const nestedMatcherFunctions = getESMatcherFunctions(matcher.match);
 
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
             isESVariableDeclarator(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -699,7 +712,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             !hasESNodeParentExtension(node) ||
             !isInsideESAnonymousFunctionReturn(node)
           ){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
@@ -707,7 +720,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
         break;
       }
       case MatcherType.String: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -715,7 +728,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -729,7 +742,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           return isESStringLike(node);
@@ -737,7 +750,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -745,7 +758,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            throw MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -758,13 +771,13 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
             isIndexedAccessLiteral(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);
@@ -772,7 +785,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
 
           if(isESNode(node) && (
             isESCallExpression(node) ||
@@ -780,7 +793,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(
@@ -795,13 +808,13 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isIndexedAccessLiteral(node) ||
 
             !isESStringLike(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);

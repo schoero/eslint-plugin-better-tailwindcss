@@ -179,7 +179,6 @@ Matches all object keys.
   See [Path option details](#path-option-details).
 
 ```ts
-
 type SelectorObjectKeyMatcher = {
   type: "objectKeys";
   path?: string;

@@ -26,6 +26,8 @@ export enum SelectorKind {
 
 export type Regex = string;
 
+/* Legacy matchers */
+
 export type StringMatcher = {
   match: MatcherType.String;
 };
@@ -43,6 +45,8 @@ export type ObjectValueMatcher = {
 export type MatcherFunction<Node> = (node: unknown) => node is Node;
 export type MatcherFunctions<Node> = MatcherFunction<Node>[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
+
+/* New selector matchers */
 
 export type SelectorStringMatcher = {
   type: MatcherType.String;
@@ -75,11 +79,11 @@ type BaseSelector<Kind extends SelectorKind> = {
   match?: SelectorMatcher[] | undefined;
 };
 
-export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
-
 export type Target = "all" | "first" | "last" | number;
 export type CallTarget = Target;
 export type ArgumentTarget = Target;
+
+export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
 export type CalleeSelector = {
   kind: SelectorKind.Callee;

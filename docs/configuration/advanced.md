@@ -24,42 +24,9 @@ You can find the default selectors in the [defaults documentation](../api/defaul
 Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
 
 The plugin supports four selector types: `attribute`, `callee`, `variable`, and `tag`.
+Every selector then can match different type of string literals based on the provided `match` option.
 
 ### Type
-
-```ts
-type Selectors = (
-  | AttributeSelector
-  | CalleeSelector
-  | TagSelector
-  | VariableSelector
-)[];
-
-type SelectorStringMatcher = {
-  type: "strings";
-};
-
-type SelectorObjectKeyMatcher = {
-  type: "objectKeys";
-  path?: string;
-};
-
-type SelectorObjectValueMatcher = {
-  type: "objectValues";
-  path?: string;
-};
-
-type SelectorAnonymousFunctionReturnMatcher = {
-  match: SelectorMatcher[];
-  type: "anonymousFunctionReturn";
-};
-
-type SelectorMatcher =
-  | SelectorAnonymousFunctionReturnMatcher
-  | SelectorObjectKeyMatcher
-  | SelectorObjectValueMatcher
-  | SelectorStringMatcher;
-```
 
 <br/>
 
@@ -67,7 +34,7 @@ type SelectorMatcher =
 
 - **kind**: `"attribute"`.
 - **name**: regular expression for attribute names.
-- **match** `optional`: [matcher](#matcher-types) list.
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -94,13 +61,12 @@ type AttributeSelector = {
   If a non-negative number is provided, the zero-based argument index is used.
   Negative numbers count from the end (`-1` is the last argument).
   When omitted, all arguments of the selected call are checked.
-- **match** `optional`: [matcher](#matcher-types) list.
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  callTarget?: "all" | "first" | "last" | number;
   match?: SelectorMatcher[];
   name?: string;
   path?: string;
@@ -115,7 +81,7 @@ type CalleeSelector = {
 
 - **kind**: `"variable"`.
 - **name**: regular expression for variable names.
-- **match** `optional`: [matcher](#matcher-types) list.
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -132,7 +98,7 @@ type VariableSelector = {
 
 - **kind**: must be `"tag"`.
 - **name**: regular expression for tagged template names.
-- **match** `optional`: [matcher](#matcher-types) list.
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.
   When omitted, only direct string literals are collected.
 
 ```ts
@@ -168,15 +134,17 @@ type TagSelector = {
 
 ### Matchers
 
-#### Matcher types
+#### Selector matcher types
 
 ##### `strings`
 
 Matches all string literals that are not object keys or object values.
 
-Options:
-
-- none
+```ts
+type SelectorStringMatcher = {
+  type: "strings";
+};
+```
 
 ```json
 {
@@ -201,14 +169,22 @@ tw(
 );
 ```
 
+<br />
+
 ##### `objectKeys`
 
 Matches all object keys.
 
-Options:
-
 - `path` `optional`: regular expression to narrow matching to specific object key paths
   See [Path option details](#path-option-details).
+
+```ts
+
+type SelectorObjectKeyMatcher = {
+  type: "objectKeys";
+  path?: string;
+};
+```
 
 ```json
 {
@@ -240,14 +216,21 @@ tw({
 });
 ```
 
+<br />
+
 ##### `objectValues`
 
 Matches all object values.
 
-Options:
-
 - `path` `optional`: regular expression to narrow matching to specific object value paths
   See [Path option details](#path-option-details).
+  
+```ts
+type SelectorObjectValueMatcher = {
+  type: "objectValues";
+  path?: string;
+};
+```
 
 ```json
 {
@@ -279,14 +262,21 @@ tw({
 });
 ```
 
+<br />
+
 ##### `anonymousFunctionReturn`
 
 Matches values returned from anonymous functions and applies nested matchers to those return values.
 
-Options:
-
 - `match` `required`: nested matcher array
   The nested `match` array can include `strings`, `objectKeys`, and `objectValues` matchers.
+
+```ts
+type SelectorAnonymousFunctionReturnMatcher = {
+  match: (SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher)[];
+  type: "anonymousFunctionReturn";
+};
+```
 
 ```json
 {

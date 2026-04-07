@@ -1,15 +1,15 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   findMatchingParentNodes,
-  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
-  getSelectorMatcherTraversalGroups,
   isIndexedAccessLiteral,
+  isInsideAnonymousFunction,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  matchesPathPattern
+  matchesPathPattern,
+  UNCROSSABLE_BOUNDARY
 } from "better-tailwindcss:utils/matchers.js";
 import {
   createObjectPathElement,
@@ -28,6 +28,7 @@ import type {
   BaseNode as ESBaseNode,
   CallExpression as ESCallExpression,
   Expression as ESExpression,
+  FunctionDeclaration as ESFunctionDeclaration,
   FunctionExpression as ESFunctionExpression,
   Identifier as ESIdentifier,
   MemberExpression as ESMemberExpression,
@@ -181,18 +182,14 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 
 }
 
+
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const literalNodes = getSelectorMatcherTraversalGroups(matchers).flatMap(group => {
-    return getLiteralNodesByMatchers(
-      ctx,
-      node,
-      getESMatcherFunctions(group.matchers),
-      getESMatcherDeadEnd(group.allowFunctionTraversal)
-    );
-  });
+  const matcherFunctions = getESMatcherFunctions(matchers);
+  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return literals.filter(deduplicateLiterals);
 }
+
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
@@ -500,6 +497,10 @@ export function isESFunctionExpression(node: ESBaseNode): node is ESFunctionExpr
   return node.type === "FunctionExpression";
 }
 
+export function isESFunctionDeclaration(node: ESBaseNode): node is ESFunctionDeclaration {
+  return node.type === "FunctionDeclaration";
+}
+
 function getESMemberExpressionPropertyName(node: ESMemberExpression): string | undefined {
   if(!node.computed && node.property.type === "Identifier"){
     return node.property.name;
@@ -685,6 +686,14 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
         const nestedMatcherFunctions = getESMatcherFunctions(matcher.match);
 
         matcherFunctions.push((node): node is ESNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESVariableDeclarator(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
@@ -699,6 +708,15 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
       }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -720,6 +738,15 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
       }
       case MatcherType.ObjectKey: {
         matcherFunctions.push((node): node is ESNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -746,6 +773,15 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
       }
       case MatcherType.ObjectValue: {
         matcherFunctions.push((node): node is ESNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -787,37 +823,18 @@ export function isInsideESAnonymousFunctionReturn(node: ESNode): boolean {
   while(hasESNodeParentExtension(currentNode)){
     const parent = currentNode.parent;
 
+    // () => { return "string" }
+    // function(){ return "string" }
     if(parent.type === "ReturnStatement" && parent.argument === currentNode){
-      return hasAnonymousFunctionBoundary(parent);
+      return isInsideAnonymousFunction(currentNode);
     }
 
-    if(isESArrowFunctionExpression(parent) && parent.body === currentNode){
+    // () => "string"
+    if(isESArrowFunctionExpression(parent) && parent.body === currentNode && parent.expression){
       return true;
     }
 
     currentNode = parent;
-  }
-
-  return false;
-}
-
-function hasAnonymousFunctionBoundary(node: ESNode): boolean {
-  let currentNode: ESNode = node;
-
-  while(hasESNodeParentExtension(currentNode)){
-    currentNode = currentNode.parent;
-
-    if(isESArrowFunctionExpression(currentNode)){
-      return true;
-    }
-
-    if(isESFunctionExpression(currentNode)){
-      return currentNode.id === null;
-    }
-
-    if(currentNode.type === "FunctionDeclaration"){
-      return false;
-    }
   }
 
   return false;

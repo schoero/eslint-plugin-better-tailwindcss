@@ -1,6 +1,10 @@
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
-import { getLiteralNodesByMatchers, matchesPathPattern } from "better-tailwindcss:utils/matchers.js";
+import {
+  getLiteralNodesByMatchers,
+  matchesPathPattern,
+  UNCROSSABLE_BOUNDARY
+} from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
   createObjectPathElement,
@@ -134,9 +138,7 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
 
 function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => {
-    return isAST(value) && isCallExpression(value) || isBoundAttributeName(ast);
-  });
+  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions);
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
 
   return literals.filter(deduplicateLiterals);
@@ -147,6 +149,13 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
     switch (matcher.type){
       case MatcherType.String: {
         matcherFunctions.push((ast): ast is AST => {
+
+          if(
+            isAST(ast) &&
+            isCallExpression(ast)
+          ){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isAST(ast) ||
@@ -165,6 +174,14 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
       }
       case MatcherType.ObjectKey: {
         matcherFunctions.push((ast): ast is AST => {
+
+          if(isAST(ast) && (
+            isCallExpression(ast) ||
+            isBoundAttributeName(ast)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isAST(ast) ||
             !isObjectKey(ast) ||
@@ -186,6 +203,14 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
       }
       case MatcherType.ObjectValue: {
         matcherFunctions.push((ast): ast is AST => {
+
+          if(isAST(ast) && (
+            isCallExpression(ast) ||
+            isBoundAttributeName(ast)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isAST(ast) ||
             !hasParent(ast) ||

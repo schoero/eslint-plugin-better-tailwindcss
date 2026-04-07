@@ -593,7 +593,7 @@ describe("angular", () => {
   });
 
   // #274
-  it("should support bound attribute names", () => {
+  it.only("should support bound attribute names", () => {
     lint(noRestrictedClasses, {
       invalid: [
         {

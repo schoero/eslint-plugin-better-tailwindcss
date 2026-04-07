@@ -426,6 +426,29 @@ describe("es", () => {
     });
   });
 
+  it("should not match non-return literals inside anonymous arrow function block bodies", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `testStyles(() => { const value = " keep "; return value; });`,
+          svelte: `<script>testStyles(() => { const value = " keep "; return value; });</script>`,
+          vue: `<script>testStyles(() => { const value = " keep "; return value; });</script>`,
+
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match anonymous normal function returns", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
@@ -457,22 +480,43 @@ describe("es", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
         {
-          jsx: `testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));`,
-          jsxOutput: `testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));`,
-          svelte: `<script>testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));</script>`,
-          svelteOutput: `<script>testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));</script>`,
-          vue: `<script>testStyles(() => ({ " lint-key ": " lint-value ", nested: () => " lint-string " }));</script>`,
-          vueOutput: `<script>testStyles(() => ({ "lint-key": "lint-value", nested: () => "lint-string" }));</script>`,
+          jsx: `testStyles(() => ({ " objectKey ": " objectValue " }));`,
+          jsxOutput: `testStyles(() => ({ "objectKey": "objectValue" }));`,
+          svelte: `<script>testStyles(() => ({ " objectKey ": " objectValue " }));</script>`,
+          svelteOutput: `<script>testStyles(() => ({ "objectKey": "objectValue" }));</script>`,
+          vue: `<script>testStyles(() => ({ " objectKey ": " objectValue " }));</script>`,
+          vueOutput: `<script>testStyles(() => ({ "objectKey": "objectValue" }));</script>`,
 
-          errors: 6,
+          errors: 4,
           options: [{
             selectors: [{
               kind: SelectorKind.Callee,
               match: [{
                 match: [
-                  { type: MatcherType.String },
                   { type: MatcherType.ObjectKey },
                   { type: MatcherType.ObjectValue }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        },
+        {
+          jsx: `testStyles(() => " string ");`,
+          jsxOutput: `testStyles(() => "string");`,
+          svelte: `<script>testStyles(() => " string ");</script>`,
+          svelteOutput: `<script>testStyles(() => "string");</script>`,
+          vue: `<script>testStyles(() => " string ");</script>`,
+          vueOutput: `<script>testStyles(() => "string");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.String }
                 ],
                 type: MatcherType.AnonymousFunctionReturn
               }],

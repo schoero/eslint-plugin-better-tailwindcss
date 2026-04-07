@@ -2,12 +2,12 @@ import {
   hasESNodeParentExtension,
   isESArrowFunctionExpression,
   isESCallExpression,
+  isESFunctionDeclaration,
   isESFunctionExpression,
   isESNode,
   isESSimpleStringLiteral,
   isESVariableDeclarator
 } from "better-tailwindcss:parsers/es.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
@@ -19,17 +19,30 @@ import type { CalleeMatchers, CalleeName, Callees } from "better-tailwindcss:opt
 import type { TagMatchers, TagName, Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { VariableMatchers, VariableName, Variables } from "better-tailwindcss:options/schemas/variables.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
-import type { MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
+import type { MatcherFunction, MatcherFunctions } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
-export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
+export const UNCROSSABLE_BOUNDARY = "UNCROSSABLE_BOUNDARY";
+
+export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
-  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions, deadEnd);
-  const self = nodeMatches<Node>(node, matcherFunctions) ? [node] : [];
+  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions);
 
-  return [...nestedLiterals, ...self];
+  for(const matcherFunction of matcherFunctions){
+    try {
+      if(nodeMatches(node, matcherFunction)){
+        return [...nestedLiterals, node];
+      }
+    } catch (error){
+      if(error !== UNCROSSABLE_BOUNDARY){
+        throw error;
+      }
+    }
+  }
+
+  return nestedLiterals;
 }
 
 export function getESMatcherDeadEnd(allowFunctionTraversal = false): (node: unknown) => boolean {
@@ -50,61 +63,29 @@ export function getESMatcherDeadEnd(allowFunctionTraversal = false): (node: unkn
   };
 }
 
-export type SelectorMatcherTraversalGroup = {
-  allowFunctionTraversal: boolean;
-  matchers: SelectorMatcher[];
-};
-
-export function getSelectorMatcherTraversalGroups(matchers: SelectorMatcher[]): SelectorMatcherTraversalGroup[] {
-  const defaultTraversalMatchers: SelectorMatcher[] = [];
-  const functionTraversalMatchers: SelectorMatcher[] = [];
-
-  for(const matcher of matchers){
-    if(matcher.type === MatcherType.AnonymousFunctionReturn){
-      functionTraversalMatchers.push(matcher);
-    } else {
-      defaultTraversalMatchers.push(matcher);
-    }
-  }
-
-  const firstMatcherIsFunctionTraversal = matchers[0]?.type === MatcherType.AnonymousFunctionReturn;
-  const defaultTraversalGroup: SelectorMatcherTraversalGroup = {
-    allowFunctionTraversal: false,
-    matchers: defaultTraversalMatchers
-  };
-  const functionTraversalGroup: SelectorMatcherTraversalGroup = {
-    allowFunctionTraversal: true,
-    matchers: functionTraversalMatchers
-  };
-  const [firstGroup, secondGroup] = firstMatcherIsFunctionTraversal
-    ? [functionTraversalGroup, defaultTraversalGroup]
-    : [defaultTraversalGroup, functionTraversalGroup];
-
-  return [
-    ...firstGroup.matchers.length > 0 ? [firstGroup] : [],
-    ...secondGroup.matchers.length > 0 ? [secondGroup] : []
-  ];
-}
-
-function findMatchingNestedNodes<Node>(
-  node: GenericNodeWithParent,
-  matcherFunctions: MatcherFunctions<Node>,
-  deadEnd: (node: unknown) => boolean = getESMatcherDeadEnd()
-): Node[] {
+function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions<Node>): Node[] {
   return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){
       return matchedNodes;
     }
 
-    if(deadEnd?.(value)){
-      return matchedNodes;
+    const currentMatcherFunctions = [...matcherFunctions];
+
+    for(const matcherFunction of currentMatcherFunctions){
+      try {
+        if(nodeMatches(value, matcherFunction)){
+          matchedNodes.push(value);
+        }
+      } catch (error){
+        if(error === UNCROSSABLE_BOUNDARY){
+          currentMatcherFunctions.splice(currentMatcherFunctions.indexOf(matcherFunction), 1);
+        } else {
+          throw error;
+        }
+      }
     }
 
-    if(nodeMatches(value, matcherFunctions)){
-      matchedNodes.push(value);
-    }
-
-    matchedNodes.push(...findMatchingNestedNodes(value, matcherFunctions, deadEnd));
+    matchedNodes.push(...findMatchingNestedNodes(value, currentMatcherFunctions));
     return matchedNodes;
   }, []);
 }
@@ -112,18 +93,27 @@ function findMatchingNestedNodes<Node>(
 export function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matcherFunctions: MatcherFunctions<Node>): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
-  if(nodeMatches(node.parent, matcherFunctions)){
-    return [node.parent];
+  const currentMatcherFunctions = [...matcherFunctions];
+
+  for(const matcherFunction of currentMatcherFunctions){
+    try {
+      if(nodeMatches(node.parent, matcherFunction)){
+        return [node.parent];
+      }
+    } catch (error){
+      if(error === UNCROSSABLE_BOUNDARY){
+        currentMatcherFunctions.splice(currentMatcherFunctions.indexOf(matcherFunction), 1);
+      } else {
+        throw error;
+      }
+    }
   }
 
-  return findMatchingParentNodes(node.parent, matcherFunctions);
+  return findMatchingParentNodes(node.parent, currentMatcherFunctions);
 }
 
-function nodeMatches<Node>(node: unknown, matcherFunctions: MatcherFunctions<Node>): node is Node {
-  for(const matcherFunction of matcherFunctions){
-    if(matcherFunction(node)){ return true; }
-  }
-  return false;
+function nodeMatches<Node>(node: unknown, matcherFunction: MatcherFunction<Node>): node is Node {
+  return matcherFunction(node);
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {
@@ -194,4 +184,26 @@ export function isIndexedAccessLiteral(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type !== "MemberExpression"){ return false; }
   return node.parent.property === node && isESSimpleStringLiteral(node);
+}
+
+export function isInsideAnonymousFunction(node: WithParent<ESNode>): boolean {
+  if(!hasESNodeParentExtension(node)){ return false; }
+
+  if(isESArrowFunctionExpression(node.parent)){
+    return true;
+  }
+
+  if(isESFunctionExpression(node.parent)){
+    if(node.parent.id === null){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  if(isESFunctionDeclaration(node.parent)){
+    return false;
+  }
+
+  return isInsideAnonymousFunction(node.parent);
 }

@@ -3,23 +3,26 @@ import {
   getESObjectPath,
   getLiteralsByESLiteralNode,
   hasESNodeParentExtension,
+  isESArrowFunctionExpression,
+  isESCallExpression,
+  isESFunctionExpression,
   isESNode,
   isESObjectKey,
   isESStringLike,
+  isESVariableDeclarator,
   isInsideESAnonymousFunctionReturn,
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
-  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
-  getSelectorMatcherTraversalGroups,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  matchesPathPattern
+  matchesPathPattern,
+  UNCROSSABLE_BOUNDARY
 } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
@@ -144,14 +147,8 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 }
 
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const literalNodes = getSelectorMatcherTraversalGroups(matchers).flatMap(group => {
-    return getLiteralNodesByMatchers(
-      ctx,
-      node,
-      getSvelteMatcherFunctions(group.matchers),
-      getESMatcherDeadEnd(group.allowFunctionTraversal)
-    );
-  });
+  const matcherFunctions = getSvelteMatcherFunctions(matchers);
+  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
@@ -342,6 +339,15 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
@@ -363,6 +369,14 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
       case MatcherType.ObjectKey: {
         matcherFunctions.push((node): node is ESBaseNode => {
 
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -389,6 +403,15 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
       }
       case MatcherType.ObjectValue: {
         matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||

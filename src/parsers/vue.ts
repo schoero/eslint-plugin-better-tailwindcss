@@ -4,23 +4,26 @@ import {
   getESObjectPath,
   getLiteralsByESLiteralNode,
   hasESNodeParentExtension,
+  isESArrowFunctionExpression,
+  isESCallExpression,
+  isESFunctionExpression,
   isESNode,
   isESObjectKey,
   isESStringLike,
+  isESVariableDeclarator,
   isInsideESAnonymousFunctionReturn,
   isInsideObjectValue
 } from "better-tailwindcss:parsers/es.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 import {
-  getESMatcherDeadEnd,
   getLiteralNodesByMatchers,
-  getSelectorMatcherTraversalGroups,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
   isInsideMemberExpression,
-  matchesPathPattern
+  matchesPathPattern,
+  UNCROSSABLE_BOUNDARY
 } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
@@ -97,15 +100,10 @@ function getLiteralsByVueLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): L
   return [];
 }
 
+
 function getLiteralsByVueMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
-  const literalNodes = getSelectorMatcherTraversalGroups(matchers).flatMap(group => {
-    return getLiteralNodesByMatchers(
-      ctx,
-      node,
-      getVueMatcherFunctions(group.matchers),
-      getESMatcherDeadEnd(group.allowFunctionTraversal)
-    );
-  });
+  const matcherFunctions = getVueMatcherFunctions(matchers);
+  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByVueLiteralNode(ctx, literalNode));
 
   return literals.filter(deduplicateLiterals);
@@ -198,6 +196,16 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
         const nestedMatcherFunctions = getVueMatcherFunctions(matcher.match);
 
         matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
@@ -212,6 +220,15 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
       }
       case MatcherType.String: {
         matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -233,6 +250,15 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<E
       }
       case MatcherType.ObjectKey: {
         matcherFunctions.push((node): node is ESBaseNode => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            throw UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||

@@ -1,4 +1,5 @@
 import eslintParserHTML from "@html-eslint/parser";
+import { ESLint } from "eslint";
 import { describe, expect, it } from "vitest";
 
 import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-consistent-line-wrapping.js";
@@ -838,6 +839,59 @@ describe(enforceConsistentLineWrapping.name, () => {
         ]
       }
     );
+  });
+
+  it("should warn if `lineBreakStyle` is likely misconfigured", async () => {
+    const linter = new ESLint({
+      overrideConfig: [{
+        languageOptions: {
+          parser: eslintParserHTML
+        },
+        plugins: {
+          "better-tailwindcss": eslintPluginBetterTailwindcss
+        },
+        rules: {
+          "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+            classesPerLine: 3,
+            indent: 2,
+            lineBreakStyle: "unix"
+          }]
+        }
+      }]
+    });
+
+    const [result] = await linter.lintText("<img class=\"\r\n  a b c d\r\n\" />");
+    const { message } = result.messages.find(message => message.ruleId === "better-tailwindcss/enforce-consistent-line-wrapping")!;
+
+    expect(message).toContain("Inconsistent line endings detected");
+    expect(message).toContain("Option `lineBreakStyle` may be misconfigured.");
+    expect(message).toContain(`${enforceConsistentLineWrapping.rule.meta.docs.url}#linebreakstyle`);
+  });
+
+  it("should warn if `indent` is likely misconfigured", async () => {
+    const linter = new ESLint({
+      overrideConfig: [{
+        languageOptions: {
+          parser: eslintParserHTML
+        },
+        plugins: {
+          "better-tailwindcss": eslintPluginBetterTailwindcss
+        },
+        rules: {
+          "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+            classesPerLine: 3,
+            indent: 2
+          }]
+        }
+      }]
+    });
+
+    const [result] = await linter.lintText("<img class=\"\n\ta b c d\n\" />");
+    const { message } = result.messages.find(message => message.ruleId === "better-tailwindcss/enforce-consistent-line-wrapping")!;
+
+    expect(message).toContain("Inconsistent indentation detected");
+    expect(message).toContain("Option `indent` may be misconfigured.");
+    expect(message).toContain(`${enforceConsistentLineWrapping.rule.meta.docs.url}#indent`);
   });
 
   // #52

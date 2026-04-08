@@ -758,7 +758,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
             isESVariableDeclarator(node) ||
             isESFunctionExpression(node)
           )){
-            throw MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
           }
 
           if(

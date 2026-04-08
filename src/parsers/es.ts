@@ -2,7 +2,6 @@ import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
-  isInsideAnonymousFunction,
   isInsideConditionalExpressionTest,
   isInsideDisallowedBinaryExpression,
   isInsideLogicalExpressionLeft,
@@ -514,6 +513,26 @@ export function isESFunctionDeclaration(node: ESBaseNode): node is ESFunctionDec
   return node.type === "FunctionDeclaration";
 }
 
+export function isESAnonymousFunction(node: ESBaseNode): boolean {
+  if(isESArrowFunctionExpression(node)){
+    return true;
+  }
+
+  if(isESFunctionExpression(node) && node.id === null){
+    return true;
+  }
+
+  return false;
+}
+
+export function isESArrowFunctionWithoutBody(node: ESBaseNode): node is ESArrowFunctionExpression {
+  return isESArrowFunctionExpression(node) && node.body.type !== "BlockStatement";
+}
+
+export function isESReturnStatement(node: ESNode): boolean {
+  return node.type === "ReturnStatement";
+}
+
 function getESMemberExpressionPropertyName(node: ESMemberExpression): string | undefined {
   if(!node.computed && node.property.type === "Identifier"){
     return node.property.name;
@@ -692,7 +711,13 @@ function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, is
   return getStringConcatenationMeta(parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
-function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
+
+export function getESMatcherFunctions(
+  matchers: SelectorMatcher[],
+  options?: {
+    isStringLikeNode?: (node: ESBaseNode) => boolean;
+  }
+): MatcherFunctions {
   return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
@@ -709,12 +734,40 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||
-            !isInsideESAnonymousFunctionReturn(node)
+            !isESAnonymousFunction(node)
           ){
             return MATCHER_RESULT.NO_MATCH;
           }
 
-          return getESMatcherFunctions(matcher.match);
+          // return matchers directly if the arrow function immediately returns
+          if(isESArrowFunctionWithoutBody(node)){
+            return getESMatcherFunctions(matcher.match, options);
+          }
+
+          // create a matcher function that first matches the return statement and then the final matchers
+          return [(node: unknown) => {
+            if(isESNode(node) && (
+              isESCallExpression(node) ||
+              isESArrowFunctionExpression(node) ||
+              isESVariableDeclarator(node) ||
+              isESFunctionExpression(node) ||
+              isESFunctionDeclaration(node)
+            )){
+              return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+            }
+
+            if(
+              !isESNode(node) ||
+              !hasESNodeParentExtension(node) ||
+
+              !isESReturnStatement(node)
+            ){
+              return MATCHER_RESULT.NO_MATCH;
+            }
+
+            return getESMatcherFunctions(matcher.match, options);
+          }];
+
         });
         break;
       }
@@ -744,7 +797,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
             return MATCHER_RESULT.NO_MATCH;
           }
 
-          return isESStringLike(node);
+          return isESStringLike(node) || !!options?.isStringLikeNode?.(node);
         });
         break;
       }
@@ -806,7 +859,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
             isESObjectKey(node) ||
             isIndexedAccessLiteral(node) ||
 
-            !isESStringLike(node)){
+            !isESStringLike(node) && !options?.isStringLikeNode?.(node)){
             return MATCHER_RESULT.NO_MATCH;
           }
 
@@ -823,31 +876,4 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
     }
     return matcherFunctions;
   }, []);
-}
-
-export function isInsideESAnonymousFunctionReturn(node: ESNode): boolean {
-  if(!hasESNodeParentExtension(node)){
-    return false;
-  }
-
-  let currentNode: ESNode = node;
-
-  while(hasESNodeParentExtension(currentNode)){
-    const parent = currentNode.parent;
-
-    // () => { return "string" }
-    // function(){ return "string" }
-    if(parent.type === "ReturnStatement" && parent.argument === currentNode){
-      return isInsideAnonymousFunction(currentNode);
-    }
-
-    // () => "string"
-    if(isESArrowFunctionExpression(parent) && parent.body === currentNode && parent.expression){
-      return true;
-    }
-
-    currentNode = parent;
-  }
-
-  return false;
 }

@@ -1,29 +1,12 @@
 import {
   ES_CONTAINER_TYPES_TO_INSERT_BRACES,
   ES_CONTAINER_TYPES_TO_REPLACE_QUOTES,
-  getESObjectPath,
+  getESMatcherFunctions,
   getLiteralsByESLiteralNode,
   hasESNodeParentExtension,
-  isESArrowFunctionExpression,
-  isESCallExpression,
-  isESFunctionExpression,
-  isESNode,
-  isESObjectKey,
-  isESStringLike,
-  isESVariableDeclarator,
-  isInsideESAnonymousFunctionReturn,
-  isInsideObjectValue
+  isESStringLike
 } from "better-tailwindcss:parsers/es.js";
-import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
-import {
-  getLiteralNodesByMatchers,
-  isIndexedAccessLiteral,
-  isInsideConditionalExpressionTest,
-  isInsideDisallowedBinaryExpression,
-  isInsideLogicalExpressionLeft,
-  isInsideMemberExpression,
-  matchesPathPattern
-} from "better-tailwindcss:utils/matchers.js";
+import { getLiteralNodesByMatchers } from "better-tailwindcss:utils/matchers.js";
 import {
   addAttribute,
   deduplicateLiterals,
@@ -190,136 +173,7 @@ function isVueLiteralNode(node: ESBaseNode): node is AST.VLiteral {
 }
 
 function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
-  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
-    switch (matcher.type){
-      case MatcherType.AnonymousFunctionReturn: {
-
-        matcherFunctions.push(node => {
-
-          if(isESNode(node) && (
-            isESCallExpression(node) ||
-            isESArrowFunctionExpression(node) ||
-            isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
-          )){
-            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
-          }
-
-          if(
-            !isESNode(node) ||
-            !hasESNodeParentExtension(node) ||
-            !isInsideESAnonymousFunctionReturn(node)
-          ){
-            return MATCHER_RESULT.NO_MATCH;
-          }
-
-          return getVueMatcherFunctions(matcher.match);
-        });
-        break;
-      }
-      case MatcherType.String: {
-        matcherFunctions.push(node => {
-
-          if(isESNode(node) && (
-            isESCallExpression(node) ||
-            isESArrowFunctionExpression(node) ||
-            isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
-          )){
-            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
-          }
-
-          if(
-            !isESNode(node) ||
-            !hasESNodeParentExtension(node) ||
-
-            isInsideDisallowedBinaryExpression(node) ||
-            isInsideConditionalExpressionTest(node) ||
-            isInsideLogicalExpressionLeft(node) ||
-            isIndexedAccessLiteral(node) ||
-
-            isESObjectKey(node) ||
-            isInsideObjectValue(node)){
-            return MATCHER_RESULT.NO_MATCH;
-          }
-
-          return isESStringLike(node) || isVueLiteralNode(node);
-        });
-        break;
-      }
-      case MatcherType.ObjectKey: {
-        matcherFunctions.push(node => {
-
-          if(isESNode(node) && (
-            isESCallExpression(node) ||
-            isESArrowFunctionExpression(node) ||
-            isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
-          )){
-            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
-          }
-
-          if(
-            !isESNode(node) ||
-            !hasESNodeParentExtension(node) ||
-            !isESObjectKey(node) ||
-
-            isInsideDisallowedBinaryExpression(node) ||
-            isInsideConditionalExpressionTest(node) ||
-            isInsideLogicalExpressionLeft(node) ||
-            isInsideMemberExpression(node) ||
-            isIndexedAccessLiteral(node)){
-            return MATCHER_RESULT.NO_MATCH;
-          }
-
-          const path = getESObjectPath(node);
-
-          if(!path || !matcher.path){
-            return MATCHER_RESULT.MATCH;
-          }
-
-          return matchesPathPattern(path, matcher.path);
-        });
-        break;
-      }
-      case MatcherType.ObjectValue: {
-        matcherFunctions.push(node => {
-
-          if(isESNode(node) && (
-            isESCallExpression(node) ||
-            isESArrowFunctionExpression(node) ||
-            isESVariableDeclarator(node) ||
-            isESFunctionExpression(node)
-          )){
-            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
-          }
-
-          if(
-            !isESNode(node) ||
-            !hasESNodeParentExtension(node) ||
-            !isInsideObjectValue(node) ||
-
-            isInsideDisallowedBinaryExpression(node) ||
-            isInsideConditionalExpressionTest(node) ||
-            isInsideLogicalExpressionLeft(node) ||
-            isESObjectKey(node) ||
-            isIndexedAccessLiteral(node) ||
-
-            !isESStringLike(node) && !isVueLiteralNode(node)){
-            return MATCHER_RESULT.NO_MATCH;
-          }
-
-          const path = getESObjectPath(node);
-
-          if(!path || !matcher.path){
-            return MATCHER_RESULT.MATCH;
-          }
-
-          return matchesPathPattern(path, matcher.path);
-        });
-        break;
-      }
-    }
-    return matcherFunctions;
-  }, []);
+  return getESMatcherFunctions(matchers, {
+    isStringLikeNode: isVueLiteralNode
+  });
 }

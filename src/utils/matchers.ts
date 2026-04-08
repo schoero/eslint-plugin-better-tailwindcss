@@ -2,7 +2,6 @@ import {
   hasESNodeParentExtension,
   isESArrowFunctionExpression,
   isESCallExpression,
-  isESFunctionDeclaration,
   isESFunctionExpression,
   isESNode,
   isESSimpleStringLiteral,
@@ -162,26 +161,4 @@ export function isIndexedAccessLiteral(node: WithParent<ESNode>): boolean {
   if(!hasESNodeParentExtension(node)){ return false; }
   if(node.parent.type !== "MemberExpression"){ return false; }
   return node.parent.property === node && isESSimpleStringLiteral(node);
-}
-
-export function isInsideAnonymousFunction(node: WithParent<ESNode>): boolean {
-  if(!hasESNodeParentExtension(node)){ return false; }
-
-  if(isESArrowFunctionExpression(node.parent)){
-    return true;
-  }
-
-  if(isESFunctionExpression(node.parent)){
-    if(node.parent.id === null){
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  if(isESFunctionDeclaration(node.parent)){
-    return false;
-  }
-
-  return isInsideAnonymousFunction(node.parent);
 }

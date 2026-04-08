@@ -193,7 +193,6 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
   return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
-        const nestedMatcherFunctions = getVueMatcherFunctions(matcher.match);
 
         matcherFunctions.push(node => {
 
@@ -214,7 +213,7 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
             return MATCHER_RESULT.NO_MATCH;
           }
 
-          return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
+          return getVueMatcherFunctions(matcher.match);
         });
         break;
       }

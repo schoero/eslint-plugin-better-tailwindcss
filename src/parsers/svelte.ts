@@ -321,7 +321,6 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
   return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
-        const nestedMatcherFunctions = getSvelteMatcherFunctions(matcher.match);
 
         matcherFunctions.push(node => {
           if(
@@ -332,7 +331,7 @@ function getSvelteMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunction
             return MATCHER_RESULT.NO_MATCH;
           }
 
-          return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
+          return getSvelteMatcherFunctions(matcher.match);
         });
         break;
       }

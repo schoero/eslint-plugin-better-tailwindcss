@@ -696,7 +696,6 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
   return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.AnonymousFunctionReturn: {
-        const nestedMatcherFunctions = getESMatcherFunctions(matcher.match);
 
         matcherFunctions.push(node => {
 
@@ -715,7 +714,7 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
             return MATCHER_RESULT.NO_MATCH;
           }
 
-          return nestedMatcherFunctions.some(matcherFunction => matcherFunction(node));
+          return getESMatcherFunctions(matcher.match);
         });
         break;
       }

@@ -285,6 +285,15 @@ function getVueMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions {
       case MatcherType.ObjectValue: {
         matcherFunctions.push(node => {
 
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isESNode(node) ||
             !hasESNodeParentExtension(node) ||

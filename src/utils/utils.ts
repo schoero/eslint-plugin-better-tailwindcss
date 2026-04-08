@@ -59,6 +59,7 @@ export function display(messageStyle: MessageStyleOption["messageStyle"], classe
       .replaceAll("\t", "→")
   );
 }
+
 /**
  * Augments a message with additional warnings and documentation links.
  *
@@ -71,7 +72,7 @@ export function display(messageStyle: MessageStyleOption["messageStyle"], classe
 export function augmentMessageWithWarnings<Options extends Record<string, any>>(message: string, docs: string, warnings?: (Warning<Options> | undefined)[]) {
   const ruleWarnings = warnings
     ?.filter(warning => warning)
-    .map(warning => ({ ...warning, url: docs }));
+    .map(warning => ({ url: docs, ...warning }));
 
   if(!ruleWarnings || ruleWarnings.length === 0){
     return message;

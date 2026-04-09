@@ -5,7 +5,7 @@ import { enforceConsistentLineWrapping } from "better-tailwindcss:rules/enforce-
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 
 describe("vue", () => {
@@ -180,6 +180,27 @@ describe("vue", () => {
 
           options: [{
             attributes: [["class", [{ match: MatcherType.ObjectKey }]]]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match default export via variable selector", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          vue: `<script>export default " lint ";</script>`,
+          vueOutput: `<script>export default "lint";</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
           }]
         }
       ]

@@ -3,10 +3,11 @@ import { describe, it } from "vitest";
 import { enforceConsistentClassOrder } from "better-tailwindcss:rules/enforce-consistent-class-order.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 
 describe("jsx", () => {
+
   it("should match attribute names via regex", () => {
     lint(enforceConsistentClassOrder, {
       invalid: [
@@ -92,6 +93,26 @@ describe("jsx", () => {
     });
   });
 
+  it("should match default export via variable selector", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default " lint ";`,
+          jsxOutput: `export default "lint";`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
 });
 
 describe("astro (jsx)", () => {

@@ -94,7 +94,11 @@ function toSelectorMatcher(matcher: Matcher): SelectorMatcher {
   };
 }
 
-function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
+function toLegacyMatcher(matcher: SelectorMatcher): Matcher | undefined {
+  if(matcher.type === MatcherType.AnonymousFunctionReturn){
+    return;
+  }
+
   if(matcher.type === MatcherType.String){
     return {
       match: matcher.type
@@ -110,33 +114,43 @@ function toLegacyMatcher(matcher: SelectorMatcher): Matcher {
 }
 
 function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
-  if(typeof selector === "string"){
+  const name = typeof selector === "string" ? selector : selector[0];
+  const path = kind === SelectorKind.Callee || kind === SelectorKind.Tag ? name : undefined;
+  const matchers = typeof selector === "string" ? undefined : selector[1].map(toSelectorMatcher);
+
+  if(matchers === undefined){
     return {
       kind,
-      name: selector
+      name,
+      ...path ? { path } : {}
     };
   }
 
   return {
     kind,
-    match: selector[1].map(toSelectorMatcher),
-    name: selector[0]
+    match: matchers,
+    name,
+    ...path ? { path } : {}
   };
 }
 
 function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
-  if(selector.kind === SelectorKind.Callee){
-    if(selector.name === undefined){
+  if(selector.kind === SelectorKind.Callee || selector.kind === SelectorKind.Tag){
+    if(selector.match === undefined){
+      return selector.name ?? selector.path!;
+    }
+
+    const legacyMatchers = selector.match
+      .map(toLegacyMatcher)
+      .filter((matcher): matcher is Matcher => matcher !== undefined);
+
+    if(legacyMatchers.length !== selector.match.length){
       return;
     }
 
-    if(selector.match === undefined){
-      return selector.name;
-    }
-
     return [
-      selector.name,
-      selector.match.map(toLegacyMatcher)
+      selector.name ?? selector.path!,
+      legacyMatchers
     ];
   }
 
@@ -144,8 +158,16 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
     return selector.name;
   }
 
+  const legacyMatchers = selector.match
+    .map(toLegacyMatcher)
+    .filter((matcher): matcher is Matcher => matcher !== undefined);
+
+  if(legacyMatchers.length !== selector.match.length){
+    return;
+  }
+
   return [
     selector.name,
-    selector.match.map(toLegacyMatcher)
+    legacyMatchers
   ];
 }

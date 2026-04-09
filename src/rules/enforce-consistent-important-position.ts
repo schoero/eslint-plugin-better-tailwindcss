@@ -72,7 +72,8 @@ export const enforceConsistentImportantPosition = createRule({
         if(ctx.version.major <= 3 && position === "recommended"){
           warnings.push({
             option: "position",
-            title: `The "${position}" position is not supported in Tailwind CSS v3`
+            title: `The "${position}" position is not supported in Tailwind CSS v3`,
+            url: `${ctx.docs}#position`
           });
         }
 

@@ -134,6 +134,25 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
+    const invalidLineBreaks = isLineBreakStyleLikelyMisconfigured(ctx, literal.raw);
+    const invalidIndentations = isIndentationLikelyMisconfigured(ctx, literal.raw);
+
+    if(invalidLineBreaks){
+      warnings.push({
+        option: "lineBreakStyle",
+        title: "Inconsistent line endings detected",
+        url: `${ctx.docs}#linebreakstyle`
+      });
+    }
+
+    if(invalidIndentations){
+      warnings.push({
+        option: "indent",
+        title: "Inconsistent indentation detected",
+        url: `${ctx.docs}#indent`
+      });
+    }
+
     const groupedClasses = groupClasses(classes, dissectedClasses);
 
     if(literal.openingQuote){
@@ -701,4 +720,28 @@ class Group {
 function getLineBreaks(ctx: Context<typeof enforceConsistentLineWrapping>) {
   const { lineBreakStyle } = ctx.options;
   return lineBreakStyle === "unix" ? "\n" : "\r\n";
+}
+
+function isLineBreakStyleLikelyMisconfigured(ctx: Context<typeof enforceConsistentLineWrapping>, original: string) {
+  const { lineBreakStyle } = ctx.options;
+
+  const hasWindowsLineBreaks = original.includes("\r\n");
+  const hasUnixLineBreaks = /(^|[^\r])\n/.test(original);
+
+  return (
+    hasWindowsLineBreaks && lineBreakStyle === "unix" ||
+    hasUnixLineBreaks && lineBreakStyle === "windows"
+  );
+}
+
+function isIndentationLikelyMisconfigured(ctx: Context<typeof enforceConsistentLineWrapping>, original: string) {
+  const { indent } = ctx.options;
+
+  const hasSpaceIndentation = /\r?\n +/.test(original);
+  const hasTabIndentation = /\r?\n\t+/.test(original);
+
+  return (
+    hasSpaceIndentation && indent === "tab" ||
+    hasTabIndentation && typeof indent === "number"
+  );
 }

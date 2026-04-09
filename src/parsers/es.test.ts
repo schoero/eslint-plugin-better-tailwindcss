@@ -820,4 +820,45 @@ describe("es", () => {
     });
   });
 
+  it("should only use the closest leading marker comment for bare template literals", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: "/* not-tailwind */ /* tw */ ` lint `;",
+          jsxOutput: "/* not-tailwind */ /* tw */ `lint`;",
+          svelte: "<script>/* not-tailwind */ /* tw */ ` lint `;</script>",
+          svelteOutput: "<script>/* not-tailwind */ /* tw */ `lint`;</script>",
+          vue: "<script>/* not-tailwind */ /* tw */ ` lint `;</script>",
+          vueOutput: "<script>/* not-tailwind */ /* tw */ `lint`;</script>",
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: "/* tw */ /* not-tailwind */ ` lint `;",
+          svelte: "<script>/* tw */ /* not-tailwind */ ` lint `;</script>",
+          vue: "<script>/* tw */ /* not-tailwind */ ` lint `;</script>",
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
 });

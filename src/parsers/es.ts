@@ -180,14 +180,10 @@ export function getLiteralsByESBareTemplateLiteral(ctx: Rule.RuleContext, node: 
     return [];
   }
 
-  const leadingComments = getLeadingComments(ctx, node);
+  const leadingComment = getLeadingComment(ctx, node);
 
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    const hasMatchingMarker = leadingComments.some(comment => matchesName(selector.name, comment));
-
-    if(!hasMatchingMarker){
-      return literals;
-    }
+    if(!selector.name || !leadingComment || !matchesName(selector.name, leadingComment)){ return literals; }
 
     if(!selector.match){
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node));
@@ -748,16 +744,12 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   return !!braces.closingBraces || !!braces.openingBraces;
 }
 
-function getLeadingComments(ctx: Rule.RuleContext, node: Rule.Node): string[] {
-  const comments: string[] = [];
-  let token = ctx.sourceCode.getTokenBefore(node, { includeComments: true }) as ESTokenWithOptionalComment | null;
+function getLeadingComment(ctx: Rule.RuleContext, node: Rule.Node): string | undefined {
+  const token = ctx.sourceCode.getTokenBefore(node, { includeComments: true });
 
-  while(token && isESTokenComment(token)){
-    comments.unshift(token.value.trim());
-    token = ctx.sourceCode.getTokenBefore(token as unknown as Rule.Node, { includeComments: true }) as ESTokenWithOptionalComment | null;
+  if(token && isESTokenComment(token)){
+    return token.value.trim();
   }
-
-  return comments;
 }
 
 type ESTokenWithOptionalComment = {

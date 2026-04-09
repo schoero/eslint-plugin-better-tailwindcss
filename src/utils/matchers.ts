@@ -1,12 +1,4 @@
-import {
-  hasESNodeParentExtension,
-  isESArrowFunctionExpression,
-  isESCallExpression,
-  isESFunctionExpression,
-  isESNode,
-  isESSimpleStringLiteral,
-  isESVariableDeclarator
-} from "better-tailwindcss:parsers/es.js";
+import { hasESNodeParentExtension, isESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
 import { MATCHER_RESULT } from "better-tailwindcss:types/rule.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
@@ -44,24 +36,6 @@ export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unk
   }, []);
 
   return [...nestedLiterals, ...self];
-}
-
-export function getESMatcherDeadEnd(allowFunctionTraversal = false): (node: unknown) => boolean {
-  return value => {
-    if(!isESNode(value)){
-      return false;
-    }
-
-    if(isESCallExpression(value) || isESVariableDeclarator(value)){
-      return true;
-    }
-
-    if(!allowFunctionTraversal && (isESArrowFunctionExpression(value) || isESFunctionExpression(value))){
-      return true;
-    }
-
-    return false;
-  };
 }
 
 function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions) {

@@ -606,6 +606,9 @@ function getTaggedTemplateName(node: ESBaseNode & Partial<Rule.NodeParentExtensi
   if(node.type === "CallExpression"){
     return getESCalleeName((node as ESCallExpression).callee as ESBaseNode, type);
   }
+  if(node.type === "ChainExpression" && "expression" in node){
+    return getTaggedTemplateName(node.expression as ESBaseNode, type);
+  }
 }
 
 function isNestedCurriedCall(node: ESCallExpression): boolean {

@@ -1,5 +1,37 @@
 # Changelog
 
+## v4.4.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.2...v4.4.0)
+
+### Features
+
+- Project root based cwd in monorepos ([#345](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/345))
+- Target specific arguments of callees ([#347](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/347))
+- New Anonymous functions matcher ([#348](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/348))
+- Add support for tag paths ([#354](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/354))
+- Reintroduce line ending and indentation misconfiguration warnings ([#351](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/351))
+- **worker:** Use SYNCKIT_TIMEOUT env var for timeout configuration ([#352](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/352))
+- Match default exports ([#346](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/346))
+- React twc preset ([#355](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/355))
+- Lint Template literal based on prefixed comments ([#356](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/356))
+- New rule `enforce-logical-properties` ([#358](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/358))
+- New rule `enforce-consistent-variant-order` ([#359](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/359))
+
+### Performance
+
+- Cache regex, early return ([#336](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/336))
+
+### Documentation
+
+- Add example to restrict unnamed groups ([#357](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/357))
+
+### ❤️ Contributors
+
+- Mickaël Depardon ([@squelix](https://github.com/squelix))
+- Mike Schutte ([@tmikeschu](https://github.com/tmikeschu))
+- Stephen Zhou ([@hyoban](https://github.com/hyoban))
+
 ## v4.3.2
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.1...v4.3.2)

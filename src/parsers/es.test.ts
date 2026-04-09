@@ -358,12 +358,12 @@ describe("es", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
         {
-          jsx: `testStyles(...[{ className: " lint " }], " keep ");`,
-          jsxOutput: `testStyles(...[{ className: "lint" }], " keep ");`,
-          svelte: `<script>testStyles(...[{ className: " lint " }], " keep ");</script>`,
-          svelteOutput: `<script>testStyles(...[{ className: "lint" }], " keep ");</script>`,
-          vue: `<script>testStyles(...[{ className: " lint " }], " keep ");</script>`,
-          vueOutput: `<script>testStyles(...[{ className: "lint" }], " keep ");</script>`,
+          jsx: `testStyles(...[{ objectKey: " lint " }], " keep ");`,
+          jsxOutput: `testStyles(...[{ objectKey: "lint" }], " keep ");`,
+          svelte: `<script>testStyles(...[{ objectKey: " lint " }], " keep ");</script>`,
+          svelteOutput: `<script>testStyles(...[{ objectKey: "lint" }], " keep ");</script>`,
+          vue: `<script>testStyles(...[{ objectKey: " lint " }], " keep ");</script>`,
+          vueOutput: `<script>testStyles(...[{ objectKey: "lint" }], " keep ");</script>`,
 
           errors: 2,
           options: [{
@@ -380,9 +380,9 @@ describe("es", () => {
       ],
       valid: [
         {
-          jsx: `testStyles({ className: " keep " }, " keep ");`,
-          svelte: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
-          vue: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
+          jsx: `testStyles({ objectKey: " keep " }, " keep ");`,
+          svelte: `<script>testStyles({ objectKey: " keep " }, " keep ");</script>`,
+          vue: `<script>testStyles({ objectKey: " keep " }, " keep ");</script>`,
 
           options: [{
             selectors: [
@@ -403,12 +403,12 @@ describe("es", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
         {
-          jsx: `testStyles(() => " lint ", () => { return " lint-return "; });`,
-          jsxOutput: `testStyles(() => "lint", () => { return "lint-return"; });`,
-          svelte: `<script>testStyles(() => " lint ", () => { return " lint-return "; });</script>`,
-          svelteOutput: `<script>testStyles(() => "lint", () => { return "lint-return"; });</script>`,
-          vue: `<script>testStyles(() => " lint ", () => { return " lint-return "; });</script>`,
-          vueOutput: `<script>testStyles(() => "lint", () => { return "lint-return"; });</script>`,
+          jsx: `testStyles(() => " lint ", () => { return " lint "; });`,
+          jsxOutput: `testStyles(() => "lint", () => { return "lint"; });`,
+          svelte: `<script>testStyles(() => " lint ", () => { return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(() => "lint", () => { return "lint"; });</script>`,
+          vue: `<script>testStyles(() => " lint ", () => { return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(() => "lint", () => { return "lint"; });</script>`,
 
           errors: 4,
           options: [{
@@ -453,12 +453,12 @@ describe("es", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
         {
-          jsx: `testStyles(function() { return " lint-function "; });`,
-          jsxOutput: `testStyles(function() { return "lint-function"; });`,
-          svelte: `<script>testStyles(function() { return " lint-function "; });</script>`,
-          svelteOutput: `<script>testStyles(function() { return "lint-function"; });</script>`,
-          vue: `<script>testStyles(function() { return " lint-function "; });</script>`,
-          vueOutput: `<script>testStyles(function() { return "lint-function"; });</script>`,
+          jsx: `testStyles(function() { return " lint "; });`,
+          jsxOutput: `testStyles(function() { return "lint"; });`,
+          svelte: `<script>testStyles(function() { return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(function() { return "lint"; });</script>`,
+          vue: `<script>testStyles(function() { return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(function() { return "lint"; });</script>`,
 
           errors: 2,
           options: [{
@@ -509,6 +509,35 @@ describe("es", () => {
           svelteOutput: `<script>testStyles(() => "string");</script>`,
           vue: `<script>testStyles(() => " string ");</script>`,
           vueOutput: `<script>testStyles(() => "string");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.String }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not cross function boundary twice for anonymousFunctionReturn", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });`,
+          jsxOutput: `testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });`,
+          svelte: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });</script>`,
+          vue: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });</script>`,
 
           errors: 2,
           options: [{

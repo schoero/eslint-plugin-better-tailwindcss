@@ -53,11 +53,6 @@ export const enforceConsistentVariantOrder = createRule({
           );
         });
 
-
-        if(dissectedClass.variants.length !== sortedVariants.length){
-          return false;
-        }
-
         if(dissectedClass.variants.every((value, index) => value === sortedVariants[index])){
           return false;
         }

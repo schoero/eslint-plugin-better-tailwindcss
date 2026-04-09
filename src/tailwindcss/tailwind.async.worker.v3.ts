@@ -60,9 +60,8 @@ const handlers: OperationHandlers = {
 
     return { unknownClasses, warnings: ctx.warnings };
   },
-  getVariantOrder: async (ctx, classes) => {
-    const tailwindContext = await createTailwindContext(ctx);
-    const variantOrder = getVariantOrder(tailwindContext, classes);
+  getVariantOrder: async ctx => {
+    const variantOrder = getVariantOrder();
 
     return { variantOrder, warnings: ctx.warnings };
   }

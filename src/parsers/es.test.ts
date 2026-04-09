@@ -426,6 +426,33 @@ describe("es", () => {
     });
   });
 
+  it("should only match concise arrow returned expression", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles((param = " keep ") => " lint ");`,
+          jsxOutput: `testStyles((param = " keep ") => "lint");`,
+          svelte: `<script>testStyles((param = " keep ") => " lint ");</script>`,
+          svelteOutput: `<script>testStyles((param = " keep ") => "lint");</script>`,
+          vue: `<script>testStyles((param = " keep ") => " lint ");</script>`,
+          vueOutput: `<script>testStyles((param = " keep ") => "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should not match non-return literals inside anonymous arrow function block bodies", () => {
     lint(noUnnecessaryWhitespace, {
       valid: [

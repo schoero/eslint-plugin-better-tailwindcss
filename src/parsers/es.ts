@@ -741,7 +741,17 @@ export function getESMatcherFunctions(
 
           // return matchers directly if the arrow function immediately returns
           if(isESArrowFunctionWithoutBody(node)){
-            return getESMatcherFunctions(matcher.match, options);
+            return [(node: unknown) => {
+              if(
+                !isESNode(node) ||
+                !hasESNodeParentExtension(node) ||
+                !isESArrowFunctionWithoutBody(node.parent) ||
+                node !== node.parent.body){
+                return MATCHER_RESULT.NO_MATCH;
+              }
+
+              return getESMatcherFunctions(matcher.match, options);
+            }];
           }
 
           // create a matcher function that first matches the return statement and then the final matchers

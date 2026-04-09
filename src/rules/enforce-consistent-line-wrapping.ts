@@ -725,17 +725,23 @@ function getLineBreaks(ctx: Context<typeof enforceConsistentLineWrapping>) {
 function isLineBreakStyleLikelyMisconfigured(ctx: Context<typeof enforceConsistentLineWrapping>, original: string) {
   const { lineBreakStyle } = ctx.options;
 
+  const hasWindowsLineBreaks = original.includes("\r\n");
+  const hasUnixLineBreaks = /(^|[^\r])\n/.test(original);
+
   return (
-    original.includes("\r") && lineBreakStyle === "unix" ||
-    !original.includes("\r") && lineBreakStyle === "windows"
+    hasWindowsLineBreaks && lineBreakStyle === "unix" ||
+    hasUnixLineBreaks && !hasWindowsLineBreaks && lineBreakStyle === "windows"
   );
 }
 
 function isIndentationLikelyMisconfigured(ctx: Context<typeof enforceConsistentLineWrapping>, original: string) {
   const { indent } = ctx.options;
 
+  const hasSpaceIndentation = /(?:^|\r?\n) +/m.test(original);
+  const hasTabIndentation = /(?:^|\r?\n)\t+/m.test(original);
+
   return (
-    original.includes("  ") && indent === "tab" ||
-    original.includes("\t") && typeof indent === "number"
+    hasSpaceIndentation && indent === "tab" ||
+    hasTabIndentation && typeof indent === "number"
   );
 }

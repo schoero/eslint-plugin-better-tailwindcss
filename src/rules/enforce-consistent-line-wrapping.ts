@@ -737,8 +737,8 @@ function isLineBreakStyleLikelyMisconfigured(ctx: Context<typeof enforceConsiste
 function isIndentationLikelyMisconfigured(ctx: Context<typeof enforceConsistentLineWrapping>, original: string) {
   const { indent } = ctx.options;
 
-  const hasSpaceIndentation = /(?:^|\r?\n) +/m.test(original);
-  const hasTabIndentation = /(?:^|\r?\n)\t+/m.test(original);
+  const hasSpaceIndentation = /\r?\n +/.test(original);
+  const hasTabIndentation = /\r?\n\t+/.test(original);
 
   return (
     hasSpaceIndentation && indent === "tab" ||

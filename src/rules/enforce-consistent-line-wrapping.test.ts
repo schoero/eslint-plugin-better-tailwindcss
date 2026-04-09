@@ -948,6 +948,31 @@ describe(enforceConsistentLineWrapping.name, () => {
     expect(message).not.toContain("Option `indent` may be misconfigured.");
   });
 
+  it("should not warn for leading spaces in single-line class strings", async () => {
+    const linter = new ESLint({
+      overrideConfig: [{
+        languageOptions: {
+          parser: eslintParserHTML
+        },
+        plugins: {
+          "better-tailwindcss": eslintPluginBetterTailwindcss
+        },
+        rules: {
+          "better-tailwindcss/enforce-consistent-line-wrapping": ["warn", {
+            classesPerLine: 3,
+            indent: "tab"
+          }]
+        }
+      }]
+    });
+
+    const [result] = await linter.lintText("<img class=\" a b c d\" />");
+    const { message } = result.messages.find(message => message.ruleId === "better-tailwindcss/enforce-consistent-line-wrapping")!;
+
+    expect(message).not.toContain("Inconsistent indentation detected");
+    expect(message).not.toContain("Option `indent` may be misconfigured.");
+  });
+
   // #52
   it("should wrap expressions even if `group` is set to `never`", () => {
 

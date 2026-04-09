@@ -175,15 +175,12 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, nod
 }
 
 export function getLiteralsByESBareTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral, selectors: TagSelector[]): Literal[] {
-
-  if(isTaggedTemplateLiteral(node)){
-    return [];
-  }
-
   const leadingComment = getLeadingComment(ctx, node);
 
+  if(isTaggedTemplateLiteral(node) || !leadingComment){ return [];}
+
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    if(!selector.name || !leadingComment || !matchesName(selector.name, leadingComment)){ return literals; }
+    if(!selector.name || !matchesName(selector.name, leadingComment)){ return literals; }
 
     if(!selector.match){
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node));
@@ -196,7 +193,6 @@ export function getLiteralsByESBareTemplateLiteral(ctx: Rule.RuleContext, node: 
   }, []);
 
   return literals.filter(deduplicateLiterals);
-
 }
 
 export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
@@ -744,12 +740,14 @@ function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   return !!braces.closingBraces || !!braces.openingBraces;
 }
 
-function getLeadingComment(ctx: Rule.RuleContext, node: Rule.Node): string | undefined {
-  const token = ctx.sourceCode.getTokenBefore(node, { includeComments: true });
+function getLeadingComment(ctx: Rule.RuleContext, node: ESNode): string | undefined {
+  try {
+    const token = ctx.sourceCode.getTokenBefore(node, { includeComments: true });
 
-  if(token && isESTokenComment(token)){
-    return token.value.trim();
-  }
+    if(token && isESTokenComment(token)){
+      return token.value.trim();
+    }
+  } catch {}
 }
 
 type ESTokenWithOptionalComment = {

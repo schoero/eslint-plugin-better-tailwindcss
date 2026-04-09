@@ -200,6 +200,27 @@ export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, nod
 
 }
 
+export function getLiteralsByESBareTemplateLiteral(ctx: Rule.RuleContext, node: ESTemplateLiteral, selectors: TagSelector[]): Literal[] {
+  const leadingComment = getLeadingComment(ctx, node);
+
+  if(isTaggedTemplateLiteral(node) || !leadingComment){ return [];}
+
+  const literals = selectors.reduce<Literal[]>((literals, selector) => {
+    if(!selector.name || !matchesName(selector.name, leadingComment)){ return literals; }
+
+    if(!selector.match){
+      literals.push(...getLiteralsByESTemplateLiteral(ctx, node));
+      return literals;
+    }
+
+    literals.push(...getLiteralsByESMatchers(ctx, node, selector.match));
+
+    return literals;
+  }, []);
+
+  return literals.filter(deduplicateLiterals);
+}
+
 export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNode): Literal[] {
 
   if(isESSimpleStringLiteral(node)){
@@ -632,6 +653,9 @@ function getTaggedTemplateName(node: ESBaseNode & Partial<Rule.NodeParentExtensi
   if(node.type === "CallExpression"){
     return getESCalleeName((node as ESCallExpression).callee as ESBaseNode, type);
   }
+  if(node.type === "ChainExpression" && "expression" in node){
+    return getTaggedTemplateName(node.expression as ESBaseNode, type);
+  }
 }
 
 function isNestedCurriedCall(node: ESCallExpression): boolean {
@@ -714,6 +738,10 @@ function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateE
   return node.type === "TaggedTemplateExpression";
 }
 
+function isTaggedTemplateLiteral(node: ESBaseNode): node is ESTemplateLiteral {
+  return hasESNodeParentExtension(node) && isTaggedTemplateExpression(node.parent);
+}
+
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {
   return node.type === "VariableDeclarator";
 }
@@ -751,6 +779,25 @@ function getBracesByString(ctx: Rule.RuleContext, raw: string): BracesMeta {
 function getIsInterpolated(ctx: Rule.RuleContext, raw: string): boolean {
   const braces = getBracesByString(ctx, raw);
   return !!braces.closingBraces || !!braces.openingBraces;
+}
+
+function getLeadingComment(ctx: Rule.RuleContext, node: ESNode): string | undefined {
+  try {
+    const token = ctx.sourceCode.getTokenBefore(node, { includeComments: true });
+
+    if(token && isESTokenComment(token)){
+      return token.value.trim();
+    }
+  } catch {}
+}
+
+type ESTokenWithOptionalComment = {
+  type: string;
+  value?: string;
+};
+
+function isESTokenComment(token: ESTokenWithOptionalComment): token is ESTokenWithOptionalComment & { value: string; } {
+  return (token.type === "Block" || token.type === "Line") && typeof token.value === "string";
 }
 
 function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {

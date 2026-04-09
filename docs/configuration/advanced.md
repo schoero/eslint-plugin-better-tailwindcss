@@ -24,7 +24,7 @@ You can find the default selectors in the [defaults documentation](../api/defaul
 Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
 
 The plugin supports four selector types: `attribute`, `callee`, `variable`, and `tag`.
-Every selector then can match different type of string literals based on the provided `match` option.
+Every selector can then match different types of string literals based on the provided `match` option.
 
 ### Type
 

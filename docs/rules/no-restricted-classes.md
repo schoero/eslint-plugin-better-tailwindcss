@@ -61,7 +61,7 @@ It is also possible to provide a custom error message and a fix for the disallow
 ```tsx
 // ❌ BAD: disallow the use of the arbitrary values with option `{ restrict: ["\\[([^\\[\\]]*?)\\](?!:)"] }`
 <div class="rounded text-[#fff]" />;
-//                        ~~~~~~~
+//                       ~~~~~~
 ```
 
 ```tsx
@@ -71,7 +71,19 @@ It is also possible to provide a custom error message and a fix for the disallow
 ```
 
 ```tsx
-// ❌ BAD: disallow the use of the important modifier `{ restrict: ["^.*!$"] }`
+// ❌ BAD: disallow the use of the important modifier with option `{ restrict: ["^.*!$"] }`
 <div class="rounded p-4!" />;
 //                  ~~~~
+```
+
+```tsx
+// ❌ BAD: disallow the use of unnamed groups with option `{ restrict: ["^group$"] }`
+<div class="group" />;
+//          ~~~~~
+```
+
+```tsx
+// ❌ BAD: disallow the use of unnamed group variants with option `{ restrict: ["^group-(hover|focus|active|visited|disabled):"] }`
+<div class="group-hover:p-4" />;
+//          ~~~~~~~~~~~
 ```

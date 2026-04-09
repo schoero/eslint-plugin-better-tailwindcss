@@ -1,4 +1,4 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { getLiteralNodesByMatchers, matchesPathPattern } from "better-tailwindcss:utils/matchers.js";
 import {
@@ -134,19 +134,25 @@ function createLiteralsByAngularAttribute(ctx: Rule.RuleContext, attribute: Tmpl
 
 function getLiteralsByAngularMatchers(ctx: Rule.RuleContext, ast: AST | TmplAstBoundAttribute, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getAngularMatcherFunctions(ctx, matchers);
-  const matchingAstNodes = getLiteralNodesByMatchers(ctx, ast, matcherFunctions, value => {
-    return isAST(value) && isCallExpression(value) || isBoundAttributeName(ast);
-  });
+
+  const matchingAstNodes = getLiteralNodesByMatchers<AST>(ctx, ast, matcherFunctions);
   const literals = matchingAstNodes.flatMap(ast => createLiteralsByAngularAst(ctx, ast));
 
   return literals.filter(deduplicateLiterals);
 }
 
-function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMatcher[]): MatcherFunctions<AST> {
-  return matchers.reduce<MatcherFunctions<AST>>((matcherFunctions, matcher) => {
+function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMatcher[]): MatcherFunctions {
+  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
       case MatcherType.String: {
-        matcherFunctions.push((ast): ast is AST => {
+        matcherFunctions.push(ast => {
+
+          if(
+            isAST(ast) &&
+            isCallExpression(ast)
+          ){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isAST(ast) ||
@@ -156,7 +162,7 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
 
             isObjectKey(ast) ||
             isInsideObjectValue(ctx, ast)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           return isStringLike(ast) || isBoundAttributeName(ast);
@@ -164,20 +170,28 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push((ast): ast is AST => {
+        matcherFunctions.push(ast => {
+
+          if(isAST(ast) && (
+            isCallExpression(ast) ||
+            isBoundAttributeName(ast)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isAST(ast) ||
             !isObjectKey(ast) ||
 
             isInsideConditionalExpressionCondition(ctx, ast) ||
             isInsideLogicalExpressionLeft(ctx, ast)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getAngularObjectPath(ctx, ast);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);
@@ -185,7 +199,15 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push((ast): ast is AST => {
+        matcherFunctions.push(ast => {
+
+          if(isAST(ast) && (
+            isCallExpression(ast) ||
+            isBoundAttributeName(ast)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
+
           if(
             !isAST(ast) ||
             !hasParent(ast) ||
@@ -197,13 +219,13 @@ function getAngularMatcherFunctions(ctx: Rule.RuleContext, matchers: SelectorMat
 
             !isStringLike(ast)
           ){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getAngularObjectPath(ctx, ast);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);

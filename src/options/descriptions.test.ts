@@ -248,4 +248,31 @@ describe("descriptions", () => {
 
   });
 
+  test("selectors anonymousFunctionReturn matcher config", () => {
+
+    const selectors = {
+      selectors: [
+        {
+          kind: "callee",
+          match: [{
+            match: [
+              { type: MatcherType.String },
+              { type: MatcherType.ObjectKey },
+              { path: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$", type: MatcherType.ObjectValue }
+            ],
+            type: MatcherType.AnonymousFunctionReturn
+          }],
+          name: "^classFactory$"
+        }
+      ]
+    };
+
+    expect(
+      validate(selectors, toJsonSchema(COMMON_OPTIONS))
+    ).toStrictEqual(
+      { errors: [], valid: true }
+    );
+
+  });
+
 });

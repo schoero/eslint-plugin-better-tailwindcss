@@ -61,4 +61,26 @@ describe("migrate", () => {
     });
   });
 
+  test("should skip selectors with anonymousFunctionReturn matcher when migrating to legacy", () => {
+    const selectors = migrateFlatSelectorsToLegacySelectors([
+      {
+        kind: SelectorKind.Callee,
+        match: [{ type: MatcherType.String }],
+        name: "^cva$"
+      },
+      {
+        kind: SelectorKind.Callee,
+        match: [{
+          match: [{ type: MatcherType.String }],
+          type: MatcherType.AnonymousFunctionReturn
+        }],
+        name: "^classFactory$"
+      }
+    ]);
+
+    expect(selectors).toStrictEqual({
+      callees: [["^cva$", [{ match: MatcherType.String }]]]
+    });
+  });
+
 });

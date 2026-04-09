@@ -356,11 +356,33 @@ describe("es", () => {
 
   it("should apply matchers only inside selected arguments", () => {
     lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(...[{ objectKey: " lint " }], " keep ");`,
+          jsxOutput: `testStyles(...[{ objectKey: "lint" }], " keep ");`,
+          svelte: `<script>testStyles(...[{ objectKey: " lint " }], " keep ");</script>`,
+          svelteOutput: `<script>testStyles(...[{ objectKey: "lint" }], " keep ");</script>`,
+          vue: `<script>testStyles(...[{ objectKey: " lint " }], " keep ");</script>`,
+          vueOutput: `<script>testStyles(...[{ objectKey: "lint" }], " keep ");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Callee,
+                match: [{ type: MatcherType.ObjectValue }],
+                name: "^testStyles$",
+                targetArgument: 0
+              }
+            ]
+          }]
+        }
+      ],
       valid: [
         {
-          jsx: `testStyles({ className: " keep " }, " keep ");`,
-          svelte: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
-          vue: `<script>testStyles({ className: " keep " }, " keep ");</script>`,
+          jsx: `testStyles({ objectKey: " keep " }, " keep ");`,
+          svelte: `<script>testStyles({ objectKey: " keep " }, " keep ");</script>`,
+          vue: `<script>testStyles({ objectKey: " keep " }, " keep ");</script>`,
 
           options: [{
             selectors: [
@@ -371,6 +393,191 @@ describe("es", () => {
                 targetArgument: "last"
               }
             ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match anonymous arrow function returns", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => " lint ", () => { return " lint "; });`,
+          jsxOutput: `testStyles(() => "lint", () => { return "lint"; });`,
+          svelte: `<script>testStyles(() => " lint ", () => { return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(() => "lint", () => { return "lint"; });</script>`,
+          vue: `<script>testStyles(() => " lint ", () => { return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(() => "lint", () => { return "lint"; });</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should only match concise arrow returned expression", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles((param = " keep ") => " lint ");`,
+          jsxOutput: `testStyles((param = " keep ") => "lint");`,
+          svelte: `<script>testStyles((param = " keep ") => " lint ");</script>`,
+          svelteOutput: `<script>testStyles((param = " keep ") => "lint");</script>`,
+          vue: `<script>testStyles((param = " keep ") => " lint ");</script>`,
+          vueOutput: `<script>testStyles((param = " keep ") => "lint");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not match non-return literals inside anonymous arrow function block bodies", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `testStyles(() => { const value = " keep "; return value; });`,
+          svelte: `<script>testStyles(() => { const value = " keep "; return value; });</script>`,
+          vue: `<script>testStyles(() => { const value = " keep "; return value; });</script>`,
+
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match anonymous normal function returns", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(function() { return " lint "; });`,
+          jsxOutput: `testStyles(function() { return "lint"; });`,
+          svelte: `<script>testStyles(function() { return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(function() { return "lint"; });</script>`,
+          vue: `<script>testStyles(function() { return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(function() { return "lint"; });</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [{ type: MatcherType.String }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should support all other nested matcher types inside anonymousFunctionReturn", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => ({ " objectKey ": " objectValue " }));`,
+          jsxOutput: `testStyles(() => ({ "objectKey": "objectValue" }));`,
+          svelte: `<script>testStyles(() => ({ " objectKey ": " objectValue " }));</script>`,
+          svelteOutput: `<script>testStyles(() => ({ "objectKey": "objectValue" }));</script>`,
+          vue: `<script>testStyles(() => ({ " objectKey ": " objectValue " }));</script>`,
+          vueOutput: `<script>testStyles(() => ({ "objectKey": "objectValue" }));</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.ObjectKey },
+                  { type: MatcherType.ObjectValue }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        },
+        {
+          jsx: `testStyles(() => " string ");`,
+          jsxOutput: `testStyles(() => "string");`,
+          svelte: `<script>testStyles(() => " string ");</script>`,
+          svelteOutput: `<script>testStyles(() => "string");</script>`,
+          vue: `<script>testStyles(() => " string ");</script>`,
+          vueOutput: `<script>testStyles(() => "string");</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.String }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not cross function boundary twice for anonymousFunctionReturn", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });`,
+          jsxOutput: `testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });`,
+          svelte: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });</script>`,
+          svelteOutput: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });</script>`,
+          vue: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return " lint "; });</script>`,
+          vueOutput: `<script>testStyles(() => { setTimeout(() => { return " keep "; }); return "lint"; });</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Callee,
+              match: [{
+                match: [
+                  { type: MatcherType.String }
+                ],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^testStyles$"
+            }]
           }]
         }
       ]

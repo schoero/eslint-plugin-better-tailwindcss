@@ -7,6 +7,8 @@ import type { Warning } from "better-tailwindcss:types/async.js";
 
 
 export enum MatcherType {
+  /** Matches return values of anonymous functions via nested matchers. */
+  AnonymousFunctionReturn = "anonymousFunctionReturn",
   /** Matches all object keys that are strings. */
   ObjectKey = "objectKeys",
   /** Matches all object values that are strings. */
@@ -24,6 +26,8 @@ export enum SelectorKind {
 
 export type Regex = string;
 
+/* Legacy matchers */
+
 export type StringMatcher = {
   match: MatcherType.String;
 };
@@ -38,12 +42,26 @@ export type ObjectValueMatcher = {
   pathPattern?: Regex | undefined;
 };
 
-export type MatcherFunction<Node> = (node: unknown) => node is Node;
-export type MatcherFunctions<Node> = MatcherFunction<Node>[];
+export const MATCHER_RESULT = {
+  MATCH: true,
+  NO_MATCH: false,
+  UNCROSSABLE_BOUNDARY: "UNCROSSABLE_BOUNDARY"
+} as const;
+type MatcherFunctionResult = typeof MATCHER_RESULT[keyof typeof MATCHER_RESULT];
+
+export type MatcherFunction = (node: unknown) => MatcherFunctionResult | MatcherFunctions;
+export type MatcherFunctions = MatcherFunction[];
 export type Matcher = ObjectKeyMatcher | ObjectValueMatcher | StringMatcher;
+
+/* New selector matchers */
 
 export type SelectorStringMatcher = {
   type: MatcherType.String;
+};
+
+export type SelectorAnonymousFunctionReturnMatcher = {
+  match: (SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher)[];
+  type: MatcherType.AnonymousFunctionReturn;
 };
 
 export type SelectorObjectKeyMatcher = {
@@ -56,7 +74,11 @@ export type SelectorObjectValueMatcher = {
   path?: Regex | undefined;
 };
 
-export type SelectorMatcher = SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher;
+export type SelectorMatcher =
+  | SelectorAnonymousFunctionReturnMatcher
+  | SelectorObjectKeyMatcher
+  | SelectorObjectValueMatcher
+  | SelectorStringMatcher;
 
 type BaseSelector<Kind extends SelectorKind> = {
   kind: Kind;
@@ -64,11 +86,11 @@ type BaseSelector<Kind extends SelectorKind> = {
   match?: SelectorMatcher[] | undefined;
 };
 
-export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
-
 export type Target = "all" | "first" | "last" | number;
 export type CallTarget = Target;
 export type ArgumentTarget = Target;
+
+export type AttributeSelector = BaseSelector<SelectorKind.Attribute>;
 
 export type CalleeSelector = {
   kind: SelectorKind.Callee;

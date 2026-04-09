@@ -1,6 +1,5 @@
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import {
-  findMatchingParentNodes,
   getLiteralNodesByMatchers,
   isIndexedAccessLiteral,
   isInsideConditionalExpressionTest,
@@ -26,6 +25,7 @@ import type {
   BaseNode as ESBaseNode,
   CallExpression as ESCallExpression,
   Expression as ESExpression,
+  FunctionDeclaration as ESFunctionDeclaration,
   FunctionExpression as ESFunctionExpression,
   Identifier as ESIdentifier,
   MemberExpression as ESMemberExpression,
@@ -48,6 +48,7 @@ import type {
 } from "better-tailwindcss:types/ast.js";
 import type { WithParent } from "better-tailwindcss:types/estree.js";
 import type {
+  ArgumentTarget,
   CalleeSelector,
   CallTarget,
   MatcherFunctions,
@@ -55,6 +56,7 @@ import type {
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
+import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
 export const ES_CONTAINER_TYPES_TO_REPLACE_QUOTES: string[] = [
@@ -115,15 +117,20 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
     if(!selectorName || !matchesName(selectorName, baseCalleeName)){ return literals; }
 
-    const targetCalls = getTargetCalls(calls, selector.callTarget);
+    const targetCall = selector.targetCall ?? selector.callTarget;
+    const targetCalls = getTargetCalls(calls, targetCall);
 
     for(const targetCall of targetCalls){
+      const targetArguments = getTargetArguments(targetCall.arguments, selector.targetArgument);
+
       if(!selector.match){
-        literals.push(...getLiteralsByESExpression(ctx, targetCall.arguments));
+        literals.push(...getLiteralsByESExpression(ctx, targetArguments));
         continue;
       }
 
-      literals.push(...getLiteralsByESMatchers(ctx, targetCall, selector.match));
+      for(const targetArgument of targetArguments){
+        literals.push(...getLiteralsByESMatchers(ctx, targetArgument, selector.match));
+      }
     }
 
     return literals;
@@ -202,12 +209,15 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 
 }
 
+
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getESMatcherFunctions(matchers);
-  const literalNodes = getLiteralNodesByMatchers(ctx, node, matcherFunctions);
+  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-arguments
+  const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return literals.filter(deduplicateLiterals);
 }
+
 
 export function getStringLiteralByESStringLiteral(ctx: Rule.RuleContext, node: ESSimpleStringLiteral): StringLiteral | undefined {
 
@@ -297,10 +307,8 @@ function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineM
   };
 }
 
-function getLiteralsByESExpression(ctx: Rule.RuleContext, args: (ESExpression | ESSpreadElement)[]): Literal[] {
+function getLiteralsByESExpression(ctx: Rule.RuleContext, args: ESExpression[]): Literal[] {
   return args.reduce<Literal[]>((acc, node) => {
-    if(node.type === "SpreadElement"){ return acc; }
-
     acc.push(...getLiteralsByESLiteralNode(ctx, node));
     return acc;
   }, []);
@@ -411,11 +419,13 @@ export function getESObjectPath(node: WithParent<ESNode>): string | undefined {
   }
 
   if(isESStringLike(node) && isInsideObjectValue(node)){
-    const property = findMatchingParentNodes<ESNode>(node, [(node): node is ESNode => {
+    const property = findMatchingParentNodes<ESNode>(node, (node): node is ESNode => {
       return isESNode(node) && node.type === "Property";
-    }])[0];
+    });
 
-    return getESObjectPath(property);
+    if(property){
+      return getESObjectPath(property);
+    }
   }
 
   if(isESObjectKey(node)){
@@ -477,6 +487,17 @@ export function isInsideObjectValue(node: WithParent<ESNode>) {
   return isInsideObjectValue(node.parent);
 }
 
+
+function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matchesNode: (node: unknown) => node is Node): Node | undefined {
+  if(!isGenericNodeWithParent(node)){ return; }
+
+  if(matchesNode(node.parent)){
+    return node.parent as Node;
+  }
+
+  return findMatchingParentNodes(node.parent, matchesNode);
+}
+
 export function isESSimpleStringLiteral(node: ESBaseNode): node is ESSimpleStringLiteral {
   return (
     node.type === "Literal" &&
@@ -515,6 +536,30 @@ export function isESArrowFunctionExpression(node: ESBaseNode): node is ESArrowFu
 
 export function isESFunctionExpression(node: ESBaseNode): node is ESFunctionExpression {
   return node.type === "FunctionExpression";
+}
+
+export function isESFunctionDeclaration(node: ESBaseNode): node is ESFunctionDeclaration {
+  return node.type === "FunctionDeclaration";
+}
+
+export function isESAnonymousFunction(node: ESBaseNode): boolean {
+  if(isESArrowFunctionExpression(node)){
+    return true;
+  }
+
+  if(isESFunctionExpression(node) && node.id === null){
+    return true;
+  }
+
+  return false;
+}
+
+export function isESArrowFunctionWithoutBody(node: ESBaseNode): node is ESArrowFunctionExpression {
+  return isESArrowFunctionExpression(node) && node.body.type !== "BlockStatement";
+}
+
+export function isESReturnStatement(node: ESNode): boolean {
+  return node.type === "ReturnStatement";
 }
 
 function getESMemberExpressionPropertyName(node: ESMemberExpression): string | undefined {
@@ -580,31 +625,63 @@ function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeNa
 }
 
 function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | undefined): ESCallExpression[] {
-  if(calls.length === 0){
+  return getTargetItems(calls, callTarget, "first");
+}
+
+function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: ArgumentTarget | undefined): ESExpression[] {
+  const expressionArgs = args.map((arg): ESExpression => {
+    return arg.type === "SpreadElement"
+      ? arg.argument
+      : arg;
+  });
+
+  if(typeof argumentTarget !== "number"){
+    return getTargetItems(expressionArgs, argumentTarget, "all");
+  }
+
+  if(args.length === 0){
     return [];
   }
 
-  if(callTarget === "all"){
-    return calls;
-  }
+  const index = argumentTarget >= 0
+    ? argumentTarget
+    : args.length + argumentTarget;
 
-  if(callTarget === "last"){
-    return [calls[calls.length - 1]];
-  }
-
-  if(callTarget === undefined || callTarget === "first"){
-    return [calls[0]];
-  }
-
-  const index = callTarget >= 0
-    ? callTarget
-    : calls.length + callTarget;
-
-  if(index < 0 || index >= calls.length){
+  if(index < 0 || index >= args.length){
     return [];
   }
 
-  return [calls[index]];
+  const targetArg = args[index];
+
+  return [targetArg.type === "SpreadElement" ? targetArg.argument : targetArg];
+}
+
+function getTargetItems<T>(items: T[], target: CallTarget | undefined, defaultTarget: "all" | "first"): T[] {
+  if(items.length === 0){
+    return [];
+  }
+
+  if(target === "all" || target === undefined && defaultTarget === "all"){
+    return items;
+  }
+
+  if(target === "last"){
+    return [items[items.length - 1]];
+  }
+
+  if(target === undefined || target === "first"){
+    return [items[0]];
+  }
+
+  const index = target >= 0
+    ? target
+    : items.length + target;
+
+  if(index < 0 || index >= items.length){
+    return [];
+  }
+
+  return [items[index]];
 }
 
 function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateExpression {
@@ -688,11 +765,87 @@ function getStringConcatenationMeta(node: ESNode, isConcatenatedLeft = false, is
   return getStringConcatenationMeta(parent, isConcatenatedLeft, isConcatenatedRight);
 }
 
-function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ESNode> {
-  return matchers.reduce<MatcherFunctions<ESNode>>((matcherFunctions, matcher) => {
+
+export function getESMatcherFunctions(
+  matchers: SelectorMatcher[],
+  options?: {
+    isStringLikeNode?: (node: ESBaseNode) => boolean;
+  }
+): MatcherFunctions {
+  return matchers.reduce<MatcherFunctions>((matcherFunctions, matcher) => {
     switch (matcher.type){
+      case MatcherType.AnonymousFunctionReturn: {
+
+        matcherFunctions.push(node => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESVariableDeclarator(node)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
+
+          if(
+            !isESNode(node) ||
+            !hasESNodeParentExtension(node) ||
+            !isESAnonymousFunction(node)
+          ){
+            return MATCHER_RESULT.NO_MATCH;
+          }
+
+          // return matchers directly if the arrow function immediately returns
+          if(isESArrowFunctionWithoutBody(node)){
+            return [(node: unknown) => {
+              if(
+                !isESNode(node) ||
+                !hasESNodeParentExtension(node) ||
+                !isESArrowFunctionWithoutBody(node.parent) ||
+                node !== node.parent.body){
+                return MATCHER_RESULT.NO_MATCH;
+              }
+
+              return getESMatcherFunctions(matcher.match, options);
+            }];
+          }
+
+          // create a matcher function that first matches the return statement and then the final matchers
+          return [(node: unknown) => {
+            if(isESNode(node) && (
+              isESCallExpression(node) ||
+              isESArrowFunctionExpression(node) ||
+              isESVariableDeclarator(node) ||
+              isESFunctionExpression(node) ||
+              isESFunctionDeclaration(node)
+            )){
+              return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+            }
+
+            if(
+              !isESNode(node) ||
+              !hasESNodeParentExtension(node) ||
+
+              !isESReturnStatement(node)
+            ){
+              return MATCHER_RESULT.NO_MATCH;
+            }
+
+            return getESMatcherFunctions(matcher.match, options);
+          }];
+
+        });
+        break;
+      }
       case MatcherType.String: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -705,15 +858,24 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
 
             isESObjectKey(node) ||
             isInsideObjectValue(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
-          return isESStringLike(node);
+          return isESStringLike(node) || !!options?.isStringLikeNode?.(node);
         });
         break;
       }
       case MatcherType.ObjectKey: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -725,13 +887,13 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isInsideLogicalExpressionLeft(node) ||
             isInsideMemberExpression(node) ||
             isIndexedAccessLiteral(node)){
-            return false;
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);
@@ -739,7 +901,16 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
         break;
       }
       case MatcherType.ObjectValue: {
-        matcherFunctions.push((node): node is ESNode => {
+        matcherFunctions.push(node => {
+
+          if(isESNode(node) && (
+            isESCallExpression(node) ||
+            isESArrowFunctionExpression(node) ||
+            isESVariableDeclarator(node) ||
+            isESFunctionExpression(node)
+          )){
+            return MATCHER_RESULT.UNCROSSABLE_BOUNDARY;
+          }
 
           if(
             !isESNode(node) ||
@@ -752,14 +923,14 @@ function getESMatcherFunctions(matchers: SelectorMatcher[]): MatcherFunctions<ES
             isESObjectKey(node) ||
             isIndexedAccessLiteral(node) ||
 
-            !isESStringLike(node)){
-            return false;
+            !isESStringLike(node) && !options?.isStringLikeNode?.(node)){
+            return MATCHER_RESULT.NO_MATCH;
           }
 
           const path = getESObjectPath(node);
 
           if(!path || !matcher.path){
-            return true;
+            return MATCHER_RESULT.MATCH;
           }
 
           return matchesPathPattern(path, matcher.path);

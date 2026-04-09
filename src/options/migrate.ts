@@ -114,28 +114,30 @@ function toLegacyMatcher(matcher: SelectorMatcher): Matcher | undefined {
 }
 
 function migrateLegacySelector(selector: LegacySelector, kind: SelectorKind) {
-  if(typeof selector === "string"){
+  const name = typeof selector === "string" ? selector : selector[0];
+  const path = kind === SelectorKind.Callee || kind === SelectorKind.Tag ? name : undefined;
+  const matchers = typeof selector === "string" ? undefined : selector[1].map(toSelectorMatcher);
+
+  if(matchers === undefined){
     return {
       kind,
-      name: selector
+      name,
+      ...path ? { path } : {}
     };
   }
 
   return {
     kind,
-    match: selector[1].map(toSelectorMatcher),
-    name: selector[0]
+    match: matchers,
+    name,
+    ...path ? { path } : {}
   };
 }
 
 function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
-  if(selector.kind === SelectorKind.Callee){
-    if(selector.name === undefined){
-      return;
-    }
-
+  if(selector.kind === SelectorKind.Callee || selector.kind === SelectorKind.Tag){
     if(selector.match === undefined){
-      return selector.name;
+      return selector.name ?? selector.path!;
     }
 
     const legacyMatchers = selector.match
@@ -147,7 +149,7 @@ function migrateFlatSelector(selector: Selector): LegacySelector | undefined {
     }
 
     return [
-      selector.name,
+      selector.name ?? selector.path!,
       legacyMatchers
     ];
   }

@@ -85,6 +85,11 @@ const CALLEE_SELECTOR_PATH_SCHEMA = pipe(
   description("Regular expression for callee paths that should be linted.")
 );
 
+const TAG_SELECTOR_PATH_SCHEMA = pipe(
+  string(),
+  description("Regular expression for tag paths that should be linted.")
+);
+
 const CALLEE_SELECTOR_TARGET_VALUE_SCHEMA = optional(
   union([
     literal("all"),
@@ -152,14 +157,26 @@ const CALLEE_SELECTOR_SCHEMA = union([
   })
 ]);
 
-const TAG_SELECTOR_SCHEMA = strictObject({
-  kind: pipe(
-    literal(SelectorKind.Tag),
-    description("Selector kind that determines where matching is applied.")
-  ),
-  match: SELECTOR_MATCH_SCHEMA,
-  name: SELECTOR_NAME_SCHEMA
-});
+const TAG_SELECTOR_SCHEMA = union([
+  strictObject({
+    kind: pipe(
+      literal(SelectorKind.Tag),
+      description("Selector kind that determines where matching is applied.")
+    ),
+    match: SELECTOR_MATCH_SCHEMA,
+    name: SELECTOR_NAME_SCHEMA,
+    path: optional(TAG_SELECTOR_PATH_SCHEMA)
+  }),
+  strictObject({
+    kind: pipe(
+      literal(SelectorKind.Tag),
+      description("Selector kind that determines where matching is applied.")
+    ),
+    match: SELECTOR_MATCH_SCHEMA,
+    name: optional(SELECTOR_NAME_SCHEMA),
+    path: TAG_SELECTOR_PATH_SCHEMA
+  })
+]);
 
 const VARIABLE_SELECTOR_SCHEMA = strictObject({
   kind: pipe(

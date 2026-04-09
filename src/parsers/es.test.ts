@@ -588,12 +588,12 @@ describe("es", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
         {
-          jsx: `const classes = ["keep"]; classes.push(" lint ");`,
-          jsxOutput: `const classes = ["keep"]; classes.push("lint");`,
-          svelte: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
-          svelteOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
-          vue: `<script>const classes = ["keep"]; classes.push(" lint ");</script>`,
-          vueOutput: `<script>const classes = ["keep"]; classes.push("lint");</script>`,
+          jsx: `const classes = []; classes.push(" lint ");`,
+          jsxOutput: `const classes = []; classes.push("lint");`,
+          svelte: `<script>const classes = []; classes.push(" lint ");</script>`,
+          svelteOutput: `<script>const classes = []; classes.push("lint");</script>`,
+          vue: `<script>const classes = []; classes.push(" lint ");</script>`,
+          vueOutput: `<script>const classes = []; classes.push("lint");</script>`,
 
           errors: 2,
           options: [{

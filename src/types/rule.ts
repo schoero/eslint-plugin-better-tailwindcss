@@ -103,7 +103,13 @@ export type CalleeSelector = {
   targetCall?: CallTarget | undefined;
 };
 
-export type TagSelector = BaseSelector<SelectorKind.Tag>;
+export type TagSelector = {
+  kind: SelectorKind.Tag;
+  match?: SelectorMatcher[] | undefined;
+  name?: Regex | undefined;
+  path?: Regex | undefined;
+};
+
 export type VariableSelector = BaseSelector<SelectorKind.Variable>;
 
 export type Selector = AttributeSelector | CalleeSelector | TagSelector | VariableSelector;

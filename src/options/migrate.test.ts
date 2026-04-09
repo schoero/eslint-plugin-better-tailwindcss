@@ -23,7 +23,8 @@ describe("migrate", () => {
       {
         kind: SelectorKind.Callee,
         match: [{ type: MatcherType.String }],
-        name: "^cva$"
+        name: "^cva$",
+        path: "^cva$"
       }
     ]);
   });

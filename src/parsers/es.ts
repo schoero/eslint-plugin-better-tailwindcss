@@ -106,19 +106,23 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 
   const callChain = getCurriedCallChain(node);
 
-  if(!callChain){
-    return [];
-  }
+  if(!callChain){ return []; }
 
-  const { baseCalleeName, calls } = callChain;
+  const calleePath = getESCalleeName(callChain[0].callee, "path");
+  const calleeName = getESCalleeName(callChain[0].callee, "name");
 
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    const selectorName = selector.path ?? selector.name;
 
-    if(!selectorName || !matchesName(selectorName, baseCalleeName)){ return literals; }
+    if(
+      !selector.path && !selector.name ||
+      (!selector.path || !matchesName(selector.path, calleePath)) &&
+      (!selector.name || !matchesName(selector.name, calleeName))
+    ){
+      return literals;
+    }
 
     const targetCall = selector.targetCall ?? selector.callTarget;
-    const targetCalls = getTargetCalls(calls, targetCall);
+    const targetCalls = getTargetCalls(callChain, targetCall);
 
     for(const targetCall of targetCalls){
       const targetArguments = getTargetArguments(targetCall.arguments, selector.targetArgument);
@@ -141,10 +145,20 @@ export function getLiteralsByESCallExpression(ctx: Rule.RuleContext, node: ESCal
 }
 
 export function getLiteralsByTaggedTemplateExpression(ctx: Rule.RuleContext, node: ESTaggedTemplateExpression, selectors: TagSelector[]): Literal[] {
+  const tagPath = getTaggedTemplateName(node.tag, "path");
+  const tagName = getTaggedTemplateName(node.tag, "name");
+
+  if(!tagPath && !tagName){ return []; }
 
   const literals = selectors.reduce<Literal[]>((literals, selector) => {
-    if(!isTaggedTemplateSymbol(node.tag)){ return literals; }
-    if(!matchesName(selector.name, node.tag.name)){ return literals; }
+
+    if(
+      !selector.path && !selector.name ||
+      (!selector.path || !matchesName(selector.path, tagPath)) &&
+      (!selector.name || !matchesName(selector.name, tagName))
+    ){
+      return literals;
+    }
 
     if(!selector.match){
       literals.push(...getLiteralsByESTemplateLiteral(ctx, node.quasi));
@@ -572,7 +586,7 @@ function getESMemberExpressionPropertyName(node: ESMemberExpression): string | u
   }
 }
 
-function getESCalleeName(node: ESBaseNode): string | undefined {
+function getESCalleeName(node: ESBaseNode, type: "name" | "path"): string | undefined {
   if(node.type === "Identifier" && "name" in node && typeof node.name === "string"){
     return node.name;
   }
@@ -584,10 +598,18 @@ function getESCalleeName(node: ESBaseNode): string | undefined {
       return;
     }
 
-    const object = getESCalleeName(memberNode.object as ESBaseNode);
+    const object = getESCalleeName(memberNode.object as ESBaseNode, type);
     const property = getESMemberExpressionPropertyName(memberNode);
 
-    if(!object || !property){
+    if(!property){
+      return;
+    }
+
+    if(type === "name"){
+      return property;
+    }
+
+    if(!object){
       return;
     }
 
@@ -595,7 +617,23 @@ function getESCalleeName(node: ESBaseNode): string | undefined {
   }
 
   if(node.type === "ChainExpression" && "expression" in node){
-    return getESCalleeName(node.expression as ESBaseNode);
+    return getESCalleeName(node.expression as ESBaseNode, type);
+  }
+}
+
+function getTaggedTemplateName(node: ESBaseNode & Partial<Rule.NodeParentExtension>, type: "name" | "path"): string | undefined {
+  if(
+    node.type === "Identifier" && "name" in node && typeof node.name === "string" &&
+    hasESNodeParentExtension(node) &&
+    isTaggedTemplateExpression(node.parent)
+  ){
+    return node.name;
+  }
+  if(node.type === "MemberExpression"){
+    return getESCalleeName(node, type);
+  }
+  if(node.type === "CallExpression"){
+    return getESCalleeName((node as ESCallExpression).callee as ESBaseNode, type);
   }
 }
 
@@ -603,7 +641,7 @@ function isNestedCurriedCall(node: ESCallExpression): boolean {
   return hasESNodeParentExtension(node) && isESCallExpression(node.parent) && node.parent.callee === node;
 }
 
-function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeName: string; calls: ESCallExpression[]; } {
+function getCurriedCallChain(node: ESCallExpression) {
   const calls: ESCallExpression[] = [node];
   let currentCall: ESCallExpression = node;
 
@@ -612,20 +650,11 @@ function getCurriedCallChain(node: ESCallExpression): undefined | { baseCalleeNa
     calls.unshift(currentCall);
   }
 
-  const baseCalleeName = getESCalleeName(currentCall.callee);
-
-  if(!baseCalleeName){
-    return;
-  }
-
-  return {
-    baseCalleeName,
-    calls
-  };
+  return calls;
 }
 
-function getTargetCalls(calls: ESCallExpression[], callTarget: CallTarget | undefined): ESCallExpression[] {
-  return getTargetItems(calls, callTarget, "first");
+function getTargetCalls(callChain: ESCallExpression[], callTarget: CallTarget | undefined): ESCallExpression[] {
+  return getTargetItems(callChain, callTarget, "first");
 }
 
 function getTargetArguments(args: (ESExpression | ESSpreadElement)[], argumentTarget: ArgumentTarget | undefined): ESExpression[] {
@@ -690,10 +719,6 @@ function isTaggedTemplateExpression(node: ESBaseNode): node is ESTaggedTemplateE
 
 function isTaggedTemplateLiteral(node: ESBaseNode): node is ESTemplateLiteral {
   return hasESNodeParentExtension(node) && isTaggedTemplateExpression(node.parent);
-}
-
-function isTaggedTemplateSymbol(node: ESBaseNode & Partial<Rule.NodeParentExtension>): node is ESIdentifier {
-  return node.type === "Identifier" && !!node.parent && isTaggedTemplateExpression(node.parent);
 }
 
 export function isESVariableDeclarator(node: ESBaseNode): node is ESVariableDeclarator {

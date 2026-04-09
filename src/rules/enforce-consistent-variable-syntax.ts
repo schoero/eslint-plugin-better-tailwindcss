@@ -4,6 +4,7 @@ import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindc
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -171,11 +172,11 @@ function lintLiterals(ctx: Context<typeof enforceConsistentVariableSyntax>, lite
 }
 
 function isBeginningOfArbitraryShorthand(base: string): boolean {
-  return !!base.match(/^_*--(?![\w-]+\()/);
+  return getCachedRegex(/^_*--(?![\w-]+\()/).test(base);
 }
 
 function isBeginningOfArbitraryVariable(base: string): boolean {
-  return !!base.match(/^_*var\(_*--/);
+  return getCachedRegex(/^_*var\(_*--/).test(base);
 }
 
 function extractBalanced(className: string, start = "(", end = ")") {

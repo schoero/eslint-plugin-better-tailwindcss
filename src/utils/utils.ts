@@ -1,3 +1,5 @@
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
+
 import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
 import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -57,6 +59,7 @@ export function display(messageStyle: MessageStyleOption["messageStyle"], classe
       .replaceAll("\t", "→")
   );
 }
+
 /**
  * Augments a message with additional warnings and documentation links.
  *
@@ -68,8 +71,8 @@ export function display(messageStyle: MessageStyleOption["messageStyle"], classe
  */
 export function augmentMessageWithWarnings<Options extends Record<string, any>>(message: string, docs: string, warnings?: (Warning<Options> | undefined)[]) {
   const ruleWarnings = warnings
-    ?.filter(warning => warning)
-    .map(warning => ({ ...warning, url: docs }));
+    ?.filter(warning => !!warning)
+    .map(warning => ({ ...warning, url: warning.url ?? docs }));
 
   if(!ruleWarnings || ruleWarnings.length === 0){
     return message;
@@ -144,12 +147,12 @@ export function getExactClassLocation(literal: Literal, startIndex: number, endI
 export function matchesName(pattern: string, name: string | undefined): boolean {
   if(!name){ return false; }
 
-  const match = name.match(pattern);
+  const match = getCachedRegex(pattern).exec(name);
   return !!match && match[0] === name;
 }
 
 export function replacePlaceholders(template: string, match: RegExpMatchArray | string[]): string {
-  return template.replace(/\$(\d+)/g, (_, groupIndex) => {
+  return template.replace(getCachedRegex(/\$(\d+)/g), (_, groupIndex) => {
     const index = Number(groupIndex);
     return match[index] ?? "";
   });
@@ -177,7 +180,7 @@ export function deduplicateLiterals(literal: Literal, index: number, literals: L
 export function createObjectPathElement(path?: string): string {
   if(!path){ return ""; }
 
-  return path.match(/^[A-Z_a-z]\w*$/)
+  return getCachedRegex(/^[A-Z_a-z]\w*$/).test(path)
     ? path
     : `["${path}"]`;
 }

@@ -6,7 +6,7 @@ import { noRestrictedClasses } from "better-tailwindcss:rules/no-restricted-clas
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { dedent } from "better-tailwindcss:tests/utils/template.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 
 describe("svelte", () => {
@@ -145,6 +145,27 @@ describe("svelte", () => {
           options: [{
             restrict: [
               { fix: "allowed", pattern: "restricted" }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match default export via variable selector", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          svelte: `<script>export default " lint ";</script>`,
+          svelteOutput: `<script>export default "lint";</script>`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
             ]
           }]
         }

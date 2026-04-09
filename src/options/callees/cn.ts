@@ -10,7 +10,7 @@ export const CN_STRINGS = {
       type: MatcherType.String
     }
   ],
-  name: "cn"
+  name: "^cn$"
 } satisfies CalleeSelector;
 
 export const CN_OBJECT_KEYS = {
@@ -20,7 +20,7 @@ export const CN_OBJECT_KEYS = {
       type: MatcherType.ObjectKey
     }
   ],
-  name: "cn"
+  name: "^cn$"
 } satisfies CalleeSelector;
 
 /** @see https://ui.shadcn.com/docs/installation/manual */

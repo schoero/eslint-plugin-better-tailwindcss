@@ -92,3 +92,15 @@ export const ROOT_FONT_SIZE_OPTION_SCHEMA = strictObject({
 });
 
 export type RootFontSizeOption = InferOutput<typeof ROOT_FONT_SIZE_OPTION_SCHEMA>;
+
+export const CWD_OPTION_SCHEMA = strictObject({
+  cwd: optional(
+    pipe(
+      string(),
+      description("The working directory to resolve tailwindcss and the config from. Useful in monorepo setups.")
+    ),
+    undefined
+  )
+});
+
+export type CwdOption = InferOutput<typeof CWD_OPTION_SCHEMA>;

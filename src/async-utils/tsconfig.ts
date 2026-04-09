@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 
 import { withCache } from "./cache.js";
-import { findFileRecursive } from "./fs.js";
+import { findPathRecursive } from "./fs.js";
 
 import type { Warning } from "../types/async.js";
 
@@ -24,7 +24,7 @@ export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSC
     "jsconfig.json"
   ];
 
-  const foundConfigPath = findFileRecursive(cwd, potentialPaths);
+  const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
   const warning = getConfigPathWarning(configPath, foundConfigPath);
 
   return {

@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
@@ -10,6 +10,7 @@ import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "be
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
   getLiteralsByESCallExpression,
+  getLiteralsByESExportDefaultDeclaration,
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
 } from "better-tailwindcss:parsers/es.js";
@@ -24,6 +25,7 @@ import {
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
+import { findProjectRoot } from "better-tailwindcss:utils/project.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { isSelectorKind } from "better-tailwindcss:utils/selectors.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
@@ -35,7 +37,13 @@ import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, VariableDeclarator } from "estree";
+import type {
+  CallExpression,
+  ExportDefaultDeclaration,
+  Node,
+  TaggedTemplateExpression,
+  VariableDeclarator
+} from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
@@ -58,7 +66,7 @@ export function createRule<
   const Name extends string,
   const Messages extends Record<string, string>,
   const OptionsSchema extends Schema = Schema,
-  const Options extends Record<string, any> = CommonOptions & JsonSchema<OptionsSchema>,
+  const Options extends CommonOptions & JsonSchema<OptionsSchema> = CommonOptions & JsonSchema<OptionsSchema>,
   const Category extends RuleCategory = RuleCategory,
   const Recommended extends boolean = boolean
 >(options: CreateRuleOptions<Name, Messages, OptionsSchema, Options, Category, Recommended>) {
@@ -150,10 +158,11 @@ export function createRule<
 
         const options = getOptions();
 
-        const { entryPoint, messageStyle, tailwindConfig, tsconfig } = options;
+        const { messageStyle } = options;
 
-        const projectDirectory = resolve(ctx.cwd, entryPoint ?? tailwindConfig ?? tsconfig ?? ".");
-        const packageJsonPath = resolveJson("tailwindcss/package.json", projectDirectory);
+        const cwd = options.cwd ?? findProjectRoot(ctx, options) ?? ctx.cwd;
+
+        const packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
 
         if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);
@@ -165,7 +174,7 @@ export function createRule<
         const installation = dirname(packageJsonPath);
 
         const context = {
-          cwd: ctx.cwd,
+          cwd,
           docs,
           installation,
           options,
@@ -247,6 +256,18 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const variableDeclaratorNode = node as VariableDeclarator;
 
       const literals = getLiteralsByESVariableDeclarator(ctx, variableDeclaratorNode, variables);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
+    }
+  };
+
+  const exportDefaultDeclarations = {
+    ExportDefaultDeclaration(node: Node) {
+      const exportDefaultDeclarationNode = node as ExportDefaultDeclaration;
+
+      const literals = getLiteralsByESExportDefaultDeclaration(ctx, exportDefaultDeclarationNode, variables);
 
       if(literals.length > 0){
         lintLiterals(context, literals);
@@ -377,6 +398,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       // script tag
       ...callExpression,
       ...variableDeclarators,
+      ...exportDefaultDeclarations,
       ...taggedTemplateExpression,
 
       // bound classes
@@ -390,6 +412,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
   return {
     ...callExpression,
     ...variableDeclarators,
+    ...exportDefaultDeclarations,
     ...taggedTemplateExpression,
     ...jsx,
     ...svelte,

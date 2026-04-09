@@ -24,36 +24,24 @@ You can find the default selectors in the [defaults documentation](../api/defaul
 Each selector targets one kind of source location and tells the plugin how to extract class strings from it.
 
 The plugin supports four selector types: `attribute`, `callee`, `variable`, and `tag`.
+Every selector can then match different types of string literals based on the provided `match` option.
 
 ### Type
-
-```ts
-type Selectors = (
-  | AttributeSelector
-  | CalleeSelector
-  | TagSelector
-  | VariableSelector
-)[];
-```
 
 <br/>
 
 ### `attribute`
 
-- **kind**: `"attribute"`.
-- **name**: regular expression for attribute names.
-- **match** `optional`: [matcher](#matcher-types) list.
-  When omitted, only direct string literals are collected.
+- **kind**: `"attribute"`.  
+- **name**: regular expression for attribute names.  
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.  
+  When omitted, only direct string literals are collected.  
 
 ```ts
 type AttributeSelector = {
   kind: "attribute";
   name: string;
-  callTarget?: "all" | "first" | "last" | number;
-  match?: {
-    type: "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 
@@ -61,25 +49,29 @@ type AttributeSelector = {
 
 ### `callee`
 
-- **kind**: `"callee"`.
-- **name** `optional`: regular expression for callee names.
-- **path** `optional`: regular expression for callee member paths like `classes.push`.
-  When `path` is provided, `name` is not required.
-- **callTarget** `optional`: curried call target for example for `fn()("my classes")`.
-  When omitted, the first call in a curried chain is used.
-- **match** `optional`: [matcher](#matcher-types) list.
-  When omitted, only direct string literals are collected.
+- **kind**: `"callee"`.  
+- **name** `optional`: regular expression for callee names.  
+- **path** `optional`: regular expression for callee member paths like `classes.push`.  
+  When `path` is provided, `name` is not required.  
+- **targetCall** `optional`: curried call target for example for `fn()("my classes")`.  
+  If a non-negative number is provided, the zero-based call index is used.  
+  Negative numbers count from the end (`-1` is the last call).  
+  When omitted, the first call in a curried chain is used.  
+- **targetArgument** `optional`: target specific call arguments.  
+  If a non-negative number is provided, the zero-based argument index is used.  
+  Negative numbers count from the end (`-1` is the last argument).  
+  When omitted, all arguments of the selected call are checked.  
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.  
+  When omitted, only direct string literals are collected.  
 
 ```ts
 type CalleeSelector = {
   kind: "callee";
-  callTarget?: "all" | "first" | "last" | number;
-  match?: {
-    type: "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
   name?: string;
   path?: string;
+  targetArgument?: "all" | "first" | "last" | number;
+  targetCall?: "all" | "first" | "last" | number;
 };
 ```
 
@@ -87,20 +79,17 @@ type CalleeSelector = {
 
 ### `variable`
 
-- **kind**: `"variable"`.
-- **name**: regular expression for variable names.
-  Tip: The name `default` targets the `export default ...` declaration.
-- **match** `optional`: [matcher](#matcher-types) list.
-  When omitted, only direct string literals are collected.
+- **kind**: `"variable"`.  
+- **name**: regular expression for variable names.  
+  Tip: The name `default` targets the `export default ...` declaration.  
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.  
+  When omitted, only direct string literals are collected.  
 
 ```ts
 type VariableSelector = {
   kind: "variable";
   name: string;
-  match?: {
-    type: "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 
@@ -108,19 +97,18 @@ type VariableSelector = {
 
 ### `tag`
 
-- **kind**: must be `"tag"`.
-- **name**: regular expression for tagged template names.
-- **match** `optional`: [matcher](#matcher-types) list.
-  When omitted, only direct string literals are collected.
+- **kind**: `"tag"`.  
+- **name**: `optional` regular expression for tagged template names.  
+- **path** `optional`: regular expression for tagged template member paths like `twc.class`.  
+  When `path` is provided, `name` is not required.  
+- **match** `optional`: [selector matcher](#selector-matcher-types) list.  
+  When omitted, only direct string literals are collected.  
 
 ```ts
 type TagSelector = {
   kind: "tag";
   name: string;
-  match?: {
-    type: "objectKeys" | "objectValues" | "strings";
-    path?: string;
-  }[];
+  match?: SelectorMatcher[];
 };
 ```
 
@@ -149,32 +137,206 @@ type TagSelector = {
 
 ### Matchers
 
-#### Matcher types
+#### Selector matcher types
 
-There are 3 matcher types:
+##### `strings`
 
-- `objectKeys`: matches all object keys
-- `objectValues`: matches all object values
-- `strings`: matches all string literals that are not object keys or values
+Matches all string literals that are not object keys or object values.
+
+```ts
+type SelectorStringMatcher = {
+  type: "strings";
+};
+```
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        { "type": "strings" }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw(
+  "this will get linted",
+  { className: "this will not get linted by this matcher" }
+);
+```
+
+<br />
+
+##### `objectKeys`
+
+Matches all object keys.
+
+- `path` `optional`: regular expression to narrow matching to specific object key paths
+  See [Path option details](#path-option-details).
+
+```ts
+type SelectorObjectKeyMatcher = {
+  type: "objectKeys";
+  path?: string;
+};
+```
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "objectKeys",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw({
+  compoundVariants: [
+    {
+      className: "<- this key will get linted",
+      myVariant: "but this key will not get linted"
+    }
+  ]
+});
+```
+
+<br />
+
+##### `objectValues`
+
+Matches all object values.
+
+- `path` `optional`: regular expression to narrow matching to specific object value paths
+  See [Path option details](#path-option-details).
+  
+```ts
+type SelectorObjectValueMatcher = {
+  type: "objectValues";
+  path?: string;
+};
+```
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "objectValues",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw({
+  compoundVariants: [
+    {
+      className: "this value will get linted",
+      myVariant: "but this value will not get linted"
+    }
+  ]
+});
+```
+
+<br />
+
+##### `anonymousFunctionReturn`
+
+Matches values returned from anonymous functions and applies nested matchers to those return values.
+
+- `match` `required`: nested matcher array  
+  The nested `match` array can include `strings`, `objectKeys`, and `objectValues` matchers.  
+
+```ts
+type SelectorAnonymousFunctionReturnMatcher = {
+  match: (SelectorObjectKeyMatcher | SelectorObjectValueMatcher | SelectorStringMatcher)[];
+  type: "anonymousFunctionReturn";
+};
+```
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "match": [
+        {
+          "type": "anonymousFunctionReturn",
+          "match": [
+            { "type": "strings" },
+            { "type": "objectKeys" },
+            { "type": "objectValues" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```tsx
+tw(() => "this will get linted with a nested string matcher");
+tw(() => ({ className: "<- this key will get linted with a nested objectKeys matcher" }));
+tw(() => ({ className: "this will get linted with nested objectValues matcher" }));
+```
 
 <br/>
 
-##### `path`
+##### Path option details
 
-The `path` lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.
-
-This is especially useful for libraries like [Class Variance Authority (cva)](https://cva.style/docs/getting-started/installation#intellisense), where class names appear in nested object structures.
-
+The `path` option lets you narrow down `objectKeys` and `objectValues` matching to specific object paths.  
+  
+This is especially useful for libraries like [Class Variance Authority (cva)](https://cva.style/docs/getting-started/installation#intellisense), where class names appear in nested object structures.  
+  
 `path` is a regex matched against the object path.  
-
+  
 For example, the following matcher will only match object values for the `compoundVariants.class` key:
 
 <br/>
 
 ```json
 {
-  "type": "objectValues",
-  "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^cva$",
+      "match": [
+        {
+          "type": "objectValues",
+          "path": "^compoundVariants\\[\\d+\\]\\.(?:className|class)$"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -193,12 +355,12 @@ For example, the following matcher will only match object values for the `compou
 
 <br/>
 
-The path reflects how the string is nested in the object:
-
-- Dot notation for plain keys: `root.nested.values`
-- Square brackets for arrays: `values[0]`
-- Quoted brackets for special characters: `root["some-key"]`
-
+The path reflects how the string is nested in the object:  
+  
+- Dot notation for plain keys: `root.nested.values`  
+- Square brackets for arrays: `values[0]`  
+- Quoted brackets for special characters: `root["some-key"]`  
+  
 For example, the object path for `value` in the object below is `root["nested-key"].values[0].value`:
 
 ```json
@@ -218,6 +380,25 @@ For example, the object path for `value` in the object below is `root["nested-ke
 <br/>
 
 ### Examples
+
+#### Example: lint only the first argument of the last curried call
+
+```jsonc
+{
+  "selectors": [
+    {
+      "kind": "callee",
+      "name": "^tw$",
+      "targetCall": "last",
+      "targetArgument": "first"
+    }
+  ]
+}
+```
+
+```tsx
+tw("keep", "ignore")("this will get linted", "this will not");
+```
 
 #### Example: lint `cva` strings + specific nested values
 

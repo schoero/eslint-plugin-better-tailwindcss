@@ -1,12 +1,5 @@
-import {
-  hasESNodeParentExtension,
-  isESArrowFunctionExpression,
-  isESCallExpression,
-  isESFunctionExpression,
-  isESNode,
-  isESSimpleStringLiteral,
-  isESVariableDeclarator
-} from "better-tailwindcss:parsers/es.js";
+import { hasESNodeParentExtension, isESSimpleStringLiteral } from "better-tailwindcss:parsers/es.js";
+import { MATCHER_RESULT } from "better-tailwindcss:types/rule.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { isGenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
@@ -22,59 +15,83 @@ import type { MatcherFunctions } from "better-tailwindcss:types/rule.js";
 import type { GenericNodeWithParent } from "better-tailwindcss:utils/utils.js";
 
 
-export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions<Node>, deadEnd?: (node: unknown) => boolean): Node[] {
+export function getLiteralNodesByMatchers<Node>(ctx: Rule.RuleContext, node: unknown, matcherFunctions: MatcherFunctions): Node[] {
   if(!isGenericNodeWithParent(node)){ return []; }
 
-  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions, deadEnd);
-  const self = nodeMatches<Node>(node, matcherFunctions) ? [node] : [];
+  const nestedLiterals = findMatchingNestedNodes<Node>(node, matcherFunctions);
+
+  const self = matcherFunctions.reduce<Node[]>((self, matcherFunction) => {
+    const result = matcherFunction(node);
+
+    if(result === MATCHER_RESULT.NO_MATCH){
+      return self;
+    } else if(result === MATCHER_RESULT.MATCH){
+      return [node as Node, ...self];
+    } else if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
+      return self;
+    } else if(Array.isArray(result)){
+      self.push(...findMatchingNestedNodes<Node>(node, result));
+    }
+    return self;
+  }, []);
 
   return [...nestedLiterals, ...self];
 }
 
-function findMatchingNestedNodes<Node>(
-  node: GenericNodeWithParent,
-  matcherFunctions: MatcherFunctions<Node>,
-  deadEnd: (node: unknown) => boolean = value => isESNode(value) && (isESCallExpression(value) || isESArrowFunctionExpression(value) || isESVariableDeclarator(value) || isESFunctionExpression(value))
-): Node[] {
+function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunctions: MatcherFunctions) {
   return Object.entries(node).reduce<Node[]>((matchedNodes, [key, value]) => {
     if(!value || typeof value !== "object" || key === "parent"){
       return matchedNodes;
     }
 
-    if(deadEnd?.(value)){
+    let isMatch = false;
+    let currentMatcherFunctions: MatcherFunctions = [...matcherFunctions];
+    let hasMatcherFunctions = currentMatcherFunctions.length > 0;
+
+    while(hasMatcherFunctions){
+      const nextMatcherFunctions: MatcherFunctions = [];
+      const nestedMatcherFunctions: MatcherFunctions = [];
+
+      for(const matcherFunction of currentMatcherFunctions){
+        const result = matcherFunction(value);
+
+        if(result === MATCHER_RESULT.NO_MATCH){
+          nextMatcherFunctions.push(matcherFunction);
+          continue;
+        }
+
+        if(result === MATCHER_RESULT.MATCH){
+          isMatch = true;
+          nextMatcherFunctions.push(matcherFunction);
+          continue;
+        }
+
+        if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
+          continue;
+        }
+
+        for(const nestedMatcherFunction of result){
+          nestedMatcherFunctions.push(nestedMatcherFunction);
+        }
+      }
+
+      hasMatcherFunctions = nestedMatcherFunctions.length > 0;
+      currentMatcherFunctions = hasMatcherFunctions
+        ? nestedMatcherFunctions
+        : nextMatcherFunctions;
+    }
+
+    if(isMatch){
+      matchedNodes.push(value as Node);
+    }
+
+    if(currentMatcherFunctions.length === 0){
       return matchedNodes;
     }
 
-    if(nodeMatches(value, matcherFunctions)){
-      matchedNodes.push(value);
-    }
-
-    matchedNodes.push(...findMatchingNestedNodes(value, matcherFunctions, deadEnd));
+    matchedNodes.push(...findMatchingNestedNodes<Node>(value, currentMatcherFunctions));
     return matchedNodes;
   }, []);
-}
-
-export function findMatchingParentNodes<Node>(node: Partial<GenericNodeWithParent>, matcherFunctions: MatcherFunctions<Node>): Node[] {
-  if(!isGenericNodeWithParent(node)){ return []; }
-
-  if(nodeMatches(node.parent, matcherFunctions)){
-    return [node.parent];
-  }
-
-  return findMatchingParentNodes(node.parent, matcherFunctions);
-}
-
-function nodeMatches<Node>(node: unknown, matcherFunctions: MatcherFunctions<Node>): node is Node {
-  for(const matcherFunction of matcherFunctions){
-    if(matcherFunction(node)){ return true; }
-  }
-  return false;
-}
-
-function isChildNodeOfNode(node: WithParent<ESNode>, parent: ESNode): boolean {
-  if(!hasESNodeParentExtension(node)){ return false; }
-  if(node.parent === parent){ return true; }
-  return isChildNodeOfNode(node.parent, parent);
 }
 
 export function matchesPathPattern(path: string, pattern: string): boolean {

@@ -8,6 +8,7 @@ import { getCustomComponentClasses } from "./custom-component-classes.async.v4.j
 import { getDissectedClasses } from "./dissect-classes.async.v4.js";
 import { getPrefix, getSuffix } from "./prefix.async.v4.js";
 import { getUnknownClasses } from "./unknown-classes.async.v4.js";
+import { getVariantOrder } from "./variant-order.async.v4.js";
 
 import type { OperationHandlers, Operations } from "../async-utils/operations.js";
 
@@ -54,6 +55,12 @@ const handlers: OperationHandlers = {
     const unknownClasses = getUnknownClasses(tailwindContext, classes);
 
     return { unknownClasses, warnings: ctx.warnings };
+  },
+  getVariantOrder: async (ctx, classes) => {
+    const tailwindContext = await createTailwindContext(ctx);
+    const variantOrder = getVariantOrder(tailwindContext, classes);
+
+    return { variantOrder, warnings: ctx.warnings };
   }
 };
 

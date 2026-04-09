@@ -44,22 +44,45 @@ function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunct
       return matchedNodes;
     }
 
-    const currentMatcherFunctions: MatcherFunctions = [...matcherFunctions];
+    let isMatch = false;
+    let currentMatcherFunctions: MatcherFunctions = [...matcherFunctions];
+    let hasMatcherFunctions = currentMatcherFunctions.length > 0;
 
-    for(const matcherFunction of currentMatcherFunctions){
-      const result = matcherFunction(value);
+    while(hasMatcherFunctions){
+      const nextMatcherFunctions: MatcherFunctions = [];
+      const nestedMatcherFunctions: MatcherFunctions = [];
 
-      if(result === MATCHER_RESULT.NO_MATCH){
-        continue;
-      } else if(result === MATCHER_RESULT.MATCH){
-        matchedNodes.push(value as Node);
-      } else if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
-        currentMatcherFunctions.splice(currentMatcherFunctions.indexOf(matcherFunction), 1);
-      } else if(Array.isArray(result)){
-        currentMatcherFunctions.length = 0;
-        currentMatcherFunctions.push(...result);
+      for(const matcherFunction of currentMatcherFunctions){
+        const result = matcherFunction(value);
+
+        if(result === MATCHER_RESULT.NO_MATCH){
+          nextMatcherFunctions.push(matcherFunction);
+          continue;
+        }
+
+        if(result === MATCHER_RESULT.MATCH){
+          isMatch = true;
+          nextMatcherFunctions.push(matcherFunction);
+          continue;
+        }
+
+        if(result === MATCHER_RESULT.UNCROSSABLE_BOUNDARY){
+          continue;
+        }
+
+        for(const nestedMatcherFunction of result){
+          nestedMatcherFunctions.push(nestedMatcherFunction);
+        }
       }
 
+      hasMatcherFunctions = nestedMatcherFunctions.length > 0;
+      currentMatcherFunctions = hasMatcherFunctions
+        ? nestedMatcherFunctions
+        : nextMatcherFunctions;
+    }
+
+    if(isMatch){
+      matchedNodes.push(value as Node);
     }
 
     if(currentMatcherFunctions.length === 0){

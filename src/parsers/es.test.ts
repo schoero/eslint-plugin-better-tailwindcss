@@ -676,6 +676,73 @@ describe("es", () => {
     });
   });
 
+  it("should match default exports via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default " lint ";`,
+          jsxOutput: `export default "lint";`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not dereference exported default identifiers for variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const classes = " lint "; export default classes;`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match default-exported objects", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default { slots: { root: " lint ", icon: " keep " }, title: " keep " };`,
+          jsxOutput: `export default { slots: { root: "lint", icon: " keep " }, title: " keep " };`,
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                match: [
+                  {
+                    path: "^slots\\.root$",
+                    type: MatcherType.ObjectValue
+                  }
+                ],
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match attributes via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

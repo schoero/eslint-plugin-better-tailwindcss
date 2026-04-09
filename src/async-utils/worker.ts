@@ -5,15 +5,17 @@ import { TsRunner } from "synckit";
 import type { SynckitOptions } from "synckit";
 
 
+const defaultTimeout = 30_000;
+
 export function getWorkerOptions(): SynckitOptions | undefined {
   if(env.NODE_ENV === "test"){
     return {
-      timeout: 30_000,
+      timeout: Number(env.SYNCKIT_TIMEOUT) || defaultTimeout,
       tsRunner: TsRunner.OXC
     };
   } else {
     return {
-      timeout: 30_000
+      timeout: Number(env.SYNCKIT_TIMEOUT) || defaultTimeout
     };
   }
 }

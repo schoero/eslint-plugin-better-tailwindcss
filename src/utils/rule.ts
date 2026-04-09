@@ -11,6 +11,7 @@ import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
   getLiteralsByESBareTemplateLiteral,
   getLiteralsByESCallExpression,
+  getLiteralsByESExportDefaultDeclaration,
   getLiteralsByESVariableDeclarator,
   getLiteralsByTaggedTemplateExpression
 } from "better-tailwindcss:parsers/es.js";
@@ -36,7 +37,14 @@ import type { TmplAstElement } from "@angular-eslint/bundled-angular-compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
 import type { Rule } from "eslint";
-import type { CallExpression, Node, TaggedTemplateExpression, TemplateLiteral, VariableDeclarator } from "estree";
+import type {
+  CallExpression,
+  ExportDefaultDeclaration,
+  Node,
+  TaggedTemplateExpression,
+  TemplateLiteral,
+  VariableDeclarator
+} from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
@@ -277,6 +285,18 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     }
   };
 
+  const exportDefaultDeclarations = {
+    ExportDefaultDeclaration(node: Node) {
+      const exportDefaultDeclarationNode = node as ExportDefaultDeclaration;
+
+      const literals = getLiteralsByESExportDefaultDeclaration(ctx, exportDefaultDeclarationNode, variables);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
+    }
+  };
+
   const taggedTemplateExpression = {
     TaggedTemplateExpression(node: Node) {
       const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
@@ -413,6 +433,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       ...callExpression,
       ...variableDeclarators,
       ...bareTemplateLiteral,
+      ...exportDefaultDeclarations,
       ...taggedTemplateExpression,
 
       // bound classes
@@ -427,6 +448,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
     ...callExpression,
     ...variableDeclarators,
     ...bareTemplateLiteral,
+    ...exportDefaultDeclarations,
     ...taggedTemplateExpression,
     ...jsx,
     ...svelte,

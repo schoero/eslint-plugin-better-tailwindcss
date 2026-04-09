@@ -730,7 +730,7 @@ function isLineBreakStyleLikelyMisconfigured(ctx: Context<typeof enforceConsiste
 
   return (
     hasWindowsLineBreaks && lineBreakStyle === "unix" ||
-    hasUnixLineBreaks && !hasWindowsLineBreaks && lineBreakStyle === "windows"
+    hasUnixLineBreaks && lineBreakStyle === "windows"
   );
 }
 

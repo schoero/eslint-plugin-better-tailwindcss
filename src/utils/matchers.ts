@@ -62,6 +62,10 @@ function findMatchingNestedNodes<Node>(node: GenericNodeWithParent, matcherFunct
 
     }
 
+    if(currentMatcherFunctions.length === 0){
+      return matchedNodes;
+    }
+
     matchedNodes.push(...findMatchingNestedNodes<Node>(value, currentMatcherFunctions));
     return matchedNodes;
   }, []);

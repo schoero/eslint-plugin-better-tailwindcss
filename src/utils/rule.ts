@@ -9,6 +9,7 @@ import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:option
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
+  getLiteralsByESBareTemplateLiteral,
   getLiteralsByESCallExpression,
   getLiteralsByESExportDefaultDeclaration,
   getLiteralsByESVariableDeclarator,
@@ -27,7 +28,6 @@ import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { findProjectRoot } from "better-tailwindcss:utils/project.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
-import { isSelectorKind } from "better-tailwindcss:utils/selectors.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
@@ -42,6 +42,7 @@ import type {
   ExportDefaultDeclaration,
   Node,
   TaggedTemplateExpression,
+  TemplateLiteral,
   VariableDeclarator
 } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
@@ -51,6 +52,8 @@ import type { AST } from "vue-eslint-parser";
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
+  AttributeSelector,
+  CalleeSelector,
   Context,
   CreateRuleOptions,
   ESLintRule,
@@ -58,7 +61,9 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
-  Selectors
+  Selectors,
+  TagSelector,
+  VariableSelector
 } from "better-tailwindcss:types/rule.js";
 
 
@@ -234,10 +239,27 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
 
   const selectors = context.options.selectors as Selectors;
 
-  const attributes = selectors.filter(isSelectorKind(SelectorKind.Attribute));
-  const callees = selectors.filter(isSelectorKind(SelectorKind.Callee));
-  const tags = selectors.filter(isSelectorKind(SelectorKind.Tag));
-  const variables = selectors.filter(isSelectorKind(SelectorKind.Variable));
+  const attributes: AttributeSelector[] = [];
+  const callees: CalleeSelector[] = [];
+  const tags: TagSelector[] = [];
+  const variables: VariableSelector[] = [];
+
+  for(const selector of selectors){
+    switch (selector.kind){
+      case SelectorKind.Attribute:
+        attributes.push(selector);
+        break;
+      case SelectorKind.Callee:
+        callees.push(selector);
+        break;
+      case SelectorKind.Tag:
+        tags.push(selector);
+        break;
+      case SelectorKind.Variable:
+        variables.push(selector);
+        break;
+    }
+  }
 
   const callExpression = {
     CallExpression(node: Node) {
@@ -280,6 +302,18 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       const taggedTemplateExpressionNode = node as TaggedTemplateExpression;
 
       const literals = getLiteralsByTaggedTemplateExpression(ctx, taggedTemplateExpressionNode, tags);
+
+      if(literals.length > 0){
+        lintLiterals(context, literals);
+      }
+    }
+  };
+
+  const bareTemplateLiteral = {
+    TemplateLiteral(node: Node) {
+      const templateLiteralNode = node as TemplateLiteral;
+
+      const literals = getLiteralsByESBareTemplateLiteral(ctx, templateLiteralNode, tags);
 
       if(literals.length > 0){
         lintLiterals(context, literals);
@@ -398,6 +432,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
       // script tag
       ...callExpression,
       ...variableDeclarators,
+      ...bareTemplateLiteral,
       ...exportDefaultDeclarations,
       ...taggedTemplateExpression,
 
@@ -412,6 +447,7 @@ export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, c
   return {
     ...callExpression,
     ...variableDeclarators,
+    ...bareTemplateLiteral,
     ...exportDefaultDeclarations,
     ...taggedTemplateExpression,
     ...jsx,

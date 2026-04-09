@@ -809,4 +809,123 @@ describe("es", () => {
     });
   });
 
+  it("should lint bare template literals with matching marker comments", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: "/* tw */` lint `;",
+          jsxOutput: "/* tw */`lint`;",
+          svelte: "<script>/* tw */` lint `;</script>",
+          svelteOutput: "<script>/* tw */`lint`;</script>",
+          vue: "<script>/* tw */` lint `;</script>",
+          vueOutput: "<script>/* tw */`lint`;</script>",
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        },
+        {
+          jsx: "/* tw */ ` lint `;",
+          jsxOutput: "/* tw */ `lint`;",
+          svelte: "<script>/* tw */ ` lint `;</script>",
+          svelteOutput: "<script>/* tw */ `lint`;</script>",
+          vue: "<script>/* tw */ ` lint `;</script>",
+          vueOutput: "<script>/* tw */ `lint`;</script>",
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should ignore bare template literals when marker comments do not match or are not leading", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: "/* tw */ const keep = true; ` lint `;",
+          svelte: "<script>/* tw */ const keep = true; ` lint `;</script>",
+          vue: "<script>/* tw */ const keep = true; ` lint `;</script>",
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        },
+        {
+          jsx: "/* not-tailwind */ ` lint `;",
+          svelte: "<script>/* not-tailwind */ ` lint `;</script>",
+          vue: "<script>/* not-tailwind */ ` lint `;</script>",
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should only use the closest leading marker comment for bare template literals", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: "/* not-tailwind */ /* tw */ ` lint `;",
+          jsxOutput: "/* not-tailwind */ /* tw */ `lint`;",
+          svelte: "<script>/* not-tailwind */ /* tw */ ` lint `;</script>",
+          svelteOutput: "<script>/* not-tailwind */ /* tw */ `lint`;</script>",
+          vue: "<script>/* not-tailwind */ /* tw */ ` lint `;</script>",
+          vueOutput: "<script>/* not-tailwind */ /* tw */ `lint`;</script>",
+
+          errors: 2,
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ],
+      valid: [
+        {
+          jsx: "/* tw */ /* not-tailwind */ ` lint `;",
+          svelte: "<script>/* tw */ /* not-tailwind */ ` lint `;</script>",
+          vue: "<script>/* tw */ /* not-tailwind */ ` lint `;</script>",
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Tag,
+                name: "^tw$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
 });

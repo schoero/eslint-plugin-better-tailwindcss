@@ -244,7 +244,6 @@ export function getLiteralsByESLiteralNode(ctx: Rule.RuleContext, node: ESBaseNo
 
 export function getLiteralsByESMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getESMatcherFunctions(matchers);
-  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-arguments
   const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsByESLiteralNode(ctx, literalNode));
   return literals.filter(deduplicateLiterals);

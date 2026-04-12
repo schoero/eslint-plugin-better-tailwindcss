@@ -130,7 +130,7 @@ export function getLiteralsBySvelteDirective(ctx: Rule.RuleContext, directive: S
 
 function getLiteralsBySvelteMatchers(ctx: Rule.RuleContext, node: ESBaseNode, matchers: SelectorMatcher[]): Literal[] {
   const matcherFunctions = getSvelteMatcherFunctions(matchers);
-  // eslint-disable-next-line eslint-plugin-typescript/no-unnecessary-type-arguments
+
   const literalNodes = getLiteralNodesByMatchers<ESBaseNode>(ctx, node, matcherFunctions);
   const literals = literalNodes.flatMap(literalNode => getLiteralsBySvelteLiteralNode(ctx, literalNode));
 

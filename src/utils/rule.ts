@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, strictObject } from "valibot";
@@ -26,7 +26,6 @@ import {
 import { getAttributesByVueStartTag, getLiteralsByVueAttribute } from "better-tailwindcss:parsers/vue.js";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
-import { findProjectRoot } from "better-tailwindcss:utils/project.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
 import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
@@ -165,7 +164,10 @@ export function createRule<
 
         const { messageStyle } = options;
 
-        const cwd = options.cwd ?? findProjectRoot(ctx, options) ?? ctx.cwd;
+        // #361#issuecomment-4227041592
+        const cwd = options.cwd
+          ? resolve(ctx.cwd, options.cwd)
+          : ctx.cwd;
 
         const packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
 

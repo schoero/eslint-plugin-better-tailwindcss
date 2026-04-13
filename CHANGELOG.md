@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.4.1
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.4.0...v4.4.1)
+
+### Fixes
+
+- Remove auto detection of project root to set `cwd` ([#364](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/364))
+
+  If you're in a monorepo setup, you may need to [configure the `cwd`](https://github.com/schoero/eslint-plugin-better-tailwindcss?tab=readme-ov-file#monorepo-setup) manually.
+
 ## v4.4.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.3.2...v4.4.0)

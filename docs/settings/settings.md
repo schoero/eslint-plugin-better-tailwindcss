@@ -70,12 +70,44 @@ To set the settings object, add a `settings` key to the eslint config.
 
 ### `cwd`
 
-  The working directory used to resolve `tailwindcss` and related config files. This is useful for monorepos where linting runs from the repository root but each project has its own `node_modules` and Tailwind setup.
+  The working directory used to resolve `tailwindcss` and related config files (`entryPoint`, `tailwindConfig`, `tsconfig`).
 
-  This path is resolved relative to the current working directory of the ESLint process. If not specified, it falls back to the current working directory of the ESLint process.
+  Resolved relative to the current working directory of the linter process. If not specified, defaults to the linter process working directory.
 
   **Type**: `string`  
   **Default**: `undefined`
+
+  #### Monorepo support
+
+  In monorepos, the linter process working directory often differs from where `tailwindcss` is actually installed. For example, IDE extensions typically run the linter from the repository root, while CLI scripts run from the package directory.
+
+  The plugin handles this automatically: when `tailwindcss` cannot be found at the configured `cwd`, it falls back to resolving from the directory of the file being linted and walks up the directory tree. This means **most monorepo setups work without any `cwd` configuration**.
+
+  You only need to set `cwd` explicitly when paths like `entryPoint` or `tailwindConfig` can't be resolved from the auto-detected location.
+
+  ```js
+  // eslint.config.js — per-package settings in a monorepo
+  export default [
+    {
+      files: ["packages/website/**/*.{js,jsx,ts,tsx}"],
+      settings: {
+        "better-tailwindcss": {
+          cwd: "./packages/website",
+          entryPoint: "./src/globals.css"
+        }
+      }
+    },
+    {
+      files: ["packages/app/**/*.{js,jsx,ts,tsx}"],
+      settings: {
+        "better-tailwindcss": {
+          cwd: "./packages/app",
+          entryPoint: "./src/globals.css"
+        }
+      }
+    }
+  ];
+  ```
 
 <br/>
 

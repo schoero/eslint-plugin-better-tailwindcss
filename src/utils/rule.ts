@@ -165,11 +165,23 @@ export function createRule<
         const { messageStyle } = options;
 
         // #361#issuecomment-4227041592
-        const cwd = options.cwd
+        let cwd = options.cwd
           ? resolve(ctx.cwd, options.cwd)
           : ctx.cwd;
 
-        const packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
+        let packageJsonPath = resolveJson("tailwindcss/package.json", cwd);
+
+        // Monorepo fallback: when tailwindcss is not found at the configured cwd
+        // (e.g. IDE running from repo root), try resolving from the file being linted.
+        // The file is always inside the project that has tailwindcss installed, so the
+        // resolver will find it by walking up from the file's directory.
+        if(!packageJsonPath && ctx.filename){
+          const fileDir = dirname(ctx.filename);
+          packageJsonPath = resolveJson("tailwindcss/package.json", fileDir);
+          if(packageJsonPath){
+            cwd = dirname(dirname(dirname(packageJsonPath)));
+          }
+        }
 
         if(!packageJsonPath){
           warnOnce(`Tailwind CSS is not installed. Disabling rule ${ctx.id}.`);

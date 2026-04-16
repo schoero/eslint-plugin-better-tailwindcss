@@ -73,10 +73,10 @@ export function resolveCss(ctxOrPath: AsyncContext | string | undefined, pathOrC
   }
 }
 
-export function resolveJson(path: string, cwd: string): string {
+export function resolveJson(path: string, cwd: string): string | undefined {
   try {
-    return jsonResolver.resolveSync({}, cwd, path) || path;
+    return jsonResolver.resolveSync({}, cwd, path) || undefined;
   } catch {
-    return path;
+    return undefined;
   }
 }

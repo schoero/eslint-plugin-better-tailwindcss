@@ -103,6 +103,14 @@ export const enforceConsistentLineWrapping = createRule({
         description("Enable this option if prettier is used in your project.")
       ),
       "strict"
+    ),
+    tabWidth: optional(
+      pipe(
+        number(),
+        minValue(1),
+        description("The visual width of a tab character when evaluating printWidth.")
+      ),
+      1
     )
   }),
 
@@ -239,8 +247,7 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
           const simulatedLine = multilineClasses.line
             .clone()
-            .addClass(className)
-            .toString();
+            .addClass(className);
 
           // wrap after the first sticky class
           if(
@@ -582,7 +589,22 @@ class Line {
   }
 
   public get length() {
-    return this.toString().length;
+    const line = this.toString();
+    const { tabWidth } = this.ctx.options;
+
+    if(tabWidth <= 1 || !line.includes("\t")){
+      return line.length;
+    }
+
+    let width = 0;
+
+    for(const character of line){
+      width += character === "\t"
+        ? tabWidth
+        : 1;
+    }
+
+    return width;
   }
 
   public get classCount() {

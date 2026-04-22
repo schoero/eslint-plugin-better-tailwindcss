@@ -841,6 +841,71 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  it("should use tabWidth when checking printWidth", () => {
+
+    const dirty = "a b c d";
+    const clean = "\n\ta b c\n\td\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="${dirty}" />`,
+            jsxOutput: `() => <img class="${clean}" />`,
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: "tab", printWidth: 10, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should default tabWidth to 1 when it is not configured", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="a b c d" />`,
+            jsxOutput: `() => <img class="\n\ta b c d\n" />`,
+            svelte: `<img class="a b c d" />`,
+            svelteOutput: `<img class="\n\ta b c d\n" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: "tab", printWidth: 10 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still ignore printWidth when it is set to 0 even with tabWidth", () => {
+
+    const dirty = "a b c d";
+    const clean = "\n\ta b c\n\td\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="${dirty}" />`,
+            jsxOutput: `() => <img class="${clean}" />`,
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: "tab", printWidth: 0, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should warn if `lineBreakStyle` is likely misconfigured", async () => {
     {
 

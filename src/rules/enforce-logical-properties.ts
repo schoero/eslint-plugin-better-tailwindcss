@@ -19,7 +19,8 @@ export const enforceLogicalProperties = createRule({
   recommended: false,
 
   messages: {
-    replaceable: "Physical class detected. Replace \"{{ className }}\" with logical class \"{{fix}}\"."
+    multiple: "Physical class detected. Replace \"{{ className }}\" with logical classes \"{{fix}}\".",
+    single: "Physical class detected. Replace \"{{ className }}\" with logical class \"{{fix}}\"."
   },
 
   initialize: ctx => {
@@ -133,6 +134,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
       }
 
       const fix = fixClasses.join(" ");
+      const id = fixClasses.length > 1 ? "multiple" : "single";
 
       return {
         data: {
@@ -140,7 +142,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
           fix
         },
         fix,
-        id: "replaceable",
+        id,
         warnings
       } as const;
     });

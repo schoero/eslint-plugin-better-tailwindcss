@@ -144,6 +144,20 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
             vueOutput: `<template><img class="text-end!" /></template>`,
 
             errors: 1
+          },
+          {
+            angular: `<img class="size-4!" />`,
+            angularOutput: `<img class="block-4! inline-4!" />`,
+            html: `<img class="size-4!" />`,
+            htmlOutput: `<img class="block-4! inline-4!" />`,
+            jsx: `() => <img class="size-4!" />`,
+            jsxOutput: `() => <img class="block-4! inline-4!" />`,
+            svelte: `<img class="size-4!" />`,
+            svelteOutput: `<img class="block-4! inline-4!" />`,
+            vue: `<template><img class="size-4!" /></template>`,
+            vueOutput: `<template><img class="block-4! inline-4!" /></template>`,
+
+            errors: 1
           }
         ]
       }

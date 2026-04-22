@@ -883,6 +883,25 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  it("should not apply tabWidth when indentation uses spaces", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="a b c d" />`,
+            jsxOutput: `() => <img class="\n  a b c d\n" />`,
+            svelte: `<img class="a b c d" />`,
+            svelteOutput: `<img class="\n  a b c d\n" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: 2, printWidth: 10, tabWidth: 8 }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should still ignore printWidth when it is set to 0 even with tabWidth", () => {
 
     const dirty = "a b c d";

@@ -975,7 +975,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   // #52
   it("should wrap expressions even if `group` is set to `never`", () => {
-
     const expression = "${true ? 'b' : 'c'}";
 
     const correct = dedent`
@@ -997,7 +996,6 @@ describe(enforceConsistentLineWrapping.name, () => {
         ]
       }
     );
-
   });
 
   it("should be possible to change group separation by emptyLines", () => {
@@ -1099,7 +1097,34 @@ describe(enforceConsistentLineWrapping.name, () => {
         ]
       }
     );
+  });
 
+  it("should still start on a new line when `group` is set to `never` except if `preferSingleLine` is enabled", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        valid: [
+          {
+            angular: `<img class="\n  a b hover:c\n" />`,
+            html: `<img class="\n  a b hover:c\n" />`,
+            jsx: `() => <img class="\n  a b hover:c\n" />`,
+            svelte: `<img class="\n  a b hover:c\n" />`,
+            vue: `<template><img class="\n  a b hover:c\n" /></template>`,
+
+            options: [{ group: "never", preferSingleLine: false, printWidth: 100 }]
+          },
+          {
+            angular: `<img class="a b hover:c" />`,
+            html: `<img class="a b hover:c" />`,
+            jsx: `() => <img class="a b hover:c" />`,
+            svelte: `<img class="a b hover:c" />`,
+            vue: `<template><img class="a b hover:c" /></template>`,
+
+            options: [{ group: "never", preferSingleLine: true, printWidth: 100 }]
+          }
+        ]
+      }
+    );
   });
 
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {

@@ -3,6 +3,7 @@ import { createGetVariantOrder, getVariantOrder } from "better-tailwindcss:tailw
 import { buildClass } from "better-tailwindcss:utils/class.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { VARIANT_ORDER_FLAGS } from "better-tailwindcss:utils/order.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -57,7 +58,6 @@ export const enforceConsistentVariantOrder = createRule({
           return false;
         }
 
-
         const fix = buildClass(ctx, {
           ...dissectedClass,
           variants: sortedVariants
@@ -78,18 +78,19 @@ export const enforceConsistentVariantOrder = createRule({
 });
 
 function compareVariantOrder(orderA: number | undefined, orderB: number | undefined): number {
-  if(orderA === orderB){
+  if(
+    orderA === orderB ||
+    orderA === undefined ||
+    orderB === undefined ||
+    orderA < VARIANT_ORDER_FLAGS.GLOBAL &&
+    orderB < VARIANT_ORDER_FLAGS.GLOBAL
+  ){
     return 0;
   }
 
-  if(orderA === undefined){
+  if(orderB > orderA){
     return +1;
   }
 
-  if(orderB === undefined){
-    return -1;
-  }
-
-  // Match Tailwind language service behavior: variants with higher order index come first.
-  return +(orderB - orderA > 0) - +(orderB - orderA < 0);
+  return -1;
 }

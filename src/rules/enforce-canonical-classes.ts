@@ -1,8 +1,17 @@
-import { boolean, description, optional, pipe, strictObject } from "valibot";
+import {
+  array,
+  boolean,
+  description,
+  optional,
+  pipe,
+  strictObject,
+  string
+} from "valibot";
 
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { deduplicateClasses, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -25,6 +34,15 @@ export const enforceCanonicalClasses = createRule({
         description("Whether to collapse multiple utilities into a single utility if possible.")
       ),
       true
+    ),
+    ignore: optional(
+      pipe(
+        array(
+          string()
+        ),
+        description("A list of classes that should be ignored by the rule.")
+      ),
+      []
     ),
     logical: optional(
       pipe(
@@ -53,9 +71,16 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
     const classes = splitClasses(literal.content);
     const uniqueClasses = deduplicateClasses(classes);
 
-    const { collapse, logical, rootFontSize } = ctx.options;
+    const { collapse, ignore, logical, rootFontSize } = ctx.options;
 
-    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), uniqueClasses, {
+    const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+    const filteredUniqueClasses = uniqueClasses.filter(className => !ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className)));
+
+    if(filteredUniqueClasses.length === 0){
+      continue;
+    }
+
+    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), filteredUniqueClasses, {
       collapse,
       logicalToPhysical: logical,
       rem: rootFontSize

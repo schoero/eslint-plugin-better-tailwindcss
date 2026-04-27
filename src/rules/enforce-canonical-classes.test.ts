@@ -327,6 +327,43 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
     });
   });
 
+  // #369
+  it("should be possible to ignore classes that match specific patterns", () => {
+    lint(enforceCanonicalClasses, {
+      invalid: [
+        {
+          angular: `<img class="-mt-[0.04in] [color:red]/100" />`,
+          angularOutput: `<img class="-mt-[0.04in] text-[red]" />`,
+          html: `<img class="-mt-[0.04in] [color:red]/100" />`,
+          htmlOutput: `<img class="-mt-[0.04in] text-[red]" />`,
+          jsx: `() => <img class="-mt-[0.04in] [color:red]/100" />`,
+          jsxOutput: `() => <img class="-mt-[0.04in] text-[red]" />`,
+          svelte: `<img class="-mt-[0.04in] [color:red]/100" />`,
+          svelteOutput: `<img class="-mt-[0.04in] text-[red]" />`,
+          vue: `<template><img class="-mt-[0.04in] [color:red]/100" /></template>`,
+          vueOutput: `<template><img class="-mt-[0.04in] text-[red]" /></template>`,
+
+          errors: [{
+            message: values(enforceCanonicalClasses.messages!.single, {
+              canonicalClass: "text-[red]",
+              className: "[color:red]/100"
+            })
+          }],
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss";
+            `
+          },
+          options: [{
+            entryPoint: "styles.css",
+            ignore: ["^\\S*\\[.*in\\]$"]
+          }]
+        }
+      ]
+    });
+  });
+
   // #304
   it("should not remove unrelated classes when simplifying", { timeout: 30_000 }, () => {
     lint(enforceCanonicalClasses, {

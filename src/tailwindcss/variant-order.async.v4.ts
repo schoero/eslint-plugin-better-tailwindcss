@@ -20,8 +20,8 @@ export function getVariantOrder(tailwindContext: any, classes: string[]): Varian
     })
   );
 
-  return candidates.reduce<VariantOrder>((acc, candidates) => {
-    for(const candidate of candidates ?? []){
+  return candidates.reduce<VariantOrder>((acc, parsedCandidates) => {
+    for(const candidate of parsedCandidates ?? []){
       for(const variantCandidate of candidate?.variants ?? []){
         const variantName = tailwindContext.printVariant(variantCandidate);
         const variant = variantsByName.get(variantName);

@@ -35,7 +35,7 @@ export const noUnknownClasses = createRule({
         array(
           string()
         ),
-        description("A list of classes that should be ignored by the rule.")
+        description("A list of regular expression patterns for classes that should be ignored by the rule.")
       ),
       []
     )

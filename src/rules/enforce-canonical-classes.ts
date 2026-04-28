@@ -1,8 +1,17 @@
-import { boolean, description, optional, pipe, strictObject } from "valibot";
+import {
+  array,
+  boolean,
+  description,
+  optional,
+  pipe,
+  strictObject,
+  string
+} from "valibot";
 
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
+import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { deduplicateClasses, splitClasses } from "better-tailwindcss:utils/utils.js";
 
@@ -26,6 +35,15 @@ export const enforceCanonicalClasses = createRule({
       ),
       true
     ),
+    ignore: optional(
+      pipe(
+        array(
+          string()
+        ),
+        description("A list of regular expression patterns for classes that should be ignored by the rule.")
+      ),
+      []
+    ),
     logical: optional(
       pipe(
         boolean(),
@@ -48,14 +66,21 @@ export const enforceCanonicalClasses = createRule({
 });
 
 function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Literal[]) {
+  const { collapse, ignore, logical, rootFontSize } = ctx.options;
+  const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
     const uniqueClasses = deduplicateClasses(classes);
 
-    const { collapse, logical, rootFontSize } = ctx.options;
+    const filteredUniqueClasses = uniqueClasses.filter(className => !ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className)));
 
-    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), uniqueClasses, {
+    if(filteredUniqueClasses.length === 0){
+      continue;
+    }
+
+    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), filteredUniqueClasses, {
       collapse,
       logicalToPhysical: logical,
       rem: rootFontSize

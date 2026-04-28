@@ -8,7 +8,7 @@ Disallow unknown classes in Tailwind CSS class strings. Unknown classes are clas
 
 ### `ignore`
 
-  List of classes that should not report an error. The entries in this list are treated as regular expressions.
+  List of List of regex patterns for classes that should not report an error.
   
   **Type**: `string[]`  
   **Default**: `[]`

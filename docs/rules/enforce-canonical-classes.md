@@ -59,6 +59,17 @@ Whether to convert between logical and physical properties when collapsing utili
 
 <br/>
 
+### `ignore`
+
+List of List of regex patterns for classes that should not report a canonical suggestion.
+
+This can be useful for cases where a non-canonical class representation is intentional.
+
+**Type**: `string[]`  
+**Default**: `[]`
+
+<br/>
+
 <details>
   <summary>Common options</summary>
 

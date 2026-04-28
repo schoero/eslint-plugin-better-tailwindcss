@@ -61,7 +61,7 @@ Whether to convert between logical and physical properties when collapsing utili
 
 ### `ignore`
 
-List of classes that should not report a canonical suggestion. The entries in this list are treated as regular expressions.
+List of List of regex patterns for classes that should not report a canonical suggestion.
 
 This can be useful for cases where a non-canonical class representation is intentional.
 

@@ -598,8 +598,8 @@ class Line {
 
     let width = 0;
 
-    for(const character of line){
-      width += character === "\t"
+    for(let i = 0; i < line.length; i++){
+      width += line[i] === "\t"
         ? tabWidth
         : 1;
     }

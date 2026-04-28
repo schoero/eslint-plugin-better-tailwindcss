@@ -1,5 +1,20 @@
 # Changelog
 
+## v4.5.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.4.1...v4.5.0)
+
+### Features
+
+- Add `ignore` option to `enforce-canonical-classes` ([#371](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/371))
+- Add `tabWidth` option to `enforce-consistent-line-wrapping` ([#367](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/367))
+
+### Fixes
+
+- Add missing logical classes ([#368](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/368))
+- Warning when tailwind css installation can't be found ([#373](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/373))
+- Only sort variants that are safe ([#370](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/370))
+
 ## v4.4.1
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.4.0...v4.4.1)

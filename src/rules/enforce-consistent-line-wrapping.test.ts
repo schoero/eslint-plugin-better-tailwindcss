@@ -841,6 +841,90 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  it("should use tabWidth when checking printWidth", () => {
+
+    const dirty = "a b c d";
+    const clean = "\n\ta b c\n\td\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="${dirty}" />`,
+            jsxOutput: `() => <img class="${clean}" />`,
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: "tab", printWidth: 10, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should default tabWidth to 1 when it is not configured", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="a b c d" />`,
+            jsxOutput: `() => <img class="\n\ta b c d\n" />`,
+            svelte: `<img class="a b c d" />`,
+            svelteOutput: `<img class="\n\ta b c d\n" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: "tab", printWidth: 10 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not apply tabWidth when indentation uses spaces", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="a b c d" />`,
+            jsxOutput: `() => <img class="\n  a b c d\n" />`,
+            svelte: `<img class="a b c d" />`,
+            svelteOutput: `<img class="\n  a b c d\n" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 0, indent: 2, printWidth: 10, tabWidth: 8 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still ignore printWidth when it is set to 0 even with tabWidth", () => {
+
+    const dirty = "a b c d";
+    const clean = "\n\ta b c\n\td\n";
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: `() => <img class="${dirty}" />`,
+            jsxOutput: `() => <img class="${clean}" />`,
+            svelte: `<img class="${dirty}" />`,
+            svelteOutput: `<img class="${clean}" />`,
+
+            errors: 1,
+            options: [{ classesPerLine: 3, indent: "tab", printWidth: 0, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should warn if `lineBreakStyle` is likely misconfigured", async () => {
     {
 
@@ -975,7 +1059,6 @@ describe(enforceConsistentLineWrapping.name, () => {
 
   // #52
   it("should wrap expressions even if `group` is set to `never`", () => {
-
     const expression = "${true ? 'b' : 'c'}";
 
     const correct = dedent`
@@ -997,7 +1080,6 @@ describe(enforceConsistentLineWrapping.name, () => {
         ]
       }
     );
-
   });
 
   it("should be possible to change group separation by emptyLines", () => {
@@ -1099,7 +1181,34 @@ describe(enforceConsistentLineWrapping.name, () => {
         ]
       }
     );
+  });
 
+  it("should still start on a new line when `group` is set to `never` except if `preferSingleLine` is enabled", () => {
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        valid: [
+          {
+            angular: `<img class="\n  a b hover:c\n" />`,
+            html: `<img class="\n  a b hover:c\n" />`,
+            jsx: `() => <img class="\n  a b hover:c\n" />`,
+            svelte: `<img class="\n  a b hover:c\n" />`,
+            vue: `<template><img class="\n  a b hover:c\n" /></template>`,
+
+            options: [{ group: "never", preferSingleLine: false, printWidth: 100 }]
+          },
+          {
+            angular: `<img class="a b hover:c" />`,
+            html: `<img class="a b hover:c" />`,
+            jsx: `() => <img class="a b hover:c" />`,
+            svelte: `<img class="a b hover:c" />`,
+            vue: `<template><img class="a b hover:c" /></template>`,
+
+            options: [{ group: "never", preferSingleLine: true, printWidth: 100 }]
+          }
+        ]
+      }
+    );
   });
 
   it("should remove duplicate classes in string literals in defined tagged template literals", () => {

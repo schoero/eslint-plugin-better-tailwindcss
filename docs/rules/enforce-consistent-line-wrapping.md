@@ -9,6 +9,7 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 ### `printWidth`
 
   The maximum line length. Lines are wrapped appropriately to stay within this limit. The value `0` disables line wrapping by `printWidth`.
+  Tabs count according to [`tabWidth`](#tabwidth) when evaluating this limit.
 
   **Type**: `number`  
   **Default**: `80`
@@ -48,6 +49,16 @@ Enforce tailwind classes to be broken up into multiple lines. It is possible to 
 
   **Type**: `number | "tab"`  
   **Default**: `2`
+
+<br/>
+
+### `tabWidth`
+
+  Determines how many columns a tab character contributes when checking `printWidth`.
+  This option only affects width calculations and does not change emitted indentation characters.
+
+  **Type**: `number`  
+  **Default**: `1`
 
 <br/>
 

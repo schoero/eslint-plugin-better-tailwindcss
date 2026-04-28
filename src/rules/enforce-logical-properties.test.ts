@@ -59,7 +59,14 @@ const testCases = [
   ["float-left", "float-start"],
   ["float-right", "float-end"],
   ["clear-left", "clear-start"],
-  ["clear-right", "clear-end"]
+  ["clear-right", "clear-end"],
+
+  ["h-4", "block-4"],
+  ["w-4", "inline-4"],
+  ["min-h-4", "min-block-4"],
+  ["min-w-4", "min-inline-4"],
+  ["max-h-4", "max-block-4"],
+  ["max-w-4", "max-inline-4"]
 ] satisfies [string, string][];
 
 describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name, () => {
@@ -135,6 +142,20 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
             svelteOutput: `<img class="text-end!" />`,
             vue: `<template><img class="text-right!" /></template>`,
             vueOutput: `<template><img class="text-end!" /></template>`,
+
+            errors: 1
+          },
+          {
+            angular: `<img class="size-4!" />`,
+            angularOutput: `<img class="block-4! inline-4!" />`,
+            html: `<img class="size-4!" />`,
+            htmlOutput: `<img class="block-4! inline-4!" />`,
+            jsx: `() => <img class="size-4!" />`,
+            jsxOutput: `() => <img class="block-4! inline-4!" />`,
+            svelte: `<img class="size-4!" />`,
+            svelteOutput: `<img class="block-4! inline-4!" />`,
+            vue: `<template><img class="size-4!" /></template>`,
+            vueOutput: `<template><img class="block-4! inline-4!" /></template>`,
 
             errors: 1
           }
@@ -241,6 +262,30 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
             vueOutput: `<template><img class="${output}" /></template>`,
 
             errors: 1
+          }
+        ]
+      }
+    );
+  });
+
+  it("should split size classes into logical block and inline classes", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="size-4 hover:size-[12px]" />`,
+            angularOutput: `<img class="block-4 inline-4 hover:block-[12px] hover:inline-[12px]" />`,
+            html: `<img class="size-4 hover:size-[12px]" />`,
+            htmlOutput: `<img class="block-4 inline-4 hover:block-[12px] hover:inline-[12px]" />`,
+            jsx: `() => <img class="size-4 hover:size-[12px]" />`,
+            jsxOutput: `() => <img class="block-4 inline-4 hover:block-[12px] hover:inline-[12px]" />`,
+            svelte: `<img class="size-4 hover:size-[12px]" />`,
+            svelteOutput: `<img class="block-4 inline-4 hover:block-[12px] hover:inline-[12px]" />`,
+            vue: `<template><img class="size-4 hover:size-[12px]" /></template>`,
+            vueOutput: `<template><img class="block-4 inline-4 hover:block-[12px] hover:inline-[12px]" /></template>`,
+
+            errors: 2
           }
         ]
       }

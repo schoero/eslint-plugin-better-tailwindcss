@@ -44,6 +44,13 @@ The rule reports physical classes and auto-fixes them to their logical equivalen
 | `float-right` | `float-end` |
 | `clear-left` | `clear-start` |
 | `clear-right` | `clear-end` |
+| `h-*` | `block-*` |
+| `w-*` | `inline-*` |
+| `min-h-*` | `min-block-*` |
+| `min-w-*` | `min-inline-*` |
+| `max-h-*` | `max-block-*` |
+| `max-w-*` | `max-inline-*` |
+| `size-*` | `block-* inline-*` |
 
 <br/>
 

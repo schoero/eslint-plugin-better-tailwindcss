@@ -19,7 +19,8 @@ export const enforceLogicalProperties = createRule({
   recommended: false,
 
   messages: {
-    replaceable: "Physical class detected. Replace \"{{ className }}\" with logical class \"{{fix}}\"."
+    multiple: "Physical class detected. Replace \"{{ className }}\" with logical classes \"{{fix}}\".",
+    single: "Physical class detected. Replace \"{{ className }}\" with logical class \"{{fix}}\"."
   },
 
   initialize: ctx => {
@@ -82,8 +83,16 @@ const mappings = [
   [/^float-left$/, "float-start"],
   [/^float-right$/, "float-end"],
   [/^clear-left$/, "clear-start"],
-  [/^clear-right$/, "clear-end"]
-] satisfies [before: RegExp, after: string][];
+  [/^clear-right$/, "clear-end"],
+
+  [/^h-(.*)$/, "block-$1"],
+  [/^w-(.*)$/, "inline-$1"],
+  [/^min-h-(.*)$/, "min-block-$1"],
+  [/^min-w-(.*)$/, "min-inline-$1"],
+  [/^max-h-(.*)$/, "max-block-$1"],
+  [/^max-w-(.*)$/, "max-inline-$1"],
+  [/^size-(.*)$/, ["block-$1", "inline-$1"]]
+] satisfies [before: RegExp, after: string[] | string][];
 
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
@@ -93,13 +102,13 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
     const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
-      const replacementBase = getReplacementBase(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass.base);
 
-      if(!replacementBase){
+      if(!replacementBases){
         return [];
       }
 
-      return [buildClass(ctx, { ...dissectedClass, base: replacementBase })];
+      return replacementBases.map(base => buildClass(ctx, { ...dissectedClass, base }));
     });
 
     const { unknownClasses } = getUnknownClasses(async(ctx), possibleFixes);
@@ -111,17 +120,21 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
         return;
       }
 
-      const replacementBase = getReplacementBase(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass.base);
 
-      if(!replacementBase){
+      if(!replacementBases){
         return;
       }
 
-      const fix = buildClass(ctx, { ...dissectedClass, base: replacementBase });
+      const fixClasses = replacementBases.map(base => buildClass(ctx, { ...dissectedClass, base }));
+      const hasUnknownFix = fixClasses.some(fixClass => unknownClasses.includes(fixClass));
 
-      if(unknownClasses.includes(fix)){
+      if(hasUnknownFix){
         return;
       }
+
+      const fix = fixClasses.join(" ");
+      const id = fixClasses.length > 1 ? "multiple" : "single";
 
       return {
         data: {
@@ -129,14 +142,14 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
           fix
         },
         fix,
-        id: "replaceable",
+        id,
         warnings
       } as const;
     });
   }
 }
 
-function getReplacementBase(base: string) {
+function getReplacementBases(base: string): string[] | undefined {
   for(const [pattern, replacement] of mappings){
     const match = base.match(pattern);
 
@@ -144,6 +157,8 @@ function getReplacementBase(base: string) {
       continue;
     }
 
-    return replacePlaceholders(replacement, match);
+    return Array.isArray(replacement)
+      ? replacement.map(part => replacePlaceholders(part, match))
+      : [replacePlaceholders(replacement, match)];
   }
 }

@@ -273,6 +273,14 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceConsistentVariantOrder
           jsx: `() => <img class="hover:**:text-red-500" />`,
           svelte: `<img class="hover:**:text-red-500" />`,
           vue: `<template><img class="hover:**:text-red-500" /></template>`
+        },
+        {
+          angular: `<img class="*:first:appearance-auto" />`,
+          astro: `<img class="*:first:appearance-auto" />`,
+          html: `<img class="*:first:appearance-auto" />`,
+          jsx: `() => <img class="*:first:appearance-auto" />`,
+          svelte: `<img class="*:first:appearance-auto" />`,
+          vue: `<template><img class="*:first:appearance-auto" /></template>`
         }
       ]
     });

@@ -66,14 +66,14 @@ export const enforceCanonicalClasses = createRule({
 });
 
 function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Literal[]) {
+  const { collapse, ignore, logical, rootFontSize } = ctx.options;
+  const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+
   for(const literal of literals){
 
     const classes = splitClasses(literal.content);
     const uniqueClasses = deduplicateClasses(classes);
 
-    const { collapse, ignore, logical, rootFontSize } = ctx.options;
-
-    const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
     const filteredUniqueClasses = uniqueClasses.filter(className => !ignoredClassRegexes.some(ignoredClassRegex => ignoredClassRegex.test(className)));
 
     if(filteredUniqueClasses.length === 0){

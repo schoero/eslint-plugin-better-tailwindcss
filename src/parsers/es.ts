@@ -86,7 +86,7 @@ export function getLiteralsByESVariableDeclarator(ctx: Rule.RuleContext, node: E
       return literals;
     }
 
-    if(isESArrowFunctionExpression(node.init) || isESCallExpression(node.init) || isESFunctionExpression(node.init)){
+    if(isESCallExpression(node.init)){
       return literals;
     }
 
@@ -111,7 +111,7 @@ export function getLiteralsByESExportDefaultDeclaration(ctx: Rule.RuleContext, n
       return literals;
     }
 
-    if(isESArrowFunctionExpression(node.declaration) || isESCallExpression(node.declaration) || isESFunctionExpression(node.declaration)){
+    if(isESCallExpression(node.declaration)){
       return literals;
     }
 

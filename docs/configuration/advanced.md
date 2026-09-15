@@ -84,6 +84,7 @@ type CalleeSelector = {
   Tip: The name `default` targets the `export default ...` declaration.  
 - **match** `optional`: [selector matcher](#selector-matcher-types) list.  
   When omitted, only direct string literals are collected.  
+  Use an [`anonymousFunctionReturn`](#anonymousfunctionreturn) matcher to lint the value returned from a function assigned to the variable or exported as default.  
 
 ```ts
 type VariableSelector = {
@@ -91,6 +92,32 @@ type VariableSelector = {
   name: string;
   match?: SelectorMatcher[];
 };
+```
+
+```json
+{
+  "selectors": [
+    {
+      "kind": "variable",
+      "name": "^default$",
+      "match": [
+        {
+          "type": "anonymousFunctionReturn",
+          "match": [{ "type": "objectValues" }]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Matches:
+
+```ts
+export default (options) => ({
+  root: "this will get linted",
+  label: "this will get linted"
+});
 ```
 
 <br/>

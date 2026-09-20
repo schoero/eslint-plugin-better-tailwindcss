@@ -126,28 +126,42 @@ export function isConcatenatedClass(literal: Literal, classIndex: number): boole
   }
 
   const classes = literal.content;
-
   const classChunks = splitClasses(classes);
-  const whitespaceChunks = splitWhitespaces(classes);
-
-  const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
-  const endsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[whitespaceChunks.length - 1] !== "";
 
   const isFirstClass = classIndex === 0;
   const isLastClass = classIndex === classChunks.length - 1;
 
   const isConcatenatedOnLeft =
-    literal.isConcatenatedLeft === true ||
-    literal.closingBraces !== undefined;
+    isFirstClass &&
+    (
+      literal.isConcatenatedLeft === true ||
+      literal.closingBraces !== undefined
+    );
+
 
   const isConcatenatedOnRight =
-    literal.isConcatenatedRight === true ||
-    literal.openingBraces !== undefined;
+    isLastClass && (
+      literal.isConcatenatedRight === true ||
+      literal.openingBraces !== undefined
+    );
 
-  return (
-    !startsWithWhitespace && isFirstClass && isConcatenatedOnLeft ||
-    !endsWithWhitespace && isLastClass && isConcatenatedOnRight
+  const isUnsafeOnLeft = !!(
+    isConcatenatedOnLeft &&
+    !literal.leadingWhitespace?.length &&
+
+      !literal.leftLiteral?.trailingWhitespace?.length
+
   );
+
+  const isUnsafeOnRight = !!(
+    isConcatenatedOnRight &&
+    !literal.trailingWhitespace?.length &&
+
+      !literal.rightLiteral?.leadingWhitespace?.length
+
+  );
+
+  return isUnsafeOnLeft || isUnsafeOnRight;
 }
 
 export function isConcatenatedLiteral(literal: Literal) {

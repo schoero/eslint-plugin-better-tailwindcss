@@ -165,7 +165,7 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
-  it("should not report templates without literal classs", () => {
+  it("should not report templates without literal classes", () => {
     lint(noConcatenatedClasses, {
       valid: [
         {

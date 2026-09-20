@@ -22,6 +22,7 @@ import type {
   LiteralMap,
   LiteralMapPropertyKey,
   LiteralPrimitive,
+  ParenthesizedExpression,
   ParseSourceSpan,
   TemplateLiteral,
   TemplateLiteralElement,
@@ -414,7 +415,7 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
   }];
 }
 
-function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: LiteralPrimitive): Literal[] {
+function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: LiteralPrimitive, resolveNeighbors: boolean = true): Literal[] {
   const content = literal.value;
 
   if(!literal.sourceSpan || typeof content !== "string"){
@@ -430,7 +431,7 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
-  const concatenation = getStringConcatenationMeta(ctx, literal);
+  const concatenation = getStringConcatenationMeta(ctx, literal, resolveNeighbors);
   const supportsMultiline = true;
 
   return [{
@@ -447,7 +448,7 @@ function createLiteralByAngularLiteralPrimitive(ctx: Rule.RuleContext, literal: 
   }];
 }
 
-function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, literal: TemplateLiteralElement): Literal[] {
+function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, literal: TemplateLiteralElement, resolveNeighbors: boolean = true): Literal[] {
   const content = literal.text;
 
   if(!literal.sourceSpan || !hasParent(literal)){
@@ -472,7 +473,7 @@ function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, lit
   const parentLine = ctx.sourceCode.lines[parentLoc.start.line - 1];
   const indentation = getIndentation(parentLine);
   const supportsMultiline = true;
-  const concatenation = getStringConcatenationMeta(ctx, literal);
+  const concatenation = getStringConcatenationMeta(ctx, literal, resolveNeighbors);
 
   return [{
     ...quotes,
@@ -575,7 +576,25 @@ function isInsideLogicalExpressionLeft(ctx: Rule.RuleContext, ast: AST): boolean
   return isInsideConditionalExpressionCondition(ctx, parent);
 }
 
-function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {
+function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, resolveNeighbors: boolean = true): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; leftLiteral?: Literal | undefined; rightLiteral?: Literal | undefined; } {
+
+  const { isConcatenatedLeft, isConcatenatedRight } = getStringConcatenationDirection(ctx, ast);
+
+  if(!resolveNeighbors){
+    return { isConcatenatedLeft, isConcatenatedRight };
+  }
+
+  const leftLiteral = isConcatenatedLeft
+    ? buildConcatenationNeighborLiteral(ctx, findAdjacentTemplateQuasiNode(ctx, ast, "left") ?? findAdjacentPlusConcatenatedLiteralNode(ctx, ast, "left"))
+    : undefined;
+  const rightLiteral = isConcatenatedRight
+    ? buildConcatenationNeighborLiteral(ctx, findAdjacentTemplateQuasiNode(ctx, ast, "right") ?? findAdjacentPlusConcatenatedLiteralNode(ctx, ast, "right"))
+    : undefined;
+
+  return { isConcatenatedLeft, isConcatenatedRight, leftLiteral, rightLiteral };
+}
+
+function getStringConcatenationDirection(ctx: Rule.RuleContext, ast: AST, isConcatenatedLeft = false, isConcatenatedRight = false): { isConcatenatedLeft: boolean; isConcatenatedRight: boolean; } {
   const parent = findParent(ctx, ast);
   if(!parent){
     return {
@@ -584,8 +603,33 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, isConcatena
     };
   }
 
+  if(isCallExpression(parent)){
+    return {
+      isConcatenatedLeft,
+      isConcatenatedRight
+    };
+  }
+
+  if(isTemplateLiteral(parent) && !isTemplateLiteralElement(ast)){
+    return {
+      isConcatenatedLeft: true,
+      isConcatenatedRight: true
+    };
+  }
+
+  // a template element is concatenated with the interpolation adjacent to it (`}` before, `${` after)
+  if(isTemplateLiteralElement(ast) && isTemplateLiteral(parent)){
+    const index = parent.elements.indexOf(ast);
+    return getStringConcatenationDirection(
+      ctx,
+      parent,
+      isConcatenatedLeft || index > 0,
+      isConcatenatedRight || index < parent.elements.length - 1
+    );
+  }
+
   if(isBinary(parent) && parent.operation === "+"){
-    return getStringConcatenationMeta(
+    return getStringConcatenationDirection(
       ctx,
       parent,
       isConcatenatedLeft || parent.right === ast,
@@ -593,7 +637,128 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, isConcatena
     );
   }
 
-  return getStringConcatenationMeta(ctx, parent, isConcatenatedLeft, isConcatenatedRight);
+  return getStringConcatenationDirection(ctx, parent, isConcatenatedLeft, isConcatenatedRight);
+}
+
+// resolves the literal node adjacent to `ast` on the given side of a `+` concatenation chain
+function findAdjacentPlusConcatenatedLiteralNode(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST | undefined {
+  const sibling = findConcatenationSiblingNode(ctx, ast, direction);
+  if(!sibling){ return; }
+  return findConcatenationLeafNode(sibling, direction === "left" ? "right" : "left");
+}
+
+// resolves the template element directly adjacent to an interpolation expression (through conditional branches)
+function findAdjacentTemplateQuasiNode(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST | undefined {
+  let current: AST = ast;
+
+  while(true){
+    const parent = findParent(ctx, current);
+
+    if(!parent){ break; }
+
+    if(isTemplateLiteral(parent)){
+      if(isTemplateLiteralElement(current)){ return; }
+
+      const index = parent.expressions.indexOf(current);
+      if(index === -1){ return; }
+
+      return direction === "left" ? parent.elements[index] : parent.elements[index + 1];
+    }
+
+    if(isParenthesizedExpression(parent)){
+      current = parent;
+      continue;
+    }
+
+    if(isConditional(parent) && (parent.trueExp === current || parent.falseExp === current)){
+      current = parent;
+      continue;
+    }
+
+    break;
+  }
+}
+
+function findConcatenationSiblingNode(ctx: Rule.RuleContext, ast: AST, direction: "left" | "right"): AST | undefined {
+  let current: AST = ast;
+
+  while(true){
+    const parent = findParent(ctx, current);
+
+    if(!parent){ break; }
+    if(isCallExpression(parent)){ break; }
+
+    // parenthesized expressions are transparent wrappers in the angular AST
+    if(isParenthesizedExpression(parent)){
+      current = parent;
+      continue;
+    }
+
+    // conditionals are transparent: an operand's neighbor lives outside the branch
+    if(isConditional(parent) && (parent.trueExp === current || parent.falseExp === current)){
+      current = parent;
+      continue;
+    }
+
+    // an edge element's `+` neighbor lives outside the template literal
+    if(isTemplateLiteral(parent)){
+      const elements = parent.elements;
+      const isEdge = direction === "left"
+        ? elements[0] === current
+        : elements[elements.length - 1] === current;
+
+      if(isEdge){
+        current = parent;
+        continue;
+      }
+
+      break;
+    }
+
+    if(isBinary(parent) && parent.operation === "+"){
+      if(direction === "left" && parent.right === current){ return parent.left; }
+      if(direction === "right" && parent.left === current){ return parent.right; }
+      current = parent;
+      continue;
+    }
+
+    break;
+  }
+}
+
+function findConcatenationLeafNode(ast: AST, edge: "left" | "right"): AST | undefined {
+  if(isParenthesizedExpression(ast)){
+    return findConcatenationLeafNode(ast.expression, edge);
+  }
+
+  if(isLiteralPrimitive(ast)){
+    return ast;
+  }
+
+  if(isTemplateLiteral(ast)){
+    const elements = ast.elements;
+    return edge === "left" ? elements[0] : elements[elements.length - 1];
+  }
+
+  if(isBinary(ast) && ast.operation === "+"){
+    return findConcatenationLeafNode(edge === "left" ? ast.left : ast.right, edge);
+  }
+
+  if(isConditional(ast)){
+    return findConcatenationLeafNode(ast.trueExp, edge);
+  }
+}
+
+function buildConcatenationNeighborLiteral(ctx: Rule.RuleContext, ast: AST | undefined): Literal | undefined {
+  if(!ast){ return; }
+
+  if(isStringLiteral(ast)){
+    return createLiteralByAngularLiteralPrimitive(ctx, ast, false)[0];
+  }
+
+  if(isTemplateLiteralElement(ast)){
+    return createLiteralByAngularTemplateLiteralElement(ctx, ast, false)[0];
+  }
 }
 
 function isInsideObjectValue(ctx: Rule.RuleContext, ast: AST): boolean {
@@ -690,6 +855,7 @@ const isCallExpression = (ast: AST) => is<Call>(ast, "Call");
 const isASTWithSource = (ast: AST) => is<ASTWithSource>(ast, "ASTWithSource");
 const isInterpolation = (ast: AST) => is<Interpolation>(ast, "Interpolation");
 const isConditional = (ast: AST) => is<Conditional>(ast, "Conditional");
+const isParenthesizedExpression = (ast: AST) => is<ParenthesizedExpression>(ast, "ParenthesizedExpression");
 const isBinary = (ast: AST) => is<Binary>(ast, "Binary");
 const isLiteralArray = (ast: AST) => is<LiteralArray>(ast, "LiteralArray");
 const isLiteralMap = (ast: AST) => is<LiteralMap>(ast, "LiteralMap");

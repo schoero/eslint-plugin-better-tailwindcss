@@ -29,6 +29,7 @@ function lintLiterals(ctx: Context<typeof noConcatenatedClasses>, literals: Lite
     }
 
     lintClasses(ctx, literal, (_, index) => {
+
       if(!isConcatenatedClass(literal, index)){
         return;
       }

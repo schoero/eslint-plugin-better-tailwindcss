@@ -52,7 +52,7 @@ export const enforceConsistentImportantPosition = createRule({
 
       const { dissectedClasses, warnings } = getDissectedClasses(async(ctx), classes);
 
-      lintClasses(ctx, literal, (className, index, after) => {
+      lintClasses(ctx, literal, className => {
         const dissectedClass = dissectedClasses[className];
 
         if(!dissectedClass){

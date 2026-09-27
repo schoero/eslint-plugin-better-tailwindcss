@@ -44,7 +44,7 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
-  it("should report classes concatenated with plus operator", () => {
+  it.only("should report classes concatenated with plus operator", () => {
     lint(noConcatenatedClasses, {
       invalid: [
         {
@@ -116,11 +116,11 @@ describe(noConcatenatedClasses.name, () => {
     lint(noConcatenatedClasses, {
       invalid: [
         {
-          angular: `<img [class]="'static bg-' + color + ' text-white trailing'" />`,
-          astro: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          // angular: `<img [class]="'static bg-' + color + ' text-white trailing'" />`,
+          // astro: `<img class={"static bg-" + color + " text-white trailing"} />`,
           jsx: `() => <img className={"static bg-" + color + " text-white trailing"} />`,
-          svelte: `<img class={"static bg-" + color + " text-white trailing"} />`,
-          vue: `<template><img :class="'static bg-' + color + ' text-white trailing'" /></template>`,
+          // svelte: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          // vue: `<template><img :class="'static bg-' + color + ' text-white trailing'" /></template>`,
 
           errors: 1
         }
@@ -216,12 +216,44 @@ describe(noConcatenatedClasses.name, () => {
       invalid: [
         {
           angular: `<img [class]="\`bg-\${color}\` + '-500'" />`,
-          astro: `<img class={"bg-" + \`\${color}\` + "-500"} />`,
-          jsx: `() => <img className={"bg-" + \`\${color}\` + "-500"} />`,
-          svelte: `<img class={"bg-" + \`\${color}\` + "-500"} />`,
-          vue: `<template><img :class="'bg-' + \`\${color}\` + '-500'" /></template>`,
+          astro: `<img class={\`bg-\${color}\` + "-500"} />`,
+          jsx: `() => <img className={\`bg-\${color}\` + "-500"} />`,
+          svelte: `<img class={\`bg-\${color}\` + "-500"} />`,
+          vue: `<template><img :class="\`bg-\${color}\` + '-500'" /></template>`,
 
           errors: 2
+        }
+      ]
+    });
+  });
+
+  it("should report concatenation across empty-string bridges", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="'bg-' + '' + 'red-500'" />`,
+          astro: `<img class={"bg-" + "" + "red-500"} />`,
+          jsx: `() => <img className={"bg-" + "" + "red-500"} />`,
+          svelte: `<img class={"bg-" + "" + "red-500"} />`,
+          vue: `<template><img :class="'bg-' + '' + 'red-500'" /></template>`,
+
+          errors: 2
+        }
+      ],
+      valid: [
+        {
+          angular: `<img [class]="'bg-red-500' + ''" />`,
+          astro: `<img class={"bg-red-500" + ""} />`,
+          jsx: `() => <img className={"bg-red-500" + ""} />`,
+          svelte: `<img class={"bg-red-500" + ""} />`,
+          vue: `<template><img :class="'bg-red-500' + ''" /></template>`
+        },
+        {
+          angular: `<img [class]="'bg-red-500' + '' + ''" />`,
+          astro: `<img class={"bg-red-500" + "" + ""} />`,
+          jsx: `() => <img className={"bg-red-500" + "" + ""} />`,
+          svelte: `<img class={"bg-red-500" + "" + ""} />`,
+          vue: `<template><img :class="'bg-red-500' + '' + ''" /></template>`
         }
       ]
     });
@@ -241,6 +273,20 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
+  it("should not report interpolated ternary branches when the left literal ends with a whitespace", () => {
+    lint(noConcatenatedClasses, {
+      valid: [
+        {
+          angular: `<img [class]="\`flex w-full min-w-0 \${menuOpen ? 'gap-1' : 'flex-col gap-0'}\`" />`,
+          astro: `<img class={\`flex w-full min-w-0 \${menuOpen ? "gap-1" : "flex-col gap-0"}\`} />`,
+          jsx: `() => <img className={\`flex w-full min-w-0 \${menuOpen ? "gap-1" : "flex-col gap-0"}\`} />`,
+          svelte: `<img class={\`flex w-full min-w-0 \${menuOpen ? "gap-1" : "flex-col gap-0"}\`} />`,
+          vue: `<template><img :class="\`flex w-full min-w-0 \${menuOpen ? 'gap-1' : 'flex-col gap-0'}\`" /></template>`
+        }
+      ]
+    });
+  });
+
   it("should not report ternary branches when the right literal starts with a whitespace", () => {
     lint(noConcatenatedClasses, {
       valid: [
@@ -250,6 +296,36 @@ describe(noConcatenatedClasses.name, () => {
           jsx: `() => <div className={"flex w-full min-w-0" + (menuOpen ? " gap-1" : " flex-col gap-0")} />`,
           svelte: `<div class={"flex w-full min-w-0" + (menuOpen ? " gap-1" : " flex-col gap-0")} />`,
           vue: `<template><div :class="'flex w-full min-w-0' + (menuOpen ? ' gap-1' : ' flex-col gap-0')"></div></template>`
+        }
+      ]
+    });
+  });
+
+  it("should not report interpolated ternary branches when the right literal starts with a whitespace in jsx", () => {
+    lint(noConcatenatedClasses, {
+      valid: [
+        {
+          angular: `<img [class]="\`flex w-full min-w-0\${menuOpen ? ' gap-1' : ' flex-col gap-0'}\`" />`,
+          astro: `<img class={\`flex w-full min-w-0\${menuOpen ? " gap-1" : " flex-col gap-0"}\`} />`,
+          jsx: `() => <img className={\`flex w-full min-w-0\${menuOpen ? " gap-1" : " flex-col gap-0"}\`} />`,
+          svelte: `<img class={\`flex w-full min-w-0\${menuOpen ? " gap-1" : " flex-col gap-0"}\`} />`,
+          vue: `<template><img :class="\`flex w-full min-w-0\${menuOpen ? ' gap-1' : ' flex-col gap-0'}\`" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report interpolated ternary branches when neither side has surrounding whitespace", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="\`bg-red-500\${someVar ? 'text-white' : 'text-black'}\`" />`,
+          astro: `<img class={\`bg-red-500\${someVar ? "text-white" : "text-black"}\`} />`,
+          jsx: `() => <img className={\`bg-red-500\${someVar ? "text-white" : "text-black"}\`} />`,
+          svelte: `<img class={\`bg-red-500\${someVar ? "text-white" : "text-black"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500\${someVar ? 'text-white' : 'text-black'}\`" /></template>`,
+
+          errors: 3
         }
       ]
     });

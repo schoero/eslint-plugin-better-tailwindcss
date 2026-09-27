@@ -29,7 +29,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
       ? getClassesFromLiteralNodes(literal.priorLiterals)
       : [];
 
-    lintClasses(ctx, literal, (className, index, after) => {
+    lintClasses(ctx, literal, (className, index, _, after) => {
 
       const duplicateClassIndex = after.findIndex((afterClass, afterIndex) => afterClass === className && afterIndex < index);
 

@@ -120,48 +120,56 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
   );
 }
 
-export function isConcatenatedClass(literal: Literal, classIndex: number): boolean {
-  if(!isConcatenatedLiteral(literal)){
+export function isConcatenatedLeft(literal: Literal): boolean {
+  if(!literal.isConcatenatedLeft && !literal.closingBraces){
     return false;
   }
 
-  const classes = literal.content;
-  const classChunks = splitClasses(classes);
+  if(literal.leadingWhitespace?.length){
+    return false;
+  }
 
-  const isFirstClass = classIndex === 0;
-  const isLastClass = classIndex === classChunks.length - 1;
+  if(literal.leftLiterals === undefined || literal.leftLiterals.length === 0){
+    return true;
+  }
 
-  const isConcatenatedOnLeft =
-    isFirstClass &&
-    (
-      literal.isConcatenatedLeft === true ||
-      literal.closingBraces !== undefined
-    );
+  return literal.leftLiterals.some(leftLiteral => {
+    if(!leftLiteral.content.length){
+      return isConcatenatedLeft(leftLiteral);
+    }
 
+    if(leftLiteral.trailingWhitespace?.length){
+      return false;
+    }
 
-  const isConcatenatedOnRight =
-    isLastClass && (
-      literal.isConcatenatedRight === true ||
-      literal.openingBraces !== undefined
-    );
+    return true;
+  });
+}
 
-  const isUnsafeOnLeft = !!(
-    isConcatenatedOnLeft &&
-    !literal.leadingWhitespace?.length &&
+export function isConcatenatedRight(literal: Literal): boolean {
+  if(!literal.isConcatenatedRight && !literal.openingBraces){
+    return false;
+  }
 
-      !literal.leftLiteral?.trailingWhitespace?.length
+  if(literal.trailingWhitespace?.length){
+    return false;
+  }
 
-  );
+  if(literal.rightLiterals === undefined || literal.rightLiterals.length === 0){
+    return true;
+  }
 
-  const isUnsafeOnRight = !!(
-    isConcatenatedOnRight &&
-    !literal.trailingWhitespace?.length &&
+  return literal.rightLiterals.some(rightLiteral => {
+    if(!rightLiteral.content.length){
+      return isConcatenatedRight(rightLiteral);
+    }
 
-      !literal.rightLiteral?.leadingWhitespace?.length
+    if(rightLiteral.leadingWhitespace?.length){
+      return false;
+    }
 
-  );
-
-  return isUnsafeOnLeft || isUnsafeOnRight;
+    return true;
+  });
 }
 
 export function isConcatenatedLiteral(literal: Literal) {

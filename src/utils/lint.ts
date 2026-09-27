@@ -14,7 +14,7 @@ export function lintClasses<
 >(
   ctx: Ctx,
   literal: Literal,
-  report: (className: string, index: number, after: string[]) =>
+  report: (className: string, index: number, classes: string[], fixedClasses: string[]) =>
       | ((
         Parameters<Ctx["report"]>[0] extends infer DataAndId
           ? (
@@ -49,7 +49,7 @@ export function lintClasses<
 
   const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
 
-  const after = [...classChunks];
+  const fixedClasses = [...classChunks];
 
   for(let classIndex = 0, stringIndex = 0; classIndex < classChunks.length; classIndex++){
 
@@ -68,7 +68,7 @@ export function lintClasses<
       stringIndex += whitespaceChunks[classIndex + 1].length;
     }
 
-    const result = report(className, classIndex, after);
+    const result = report(className, classIndex, classChunks, fixedClasses);
 
     if(result === undefined || result === false){
       continue;
@@ -77,7 +77,7 @@ export function lintClasses<
     const [literalStart] = literal.range;
 
     if(typeof result === "object" && result.fix !== undefined){
-      after[classIndex] = result.fix;
+      fixedClasses[classIndex] = result.fix;
     }
 
     ctx.report({

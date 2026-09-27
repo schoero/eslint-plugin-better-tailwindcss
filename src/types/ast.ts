@@ -67,9 +67,9 @@ interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, Bi
   isConcatenatedLeft?: boolean | undefined;
   isConcatenatedRight?: boolean | undefined;
   isInterpolated?: boolean | undefined;
-  leftLiteral?: Literal | undefined;
+  leftLiterals?: Literal[] | undefined;
   priorLiterals?: Literal[] | undefined;
-  rightLiteral?: Literal | undefined;
+  rightLiterals?: Literal[] | undefined;
 }
 
 export interface TemplateLiteral extends LiteralBase {

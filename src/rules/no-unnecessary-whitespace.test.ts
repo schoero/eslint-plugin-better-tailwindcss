@@ -247,6 +247,33 @@ describe(noUnnecessaryWhitespace.name, () => {
     });
   });
 
+  it("should trim whitespace in a template whose only content is a conditional interpolation", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: '<img [class]="`${someVar ? `  a  ` : `  b  `}`" />',
+          angularOutput: '<img [class]="`${someVar ? ` a ` : ` b `}`" />',
+          jsx: "() => <img class={`${someVar ? `  a  ` : `  b  `}`} />",
+          jsxOutput: "() => <img class={`${someVar ? ` a ` : ` b `}`} />",
+          svelte: "<img class={`${someVar ? `  a  ` : `  b  `}`} />",
+          svelteOutput: "<img class={`${someVar ? ` a ` : ` b `}`} />",
+          vue: '<template><img :class="`${someVar ? `  a  ` : `  b  `}`" /></template>',
+          vueOutput: '<template><img :class="`${someVar ? ` a ` : ` b `}`" /></template>',
+
+          errors: 4
+        }
+      ],
+      valid: [
+        {
+          angular: '<img [class]="`${someVar ? `a` : `b`}`" />',
+          jsx: "() => <img class={`${someVar ? `a` : `b`}`} />",
+          svelte: "<img class={`${someVar ? `a` : `b`}`} />",
+          vue: '<template><img :class="`${someVar ? `a` : `b`}`" /></template>'
+        }
+      ]
+    });
+  });
+
   it("should not report on empty strings", () => {
     lint(noUnnecessaryWhitespace, {
       valid: [

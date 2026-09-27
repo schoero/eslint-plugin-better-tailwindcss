@@ -1050,6 +1050,18 @@ describe("getStringConcatenationDirection", () => {
       code: "const className = ` a ${someVariable} b ` + \" c \";",
       expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
       target: `" c "`
+    },
+    // conditional as the left operand
+    {
+      code: `const className = (someVar ? " a " : " b ") + " c ";`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: `" a "`
+    },
+    // conditional as the right operand
+    {
+      code: `const className = " c " + (someVar ? " a " : " b ");`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: `" a "`
     }
   ])("should detect concatenation direction for $target in $code", ({ code, expected, target }) => {
     const sourceCode = parseProgram(code);

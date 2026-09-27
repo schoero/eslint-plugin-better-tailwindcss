@@ -116,11 +116,11 @@ describe(noConcatenatedClasses.name, () => {
     lint(noConcatenatedClasses, {
       invalid: [
         {
-          // angular: `<img [class]="'static bg-' + color + ' text-white trailing'" />`,
-          // astro: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          angular: `<img [class]="'static bg-' + color + ' text-white trailing'" />`,
+          astro: `<img class={"static bg-" + color + " text-white trailing"} />`,
           jsx: `() => <img className={"static bg-" + color + " text-white trailing"} />`,
-          // svelte: `<img class={"static bg-" + color + " text-white trailing"} />`,
-          // vue: `<template><img :class="'static bg-' + color + ' text-white trailing'" /></template>`,
+          svelte: `<img class={"static bg-" + color + " text-white trailing"} />`,
+          vue: `<template><img :class="'static bg-' + color + ' text-white trailing'" /></template>`,
 
           errors: 1
         }

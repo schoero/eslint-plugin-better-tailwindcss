@@ -1,5 +1,3 @@
-import { createVisitedNodes, visitNode } from "src/utils/visitedNodes.js";
-
 import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { getLiteralNodesByMatchers, matchesPathPattern } from "better-tailwindcss:utils/matchers.js";
@@ -12,6 +10,7 @@ import {
   getWhitespace,
   matchesName
 } from "better-tailwindcss:utils/utils.js";
+import { createVisitedNodes, visitNode } from "better-tailwindcss:utils/visitedNodes.js";
 
 import type {
   AST,

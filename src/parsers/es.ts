@@ -1,5 +1,3 @@
-import { createVisitedNodes, visitNode } from "src/utils/visitedNodes.js";
-
 import { MATCHER_RESULT, MatcherType } from "better-tailwindcss:types/rule.js";
 import {
   getLiteralNodesByMatchers,
@@ -20,6 +18,7 @@ import {
   isGenericNodeWithParent,
   matchesName
 } from "better-tailwindcss:utils/utils.js";
+import { createVisitedNodes, visitNode } from "better-tailwindcss:utils/visitedNodes.js";
 
 import type { Rule } from "eslint";
 import type {

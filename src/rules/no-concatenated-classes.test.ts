@@ -44,7 +44,7 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
-  it.only("should report classes concatenated with plus operator", () => {
+  it("should report classes concatenated with plus operator", () => {
     lint(noConcatenatedClasses, {
       invalid: [
         {

@@ -114,6 +114,33 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceCanonicalClasses.name,
     });
   });
 
+  it("should not suggest a canonical class when it matches the enclosing utility name with a prefix", () => {
+    lint(enforceCanonicalClasses, {
+      valid: [
+        {
+          css: css`
+            @utility toggle {
+              @apply tw:border-b tw:border-dashed tw:border-current;
+            }
+          `,
+
+          files: {
+            "styles.css": css`
+              @import "tailwindcss" prefix(tw);
+
+              @utility toggle {
+                @apply tw:border-b tw:border-dashed tw:border-current;
+              }
+            `
+          },
+          options: [{
+            entryPoint: "styles.css"
+          }]
+        }
+      ]
+    });
+  });
+
   it("should still suggest canonical classes inside utility blocks when output differs", () => {
     lint(enforceCanonicalClasses, {
       invalid: [

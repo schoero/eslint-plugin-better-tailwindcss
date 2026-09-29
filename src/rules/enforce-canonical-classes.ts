@@ -9,6 +9,7 @@ import {
 } from "valibot";
 
 import { createGetCanonicalClasses, getCanonicalClasses } from "better-tailwindcss:tailwindcss/canonical-classes.js";
+import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { async } from "better-tailwindcss:utils/context.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
@@ -60,6 +61,7 @@ export const enforceCanonicalClasses = createRule({
 
   initialize: ctx => {
     createGetCanonicalClasses(ctx);
+    createGetPrefix(ctx);
   },
 
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
@@ -68,6 +70,8 @@ export const enforceCanonicalClasses = createRule({
 function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Literal[]) {
   const { collapse, ignore, logical, rootFontSize } = ctx.options;
   const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
+
+  const { prefix, suffix } = getPrefix(async(ctx));
 
   for(const literal of literals){
 
@@ -94,8 +98,8 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
       }
 
       if(
-        literal.utility &&
-        canonicalClass.output === literal.utility
+        typeof literal.utility === "string" &&
+        canonicalClass.output === `${prefix}${suffix}${literal.utility}`
       ){
         return;
       }

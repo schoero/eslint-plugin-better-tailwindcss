@@ -347,6 +347,22 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
+  it("should only report the ternary branches without surrounding whitespace", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<div [class]="'flex w-full min-w-0' + (menuOpen ? ' gap-1' : 'flex-col gap-0')"></div>`,
+          astro: `<div class={"flex w-full min-w-0" + (menuOpen ? " gap-1" : "flex-col gap-0")} />`,
+          jsx: `() => <div className={"flex w-full min-w-0" + (menuOpen ? " gap-1" : "flex-col gap-0")} />`,
+          svelte: `<div class={"flex w-full min-w-0" + (menuOpen ? " gap-1" : "flex-col gap-0")} />`,
+          vue: `<template><div :class="'flex w-full min-w-0' + (menuOpen ? ' gap-1' : 'flex-col gap-0')"></div></template>`,
+
+          errors: 2
+        }
+      ]
+    });
+  });
+
   it("should not report deeply nested ternary branches when the left literal ends with a whitespace", () => {
     lint(noConcatenatedClasses, {
       valid: [

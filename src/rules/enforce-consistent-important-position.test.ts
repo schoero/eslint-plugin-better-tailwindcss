@@ -480,4 +480,30 @@ describe(enforceConsistentImportantPosition.name, () => {
     );
   });
 
+  // #399
+  it("should handle important modifiers on classes with arbitrary variants correctly", () => {
+    lint(
+      enforceConsistentImportantPosition,
+
+      {
+        invalid: [
+          {
+            angular: `<img class="[&:is(:active,__[data-open])]:!p-4" />`,
+            angularOutput: `<img class="[&:is(:active,__[data-open])]:p-4!" />`,
+            html: `<img class="[&:is(:active,__[data-open])]:!p-4" />`,
+            htmlOutput: `<img class="[&:is(:active,__[data-open])]:p-4!" />`,
+            jsx: `() => <img class="[&:is(:active,__[data-open])]:!p-4" />`,
+            jsxOutput: `() => <img class="[&:is(:active,__[data-open])]:p-4!" />`,
+            svelte: `<img class="[&:is(:active,__[data-open])]:!p-4" />`,
+            svelteOutput: `<img class="[&:is(:active,__[data-open])]:p-4!" />`,
+            vue: `<template><img class="[&:is(:active,__[data-open])]:!p-4" /></template>`,
+            vueOutput: `<template><img class="[&:is(:active,__[data-open])]:p-4!" /></template>`,
+
+            errors: 1
+          }
+        ]
+      }
+    );
+  });
+
 });

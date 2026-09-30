@@ -12,7 +12,11 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
   return classes.reduce<Record<string, DissectedClass>>((acc, className) => {
     const [parsed] = tailwindContext.parseCandidate(className);
 
-    const variants = parsed?.variants?.map(variant => tailwindContext.printVariant(variant)).reverse();
+    const variants = parsed?.variants?.map(
+      variant => variant.kind === "arbitrary"
+        ? `[${variant.selector.replace(/ /g, "_")}]`
+        : tailwindContext.printVariant(variant)
+    ).reverse();
 
     let base = className
       .replace(getCachedRegex(`^${escapeForRegex(prefix + separator)}`), "")

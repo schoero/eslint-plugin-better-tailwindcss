@@ -32,6 +32,7 @@ import type {
   FunctionDeclaration as ESFunctionDeclaration,
   FunctionExpression as ESFunctionExpression,
   Identifier as ESIdentifier,
+  LogicalExpression as ESLogicalExpression,
   MemberExpression as ESMemberExpression,
   Node as ESNode,
   SimpleLiteral as ESSimpleLiteral,
@@ -574,6 +575,10 @@ export function isESConditionalExpression(node: ESBaseNode): node is ESCondition
   return node.type === "ConditionalExpression";
 }
 
+export function isESLogicalExpression(node: ESBaseNode): node is ESLogicalExpression {
+  return node.type === "LogicalExpression";
+}
+
 export function isESNode(node: unknown): node is ESNode {
   return (
     node !== null &&
@@ -959,6 +964,11 @@ function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right
       continue;
     }
 
+    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+      current = parent;
+      continue;
+    }
+
     break;
   }
 }
@@ -1002,6 +1012,11 @@ function findConcatenationCounterpart(node: ESNode, direction: "left" | "right")
       continue;
     }
 
+    if(isESLogicalExpression(parent) && parent.operator === "&&" && parent.right === current){
+      current = parent;
+      continue;
+    }
+
     break;
   }
 }
@@ -1026,6 +1041,10 @@ function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ESNod
       ...findConcatenationLeafNodes(node.consequent, edge),
       ...findConcatenationLeafNodes(node.alternate, edge)
     ];
+  }
+
+  if(isESLogicalExpression(node) && node.operator === "&&"){
+    return findConcatenationLeafNodes(node.right, edge);
   }
 
   return [];

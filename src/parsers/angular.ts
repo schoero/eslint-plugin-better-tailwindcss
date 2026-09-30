@@ -596,6 +596,7 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentTemplateQuasiNodes(ctx, ast, "left") ??
     findAdjacentInterpolatedExpressionNodes(ctx, ast, "left") ??
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "left");
+
   const leftLiterals = isConcatenatedLeft
     ? buildConcatenationNeighborLiterals(ctx, leftNodes, visited)
     : undefined;
@@ -604,6 +605,7 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentTemplateQuasiNodes(ctx, ast, "right") ??
     findAdjacentInterpolatedExpressionNodes(ctx, ast, "right") ??
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "right");
+
   const rightLiterals = isConcatenatedRight
     ? buildConcatenationNeighborLiterals(ctx, rightNodes, visited)
     : undefined;
@@ -720,6 +722,11 @@ function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, directi
       continue;
     }
 
+    if(isBinary(parent) && parent.operation === "&&" && parent.right === ast){
+      current = parent;
+      continue;
+    }
+
     break;
   }
 }
@@ -767,6 +774,11 @@ function findConcatenationCounterpart(ctx: Rule.RuleContext, ast: AST, direction
       continue;
     }
 
+    if(isBinary(parent) && parent.operation === "&&" && parent.right === current){
+      current = parent;
+      continue;
+    }
+
     break;
   }
 }
@@ -795,6 +807,10 @@ function findConcatenationLeafNodes(ast: AST, edge: "left" | "right"): AST[] {
       ...findConcatenationLeafNodes(ast.trueExp, edge),
       ...findConcatenationLeafNodes(ast.falseExp, edge)
     ];
+  }
+
+  if(isBinary(ast) && ast.operation === "&&"){
+    return findConcatenationLeafNodes(ast.right, edge);
   }
 
   return [];

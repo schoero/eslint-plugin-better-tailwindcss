@@ -552,4 +552,120 @@ describe(noConcatenatedClasses.name, () => {
     });
   });
 
+  it("should not report && branches when separated by whitespace", () => {
+    lint(noConcatenatedClasses, {
+      valid: [
+        {
+          angular: `<img [class]="\`bg-red-500 \${someVar && 'text-white'}\`" />`,
+          astro: `<img class={\`bg-red-500 \${someVar && "text-white"}\`} />`,
+          jsx: `() => <img className={\`bg-red-500 \${someVar && "text-white"}\`} />`,
+          svelte: `<img class={\`bg-red-500 \${someVar && "text-white"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500 \${someVar && 'text-white'}\`" /></template>`
+        },
+        {
+          angular: `<img [class]="\`\${someVar && 'text-white'} bg-red-500\`" />`,
+          astro: `<img class={\`\${someVar && "text-white"} bg-red-500\`} />`,
+          jsx: `() => <img className={\`\${someVar && "text-white"} bg-red-500\`} />`,
+          svelte: `<img class={\`\${someVar && "text-white"} bg-red-500\`} />`,
+          vue: `<template><img :class="\`\${someVar && 'text-white'} bg-red-500\`" /></template>`
+        },
+        {
+          angular: `<img [class]="\`bg-red-500\${someVar && ' text-white'}\`" />`,
+          astro: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          jsx: `() => <img className={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          svelte: `<img class={\`bg-red-500\${someVar && " text-white"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500\${someVar && ' text-white'}\`" /></template>`
+        },
+        {
+          angular: `<img [class]="\`\${someVar && 'text-white '}bg-red-500\`" />`,
+          astro: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          jsx: `() => <img className={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          svelte: `<img class={\`\${someVar && "text-white "}bg-red-500\`} />`,
+          vue: `<template><img :class="\`\${someVar && 'text-white '}bg-red-500\`" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report && branches when not separated by whitespace", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="\`bg-red-500\${someVar && 'text-white'}\`" />`,
+          astro: `<img class={\`bg-red-500\${someVar && "text-white"}\`} />`,
+          jsx: `() => <img className={\`bg-red-500\${someVar && "text-white"}\`} />`,
+          svelte: `<img class={\`bg-red-500\${someVar && "text-white"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500\${someVar && 'text-white'}\`" /></template>`,
+
+          errors: 2
+        },
+        {
+          angular: `<img [class]="\`\${someVar && 'text-white'}bg-red-500\`" />`,
+          astro: `<img class={\`\${someVar && "text-white"}bg-red-500\`} />`,
+          jsx: `() => <img className={\`\${someVar && "text-white"}bg-red-500\`} />`,
+          svelte: `<img class={\`\${someVar && "text-white"}bg-red-500\`} />`,
+          vue: `<template><img :class="\`\${someVar && 'text-white'}bg-red-500\`" /></template>`,
+
+          errors: 2
+        }
+      ]
+    });
+  });
+
+  it("should report multiple && branches in one class string", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="\`bg-red-500\${someVar && 'text-white'}\${otherVar && 'font-bold'}\`" />`,
+          astro: `<img class={\`bg-red-500\${someVar && "text-white"}\${otherVar && "font-bold"}\`} />`,
+          jsx: `() => <img className={\`bg-red-500\${someVar && "text-white"}\${otherVar && "font-bold"}\`} />`,
+          svelte: `<img class={\`bg-red-500\${someVar && "text-white"}\${otherVar && "font-bold"}\`} />`,
+          vue: `<template><img :class="\`bg-red-500\${someVar && 'text-white'}\${otherVar && 'font-bold'}\`" /></template>`,
+
+          errors: 3
+        }
+      ]
+    });
+  });
+
+  it("should report && branches concatenated with plus operator", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="'bg-red-500' + (someVar && 'text-white')" />`,
+          astro: `<img class={"bg-red-500" + (someVar && "text-white")} />`,
+          jsx: `() => <img className={"bg-red-500" + (someVar && "text-white")} />`,
+          svelte: `<img class={"bg-red-500" + (someVar && "text-white")} />`,
+          vue: `<template><img :class="'bg-red-500' + (someVar && 'text-white')" /></template>`,
+
+          errors: 2
+        }
+      ],
+      valid: [
+        {
+          angular: `<img [class]="'bg-red-500 ' + (someVar && 'text-white')" />`,
+          astro: `<img class={"bg-red-500 " + (someVar && "text-white")} />`,
+          jsx: `() => <img className={"bg-red-500 " + (someVar && "text-white")} />`,
+          svelte: `<img class={"bg-red-500 " + (someVar && "text-white")} />`,
+          vue: `<template><img :class="'bg-red-500 ' + (someVar && 'text-white')" /></template>`
+        }
+      ]
+    });
+  });
+
+  it("should report nested && branches when neither side has surrounding whitespace", () => {
+    lint(noConcatenatedClasses, {
+      invalid: [
+        {
+          angular: `<img [class]="\`bg-\${someVar && \`red-\${otherVar && '500'}\`}\`" />`,
+          astro: `<img class={\`bg-\${someVar && \`red-\${otherVar && "500"}\`}\`} />`,
+          jsx: `() => <img className={\`bg-\${someVar && \`red-\${otherVar && "500"}\`}\`} />`,
+          svelte: `<img class={\`bg-\${someVar && \`red-\${otherVar && "500"}\`}\`} />`,
+          vue: `<template><img :class="\`bg-\${someVar && \`red-\${otherVar && '500'}\`}\`" /></template>`,
+
+          errors: 3
+        }
+      ]
+    });
+  });
 });

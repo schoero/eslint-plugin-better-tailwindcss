@@ -722,7 +722,7 @@ function findAdjacentTemplateQuasiNodes(ctx: Rule.RuleContext, ast: AST, directi
       continue;
     }
 
-    if(isBinary(parent) && parent.operation === "&&" && parent.right === ast){
+    if(isBinary(parent) && parent.operation === "&&" && parent.right === current){
       current = parent;
       continue;
     }

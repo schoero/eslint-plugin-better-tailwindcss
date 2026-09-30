@@ -481,7 +481,7 @@ describe(enforceConsistentImportantPosition.name, () => {
   });
 
   // #399
-  it("should handle important modifiers on classes with arbitrary variants correctly", () => {
+  it.runIf(getTailwindCSSVersion().major >= 4)("should handle important modifiers on classes with arbitrary variants correctly", () => {
     lint(
       enforceConsistentImportantPosition,
 

@@ -1,6 +1,6 @@
 import { escapeForRegex } from "../async-utils/escape.js";
-import { normalize } from "../async-utils/path.js";
 import { getCachedRegex } from "../async-utils/regex.js";
+import { segment } from "../async-utils/segment.js";
 import { getPrefix } from "./prefix.async.v3.js";
 
 import type { AsyncContext } from "../utils/context.js";
@@ -9,13 +9,11 @@ import type { DissectedClass, DissectedClasses } from "./dissect-classes.js";
 
 export async function getDissectedClasses(ctx: AsyncContext, tailwindContext: any, classes: string[]): Promise<DissectedClasses> {
 
-  const utils = await import(normalize(`${ctx.installation}/lib/util/splitAtTopLevelOnly.js`));
-
   const prefix = getPrefix(tailwindContext);
   const separator = tailwindContext.tailwindConfig.separator ?? ":";
 
   return classes.reduce<Record<string, DissectedClass>>((acc, className) => {
-    const splitChunks = utils.splitAtTopLevelOnly?.(className, separator) ?? utils.default?.splitAtTopLevelOnly?.(className, separator);
+    const splitChunks = segment(className, separator);
     const variants = splitChunks.slice(0, -1);
 
     let base = className

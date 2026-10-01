@@ -978,6 +978,27 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  it("should add spaces for non-divisible amount of spaces before the class string", () => {
+
+    const dirty = `{\n\t   const className = \`flex p-4 gap-2 m-2\`;\n}`;
+    const clean = `{\n\t   const className = \`\n\t\t   flex p-4 gap-2 m-2\n\t   \`;\n}`;
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: dirty,
+            jsxOutput: clean,
+
+            errors: 1,
+            options: [{ indent: "tab", printWidth: 44, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should warn if `lineBreakStyle` is likely misconfigured", async () => {
     {
 

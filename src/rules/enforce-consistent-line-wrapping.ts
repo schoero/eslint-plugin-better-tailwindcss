@@ -613,9 +613,14 @@ class Line {
     const { indent } = this.ctx.options;
 
     if(indent === "tab"){
-      this.meta.indentation = "\t".repeat((this.indentation + amount) / this.ctx.options.tabWidth);
+      const tabCount = Math.floor((this.indentation + amount) / this.ctx.options.tabWidth);
+      const remainder = (this.indentation + amount) % this.ctx.options.tabWidth;
+
+      this.meta.indentation = "\t".repeat(tabCount) + " ".repeat(remainder);
     } else {
-      this.meta.indentation = " ".repeat(this.indentation + amount);
+      const spacesCount = this.indentation + amount;
+
+      this.meta.indentation = " ".repeat(spacesCount);
     }
 
     return this;

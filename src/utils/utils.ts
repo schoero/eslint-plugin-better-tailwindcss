@@ -1,7 +1,7 @@
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 
 import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
-import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, Indentation, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
@@ -101,8 +101,13 @@ export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }
 
-export function getIndentation(line: string): number {
-  return line.match(/^[\t ]*/)?.[0].length ?? 0;
+export function getIndentation(line: string): Indentation["indentation"] {
+  const leadingWhitespace = line.match(/^[\t ]*/)?.[0] ?? "";
+
+  return {
+    spaces: leadingWhitespace.match(/ /g)?.length ?? 0,
+    tabs: leadingWhitespace.match(/\t/g)?.length ?? 0
+  };
 }
 
 export function isClassSticky(literal: Literal, classIndex: number): boolean {

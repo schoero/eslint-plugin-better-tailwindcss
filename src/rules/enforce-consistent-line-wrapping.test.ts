@@ -925,6 +925,80 @@ describe(enforceConsistentLineWrapping.name, () => {
     );
   });
 
+  // #403
+  it("should apply tabWidth to the existing indentation before the class string", () => {
+
+    const dirtyWithSpaces = `{\n    const className = \`flex p-4 gap-2 m-2\`;\n}`;
+    const dirtyWithTabs = `{\n\tconst className = \`flex p-4 gap-2 m-2\`;\n}`;
+
+    const cleanWithSpaces = `{\n    const className = \`\n        flex p-4 gap-2 m-2\n    \`;\n}`;
+    const cleanWithTabs = `{\n\tconst className = \`\n\t\tflex p-4 gap-2 m-2\n\t\`;\n}`;
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: dirtyWithSpaces,
+            jsxOutput: cleanWithSpaces,
+
+            errors: 1,
+            options: [{ indent: 4, printWidth: 40 }]
+          },
+          {
+            jsx: dirtyWithTabs,
+            jsxOutput: cleanWithTabs,
+
+            errors: 1,
+            options: [{ indent: "tab", printWidth: 40, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should apply tabWidth to the existing indentation with mixed spaces before the class string", () => {
+
+    const dirty = `{\n\t    const className = \`flex p-4 gap-2 m-2\`;\n}`;
+    const clean = `{\n\t    const className = \`\n\t\t\tflex p-4 gap-2 m-2\n\t\t\`;\n}`;
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: dirty,
+            jsxOutput: clean,
+
+            errors: 1,
+            options: [{ indent: "tab", printWidth: 44, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should add spaces for non-divisible amount of spaces before the class string", () => {
+
+    const dirty = `{\n\t   const className = \`flex p-4 gap-2 m-2\`;\n}`;
+    const clean = `{\n\t   const className = \`\n\t\t   flex p-4 gap-2 m-2\n\t   \`;\n}`;
+
+    lint(
+      enforceConsistentLineWrapping,
+      {
+        invalid: [
+          {
+            jsx: dirty,
+            jsxOutput: clean,
+
+            errors: 1,
+            options: [{ indent: "tab", printWidth: 44, tabWidth: 4 }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should warn if `lineBreakStyle` is likely misconfigured", async () => {
     {
 

@@ -743,6 +743,81 @@ describe("es", () => {
     });
   });
 
+  it("should match anonymous function returns via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };`,
+          jsxOutput: `const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };`,
+          svelte: `<script>const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };</script>`,
+          svelteOutput: `<script>const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };</script>`,
+          vue: `<script>const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };</script>`,
+          vueOutput: `<script>const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Variable,
+              match: [{
+                match: [{ type: MatcherType.ObjectValue }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^.*Styles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match default-exported anonymous function returns via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default (options) => ({ slots: { root: " lint ", icon: " keep " }, title: " keep " });`,
+          jsxOutput: `export default (options) => ({ slots: { root: "lint", icon: " keep " }, title: " keep " });`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Variable,
+              match: [{
+                match: [{ path: "^slots\\.root$", type: MatcherType.ObjectValue }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^default$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not match inside functions assigned to variables without an anonymousFunctionReturn matcher", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const testStyles = () => ({ root: " keep " }); export default () => " keep ";`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                match: [{ type: MatcherType.ObjectValue }, { type: MatcherType.String }],
+                name: "^.*Styles$"
+              },
+              {
+                kind: SelectorKind.Variable,
+                match: [{ type: MatcherType.String }],
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match attributes via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

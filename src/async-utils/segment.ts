@@ -41,7 +41,7 @@ export function segment(input: string, separator: string) {
         idx += 1;
         break;
       // Strings should be handled as-is until the end of the string. No need to
-      // worry about balancing parens, brackets, or curlies inside a string.
+      // worry about balancing parens, brackets, or curly braces inside a string.
       case SINGLE_QUOTE:
       case DOUBLE_QUOTE:
         // Ensure we don't go out of bounds.

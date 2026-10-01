@@ -114,9 +114,9 @@ type VariableSelector = {
 Matches:
 
 ```ts
-export default (options) => ({
-  root: "this will get linted",
-  label: "this will get linted"
+export default options => ({
+  label: "this will get linted",
+  root: "this will get linted"
 });
 ```
 

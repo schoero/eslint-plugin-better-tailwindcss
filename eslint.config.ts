@@ -6,6 +6,7 @@ export default defineConfig([
   ...config,
   {
     ignores: [
+      "tests/bench/**",
       "tests/e2e/**"
     ]
   },

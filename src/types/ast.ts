@@ -52,7 +52,10 @@ export interface CSSMeta {
 }
 
 export interface Indentation {
-  indentation: number;
+  indentation: {
+    spaces: number;
+    tabs: number;
+  };
 }
 
 interface NodeBase extends Range, Loc {

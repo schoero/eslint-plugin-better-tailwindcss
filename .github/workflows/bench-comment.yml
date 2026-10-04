@@ -40,10 +40,12 @@ jobs:
               const data = JSON.parse(await readFile(path, "utf8"));
               const benchmarks = new Map();
 
-              for(const file of data.files ?? []){
-                for(const group of file.groups ?? []){
-                  for(const benchmark of group.benchmarks ?? []){
-                    benchmarks.set(benchmark.name, benchmark);
+              for(const file of data.testResults ?? []){
+                for(const test of file.assertionResults ?? []){
+                  for(const group of test.benchmarks ?? []){
+                    for(const task of group.tasks ?? []){
+                      benchmarks.set(task.name, { name: task.name, mean: task.latency?.mean });
+                    }
                   }
                 }
               }

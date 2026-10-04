@@ -65,11 +65,11 @@ jobs:
 
       - name: Run bench (PR)
         working-directory: pr
-        run: npm run bench -- --outputJson=../bench-pr.json
+        run: npm run bench -- --reporter=json --outputFile=../bench-pr.json
 
       - name: Run bench (main)
         working-directory: base
-        run: npm run bench -- --outputJson=../bench-main.json
+        run: npm run bench -- --reporter=json --outputFile=../bench-main.json
 
       - name: Write PR metadata
         run: |

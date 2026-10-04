@@ -6,7 +6,7 @@ test("bench/eslint", async ({ bench }) => {
 
   const ESLint = await loadESLint();
 
-  bench("ESLint recommended (cold)", async () => {
+  await bench("ESLint recommended (cold)", async () => {
     const eslint = new ESLint({
       cwd: import.meta.dirname,
       overrideConfigFile: "./eslint.config.js"
@@ -20,7 +20,7 @@ test("bench/eslint", async ({ bench }) => {
     overrideConfigFile: "./eslint.config.js"
   });
 
-  bench("ESLint recommended (warm)", async () => {
+  await bench("ESLint recommended (warm)", async () => {
     await eslint.lintFiles("./test.tsx");
   }).run();
 

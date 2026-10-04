@@ -11,12 +11,12 @@ const execFileAsync = promisify(execFile);
 const oxlintPackageJson = fileURLToPath(await import.meta.resolve("oxlint/package.json"));
 const oxlintBinary = resolve(dirname(oxlintPackageJson), "bin/oxlint");
 
-test("bench/oxlint", async ({ bench }) => {
+test("bench/oxlint", { timeout: 120_000 }, async ({ bench }) => {
 
-  bench("Oxlint recommended", async () => {
-    await execFileAsync(oxlintBinary, ["--config", "./oxlint.config.ts", "./test.tsx"], {
+  await bench("Oxlint recommended", async () => {
+    await execFileAsync(oxlintBinary, ["--config", "./oxlint.config.js", "./test.tsx"], {
       cwd: import.meta.dirname
     });
-  }).run();
+  }).run({ time: 5_000, warmupTime: 1_000 });
 
 });

@@ -1,6 +1,11 @@
 import { loadESLint } from "eslint";
-import {  test } from "vitest";
+import {  resolve } from "node:path";
+import { test } from "vitest";
 
+
+const benchDir = import.meta.dirname;
+const benchRoot = resolve(benchDir, "..");
+const configFile = resolve(benchDir, "./eslint.config.js");
 
 test("bench/eslint", async ({ bench }) => {
 
@@ -8,20 +13,20 @@ test("bench/eslint", async ({ bench }) => {
 
   await bench("ESLint recommended (cold)", async () => {
     const eslint = new ESLint({
-      cwd: import.meta.dirname,
-      overrideConfigFile: "./eslint.config.js"
+      cwd: benchRoot,
+      overrideConfigFile: configFile
     });
 
-    await eslint.lintFiles("./test.tsx");
+    await eslint.lintFiles("./shared");
   }).run();
 
   const eslint = new ESLint({
-    cwd: import.meta.dirname,
-    overrideConfigFile: "./eslint.config.js"
+    cwd: benchRoot,
+    overrideConfigFile: configFile
   });
 
   await bench("ESLint recommended (warm)", async () => {
-    await eslint.lintFiles("./test.tsx");
+    await eslint.lintFiles("./shared");
   }).run();
 
 });

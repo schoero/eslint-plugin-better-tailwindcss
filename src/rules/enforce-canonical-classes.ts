@@ -71,7 +71,9 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
   const { collapse, ignore, logical, rootFontSize } = ctx.options;
   const ignoredClassRegexes = ignore.map(ignoredClass => getCachedRegex(ignoredClass));
 
-  const { prefix, suffix } = getPrefix(async(ctx));
+  const asyncCtx = async(ctx);
+
+  const { prefix, suffix } = getPrefix(asyncCtx);
 
   for(const literal of literals){
 
@@ -84,7 +86,7 @@ function lintLiterals(ctx: Context<typeof enforceCanonicalClasses>, literals: Li
       continue;
     }
 
-    const { canonicalClasses, warnings } = getCanonicalClasses(async(ctx), filteredUniqueClasses, {
+    const { canonicalClasses, warnings } = getCanonicalClasses(asyncCtx, filteredUniqueClasses, {
       collapse,
       logicalToPhysical: logical,
       rem: rootFontSize

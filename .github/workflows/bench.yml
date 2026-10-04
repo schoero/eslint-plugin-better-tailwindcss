@@ -34,6 +34,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           cache: npm
+          cache-dependency-path: |
+            pr/package-lock.json
+            base/package-lock.json
           node-version: 24
 
       - name: Install dependencies (PR)

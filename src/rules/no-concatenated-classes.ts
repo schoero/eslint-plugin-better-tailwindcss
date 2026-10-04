@@ -1,6 +1,6 @@
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { isConcatenatedClass, isConcatenatedLiteral } from "better-tailwindcss:utils/utils.js";
+import { isConcatenatedLeft, isConcatenatedLiteral, isConcatenatedRight } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -28,14 +28,15 @@ function lintLiterals(ctx: Context<typeof noConcatenatedClasses>, literals: Lite
       continue;
     }
 
-    lintClasses(ctx, literal, (_, index) => {
-      if(!isConcatenatedClass(literal, index)){
-        return;
+    lintClasses(ctx, literal, (_, index, classes) => {
+      if(
+        index === 0 && isConcatenatedLeft(literal) ||
+        index === classes.length - 1 && isConcatenatedRight(literal)
+      ){
+        return {
+          id: "concatenated"
+        } as const;
       }
-
-      return {
-        id: "concatenated"
-      } as const;
     });
   }
 }

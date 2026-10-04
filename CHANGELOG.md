@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.8.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.7.0...v4.8.0)
+
+### Features
+
+- Match anonymous function returns via variable selectors ([#397](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/397))
+
+### Fixes
+
+- Fix false positives in concatenated classes ([#398](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/398))
+- Normalize tab width handling for start position in line wrapping ([#404](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/404))
+- Preserve arbitrary variants when dissecting classes ([#402](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/402))
+- **enforce-canonical-classes:** Self referencing autofixes with prefix ([#401](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/401))
+
+### Chore
+
+- Add bench config ([a4278ea](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a4278ea))
+
+### CI
+
+- Add performance benchmark ([#405](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/405))
+
+### ❤️ Contributors
+
+- Benjamin Canac ([@benjamincanac](https://github.com/benjamincanac))
+- Jamal Ali <jamalkamaladdin@gmail.com>
+- Simon Bobrov ([@smnbbrv](https://github.com/smnbbrv))
+
 ## v4.7.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.6.1...v4.7.0)

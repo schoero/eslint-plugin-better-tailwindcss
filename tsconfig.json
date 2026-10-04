@@ -29,5 +29,8 @@
 
     // imports
     "verbatimModuleSyntax": true
-  }
+  },
+  "exclude": [
+    "tests/bench/**/test.tsx"
+  ]
 }

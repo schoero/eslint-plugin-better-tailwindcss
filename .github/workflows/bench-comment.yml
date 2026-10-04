@@ -1,0 +1,126 @@
+name: Bench comment
+
+on:
+  workflow_run:
+    workflows:
+      - Bench
+    types:
+      - completed
+
+# This workflow runs in the context of the base repository with a write token,
+# so it must never check out or execute code from the pull request. It only
+# downloads the benchmark JSON artifacts produced by the unprivileged Bench
+# workflow and posts the results comment.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          name: bench-results
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compare and comment
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { readFile } = await import("node:fs/promises");
+
+            const marker = "<!-- bench-results -->";
+
+            async function readBenchmarks(path) {
+              const data = JSON.parse(await readFile(path, "utf8"));
+              const benchmarks = new Map();
+
+              for(const file of data.files ?? []){
+                for(const group of file.groups ?? []){
+                  for(const benchmark of group.benchmarks ?? []){
+                    benchmarks.set(benchmark.name, benchmark);
+                  }
+                }
+              }
+
+              return benchmarks;
+            }
+
+            function formatMs(value) {
+              return value == null ? "-" : `${value.toFixed(2)} ms`;
+            }
+
+            function formatDelta(baseMean, prMean) {
+              if(baseMean == null || prMean == null || baseMean === 0){
+                return "-";
+              }
+
+              const delta = ((prMean - baseMean) / baseMean) * 100;
+              const sign = delta > 0 ? "+" : "";
+
+              if(delta <= -5){
+                return `${sign}${delta.toFixed(1)}% 🚀`;
+              }
+
+              if(delta >= 5){
+                return `${sign}${delta.toFixed(1)}% ⚠️`;
+              }
+
+              return `${sign}${delta.toFixed(1)}%`;
+            }
+
+            const baseBenchmarks = await readBenchmarks("bench-main.json");
+            const prBenchmarks = await readBenchmarks("bench-pr.json");
+
+            const names = [...new Set([...baseBenchmarks.keys(), ...prBenchmarks.keys()])];
+
+            const rows = names.map((name) => {
+              const base = baseBenchmarks.get(name);
+              const pr = prBenchmarks.get(name);
+
+              return `| ${name} | ${formatMs(base?.mean)} | ${formatMs(pr?.mean)} | ${formatDelta(base?.mean, pr?.mean)} |`;
+            });
+
+            const body = [
+              marker,
+              "## 📊 Performance benchmark",
+              "",
+              "Comparison of benchmark means between `main` and this PR.",
+              "",
+              "| Benchmark | main | PR | Δ |",
+              "| --- | ---: | ---: | ---: |",
+              ...rows,
+              ""
+            ].join("\n");
+
+            const { owner, repo } = context.repo;
+            const { number } = JSON.parse(await readFile("pr.json", "utf8"));
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: number,
+              per_page: 100
+            });
+
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+
+            if(existing){
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body
+              });
+            }

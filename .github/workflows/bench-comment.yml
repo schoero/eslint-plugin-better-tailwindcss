@@ -12,6 +12,7 @@ on:
 # downloads the benchmark JSON artifacts produced by the unprivileged Bench
 # workflow and posts the results comment.
 permissions:
+  actions: read
   contents: read
   pull-requests: write
 

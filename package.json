@@ -21,8 +21,7 @@
   },
   "main": "./lib/configs/config.js",
   "scripts": {
-    "bench": "vitest bench -c ./vite.config.ts --dir tests/bench --run",
-    "bench:ci": "npm run bench",
+    "bench": "vitest bench -c ./vite.config.bench.ts --run",
     "build": "vite-node build",
     "build:ci": "vite-node build",
     "eslint": "eslint .",

@@ -123,7 +123,7 @@
     "tsc-alias": "^1.8.17",
     "typescript": "^6.0.3",
     "vite-node": "^6.0.0",
-    "vitest": "^4.1.9",
+    "vitest": "^5.0.3",
     "vue-eslint-parser": "^10.4.1"
   },
   "keywords": [

@@ -1,8 +1,8 @@
 import { loadESLint } from "eslint";
-import { bench, describe } from "vitest";
+import {  test } from "vitest";
 
 
-describe("bench/eslint", async () => {
+test("bench/eslint", async ({ bench }) => {
 
   const ESLint = await loadESLint();
 
@@ -13,7 +13,7 @@ describe("bench/eslint", async () => {
     });
 
     await eslint.lintFiles("./test.tsx");
-  });
+  }).run();
 
   const eslint = new ESLint({
     cwd: import.meta.dirname,
@@ -22,6 +22,6 @@ describe("bench/eslint", async () => {
 
   bench("ESLint recommended (warm)", async () => {
     await eslint.lintFiles("./test.tsx");
-  });
+  }).run();
 
 });

@@ -6,9 +6,9 @@ on:
       - main
 
 concurrency:
-  group: bench-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+  group: bench-${{ github.event.pull_request.number }}
 # This workflow intentionally runs with a read-only token and no secrets. It
 # checks out and builds untrusted PR code, so it must never be given write
 # permissions. Results are uploaded as an artifact; the privileged

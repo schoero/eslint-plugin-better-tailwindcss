@@ -2,11 +2,11 @@ name: Bench comment
 
 on:
   workflow_run:
-    workflows:
-      - Bench
     types:
       - completed
 
+    workflows:
+      - Bench
 # This workflow runs in the context of the base repository with a write token,
 # so it must never check out or execute code from the pull request. It only
 # downloads the benchmark JSON artifacts produced by the unprivileged Bench

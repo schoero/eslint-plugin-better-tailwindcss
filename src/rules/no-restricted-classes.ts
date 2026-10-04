@@ -64,7 +64,7 @@ function lintLiterals(ctx: Context<typeof noRestrictedClasses>, literals: Litera
   const { restrict: restrictions } = ctx.options;
 
   for(const literal of literals){
-    lintClasses(ctx, literal, (className, classes) => {
+    lintClasses(ctx, literal, className => {
 
       for(const restriction of restrictions){
         const pattern = typeof restriction === "string"

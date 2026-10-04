@@ -11,7 +11,7 @@ import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { isConcatenatedClass, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { isConcatenatedLeft, isConcatenatedRight, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -80,7 +80,13 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
     lintClasses(ctx, literal, (className, classIndex) => {
 
-      if(isConcatenatedClass(literal, classIndex)){
+      const isFirstClass = classIndex === 0;
+      const isLastClass = classIndex === classes.length - 1;
+
+      if(
+        isFirstClass && isConcatenatedLeft(literal) ||
+        isLastClass && isConcatenatedRight(literal)
+      ){
         return;
       }
 

@@ -1,7 +1,7 @@
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 
 import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
-import type { BracesMeta, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, Indentation, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
@@ -101,8 +101,13 @@ export function splitWhitespaces(classes: string): string[] {
   return classes.split(/\S+/);
 }
 
-export function getIndentation(line: string): number {
-  return line.match(/^[\t ]*/)?.[0].length ?? 0;
+export function getIndentation(line: string): Indentation["indentation"] {
+  const leadingWhitespace = line.match(/^[\t ]*/)?.[0] ?? "";
+
+  return {
+    spaces: leadingWhitespace.match(/ /g)?.length ?? 0,
+    tabs: leadingWhitespace.match(/\t/g)?.length ?? 0
+  };
 }
 
 export function isClassSticky(literal: Literal, classIndex: number): boolean {
@@ -120,34 +125,56 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
   );
 }
 
-export function isConcatenatedClass(literal: Literal, classIndex: number): boolean {
-  if(!isConcatenatedLiteral(literal)){
+export function isConcatenatedLeft(literal: Literal): boolean {
+  if(!literal.isConcatenatedLeft && !literal.closingBraces){
     return false;
   }
 
-  const classes = literal.content;
+  if(literal.leadingWhitespace?.length){
+    return false;
+  }
 
-  const classChunks = splitClasses(classes);
-  const whitespaceChunks = splitWhitespaces(classes);
+  if(literal.leftLiterals === undefined || literal.leftLiterals.length === 0){
+    return true;
+  }
 
-  const startsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[0] !== "";
-  const endsWithWhitespace = whitespaceChunks.length > 0 && whitespaceChunks[whitespaceChunks.length - 1] !== "";
+  return literal.leftLiterals.some(leftLiteral => {
+    if(!leftLiteral.content.length){
+      return isConcatenatedLeft(leftLiteral);
+    }
 
-  const isFirstClass = classIndex === 0;
-  const isLastClass = classIndex === classChunks.length - 1;
+    if(leftLiteral.trailingWhitespace?.length){
+      return false;
+    }
 
-  const isConcatenatedOnLeft =
-    literal.isConcatenatedLeft === true ||
-    literal.closingBraces !== undefined;
+    return true;
+  });
+}
 
-  const isConcatenatedOnRight =
-    literal.isConcatenatedRight === true ||
-    literal.openingBraces !== undefined;
+export function isConcatenatedRight(literal: Literal): boolean {
+  if(!literal.isConcatenatedRight && !literal.openingBraces){
+    return false;
+  }
 
-  return (
-    !startsWithWhitespace && isFirstClass && isConcatenatedOnLeft ||
-    !endsWithWhitespace && isLastClass && isConcatenatedOnRight
-  );
+  if(literal.trailingWhitespace?.length){
+    return false;
+  }
+
+  if(literal.rightLiterals === undefined || literal.rightLiterals.length === 0){
+    return true;
+  }
+
+  return literal.rightLiterals.some(rightLiteral => {
+    if(!rightLiteral.content.length){
+      return isConcatenatedRight(rightLiteral);
+    }
+
+    if(rightLiteral.leadingWhitespace?.length){
+      return false;
+    }
+
+    return true;
+  });
 }
 
 export function isConcatenatedLiteral(literal: Literal) {

@@ -52,7 +52,10 @@ export interface CSSMeta {
 }
 
 export interface Indentation {
-  indentation: number;
+  indentation: {
+    spaces: number;
+    tabs: number;
+  };
 }
 
 interface NodeBase extends Range, Loc {
@@ -67,7 +70,9 @@ interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, Bi
   isConcatenatedLeft?: boolean | undefined;
   isConcatenatedRight?: boolean | undefined;
   isInterpolated?: boolean | undefined;
+  leftLiterals?: Literal[] | undefined;
   priorLiterals?: Literal[] | undefined;
+  rightLiterals?: Literal[] | undefined;
 }
 
 export interface TemplateLiteral extends LiteralBase {

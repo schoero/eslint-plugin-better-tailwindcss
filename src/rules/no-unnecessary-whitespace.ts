@@ -56,8 +56,19 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
       stringIndex += className.length;
 
       const [literalStart] = literal.range;
-      const keepLeadingWhitespace = literal.isConcatenatedLeft === true;
-      const keepTrailingWhitespace = literal.isConcatenatedRight === true;
+
+      // interpolation expressions (direct or through conditional branches) never carry layout whitespace;
+      // their neighbors are template quasis (identified by braces), unlike `+` operands
+      const immediateLeftLiteral = literal.leftLiterals?.at(0);
+      const immediateRightLiteral = literal.rightLiterals?.at(-1);
+
+      const isInterpolationExpression =
+        immediateLeftLiteral?.openingBraces !== undefined ||
+        immediateRightLiteral?.closingBraces !== undefined;
+
+      // whitespace adjacent to a template interpolation is handled by the braces branch, not the keep flags
+      const keepLeadingWhitespace = literal.isConcatenatedLeft === true && !isInterpolationExpression && literal.closingBraces === undefined;
+      const keepTrailingWhitespace = literal.isConcatenatedRight === true && !isInterpolationExpression && literal.openingBraces === undefined;
 
       // whitespaces only
       if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){

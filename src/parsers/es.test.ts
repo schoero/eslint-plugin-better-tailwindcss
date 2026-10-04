@@ -1,8 +1,13 @@
-import { describe, it } from "vitest";
+import { Linter } from "eslint";
+import { describe, expect, it } from "vitest";
 
+import { getStringConcatenationDirection } from "better-tailwindcss:parsers/es.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
+
+import type { SourceCode } from "eslint";
+import type { Node as ESNode } from "estree";
 
 
 describe("es", () => {
@@ -743,6 +748,81 @@ describe("es", () => {
     });
   });
 
+  it("should match anonymous function returns via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };`,
+          jsxOutput: `const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };`,
+          svelte: `<script>const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };</script>`,
+          svelteOutput: `<script>const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };</script>`,
+          vue: `<script>const testStyles = () => ({ root: " lint " }); const otherStyles = function() { return { root: " lint " }; };</script>`,
+          vueOutput: `<script>const testStyles = () => ({ root: "lint" }); const otherStyles = function() { return { root: "lint" }; };</script>`,
+
+          errors: 4,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Variable,
+              match: [{
+                match: [{ type: MatcherType.ObjectValue }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^.*Styles$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should match default-exported anonymous function returns via variable selectors", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `export default (options) => ({ slots: { root: " lint ", icon: " keep " }, title: " keep " });`,
+          jsxOutput: `export default (options) => ({ slots: { root: "lint", icon: " keep " }, title: " keep " });`,
+
+          errors: 2,
+          options: [{
+            selectors: [{
+              kind: SelectorKind.Variable,
+              match: [{
+                match: [{ path: "^slots\\.root$", type: MatcherType.ObjectValue }],
+                type: MatcherType.AnonymousFunctionReturn
+              }],
+              name: "^default$"
+            }]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should not match inside functions assigned to variables without an anonymousFunctionReturn matcher", () => {
+    lint(noUnnecessaryWhitespace, {
+      valid: [
+        {
+          jsx: `const testStyles = () => ({ root: " keep " }); export default () => " keep ";`,
+
+          options: [{
+            selectors: [
+              {
+                kind: SelectorKind.Variable,
+                match: [{ type: MatcherType.ObjectValue }, { type: MatcherType.String }],
+                name: "^.*Styles$"
+              },
+              {
+                kind: SelectorKind.Variable,
+                match: [{ type: MatcherType.String }],
+                name: "^default$"
+              }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
   it("should match attributes via regex", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [
@@ -926,6 +1006,143 @@ describe("es", () => {
         }
       ]
     });
+  });
+
+});
+
+describe("getStringConcatenationDirection", () => {
+
+  function parseProgram(code: string): SourceCode {
+    const linter = new Linter();
+    const result = linter.verify(code, { languageOptions: { ecmaVersion: "latest" } });
+    expect(result).toEqual([]);
+    return linter.getSourceCode();
+  }
+
+  function findTargetNode(sourceCode: SourceCode, target: string): ESNode {
+    const index = sourceCode.text.indexOf(target);
+
+    if(index === -1){
+      throw new Error(`could not find target: ${target}`);
+    }
+
+    const node = sourceCode.getNodeByRangeIndex(index);
+
+    if(!node){
+      throw new Error(`could not find node for target: ${target}`);
+    }
+
+    return node;
+  }
+
+  it.each([
+    // no concatenation
+    {
+      code: `const className = " a ";`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: false },
+      target: `" a "`
+    },
+    // string literal on the right side of a `+`
+    {
+      code: `const className = " b " + " a ";`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: `" a "`
+    },
+    // string literal on the left side of a `+`
+    {
+      code: `const className = " a " + " b ";`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: `" a "`
+    },
+    // string literal in the middle of a `+` chain
+    {
+      code: `const className = " a " + " b " + " c ";`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: true },
+      target: `" b "`
+    },
+    // string literal concatenated with a non-string operand
+    {
+      code: `const className = " a " + someVariable;`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: `" a "`
+    },
+    // non-`+` binary operators are not concatenation
+    {
+      code: `const className = " a " - " b ";`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: false },
+      target: `" a "`
+    },
+    // string literal concatenated on both sides via nested binary expressions
+    {
+      code: `const className = " a " + " b " + " c " + " d ";`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: true },
+      target: `" b "`
+    },
+    // parenthesized concatenation
+    {
+      code: `const className = (" a " + " b ") + " c ";`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: true },
+      target: `" b "`
+    },
+    // concatenation stops at call expression boundaries
+    {
+      code: `clsx(" a " + " b ") + " c ";`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: `" b "`
+    },
+    // untagged template literal quasi is concatenated with its adjacent interpolation
+    {
+      code: "const className = ` a ${someVariable} b `;",
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: "` a ${"
+    },
+    // template element on the left edge of a concatenated template literal
+    {
+      code: "const className = ` a ${someVariable} b ` + \" c \";",
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: "` a ${"
+    },
+    // template element on the right edge of a template literal concatenated with a trailing `+` operand
+    {
+      code: "const className = ` a ${someVariable} b ` + \" c \";",
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: true },
+      target: "} b `"
+    },
+    // template element on the right edge of a concatenated template literal
+    {
+      code: "const className = \" c \" + ` a ${someVariable} b `;",
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: "} b `"
+    },
+    // template element on the left edge of a template literal concatenated with a leading `+` operand
+    {
+      code: "const className = \" c \" + ` a ${someVariable} b `;",
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: true },
+      target: "` a ${"
+    },
+    // string literal concatenated with a template literal
+    {
+      code: "const className = ` a ${someVariable} b ` + \" c \";",
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: `" c "`
+    },
+    // conditional as the left operand
+    {
+      code: `const className = (someVar ? " a " : " b ") + " c ";`,
+      expected: { isConcatenatedLeft: false, isConcatenatedRight: true },
+      target: `" a "`
+    },
+    // conditional as the right operand
+    {
+      code: `const className = " c " + (someVar ? " a " : " b ");`,
+      expected: { isConcatenatedLeft: true, isConcatenatedRight: false },
+      target: `" a "`
+    }
+  ])("should detect concatenation direction for $target in $code", ({ code, expected, target }) => {
+    const sourceCode = parseProgram(code);
+    const node = findTargetNode(sourceCode, target);
+
+    expect(getStringConcatenationDirection(node)).toEqual(expected);
   });
 
 });

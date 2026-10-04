@@ -1,0 +1,87 @@
+name: Bench
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+
+  group: bench-${{ github.event.pull_request.number }}
+# This workflow intentionally runs with a read-only token and no secrets. It
+# checks out and builds untrusted PR code, so it must never be given write
+# permissions. Results are uploaded as an artifact; the privileged
+# bench-comment.yml workflow posts the comment.
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: pr
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: base
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: |
+            pr/package-lock.json
+            base/package-lock.json
+          node-version: 24
+
+      - name: Install dependencies (PR)
+        working-directory: pr
+        run: npm ci
+
+      - name: Install dependencies (main)
+        working-directory: base
+        run: npm ci
+
+      - name: Build (PR)
+        working-directory: pr
+        run: npm run build:ci
+
+      - name: Build (main)
+        working-directory: base
+        run: npm run build:ci
+
+      - name: Install tailwindcss v4 (PR)
+        working-directory: pr
+        run: npm run install:v4
+
+      - name: Install tailwindcss v4 (main)
+        working-directory: base
+        run: npm run install:v4
+
+      - name: Run bench (PR)
+        working-directory: pr
+        run: npm run bench -- --reporter=json --outputFile=../bench-pr.json
+
+      - name: Run bench (main)
+        working-directory: base
+        run: npm run bench -- --reporter=json --outputFile=../bench-main.json
+
+      - name: Write PR metadata
+        run: |
+          echo '{"number": ${{ github.event.pull_request.number }}}' > pr.json
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: |
+            bench-pr.json
+            bench-main.json
+            pr.json
+          retention-days: 1
+          if-no-files-found: error

@@ -144,9 +144,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
     const binding = vueConvertToBinding ? literal.binding : undefined;
     const multilineQuotes = binding?.multilineQuotes ?? literal.multilineQuotes;
 
-    const lineStartPosition = literal.indentation + getIndentation(ctx);
-    const literalStartPosition = literal.loc.start.column;
-    const prettierStartPosition = lineStartPosition + (literal.attribute ? literal.attribute.length + 1 : 0);
+    const lineStartPosition = getLineStartPosition(ctx, literal);
+    const literalStartPosition = getLiteralStartPosition(ctx, literal);
+    const prettierStartPosition = getPrettierStartPosition(ctx, literal);
 
     const multilineClasses = new Lines(ctx, lineStartPosition);
     const singlelineClasses = new Lines(ctx, lineStartPosition);
@@ -372,7 +372,9 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
     if(literal.closingQuote || literal.trailingSemicolon){
       multilineClasses.addLine();
-      multilineClasses.line.indent(lineStartPosition - getIndentation(ctx));
+      multilineClasses.line.indent(
+        0 - getIndentationWidth(ctx)
+      );
 
       if(multilineQuotes?.includes("`")){
         multilineClasses.line.addMeta({ closingQuote: "`" });
@@ -534,11 +536,26 @@ function lintLiterals(ctx: Context<typeof enforceConsistentLineWrapping>, litera
 
 }
 
-function getIndentation(ctx: Context<typeof enforceConsistentLineWrapping>): number {
-  const { indent } = ctx.options;
-  return indent === "tab" ? 1 : indent ?? 0;
+function getLineStartIndentation(ctx: Context<typeof enforceConsistentLineWrapping>, literal: Literal): number {
+  return literal.indentation.tabs * ctx.options.tabWidth + literal.indentation.spaces;
 }
 
+function getIndentationWidth(ctx: Context<typeof enforceConsistentLineWrapping>): number {
+  const { indent, tabWidth } = ctx.options;
+  return indent === "tab" ? tabWidth : indent ?? 0;
+}
+
+function getLineStartPosition(ctx: Context<typeof enforceConsistentLineWrapping>, literal: Literal): number {
+  return getLineStartIndentation(ctx, literal) + getIndentationWidth(ctx);
+}
+
+function getLiteralStartPosition(ctx: Context<typeof enforceConsistentLineWrapping>, literal: Literal): number {
+  return getLineStartIndentation(ctx, literal) + literal.loc.start.column - literal.indentation.tabs - literal.indentation.spaces;
+}
+
+function getPrettierStartPosition(ctx: Context<typeof enforceConsistentLineWrapping>, literal: Literal): number {
+  return getLineStartPosition(ctx, literal) + (literal.attribute ? literal.attribute.length + 1 : 0);
+}
 
 class Lines {
 
@@ -596,13 +613,18 @@ class Line {
     this.indentation = indentation;
   }
 
-  public indent(start: number = this.indentation) {
+  public indent(amount: number = 0) {
     const { indent } = this.ctx.options;
 
     if(indent === "tab"){
-      this.meta.indentation = "\t".repeat(start);
+      const tabCount = Math.floor((this.indentation + amount) / this.ctx.options.tabWidth);
+      const remainder = (this.indentation + amount) % this.ctx.options.tabWidth;
+
+      this.meta.indentation = "\t".repeat(tabCount) + " ".repeat(remainder);
     } else {
-      this.meta.indentation = " ".repeat(start);
+      const spacesCount = this.indentation + amount;
+
+      this.meta.indentation = " ".repeat(spacesCount);
     }
 
     return this;

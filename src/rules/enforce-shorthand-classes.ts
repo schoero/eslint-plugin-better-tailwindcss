@@ -142,7 +142,7 @@ function lintLiterals(ctx: Context<typeof enforceShorthandClasses>, literals: Li
     );
 
 
-    lintClasses(ctx, literal, (className, index, after) => {
+    lintClasses(ctx, literal, (className, index, _, after) => {
       for(const shorthandGroup of shorthandGroups){
         for(const [longhands, shorthands] of shorthandGroup){
 

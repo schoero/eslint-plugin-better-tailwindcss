@@ -1,5 +1,22 @@
 # Changelog
 
+## v4.9.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.8.0...v4.9.0)
+
+### Features
+
+- Export settings type from public API ([#407](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/407))
+
+### Fixes
+
+- **no-concatenated-classes:** Nested literals not detected  ([#408](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/408))
+- **no-unnecessary-whitespace:** Reduce false positives in concatenated classes ([#409](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/409))
+
+### ❤️ Contributors
+
+- Tinywaves ([@tinywaves](https://github.com/tinywaves))
+
 ## v4.8.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.7.0...v4.8.0)
@@ -10,14 +27,10 @@
 
 ### Fixes
 
-- Fix false positives in concatenated classes ([#398](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/398))
+- **no-concatenated-classes:** Fix false positives ([#398](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/398))
 - Normalize tab width handling for start position in line wrapping ([#404](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/404))
-- Preserve arbitrary variants when dissecting classes ([#402](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/402))
 - **enforce-canonical-classes:** Self referencing autofixes with prefix ([#401](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/401))
-
-### Chore
-
-- Add bench config ([a4278ea](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/a4278ea))
+- Preserve arbitrary variants when dissecting classes ([#402](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/402))
 
 ### CI
 

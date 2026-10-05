@@ -837,8 +837,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
   visitNode(visited, node);
 
   const leftNodes =
-    findAdjacentTemplateQuasiNodes(node, "left") ??
     findAdjacentInterpolatedExpressionNodes(node, "left") ??
+    findAdjacentTemplateQuasiNodes(node, "left") ??
     findAdjacentPlusConcatenatedLiteralNodes(node, "left");
 
   const leftLiterals = isConcatenatedLeft
@@ -846,8 +846,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
     : undefined;
 
   const rightNodes =
-    findAdjacentTemplateQuasiNodes(node, "right") ??
     findAdjacentInterpolatedExpressionNodes(node, "right") ??
+    findAdjacentTemplateQuasiNodes(node, "right") ??
     findAdjacentPlusConcatenatedLiteralNodes(node, "right");
 
   const rightLiterals = isConcatenatedRight
@@ -950,7 +950,10 @@ function findAdjacentTemplateQuasiNodes(node: ESNode, direction: "left" | "right
     const parent = current.parent;
 
     if(isESTemplateLiteral(parent)){
-      if(isESTemplateElement(current)){ return; }
+      if(isESTemplateElement(current)){
+        current = parent;
+        continue;
+      }
 
       const index = parent.expressions.indexOf(current as ESExpression);
       if(index === -1){ return; }
@@ -1044,7 +1047,7 @@ function findConcatenationLeafNodes(node: ESNode, edge: "left" | "right"): ESNod
   }
 
   if(isESLogicalExpression(node) && node.operator === "&&"){
-    return findConcatenationLeafNodes(node.right, edge);
+    return findConcatenationLeafNodes(node.right, "left");
   }
 
   return [];

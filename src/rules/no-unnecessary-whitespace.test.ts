@@ -180,37 +180,37 @@ describe(noUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           angular: '<img [class]="`  a  ${someVar ? `  b  ` : `  c  `}`" />',
-          angularOutput: '<img [class]="`a ${someVar ? ` b ` : ` c `}`" />',
+          angularOutput: '<img [class]="`a ${someVar ? `b` : `c`}`" />',
           jsx: "() => <img class={`  a  ${someVar ? `  b  ` : `  c  `}`} />",
-          jsxOutput: "() => <img class={`a ${someVar ? ` b ` : ` c `}`} />",
+          jsxOutput: "() => <img class={`a ${someVar ? `b` : `c`}`} />",
           svelte: "<img class={`  a  ${someVar ? `  b  ` : `  c  `}`} />",
-          svelteOutput: "<img class={`a ${someVar ? ` b ` : ` c `}`} />",
+          svelteOutput: "<img class={`a ${someVar ? `b` : `c`}`} />",
           vue: '<template><img :class="`  a  ${someVar ? `  b  ` : `  c  `}`" /></template>',
-          vueOutput: '<template><img :class="`a ${someVar ? ` b ` : ` c `}`" /></template>',
+          vueOutput: '<template><img :class="`a ${someVar ? `b` : `c`}`" /></template>',
 
           errors: 6
         },
         {
           angular: '<img [class]="`  a  ${someVar ? `  b  ${`  c  `}` : `  d  ${`  e  `}`}`" />',
-          angularOutput: '<img [class]="`a ${someVar ? ` b ${` c `}` : ` d ${` e `}`}`" />',
+          angularOutput: '<img [class]="`a ${someVar ? `b ${`c`}` : `d ${`e`}`}`" />',
           jsx: "() => <img class={`  a  ${someVar ? `  b  ${`  c  `}` : `  d  ${`  e  `}`}`} />",
-          jsxOutput: "() => <img class={`a ${someVar ? ` b ${` c `}` : ` d ${` e `}`}`} />",
+          jsxOutput: "() => <img class={`a ${someVar ? `b ${`c`}` : `d ${`e`}`}`} />",
           svelte: "<img class={`  a  ${someVar ? `  b  ${`  c  `}` : `  d  ${`  e  `}`}`} />",
-          svelteOutput: "<img class={`a ${someVar ? ` b ${` c `}` : ` d ${` e `}`}`} />",
+          svelteOutput: "<img class={`a ${someVar ? `b ${`c`}` : `d ${`e`}`}`} />",
           vue: '<template><img :class="`  a  ${someVar ? `  b  ${`  c  `}` : `  d  ${`  e  `}`}`" /></template>',
-          vueOutput: '<template><img :class="`a ${someVar ? ` b ${` c `}` : ` d ${` e `}`}`" /></template>',
+          vueOutput: '<template><img :class="`a ${someVar ? `b ${`c`}` : `d ${`e`}`}`" /></template>',
 
           errors: 10
         },
         {
           angular: '<img [class]="`  a  ${someVar ? (otherVar ? `  b  ` : `  c  `) : `  d  `}`" />',
-          angularOutput: '<img [class]="`a ${someVar ? (otherVar ? ` b ` : ` c `) : ` d `}`" />',
+          angularOutput: '<img [class]="`a ${someVar ? (otherVar ? `b` : `c`) : `d`}`" />',
           jsx: "() => <img class={`  a  ${someVar ? (otherVar ? `  b  ` : `  c  `) : `  d  `}`} />",
-          jsxOutput: "() => <img class={`a ${someVar ? (otherVar ? ` b ` : ` c `) : ` d `}`} />",
+          jsxOutput: "() => <img class={`a ${someVar ? (otherVar ? `b` : `c`) : `d`}`} />",
           svelte: "<img class={`  a  ${someVar ? (otherVar ? `  b  ` : `  c  `) : `  d  `}`} />",
-          svelteOutput: "<img class={`a ${someVar ? (otherVar ? ` b ` : ` c `) : ` d `}`} />",
+          svelteOutput: "<img class={`a ${someVar ? (otherVar ? `b` : `c`) : `d`}`} />",
           vue: '<template><img :class="`  a  ${someVar ? (otherVar ? `  b  ` : `  c  `) : `  d  `}`" /></template>',
-          vueOutput: '<template><img :class="`a ${someVar ? (otherVar ? ` b ` : ` c `) : ` d `}`" /></template>',
+          vueOutput: '<template><img :class="`a ${someVar ? (otherVar ? `b` : `c`) : `d`}`" /></template>',
 
           errors: 8
         }
@@ -252,23 +252,72 @@ describe(noUnnecessaryWhitespace.name, () => {
       invalid: [
         {
           angular: '<img [class]="`${someVar ? `  a  ` : `  b  `}`" />',
-          angularOutput: '<img [class]="`${someVar ? ` a ` : ` b `}`" />',
+          angularOutput: '<img [class]="`${someVar ? `a` : `b`}`" />',
           jsx: "() => <img class={`${someVar ? `  a  ` : `  b  `}`} />",
-          jsxOutput: "() => <img class={`${someVar ? ` a ` : ` b `}`} />",
+          jsxOutput: "() => <img class={`${someVar ? `a` : `b`}`} />",
           svelte: "<img class={`${someVar ? `  a  ` : `  b  `}`} />",
-          svelteOutput: "<img class={`${someVar ? ` a ` : ` b `}`} />",
+          svelteOutput: "<img class={`${someVar ? `a` : `b`}`} />",
           vue: '<template><img :class="`${someVar ? `  a  ` : `  b  `}`" /></template>',
-          vueOutput: '<template><img :class="`${someVar ? ` a ` : ` b `}`" /></template>',
+          vueOutput: '<template><img :class="`${someVar ? `a` : `b`}`" /></template>',
 
           errors: 4
         }
-      ],
-      valid: [
+      ]
+    });
+  });
+
+  it("should keep one left whitespace in a concatenated template whose only content is a conditional interpolation", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
         {
-          angular: '<img [class]="`${someVar ? `a` : `b`}`" />',
-          jsx: "() => <img class={`${someVar ? `a` : `b`}`} />",
-          svelte: "<img class={`${someVar ? `a` : `b`}`} />",
-          vue: '<template><img :class="`${someVar ? `a` : `b`}`" /></template>'
+          angular: '<img [class]="`a${someVar ? `  b  ` : `  c  `}`" />',
+          angularOutput: '<img [class]="`a${someVar ? ` b` : ` c`}`" />',
+          jsx: "() => <img class={`a${someVar ? `  b  ` : `  c  `}`} />",
+          jsxOutput: "() => <img class={`a${someVar ? ` b` : ` c`}`} />",
+          svelte: "<img class={`a${someVar ? `  b  ` : `  c  `}`} />",
+          svelteOutput: "<img class={`a${someVar ? ` b` : ` c`}`} />",
+          vue: '<template><img :class="`a${someVar ? `  b  ` : `  c  `}`" /></template>',
+          vueOutput: '<template><img :class="`a${someVar ? ` b` : ` c`}`" /></template>',
+
+          errors: 4
+        }
+      ]
+    });
+  });
+
+  it("should keep one right whitespace in a concatenated template whose only content is a conditional interpolation", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: '<img [class]="`${someVar ? `  a  ` : `  b  `}c`" />',
+          angularOutput: '<img [class]="`${someVar ? `a ` : `b `}c`" />',
+          jsx: "() => <img class={`${someVar ? `  a  ` : `  b  `}c`} />",
+          jsxOutput: "() => <img class={`${someVar ? `a ` : `b `}c`} />",
+          svelte: "<img class={`${someVar ? `  a  ` : `  b  `}c`} />",
+          svelteOutput: "<img class={`${someVar ? `a ` : `b `}c`} />",
+          vue: '<template><img :class="`${someVar ? `  a  ` : `  b  `}c`" /></template>',
+          vueOutput: '<template><img :class="`${someVar ? `a ` : `b `}c`" /></template>',
+
+          errors: 4
+        }
+      ]
+    });
+  });
+
+  it("should keep one left and right whitespace in a concatenated template whose only content is a conditional interpolation", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          angular: "<img [class]='`a${someVar ? \"  b  \" : \"  c  \"}d`' />",
+          angularOutput: "<img [class]='`a${someVar ? \" b \" : \" c \"}d`' />",
+          jsx: "() => <img class={`a${someVar ? \"  b  \" : \"  c  \"}d`} />",
+          jsxOutput: "() => <img class={`a${someVar ? \" b \" : \" c \"}d`} />",
+          svelte: "<img class={`a${someVar ? \"  b  \" : \"  c  \"}d`} />",
+          svelteOutput: "<img class={`a${someVar ? \" b \" : \" c \"}d`} />",
+          vue: "<template><img :class='`a${someVar ? \"  b  \" : \"  c  \"}d`' /></template>",
+          vueOutput: "<template><img :class='`a${someVar ? \" b \" : \" c \"}d`' /></template>",
+
+          errors: 4
         }
       ]
     });
@@ -556,16 +605,18 @@ describe(noUnnecessaryWhitespace.name, () => {
   it("should not create a whitespace around sticky template literal elements", () => {
 
     const dirtyExpression = "${true ? ' true ' : ' false '}";
-    const cleanExpression = "${true ? 'true' : 'false'}";
+    const cleanExpressionAtStart = "${true ? 'true ' : 'false '}";
+    const cleanExpressionBetween = "${true ? ' true ' : ' false '}";
+    const cleanExpressionAtEnd = "${true ? ' true' : ' false'}";
 
     const dirtyStickyExpressionAtStart = `  ${dirtyExpression}a  b  `;
-    const cleanStickyExpressionAtStart = `${cleanExpression}a b`;
+    const cleanStickyExpressionAtStart = `${cleanExpressionAtStart}a b`;
 
     const dirtyStickyExpressionBetween = `  a  b${dirtyExpression}c  d  `;
-    const cleanStickyExpressionBetween = `a b${cleanExpression}c d`;
+    const cleanStickyExpressionBetween = `a b${cleanExpressionBetween}c d`;
 
     const dirtyStickyExpressionAtEnd = `  a${dirtyExpression}  `;
-    const cleanStickyExpressionAtEnd = `a${cleanExpression}`;
+    const cleanStickyExpressionAtEnd = `a${cleanExpressionAtEnd}`;
 
     lint(noUnnecessaryWhitespace, {
       invalid: [
@@ -575,7 +626,7 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class={\`${dirtyStickyExpressionAtStart}\`} />`,
           svelteOutput: `<img class={\`${cleanStickyExpressionAtStart}\`} />`,
 
-          errors: 7
+          errors: 5
         }
       ]
     });
@@ -588,7 +639,7 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class={\`${dirtyStickyExpressionBetween}\`} />`,
           svelteOutput: `<img class={\`${cleanStickyExpressionBetween}\`} />`,
 
-          errors: 8
+          errors: 4
         }
       ]
     });
@@ -601,7 +652,7 @@ describe(noUnnecessaryWhitespace.name, () => {
           svelte: `<img class={\`${dirtyStickyExpressionAtEnd}\`} />`,
           svelteOutput: `<img class={\`${cleanStickyExpressionAtEnd}\`} />`,
 
-          errors: 6
+          errors: 4
         }
       ]
     });

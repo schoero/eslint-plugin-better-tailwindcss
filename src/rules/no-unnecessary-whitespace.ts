@@ -57,20 +57,24 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
 
       const [literalStart] = literal.range;
 
-      // interpolation expressions (direct or through conditional branches) never carry layout whitespace;
-      // their neighbors are template quasis (identified by braces), unlike `+` operands
-      const immediateLeftLiteral = literal.leftLiterals?.at(0);
-      const immediateRightLiteral = literal.rightLiterals?.at(-1);
+      const keepLeadingWhitespace = literal.leftLiterals?.some(leftLiteral => {
+        return (
+          leftLiteral.content.length &&
+          !leftLiteral.trailingWhitespace?.length && leftLiteral.openingBraces ||
+          !leftLiteral.openingBraces
+        );
+      });
 
-      const isInterpolationExpression =
-        immediateLeftLiteral?.openingBraces !== undefined ||
-        immediateRightLiteral?.closingBraces !== undefined;
+      const keepTrailingWhitespace = literal.rightLiterals?.some(rightLiteral => {
+        return (
+          rightLiteral.content.length &&
+          (
+            !rightLiteral.leadingWhitespace?.length && rightLiteral.closingBraces ||
+            !rightLiteral.closingBraces
+          )
+        );
+      });
 
-      // whitespace adjacent to a template interpolation is handled by the braces branch, not the keep flags
-      const keepLeadingWhitespace = literal.isConcatenatedLeft === true && !isInterpolationExpression && literal.closingBraces === undefined;
-      const keepTrailingWhitespace = literal.isConcatenatedRight === true && !isInterpolationExpression && literal.openingBraces === undefined;
-
-      // whitespaces only
       if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
         if(keepLeadingWhitespace || keepTrailingWhitespace){
           if(whitespace.length <= 1){
@@ -151,8 +155,11 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
       // leading or trailing whitespace
       if(isFirstChunk || isLastChunk){
         const keepCurrentWhitespace =
-          isFirstChunk && keepLeadingWhitespace ||
-          isLastChunk && keepTrailingWhitespace;
+          classChunks.length > 0 &&
+          (
+            isFirstChunk && keepLeadingWhitespace ||
+            isLastChunk && keepTrailingWhitespace
+          );
 
         if(keepCurrentWhitespace){
           if(whitespace.length <= 1){

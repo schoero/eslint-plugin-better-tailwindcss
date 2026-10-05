@@ -1,3 +1,6 @@
+/* Settings */
+export type { Settings } from "better-tailwindcss:options/descriptions.js";
+
 /* Targets for arguments and calls */
 export type { ArgumentTarget, CallTarget } from "better-tailwindcss:types/rule.js";
 

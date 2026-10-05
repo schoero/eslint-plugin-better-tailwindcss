@@ -1,10 +1,28 @@
-import { describe, it } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 
 import { noDuplicateClasses } from "better-tailwindcss:rules/no-duplicate-classes.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
+import type { Settings } from "../../src/api/types.js";
+
 
 describe("settings", () => {
+  it("should expose settings as optional input values", () => {
+    const settings = {
+      cwd: ".",
+      detectComponentClasses: true,
+      entryPoint: "styles.css",
+      messageStyle: "compact",
+      rootFontSize: 16,
+      selectors: [],
+      tailwindConfig: "tailwind.config.js",
+      tsconfig: "tsconfig.json"
+    } satisfies Settings;
+    const emptySettings = {} satisfies Settings;
+
+    expectTypeOf(settings).toMatchTypeOf<Settings>();
+    expectTypeOf(emptySettings).toMatchTypeOf<Settings>();
+  });
 
   it("should use the global settings if provided", () => {
     lint(noDuplicateClasses, {

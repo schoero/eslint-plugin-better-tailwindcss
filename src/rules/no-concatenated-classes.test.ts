@@ -684,4 +684,13 @@ describe(noConcatenatedClasses.name, () => {
       ]
     });
   });
+
+  // #406
+  it("should report nested template literals inside a template literal interpolation", () => {
+    lint(noConcatenatedClasses, {
+      valid: [{
+        jsx: `<img class={\`h-1.5 \${balance > 0 ? \`rounded-r-full\` : \`rounded-l-full\`}\`} />`
+      }]
+    });
+  });
 });

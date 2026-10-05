@@ -33,6 +33,24 @@ To set the settings object, add a `settings` key to the eslint config.
 }
 ```
 
+For TypeScript configurations, import the public `Settings` type:
+
+```ts
+import type { Settings } from "eslint-plugin-better-tailwindcss/api/types";
+
+const tailwindSettings = {
+  entryPoint: "src/global.css"
+} satisfies Settings;
+
+export default [
+  {
+    settings: {
+      "better-tailwindcss": tailwindSettings
+    }
+  }
+];
+```
+
 <br />
 <br />
 

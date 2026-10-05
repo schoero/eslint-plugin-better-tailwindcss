@@ -20,7 +20,7 @@ export default defineConfig([
     }
   },
   {
-    files: ["**/*.test.ts"],
+    files: ["**/*.test.ts", "**/*.test-d.ts"],
     rules: {
       "eslint-plugin-perfectionist/sort-objects": [
         "warn",

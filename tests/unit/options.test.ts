@@ -5,7 +5,6 @@ import { lint } from "better-tailwindcss:tests/utils/lint.js";
 
 
 describe("settings", () => {
-
   it("should use the global settings if provided", () => {
     lint(noDuplicateClasses, {
       invalid: [

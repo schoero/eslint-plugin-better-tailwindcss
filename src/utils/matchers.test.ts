@@ -11,9 +11,11 @@ import {
 } from "better-tailwindcss:parsers/es.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { findNode, lint, withParentNodeExtension } from "better-tailwindcss:tests/utils/lint.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { Node as ESNode } from "estree";
+
+import type { Selector } from "better-tailwindcss:options/schemas/selectors.js";
 
 
 describe("matchers", () => {
@@ -682,6 +684,90 @@ describe("matchers", () => {
         }
       ]
     });
+  });
+
+  describe("additionalSelectors", () => {
+
+    const testStyles: Selector = {
+      kind: SelectorKind.Attribute,
+      match: [{ type: MatcherType.String }],
+      name: "^testStyles$"
+    };
+
+    const callee = (name: string): Selector => ({
+      kind: SelectorKind.Callee,
+      match: [{ type: MatcherType.String }],
+      name: `^${name}$`
+    });
+
+    it("should lint additional selectors on top of the default selectors", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+            svelte: `<img class=" lint " testStyles=" lint " />`,
+            svelteOutput: `<img class="lint" testStyles="lint" />`,
+            vue: `<template><img class=" lint " testStyles=" lint " /></template>`,
+            vueOutput: `<template><img class="lint" testStyles="lint" /></template>`,
+
+            errors: 4,
+            options: [{ additionalSelectors: [testStyles] }]
+          }
+        ]
+      });
+    });
+
+    it("should read additional selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { additionalSelectors: [testStyles] } }
+          }
+        ]
+      });
+    });
+
+    it("should add to custom selectors instead of the default selectors", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `defined(" lint "); extra(" lint ");`,
+            jsxOutput: `defined("lint"); extra("lint");`,
+
+            errors: 4,
+            options: [{ additionalSelectors: [callee("extra")], selectors: [callee("defined")] }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `<img class=" ignore " />`,
+
+            options: [{ additionalSelectors: [callee("extra")], selectors: [callee("defined")] }]
+          }
+        ]
+      });
+    });
+
+    it("should let rule options override additional selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `extra(" ignore "); other(" lint ");`,
+            jsxOutput: `extra(" ignore "); other("lint");`,
+
+            errors: 2,
+            options: [{ additionalSelectors: [callee("other")] }],
+            settings: { "better-tailwindcss": { additionalSelectors: [callee("extra")] } }
+          }
+        ]
+      });
+    });
+
   });
 
 });

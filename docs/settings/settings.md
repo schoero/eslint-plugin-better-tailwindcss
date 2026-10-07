@@ -10,6 +10,7 @@
 - [rootFontSize](#rootfontsize)
 - [messageStyle](#messagestyle)
 - [selectors](#selectors)
+- [additionalSelectors](#additionalselectors)
 
 <br />
 <br />
@@ -139,3 +140,14 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)
+
+<br/>
+
+### `additionalSelectors`
+
+  Selectors that are added to [`selectors`](#selectors) instead of replacing them.
+
+  Use it to lint additional locations while keeping the default selectors. Unlike spreading `getDefaultSelectors()`, it also works in configurations that cannot import JavaScript, such as JSON configs.
+
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
+  **Default**: `[]`

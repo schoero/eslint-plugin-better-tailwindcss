@@ -11,7 +11,10 @@ import {
   TAILWIND_OPTION_SCHEMA,
   TSCONFIG_OPTION_SCHEMA
 } from "better-tailwindcss:options/schemas/common.js";
-import { SELECTORS_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
+import {
+  ADDITIONAL_SELECTORS_OPTION_SCHEMA,
+  SELECTORS_OPTION_SCHEMA
+} from "better-tailwindcss:options/schemas/selectors.js";
 import { TAGS_OPTIONS_SCHEMA } from "better-tailwindcss:options/schemas/tags.js";
 import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
 
@@ -20,6 +23,7 @@ import type { InferInput, InferOutput } from "valibot";
 
 export const COMMON_OPTIONS = strictObject({
   ...SELECTORS_OPTION_SCHEMA.entries,
+  ...ADDITIONAL_SELECTORS_OPTION_SCHEMA.entries,
   ...CALLEES_OPTION_SCHEMA.entries,
   ...ATTRIBUTES_OPTION_SCHEMA.entries,
   ...VARIABLES_OPTION_SCHEMA.entries,

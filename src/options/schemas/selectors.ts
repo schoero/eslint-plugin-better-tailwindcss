@@ -208,3 +208,15 @@ export const SELECTORS_OPTION_SCHEMA = strictObject({
 });
 
 export type SelectorsOptions = InferOutput<typeof SELECTORS_OPTION_SCHEMA>;
+
+export const ADDITIONAL_SELECTORS_OPTION_SCHEMA = strictObject({
+  additionalSelectors: optional(
+    pipe(
+      array(SELECTOR_SCHEMA),
+      description("Selectors that are added to `selectors` instead of replacing them.")
+    ),
+    []
+  )
+});
+
+export type AdditionalSelectorsOptions = InferOutput<typeof ADDITIONAL_SELECTORS_OPTION_SCHEMA>;

@@ -158,7 +158,8 @@ export function createRule<
 
     const selectors = [
       ...migratedSelectors,
-      ...preservedSelectors
+      ...preservedSelectors,
+      ...mergedOptions.additionalSelectors ?? []
     ];
 
     return {

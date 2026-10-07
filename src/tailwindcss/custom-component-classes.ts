@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
+import { Cache } from "better-tailwindcss:utils/cache.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -26,7 +27,7 @@ export function createGetCustomComponentClasses(ctx: Context): GetCustomComponen
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getCustomComponentClasses = ctx => runWorker("getCustomComponentClasses", ctx);
+  getCustomComponentClasses = ctx => runWorker("getCustomComponentClasses", Cache.toTransferableState(), ctx);
 
   return getCustomComponentClasses;
 }

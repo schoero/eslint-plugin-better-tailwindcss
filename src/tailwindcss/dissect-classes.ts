@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { withOperationCache } from "better-tailwindcss:utils/cache.js";
+import { Cache } from "better-tailwindcss:utils/cache.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -37,7 +37,7 @@ export function createGetDissectedClasses(ctx: Context): GetDissectedClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  getDissectedClasses = withOperationCache<GetDissectedClasses>("getDissectedClasses", (ctx, classes) => runWorker("getDissectedClasses", ctx, classes));
+  getDissectedClasses = (ctx, classes) => runWorker("getDissectedClasses", Cache.toTransferableState(), ctx, classes);
 
   return getDissectedClasses;
 }

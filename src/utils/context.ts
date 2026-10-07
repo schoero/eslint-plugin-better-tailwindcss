@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { withCache } from "better-tailwindcss:utils/cache.js";
+import { Cache } from "better-tailwindcss:utils/cache.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
@@ -31,11 +31,12 @@ export function async(ctx: Context): AsyncContext {
   };
 }
 
-function getTSConfigPath({ configPath, cwd }: {
+const getTSConfigPath = ({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
-}) {
-  return withCache(`tsconfig-path-${cwd}`, configPath, () => {
+}) => Cache.get(
+  "tsconfig-path",
+  () => {
     const potentialPaths = [
       ...configPath ? [configPath] : [],
       "tsconfig.json",
@@ -49,15 +50,16 @@ function getTSConfigPath({ configPath, cwd }: {
       path: foundConfigPath,
       warnings: [warning]
     };
-  });
-}
-
-export function getTailwindConfigPath({ configPath, cwd, version }: {
+  },
+  { tag: cwd }
+);
+export const getTailwindConfigPath = ({ configPath, cwd, version }: {
   configPath: string | undefined;
   cwd: string;
   version: Version;
-}) {
-  return withCache(`config-path-${cwd}`, configPath, () => {
+}) => Cache.get(
+  "config-path",
+  () => {
     if(version.major >= 4){
 
       const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
@@ -102,8 +104,9 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
     }
 
     throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
-  });
-}
+  },
+  { tag: configPath }
+);
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {
   if(!!entryPoint && !!foundEntryPoint){

@@ -1,5 +1,6 @@
 import { runAsWorker } from "synckit";
 
+import { Cache } from "../async-utils/cache.js";
 import { getClassOrder } from "./class-order.async.v3.js";
 import { createTailwindContext } from "./context.async.v3.js";
 import { getCustomComponentClasses } from "./custom-component-classes.async.v3.js";
@@ -7,6 +8,8 @@ import { getDissectedClasses } from "./dissect-classes.async.v3.js";
 import { getPrefix, getSuffix } from "./prefix.async.v3.js";
 import { getUnknownClasses } from "./unknown-classes.async.v3.js";
 import { getVariantOrder } from "./variant-order.async.v3.js";
+
+import type { TransferableState } from "shared-memory-datastructures";
 
 import type { OperationHandlers, Operations } from "../async-utils/operations.js";
 import type { CanonicalClasses } from "./canonical-classes.js";
@@ -67,6 +70,7 @@ const handlers: OperationHandlers = {
   }
 };
 
-runAsWorker(async <Operation extends keyof Operations>(operation: Operation, ...args: Parameters<Operations[Operation]>) => {
+runAsWorker(async <Operation extends keyof Operations>(operation: Operation, cache: TransferableState, ...args: Parameters<Operations[Operation]>) => {
+  Cache.fromTransferableState(cache);
   return handlers[operation](...args);
 });

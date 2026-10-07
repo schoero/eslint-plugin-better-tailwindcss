@@ -85,14 +85,15 @@
     "@valibot/to-json-schema": "^1.7.1",
     "enhanced-resolve": "^5.24.1",
     "jiti": "^2.7.0",
+    "shared-memory-datastructures": "^1.0.0-alpha.9",
     "synckit": "^0.11.13",
     "tailwind-csstree": "^0.3.3",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@angular/compiler": "^22.0.5",
     "@angular-eslint/template-parser": "^22.0.0",
+    "@angular/compiler": "^22.0.5",
     "@eslint/css": "^1.4.0",
     "@html-eslint/parser": "0.62.0",
     "@oxc-node/core": "^0.1.0",

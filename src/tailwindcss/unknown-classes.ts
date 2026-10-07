@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { createSyncFn } from "synckit";
 
-import { withPerClassCache } from "better-tailwindcss:utils/cache.js";
+import { Cache } from "better-tailwindcss:utils/cache.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
@@ -24,12 +24,10 @@ export function createGetUnknownClasses(ctx: Context): GetUnknownClasses {
   const workerOptions = getWorkerOptions();
   const runWorker = createSyncFn(workerPath, workerOptions);
 
-  // whether a class is unknown does not depend on the rest of the list
-  // so it is more efficient than operation cache
-  getUnknownClasses = (ctx, classes) => ({
-    unknownClasses: withPerClassCache(`unknown-class-${ctx.cwd}-${ctx.tsconfigPath}`, ctx.tailwindConfigPath, classes, uncachedClasses => runWorker("getUnknownClasses", ctx, uncachedClasses).unknownClasses),
-    warnings: ctx.warnings
-  });
+  getUnknownClasses = (ctx, classes) => Cache.get(
+    ["unknown-classes", ...classes],
+    () => runWorker("getUnknownClasses", Cache.toTransferableState(), ctx, classes)
+  );
 
   return getUnknownClasses;
 }

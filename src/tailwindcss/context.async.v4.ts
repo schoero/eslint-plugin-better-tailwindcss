@@ -4,64 +4,68 @@ import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
-import { withCache } from "../async-utils/cache.js";
+import { Cache } from "../async-utils/cache.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
 
 import type { AsyncContext } from "../utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
-  const jiti = createJiti(getCurrentFilename(), {
-    fsCache: false,
-    moduleCache: false
-  });
+export const createTailwindContext = async (ctx: AsyncContext) => Cache.get(
+  "tailwind-context",
+  async () => {
+    const jiti = createJiti(getCurrentFilename(), {
+      fsCache: false,
+      moduleCache: false
+    });
 
-  const importBasePath = dirname(ctx.tailwindConfigPath);
-  const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
+    const importBasePath = dirname(ctx.tailwindConfigPath);
+    const tailwindPath = resolveJs(ctx, "tailwindcss", importBasePath);
 
-  // eslint-disable-next-line eslint-plugin-typescript/naming-convention
-  const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
+    // eslint-disable-next-line eslint-plugin-typescript/naming-convention
+    const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
 
-  const css = await readFile(ctx.tailwindConfigPath, "utf-8");
+    const css = Cache.readFile(ctx.tailwindConfigPath);
 
-  // Load the design system and set up a compatible context object that is
-  // usable by the rest of the plugin
-  const design = await __unstable__loadDesignSystem(css, {
-    base: importBasePath,
-    loadModule: createLoader(ctx, jiti, {
-      filepath: ctx.tailwindConfigPath,
-      legacy: false,
-      onError: (id, err, resourceType) => {
-        console.error(`Unable to load ${resourceType}: ${id}`, err);
+    // Load the design system and set up a compatible context object that is
+    // usable by the rest of the plugin
+    const design = await __unstable__loadDesignSystem(css, {
+      base: importBasePath,
+      loadModule: createLoader(ctx, jiti, {
+        filepath: ctx.tailwindConfigPath,
+        legacy: false,
+        onError: (id, err, resourceType) => {
+          console.error(`Unable to load ${resourceType}: ${id}`, err);
 
-        if(resourceType === "config"){
-          return {};
-        } else if(resourceType === "plugin"){
-          return () => {};
+          if(resourceType === "config"){
+            return {};
+          } else if(resourceType === "plugin"){
+            return () => {};
+          }
+        }
+      }),
+
+      loadStylesheet: async (id: string, base: string) => {
+        try {
+          const resolved = resolveCss(ctx, id, base);
+
+          return {
+            base: dirname(resolved),
+            content: await readFile(resolved, "utf-8")
+          };
+        } catch {
+          return {
+            base: "",
+            content: ""
+          };
         }
       }
-    }),
+    });
 
-    loadStylesheet: async (id: string, base: string) => {
-      try {
-        const resolved = resolveCss(ctx, id, base);
-
-        return {
-          base: dirname(resolved),
-          content: await readFile(resolved, "utf-8")
-        };
-      } catch {
-        return {
-          base: "",
-          content: ""
-        };
-      }
-    }
-  });
-
-  return design;
-});
+    return design;
+  },
+  { cache: Cache.ISOLATED_CACHE, path: ctx.tailwindConfigPath }
+);
 
 function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {
   filepath,

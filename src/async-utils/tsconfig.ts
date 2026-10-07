@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { withCache } from "./cache.js";
+import { Cache } from "./cache.js";
 import { findPathRecursive } from "./fs.js";
 
 import type { Warning } from "../types/async.js";
@@ -16,23 +16,26 @@ export interface GetTSConfigResponse {
   warnings: (Warning | undefined)[];
 }
 
-export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => withCache(`tsconfig-path-${cwd}`, configPath, () => {
+export const getTSConfigPath = ({ configPath, cwd }: GetTSConfigRequest): GetTSConfigResponse => Cache.get(
+  ["tsconfig-path", cwd, configPath],
+  () => {
 
-  const potentialPaths = [
-    ...configPath ? [configPath] : [],
-    "tsconfig.json",
-    "jsconfig.json"
-  ];
+    const potentialPaths = [
+      ...configPath ? [configPath] : [],
+      "tsconfig.json",
+      "jsconfig.json"
+    ];
 
-  const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
-  const warning = getConfigPathWarning(configPath, foundConfigPath);
+    const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
+    const warning = getConfigPathWarning(configPath, foundConfigPath);
 
-  return {
-    path: foundConfigPath,
-    warnings: [warning]
-  };
+    return {
+      path: foundConfigPath,
+      warnings: [warning]
+    };
 
-});
+  }
+);
 
 function getConfigPathWarning(configPath: string | undefined, foundConfigPath: string | undefined): Warning | undefined {
   if(!configPath){

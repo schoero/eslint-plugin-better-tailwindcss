@@ -1,11 +1,12 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
+import { Linter } from "eslint";
 import { validate } from "json-schema";
 import { describe, expect, test } from "vitest";
 
-import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
+import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
 
 import type { AttributesOptions } from "better-tailwindcss:options/schemas/attributes.js";
@@ -204,7 +205,7 @@ describe("descriptions", () => {
           kind: "attribute",
           match: [
             {
-              pathPattern: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
+              path: "^compoundVariants\\[\\d+\\]\\.(?:className|class)$",
               type: MatcherType.ObjectValue
             }
           ],
@@ -213,11 +214,7 @@ describe("descriptions", () => {
       ]
     };
 
-    expect(
-      validate(selectors, toJsonSchema(COMMON_OPTIONS))
-    ).toStrictEqual(
-      { errors: [], valid: true }
-    );
+    expect(() => validateRuleOptions(selectors)).not.toThrow();
 
   });
 
@@ -235,11 +232,22 @@ describe("descriptions", () => {
       }
     };
 
-    expect(
-      validate(selectors, toJsonSchema(COMMON_OPTIONS))
-    ).toStrictEqual(
-      { errors: [], valid: true }
-    );
+    expect(() => validateRuleOptions(selectors)).not.toThrow();
+
+  });
+
+  test("invalid selectors extend config", () => {
+
+    const selector = {
+      kind: "attribute",
+      match: [{ type: MatcherType.ObjectValue }],
+      name: "^classNames$"
+    };
+
+    expect(() => validateRuleOptions({ selectors: { extends: [selector] } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extend: [selector], extra: true } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extend: selector } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: "^classNames$" })).toThrow();
 
   });
 
@@ -262,11 +270,7 @@ describe("descriptions", () => {
       ]
     };
 
-    expect(
-      validate(selectors, toJsonSchema(COMMON_OPTIONS))
-    ).toStrictEqual(
-      { errors: [], valid: true }
-    );
+    expect(() => validateRuleOptions(selectors)).not.toThrow();
 
   });
 
@@ -289,12 +293,23 @@ describe("descriptions", () => {
       ]
     };
 
-    expect(
-      validate(selectors, toJsonSchema(COMMON_OPTIONS))
-    ).toStrictEqual(
-      { errors: [], valid: true }
-    );
+    expect(() => validateRuleOptions(selectors)).not.toThrow();
 
   });
 
 });
+
+function validateRuleOptions(options: Record<string, unknown>) {
+  const linter = new Linter({ configType: "flat" });
+
+  linter.verify("", {
+    plugins: {
+      "better-tailwindcss": {
+        rules: { [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule }
+      }
+    },
+    rules: {
+      [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: ["error", options]
+    }
+  });
+}

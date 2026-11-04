@@ -70,7 +70,7 @@ export const enforceConsistentClassOrder = createRule({
           literal("desc"),
           literal("preserve")
         ]),
-        description("Defines how component classes should be ordered among themselves.")
+        description("Defines how unknown classes should be ordered among themselves.")
       ),
       "preserve"
     ),
@@ -80,7 +80,7 @@ export const enforceConsistentClassOrder = createRule({
           literal("start"),
           literal("end")
         ]),
-        description("Defines where component classes should be placed in relation to the whole string literal.")
+        description("Defines where unknown classes should be placed in relation to the whole string literal.")
       ),
       "start"
     )
@@ -241,13 +241,11 @@ function sortClassNames(ctx: Context<typeof enforceConsistentClassOrder>, asyncC
 
   const variantMap: VariantMap = {};
 
-  for(const originalClass in dissectedClasses){
+  for(const originalClass of officiallySortedClasses){
     const dissectedClass = dissectedClasses[originalClass];
 
     // parse variants manually for custom component classes
-    const variants = dissectedClass.variants ?? originalClass.match(/^(.*):/)?.[1]?.split(":") ?? [];
-
-    variants.unshift("");
+    const variants = ["", ...dissectedClass.variants ?? originalClass.match(/^(.*):/)?.[1]?.split(":") ?? []];
 
     for(let v = 0, variantMapLevel = variantMap; v < variants.length; v++){
       const isLastVariant = v === variants.length - 1;

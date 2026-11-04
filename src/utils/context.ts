@@ -43,7 +43,7 @@ function getTSConfigPath({ configPath, cwd }: {
     ];
 
     const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
-    const warning = getConfigPathWarning(configPath, foundConfigPath);
+    const warning = getConfigPathWarning("tsconfig", configPath, foundConfigPath);
 
     return {
       path: foundConfigPath,
@@ -93,7 +93,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
       const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
 
       const foundDefaultPath = findPathRecursive(cwd, cwd, defaultPaths);
-      const warning = getConfigPathWarning(configPath, foundConfigPath);
+      const warning = getConfigPathWarning("tailwindConfig", configPath, foundConfigPath);
 
       return {
         path: foundConfigPath ?? foundDefaultPath ?? "default",
@@ -117,7 +117,7 @@ function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: s
 }
 
 
-function getConfigPathWarning(configPath: string | undefined, foundConfigPath: string | undefined): Warning | undefined {
+function getConfigPathWarning(option: "tailwindConfig" | "tsconfig", configPath: string | undefined, foundConfigPath: string | undefined): Warning | undefined {
   if(!configPath){
     return;
   }
@@ -127,7 +127,9 @@ function getConfigPathWarning(configPath: string | undefined, foundConfigPath: s
   }
 
   return {
-    option: "tsconfig",
-    title: `No tsconfig found at \`${configPath}\``
+    option,
+    title: option === "tsconfig"
+      ? `No tsconfig found at \`${configPath}\``
+      : `No tailwind config found at \`${configPath}\``
   };
 }

@@ -154,7 +154,8 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 
-  An array replaces the default selectors. To keep the defaults and add your own, pass an object with an `extend` array instead. This also works in configs that cannot import JavaScript, such as JSON configs.
+  An array replaces the default selectors. To keep the defaults and add your own, pass an object with an `extend` array instead. This also works in configs that cannot import JavaScript, such as JSON configs.  
+  When a rule's `selectors` option uses `extend`, it adds to the selectors configured here instead of the defaults.
 
   ```jsonc
   {

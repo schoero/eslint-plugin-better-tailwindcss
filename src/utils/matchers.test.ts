@@ -789,15 +789,59 @@ describe("matchers", () => {
       });
     });
 
-    it("should let rule options override the selectors from the settings", () => {
+    it("should let rule options extend the extended selectors from the settings", () => {
       lint(noUnnecessaryWhitespace, {
         invalid: [
           {
-            jsx: `<img class=" lint " />; extra(" ignore "); other(" lint ");`,
-            jsxOutput: `<img class="lint" />; extra(" ignore "); other("lint");`,
+            jsx: `<img class=" lint " />; extra(" lint "); other(" lint ");`,
+            jsxOutput: `<img class="lint" />; extra("lint"); other("lint");`,
+
+            errors: 6,
+            options: [{ selectors: { extend: [callee("other")] } }],
+            settings: { "better-tailwindcss": { selectors: { extend: [callee("extra")] } } }
+          }
+        ]
+      });
+    });
+
+    it("should let rule options extend the selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " />; custom(" lint "); other(" lint ");`,
+            jsxOutput: `<img class=" ignore " />; custom("lint"); other("lint");`,
 
             errors: 4,
             options: [{ selectors: { extend: [callee("other")] } }],
+            settings: { "better-tailwindcss": { selectors: [callee("custom")] } }
+          }
+        ]
+      });
+    });
+
+    it("should keep extended selectors when legacy options replace the default selectors", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " legacy=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class=" ignore " legacy="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { attributes: ["^legacy$"], selectors: { extend: [testStyles] } } }
+          }
+        ]
+      });
+    });
+
+    it("should let rule options replace the selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " />; extra(" ignore "); other(" lint ");`,
+            jsxOutput: `<img class=" ignore " />; extra(" ignore "); other("lint");`,
+
+            errors: 2,
+            options: [{ selectors: [callee("other")] }],
             settings: { "better-tailwindcss": { selectors: { extend: [callee("extra")] } } }
           }
         ]

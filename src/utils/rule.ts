@@ -51,6 +51,7 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -115,7 +116,7 @@ export function createRule<
   const getOptions = (): Options => {
     const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
-    const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
+    const settings: Partial<SelectorsOptions> = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
     const mergedOptions = {
@@ -137,13 +138,25 @@ export function createRule<
     const hasTagOverride = mergedOptions.tags !== undefined;
     const hasVariableOverride = mergedOptions.variables !== undefined;
 
-    const configuredSelectors = mergedOptions.selectors ?? [];
+    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce(
+      (resolvedSelectors, configuredSelectors) => {
+        if(configuredSelectors === undefined){
+          return resolvedSelectors;
+        }
 
-    const resolvedSelectors = Array.isArray(configuredSelectors)
-      ? configuredSelectors
-      : [...DEFAULT_SELECTORS, ...configuredSelectors.extend];
+        if(Array.isArray(configuredSelectors)){
+          return { baseSelectors: configuredSelectors, extendedSelectors: [] };
+        }
 
-    const preservedSelectors = resolvedSelectors.filter(selector => {
+        return {
+          baseSelectors: resolvedSelectors.baseSelectors,
+          extendedSelectors: [...resolvedSelectors.extendedSelectors, ...configuredSelectors.extend]
+        };
+      },
+      { baseSelectors: DEFAULT_SELECTORS, extendedSelectors: [] }
+    );
+
+    const preservedSelectors = baseSelectors.filter(selector => {
       if(hasAttributeOverride && selector.kind === SelectorKind.Attribute){
         return false;
       }
@@ -165,7 +178,8 @@ export function createRule<
 
     const selectors = [
       ...migratedSelectors,
-      ...preservedSelectors
+      ...preservedSelectors,
+      ...extendedSelectors
     ];
 
     return {

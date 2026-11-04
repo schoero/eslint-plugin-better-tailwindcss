@@ -26,13 +26,13 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
       .replace(getCachedRegex(`^${escapeForRegex((variants?.join(separator) ?? "") + separator)}`), "");
 
     const isNegative = base.startsWith("-");
-    base = base.replace(getCachedRegex(/^-/), "");
+    base = base.replace(/^-/, "");
 
     const isImportantAtStart = base.startsWith("!");
-    base = base.replace(getCachedRegex(/^!/), "");
+    base = base.replace(/^!/, "");
 
     const isImportantAtEnd = base.endsWith("!");
-    base = base.replace(getCachedRegex(/!$/), "");
+    base = base.replace(/!$/, "");
 
     acc[className] = {
       base,

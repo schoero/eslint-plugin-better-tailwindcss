@@ -154,8 +154,9 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 
-  An array replaces the default selectors. To keep the defaults and add your own, pass an object with an `extend` array instead. This also works in configs that cannot import JavaScript, such as JSON configs.  
-  When a rule's `selectors` option uses `extend`, it adds to the selectors configured here instead of the defaults.
+  Pass an array to replace the [default selectors](../api/defaults.md) with your own, or an object with an `extend` array to keep the default selectors and lint additional ones. Unlike spreading `getDefaultSelectors()` into an array, `extend` also works in configs that cannot import JavaScript, such as JSON configs.
+
+  Rules use the selectors configured here unless they set their own `selectors` option. In a rule's options, an array replaces the selectors configured here, and an `extend` array keeps them and lints additional ones.
 
   ```jsonc
   {
@@ -167,5 +168,5 @@ If provided, this will be used to determine if arbitrary values can be replaced 
   }
   ```
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or `{ extend: Selectors[] }`  
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or an object with an `extend` array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)

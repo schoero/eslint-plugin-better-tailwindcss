@@ -19,7 +19,7 @@ import { clearCache } from "better-tailwindcss:utils/cache.js";
 import type { ESLint, Linter } from "eslint";
 import type { Node as ESNode } from "estree";
 
-import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { Settings } from "better-tailwindcss:options/descriptions.js";
 import type { Context, ESLintRule } from "better-tailwindcss:types/rule.js";
 
 
@@ -102,8 +102,8 @@ export function lint<const Rule extends ESLintRule>(
         errors: { message: string; }[] | number;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
-        settings?: Record<string, Partial<CommonOptions>>;
+        options?: [Partial<Omit<Context<Rule>["options"], keyof Settings>> & Settings];
+        settings?: Record<string, Settings>;
       }
     )[];
     valid?: (
@@ -111,8 +111,8 @@ export function lint<const Rule extends ESLintRule>(
         [Key in keyof Syntaxes]?: string;
       } & {
         files?: Record<string, string>;
-        options?: [Partial<CommonOptions & Context<Rule>["options"]>];
-        settings?: Record<string, Partial<CommonOptions>>;
+        options?: [Partial<Omit<Context<Rule>["options"], keyof Settings>> & Settings];
+        settings?: Record<string, Settings>;
       }
     )[];
   }

@@ -41,8 +41,10 @@ export async function getCustomComponentClasses(ctx: AsyncContext): Promise<Cust
   return getCustomComponentUtilities(files, resolvedPath);
 }
 
-async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
-  const cssFiles: CssFiles = {};
+async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): Promise<CssFiles> {
+  if(resolvedPath in cssFiles){
+    return cssFiles;
+  }
 
   const cssFile = await parseCssFile(ctx, resolvedPath);
 
@@ -53,12 +55,9 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promi
   cssFiles[resolvedPath] = cssFile;
 
   for(const { path } of cssFile.imports){
-    const importedFiles = await parseCssFilesDeep(ctx, path);
-
-    for(const importedFile in importedFiles){
-      cssFiles[importedFile] = importedFiles[importedFile];
-    }
+    await parseCssFilesDeep(ctx, path, cssFiles);
   }
+
   return cssFiles;
 }
 
@@ -106,13 +105,17 @@ const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<Cs
   } catch {}
 });
 
-function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = []): string[] {
+// files that are already part of the current import chain are skipped to stop circular imports
+// the same file imported through different chains is visited again, because its layer may differ
+function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = [], importChain: ReadonlySet<string> = new Set()): string[] {
   const classes = new Set<string>();
   const file = files[filePath];
 
-  if(!file){
+  if(!file || importChain.has(filePath)){
     return [];
   }
+
+  const nextImportChain = new Set(importChain).add(filePath);
 
   for(const { layer, path } of file.imports){
     const nextLayer = [...currentLayer];
@@ -121,7 +124,7 @@ function getCustomComponentUtilities(files: CssFiles, filePath: string, currentL
       nextLayer.push(layer);
     }
 
-    const importedClasses = getCustomComponentUtilities(files, path, nextLayer);
+    const importedClasses = getCustomComponentUtilities(files, path, nextLayer, nextImportChain);
 
     for(const importedClass of importedClasses){
       classes.add(importedClass);

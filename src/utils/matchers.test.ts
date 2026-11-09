@@ -867,6 +867,22 @@ describe("matchers", () => {
       }
     });
 
+    it("should ignore malformed entries in the `extends` selectors of the settings", () => {
+      const selectors = { extends: [null, "testStyles", { kind: SelectorKind.Attribute }, testStyles] } as unknown as Settings["selectors"];
+
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { selectors } }
+          }
+        ]
+      });
+    });
+
   });
 
 });

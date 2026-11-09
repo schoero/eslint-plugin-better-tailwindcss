@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, strictObject } from "valibot";
+import { getDefaults, is, strictObject } from "valibot";
 
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import { SELECTOR_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -150,7 +151,10 @@ export function createRule<
 
         return {
           baseSelectors: resolvedSelectors.baseSelectors,
-          extendedSelectors: [...resolvedSelectors.extendedSelectors, ...configuredSelectors.extends]
+          extendedSelectors: [
+            ...resolvedSelectors.extendedSelectors,
+            ...configuredSelectors.extends.filter(selector => is(SELECTOR_SCHEMA, selector))
+          ]
         };
       },
       { baseSelectors: DEFAULT_SELECTORS, extendedSelectors: [] }

@@ -252,6 +252,40 @@ describe("descriptions", () => {
 
   });
 
+  test("settings", () => {
+
+    const selector = {
+      kind: "attribute",
+      match: [{ type: MatcherType.ObjectValue }],
+      name: "^classNames$"
+    };
+
+    expect(() => validateSettings({})).not.toThrow();
+    expect(() => validateSettings({ selectors: [selector] })).not.toThrow();
+    expect(() => validateSettings({ selectors: { extends: [selector] } })).not.toThrow();
+    expect(() => validateSettings({ attributes: ["^class$"], cwd: ".", entryPoint: "src/global.css", messageStyle: "compact", rootFontSize: 16 })).not.toThrow();
+
+  });
+
+  test("invalid settings", () => {
+
+    const selector = {
+      kind: "attribute",
+      match: [{ type: MatcherType.ObjectValue }],
+      name: "^classNames$"
+    };
+
+    expect(() => validateSettings({ selectors: { extend: [selector] } })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ selectors: {} })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ selectors: null })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ selectors: { extends: [selector], extra: true } })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ unknown: true })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ rootFontSize: "16px" })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ messageStyle: "fancy" })).toThrow(/Invalid settings/);
+    expect(() => validateSettings({ attributes: "^class$" })).toThrow(/Invalid settings/);
+
+  });
+
   test("selectors targetCall and targetArgument config", () => {
 
     const selectors = {
@@ -300,7 +334,7 @@ describe("descriptions", () => {
 
 });
 
-function validateRuleOptions(options: Record<string, unknown>) {
+function validateRuleOptions(options: Record<string, unknown>, settings: Record<string, unknown> = {}) {
   const linter = new Linter({ configType: "flat" });
 
   linter.verify("", {
@@ -311,6 +345,11 @@ function validateRuleOptions(options: Record<string, unknown>) {
     },
     rules: {
       [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: ["error", options]
-    }
+    },
+    settings: { "better-tailwindcss": settings }
   });
+}
+
+function validateSettings(settings: Record<string, unknown>) {
+  validateRuleOptions({}, settings);
 }

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, strictObject } from "valibot";
+import { getDefaults, safeParse, strictObject, summarize } from "valibot";
 
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
@@ -50,8 +50,7 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
-import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
-import type { SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
+import type { CommonOptions, Settings } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -86,6 +85,32 @@ const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, (
   };
 });
 
+// defaults are removed so that settings don't override the defaults of rule options, see `propertiesSchema`
+const SETTINGS_SCHEMA = strictObject(removeDefaults(COMMON_OPTIONS.entries));
+
+const parsedSettingsCache = new WeakMap<object, Partial<Settings>>();
+
+// settings are not validated by eslint, unlike rule options
+function parseSettings(settings: unknown): Partial<Settings> {
+  if(settings === undefined){
+    return {};
+  }
+
+  if(typeof settings === "object" && settings !== null && parsedSettingsCache.has(settings)){
+    return parsedSettingsCache.get(settings)!;
+  }
+
+  const result = safeParse(SETTINGS_SCHEMA, settings);
+
+  if(!result.success){
+    throw new Error(`Invalid settings for eslint-plugin-better-tailwindcss:\n${summarize(result.issues)}`);
+  }
+
+  parsedSettingsCache.set(settings as object, result.output);
+
+  return result.output;
+}
+
 export function createRule<
   const Name extends string,
   const Messages extends Record<string, string>,
@@ -116,7 +141,7 @@ export function createRule<
   const getOptions = (): Options => {
     const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
-    const settings: Partial<SelectorsOptions> = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
+    const settings = parseSettings(eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"]);
     const options = eslintContext?.options[0] ?? {};
 
     const mergedOptions = {

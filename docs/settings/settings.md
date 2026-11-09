@@ -158,6 +158,8 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   Rules use the selectors configured here unless they set their own `selectors` option. In a rule's options, an array replaces the selectors configured here, and an `extends` array keeps them and lints additional ones.
 
+  `extends` only adds selectors on top of the defaults or of the settings, not on top of the `extends` from another config object. ESLint merges `settings` across config objects by replacing arrays, so if a shared config and your own config both set `selectors: { extends: [...] }`, only the last one is used. To keep the selectors from the shared config, repeat them in your own `extends` array.
+
   ```jsonc
   {
     "selectors": {

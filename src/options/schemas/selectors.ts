@@ -198,7 +198,7 @@ export type Selector = InferOutput<typeof SELECTOR_SCHEMA>;
 
 export const SELECTORS_SCHEMA = pipe(
   array(SELECTOR_SCHEMA),
-  description("Flat list of selectors that should get linted.")
+  description("Selectors that replace the default selectors.")
 );
 
 export type Selectors = InferOutput<typeof SELECTORS_SCHEMA>;
@@ -214,7 +214,7 @@ export const SELECTORS_OPTION_SCHEMA = strictObject({
   selectors: optional(
     pipe(
       union([SELECTORS_SCHEMA, EXTENDS_SELECTORS_SCHEMA]),
-      description("Flat list of selectors that replaces the default selectors, or an object whose `extends` selectors are added to them. In rule options, both apply to the selectors from the settings instead of the defaults.")
+      description("Either an array of selectors that replaces the default selectors, or an object whose `extends` selectors are added to them. In rule options, both apply to the selectors from the settings instead of the defaults.")
     ),
     DEFAULT_SELECTORS
   )

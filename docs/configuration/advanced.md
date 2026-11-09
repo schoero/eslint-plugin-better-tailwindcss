@@ -4,7 +4,7 @@ The [rules](../../README.md#rules) in this plugin lint Tailwind classes inside s
 
 To do that safely, the plugin must know **which strings are expected to contain Tailwind classes**. If it would lint every string literal in your codebase, it would produce many false positives and potentially unsafe fixes.
 
-To configure this, you can provide an array of [selectors](#selectors) that specify where the plugin should look for class strings and how to extract them.
+To configure this, you can provide [selectors](#selectors) that specify where the plugin should look for class strings and how to extract them. Pass them as an array to replace the default selectors, or as `selectors: { extends: [...] }` to add them in addition to the defaults.
 
 The plugin already ships with defaults that support [most popular tailwind utilities](../../README.md#utilities). You only need advanced configuration when:
 
@@ -12,7 +12,7 @@ The plugin already ships with defaults that support [most popular tailwind utili
 - you want to narrow down linting behavior,
 - or you want to lint additional locations.
 
-To extend defaults instead of replacing them, pass your selectors as `selectors: { extends: [...] }`. In rule options, `extends` adds to the selectors from the [settings](../settings/settings.md#selectors) if there are any. To filter or reorder the defaults, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults` into a `selectors` array instead.
+In rule options, `extends` adds in addition to the selectors from the [settings](../settings/settings.md#selectors) if there are any. To filter or reorder the defaults, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults` into a `selectors` array instead.
 
 You can find the default selectors in the [defaults documentation](../api/defaults.md).
 

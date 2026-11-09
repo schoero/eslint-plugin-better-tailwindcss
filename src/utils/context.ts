@@ -1,6 +1,7 @@
+import { hash } from "node:crypto";
 import { resolve } from "node:path";
 
-import { withCache } from "better-tailwindcss:utils/cache.js";
+import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
 
@@ -9,6 +10,8 @@ import type { Context, Version } from "better-tailwindcss:types/rule.js";
 
 
 export interface AsyncContext {
+  /** Identifies the Tailwind CSS context of the config, results computed from it are cached under this key. */
+  contextKey: string;
   cwd: string;
   installation: string;
   tailwindConfigPath: string;
@@ -22,6 +25,7 @@ export function async(ctx: Context): AsyncContext {
   const { path: resolvedTSConfigPath, warnings: tsconfigWarnings } = getTSConfigPath({ configPath: ctx.options.tsconfig, cwd: ctx.cwd });
 
   return {
+    contextKey: getContextKey(ctx.installation, resolvedTailwindPath, resolvedTSConfigPath),
     cwd: ctx.cwd,
     installation: ctx.installation,
     tailwindConfigPath: resolvedTailwindPath,
@@ -31,11 +35,18 @@ export function async(ctx: Context): AsyncContext {
   };
 }
 
+// every cached result contains the context key, a short hash instead of the paths keeps the keys small
+function getContextKey(installation: string, tailwindConfigPath: string, tsconfigPath: string | undefined) {
+  const paths = cacheKey(installation, tailwindConfigPath, tsconfigPath);
+  return cache.getOrCreate(cacheKey("context-key", paths), () => `tailwind-context:${hash("sha256", paths, "base64url").slice(0, 16)}`);
+}
+
+// resolved again when the configured file is created or deleted
 function getTSConfigPath({ configPath, cwd }: {
   configPath: string | undefined;
   cwd: string;
 }) {
-  return withCache(`tsconfig-path-${cwd}`, configPath, () => {
+  return getOrResolveConfigPath(cacheKey("tsconfig-path", cwd, configPath), configPath, cwd, () => {
     const potentialPaths = [
       ...configPath ? [configPath] : [],
       "tsconfig.json",
@@ -57,7 +68,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
   cwd: string;
   version: Version;
 }) {
-  return withCache(`config-path-${cwd}`, configPath, () => {
+  return getOrResolveConfigPath(cacheKey("tailwind-config-path", cwd, configPath, version.major), configPath, cwd, () => {
     if(version.major >= 4){
 
       const foundConfigPath = configPath && findPathRecursive(cwd, cwd, [configPath]);
@@ -103,6 +114,26 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
 
     throw new Error(`Unsupported Tailwind CSS version: ${version.major}. Please use a version between 3 and 4.`);
   });
+}
+
+function getOrResolveConfigPath<Path extends string | undefined>(key: string, configPath: string | undefined, cwd: string, resolveConfigPath: () => { path: Path; warnings: (Warning | undefined)[]; }) {
+  const cached = cache.get<ReturnType<typeof resolveConfigPath>>(key);
+
+  if(cached){
+    return cached;
+  }
+
+  const resolved = resolveConfigPath();
+
+  // the configured file is picked up as soon as it is created, a found file is resolved again when it is deleted
+  cache.set(key, resolved, {
+    files: [
+      ...configPath ? [resolve(cwd, configPath)] : [],
+      ...resolved.path && resolved.path !== "default" ? [resolved.path] : []
+    ]
+  });
+
+  return resolved;
 }
 
 function getEntryPointWarning(entryPoint: string | undefined, foundEntryPoint: string | undefined): Warning | undefined {

@@ -3,44 +3,48 @@ import fs from "node:fs";
 import enhancedResolve from "enhanced-resolve";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
-import { withCache } from "../async-utils/cache.js";
+import { cache, cacheKey } from "./cache.js";
 
 import type { AsyncContext } from "../utils/context.js";
 
 
-const fileSystem = new enhancedResolve.CachedInputFileSystem(fs, 30_000);
+type Resolver = ReturnType<typeof enhancedResolve.ResolverFactory.createResolver>;
 
-const getESMResolver = (ctx: AsyncContext | undefined) => withCache("esm-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["node", "import"],
-  extensions: [".mjs", ".js"],
-  fileSystem,
-  mainFields: ["module"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+interface ResolverOptions {
+  conditionNames: string[];
+  extensions: string[];
+  mainFields: string[];
+}
 
-const getCJSResolver = (ctx: AsyncContext | undefined) => withCache("cjs-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["node", "require"],
-  extensions: [".js", ".cjs"],
-  fileSystem,
-  mainFields: ["main"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+// resolved paths are cached by the callers, so the resolvers use the file system directly
+// instead of keeping a second cache of their own
+function createCachedResolver(name: string, { conditionNames, extensions, mainFields }: ResolverOptions) {
+  return (ctx: AsyncContext | undefined): Resolver => {
+    const tsconfigPath = ctx?.tsconfigPath;
 
-const getCSSResolver = (ctx: AsyncContext | undefined) => withCache("css-resolver", ctx?.tsconfigPath, () => enhancedResolve.ResolverFactory.createResolver({
-  conditionNames: ["style"],
-  extensions: [".css"],
-  fileSystem,
-  mainFields: ["style"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
-  useSyncFileSystemCalls: true
-}));
+    return cache.getOrCreate(
+      cacheKey("resolver", name, tsconfigPath),
+      () => enhancedResolve.ResolverFactory.createResolver({
+        conditionNames,
+        extensions,
+        fileSystem: fs,
+        mainFields,
+        plugins: tsconfigPath ? [new TsconfigPathsPlugin({ configFile: tsconfigPath, mainFields })] : [],
+        useSyncFileSystemCalls: true
+      }),
+      { files: tsconfigPath ? [tsconfigPath] : [] }
+    );
+  };
+}
+
+const getESMResolver = createCachedResolver("esm", { conditionNames: ["node", "import"], extensions: [".mjs", ".js"], mainFields: ["module"] });
+const getCJSResolver = createCachedResolver("cjs", { conditionNames: ["node", "require"], extensions: [".js", ".cjs"], mainFields: ["main"] });
+const getCSSResolver = createCachedResolver("css", { conditionNames: ["style"], extensions: [".css"], mainFields: ["style"] });
 
 const jsonResolver = enhancedResolve.ResolverFactory.createResolver({
   conditionNames: ["json"],
   extensions: [".json"],
-  fileSystem,
+  fileSystem: fs,
   useSyncFileSystemCalls: true
 });
 

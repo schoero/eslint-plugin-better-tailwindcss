@@ -14,7 +14,7 @@ import eslintParserVue from "vue-eslint-parser";
 
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getNodeVersion } from "better-tailwindcss:tests/utils/version.js";
-import { clearCache } from "better-tailwindcss:utils/cache.js";
+import { cache } from "better-tailwindcss:utils/cache.js";
 
 import type { ESLint, Linter } from "eslint";
 import type { Node as ESNode } from "estree";
@@ -120,7 +120,7 @@ export function lint<const Rule extends ESLintRule>(
 
   for(const invalid of tests.invalid ?? []){
 
-    clearCache();
+    cache.clear();
 
     using _ = new TestDirectory(invalid.files);
 
@@ -150,7 +150,7 @@ export function lint<const Rule extends ESLintRule>(
 
   for(const valid of tests.valid ?? []){
 
-    clearCache();
+    cache.clear();
 
     using _ = new TestDirectory(valid.files);
 

@@ -1,10 +1,9 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { withCache } from "../async-utils/cache.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -29,24 +28,25 @@ interface CssFiles {
 
 const { findAll, generate, parse, walk } = fork(tailwind4);
 
-export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
+export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentClasses {
   const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
 
   if(!resolvedPath){
     return [];
   }
 
-  const files = await parseCssFilesDeep(ctx, resolvedPath);
+  // the host caches the result, the tailwind context tracks the same files
+  const files = parseCssFilesDeep(ctx, resolvedPath);
 
   return getCustomComponentUtilities(files, resolvedPath);
 }
 
-async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): Promise<CssFiles> {
+function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): CssFiles {
   if(resolvedPath in cssFiles){
     return cssFiles;
   }
 
-  const cssFile = await parseCssFile(ctx, resolvedPath);
+  const cssFile = parseCssFile(ctx, resolvedPath);
 
   if(!cssFile){
     return cssFiles;
@@ -55,15 +55,15 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFil
   cssFiles[resolvedPath] = cssFile;
 
   for(const { path } of cssFile.imports){
-    await parseCssFilesDeep(ctx, path, cssFiles);
+    parseCssFilesDeep(ctx, path, cssFiles);
   }
 
   return cssFiles;
 }
 
-const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache("css-file", resolvedPath, async () => {
+const parseCssFile = (ctx: AsyncContext, resolvedPath: string): CssFile | undefined => {
   try {
-    const content = await readFile(resolvedPath, "utf-8");
+    const content = readFileSync(resolvedPath, "utf-8");
     const ast = parse(content);
 
     const importNodes = findAll(ast, node => node.type === "Atrule" &&
@@ -103,7 +103,7 @@ const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<Cs
     } satisfies CssFile;
 
   } catch {}
-});
+};
 
 // files that are already part of the current import chain are skipped to stop circular imports
 // the same file imported through different chains is visited again, because its layer may differ

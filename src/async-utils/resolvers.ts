@@ -1,7 +1,6 @@
 import fs from "node:fs";
 
 import enhancedResolve from "enhanced-resolve";
-import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
 import { cache, cacheKey } from "./cache.js";
 
@@ -29,7 +28,7 @@ function createCachedResolver(name: string, { conditionNames, extensions, mainFi
         extensions,
         fileSystem: fs,
         mainFields,
-        plugins: tsconfigPath ? [new TsconfigPathsPlugin({ configFile: tsconfigPath, mainFields })] : [],
+        tsconfig: tsconfigPath ?? false,
         useSyncFileSystemCalls: true
       }),
       { files: tsconfigPath ? [tsconfigPath] : [] }

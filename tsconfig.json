@@ -20,7 +20,6 @@
     // general
     "noEmit": true,
     "target": "ES2020",
-    "types": ["node"],
 
     // strictness
     "exactOptionalPropertyTypes": true,

@@ -87,6 +87,7 @@
     "jiti": "^2.7.0",
     "synckit": "^0.12.3",
     "tailwind-csstree": "^0.3.3",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
     "valibot": "^1.4.2"
   },
   "devDependencies": {

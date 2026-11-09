@@ -150,7 +150,7 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
 ### `selectors`
 
-  Flat list of selectors that determines where Tailwind class strings are linted.
+  Selectors that determine where Tailwind class strings are linted.
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 

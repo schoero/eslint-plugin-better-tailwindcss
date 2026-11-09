@@ -93,7 +93,7 @@ Enforce the order of tailwind classes. It is possible to sort classes alphabetic
 
 ### `selectors`
 
-  Flat list of selectors that determines where Tailwind class strings are linted.
+  Selectors that determine where Tailwind class strings are linted.
 
   By default, a rule uses the selectors from the [settings](../settings/settings.md#selectors), or the [default selectors](../api/defaults.md) if the settings don't configure any.
 

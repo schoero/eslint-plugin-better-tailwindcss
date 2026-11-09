@@ -334,6 +334,36 @@ describe("descriptions", () => {
 
   });
 
+  test("values without invalid keys are kept as they are", () => {
+
+    const value = /regex/;
+
+    lintWithSettings("", { other: { value }, rootFontSize: "16px" });
+
+    expect((noUnnecessaryWhitespace.options as { other?: { value?: unknown; }; }).other?.value).toBe(value);
+
+  });
+
+  test("non-object settings are ignored", () => {
+
+    vi.mocked(warnOnce).mockClear();
+
+    expect(() => validateSettings([])).not.toThrow();
+    expect(warnOnce).toHaveBeenCalledWith(expect.stringMatching(/expected an object/));
+
+  });
+
+  test("only the invalid entries of an array are ignored", () => {
+
+    const selector = { kind: "attribute", name: "^classNames$" };
+    const invalidSelector = { kind: "attribute", name: 1 };
+    const code = "<div className=\"  a  \" classNames=\"  a  \" invalid=\"  a  \" />";
+
+    expect(lintWithSettings(code, { selectors: [selector, invalidSelector] })).toHaveLength(2);
+    expect(lintWithSettings(code, { selectors: { extends: [selector, invalidSelector] } })).toHaveLength(4);
+
+  });
+
   test("the warning names the invalid part of the selectors", () => {
 
     const selector = { kind: "attribute", name: "^classNames$" };
@@ -404,11 +434,11 @@ function validateRuleOptions(options: Record<string, unknown>, settings: Record<
   lintWithSettings("", settings, options);
 }
 
-function validateSettings(settings: Record<string, unknown> | null) {
+function validateSettings(settings: Record<string, unknown> | unknown[] | null) {
   lintWithSettings("<div className=\"a\" />", settings);
 }
 
-function lintWithSettings(code: string, settings: Record<string, unknown> | null, ...[options]: [options?: Record<string, unknown>]) {
+function lintWithSettings(code: string, settings: Record<string, unknown> | unknown[] | null, ...[options]: [options?: Record<string, unknown>]) {
   const linter = new Linter({ configType: "flat" });
 
   return linter.verify(code, {

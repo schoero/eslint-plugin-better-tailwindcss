@@ -106,7 +106,7 @@ function parseSettings(settings: unknown): Settings {
     return {};
   }
 
-  if(typeof settings !== "object"){
+  if(typeof settings !== "object" || Array.isArray(settings)){
     warnOnce("Invalid settings for eslint-plugin-better-tailwindcss: expected an object. The settings will be ignored.");
     return {};
   }
@@ -129,17 +129,41 @@ function parseValidSettings(settings: object): Settings {
     return result.output as Settings;
   }
 
-  const invalidKeys = new Set(result.issues.map(issue => issue.path?.[0]?.key));
-
   warnOnce(`Invalid settings for eslint-plugin-better-tailwindcss. The following settings will be ignored:\n${summarize(result.issues)}`);
 
-  const validSettings = Object.fromEntries(
-    Object.entries(settings).filter(([key]) => !invalidKeys.has(key))
+  const invalidKeys = new Map<unknown, Set<unknown>>();
+
+  for(const { path = [] } of result.issues){
+    const arrayIndex = path.findIndex(item => item.type === "array");
+    const invalidPath = path.slice(0, arrayIndex === -1 ? 1 : arrayIndex + 1);
+
+    for(const { input } of invalidPath){
+      invalidKeys.set(input, invalidKeys.get(input) ?? new Set());
+    }
+
+    const invalidItem = invalidPath.at(-1);
+    invalidKeys.get(invalidItem?.input)?.add(invalidItem?.key);
+  }
+
+  return removeInvalidKeys(settings, invalidKeys) as Settings;
+}
+
+function removeInvalidKeys(value: unknown, invalidKeys: Map<unknown, Set<unknown>>): unknown {
+  const invalid = invalidKeys.get(value);
+
+  if(!invalid){
+    return value;
+  }
+
+  if(Array.isArray(value)){
+    return value.filter((_, index) => !invalid.has(index));
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as object)
+      .filter(([key]) => !invalid.has(key))
+      .map(([key, entry]) => [key, removeInvalidKeys(entry, invalidKeys)])
   );
-
-  const validResult = safeParse(SETTINGS_SCHEMA, validSettings);
-
-  return validResult.success ? validResult.output as Settings : {};
 }
 
 export function createRule<

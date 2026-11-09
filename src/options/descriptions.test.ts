@@ -283,8 +283,6 @@ describe("descriptions", () => {
       { selectors: { extend: [selector] } },
       { selectors: {} },
       { selectors: null },
-      { selectors: { extends: [selector], extra: true } },
-      { unknown: true },
       { rootFontSize: "16px" },
       { messageStyle: "fancy" },
       { attributes: "^class$" }
@@ -306,8 +304,33 @@ describe("descriptions", () => {
 
     const code = "<div className=\"  a  \" />";
 
-    expect(lintWithSettings(code, { invalidKey: true })).toHaveLength(2);
-    expect(lintWithSettings(code, { attributes: [], invalidKey: true })).toHaveLength(0);
+    expect(lintWithSettings(code, { rootFontSize: "16px" })).toHaveLength(2);
+    expect(lintWithSettings(code, { attributes: [], rootFontSize: "16px" })).toHaveLength(0);
+
+  });
+
+  test("options of other rules are allowed in the settings", () => {
+
+    const code = "<div className=\"a\n  b\" />";
+
+    vi.mocked(warnOnce).mockClear();
+
+    expect(lintWithSettings(code, {}, undefined)).toHaveLength(0);
+    expect(lintWithSettings(code, { allowMultiline: false }, undefined)).toHaveLength(1);
+    expect(warnOnce).not.toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
+
+  });
+
+  test("unknown keys in the settings are neither reported nor removed", () => {
+
+    const selector = { extra: true, kind: "attribute", match: [{ extra: true, type: MatcherType.String }], name: "^classNames$" };
+    const code = "<div className=\"  a  \" classNames=\"  a  \" />";
+
+    vi.mocked(warnOnce).mockClear();
+
+    expect(lintWithSettings(code, { selectors: [selector], unknown: true })).toHaveLength(2);
+    expect(lintWithSettings(code, { selectors: { extends: [selector], extra: true } })).toHaveLength(4);
+    expect(warnOnce).not.toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
 
   });
 
@@ -367,7 +390,7 @@ function validateSettings(settings: Record<string, unknown> | null) {
   lintWithSettings("<div className=\"a\" />", settings);
 }
 
-function lintWithSettings(code: string, settings: Record<string, unknown> | null, options: Record<string, unknown> = {}) {
+function lintWithSettings(code: string, settings: Record<string, unknown> | null, ...[options]: [options?: Record<string, unknown>]) {
   const linter = new Linter({ configType: "flat" });
 
   return linter.verify(code, {
@@ -378,7 +401,7 @@ function lintWithSettings(code: string, settings: Record<string, unknown> | null
       }
     },
     rules: {
-      [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: ["error", options]
+      [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: options ? ["error", options] : "error"
     },
     settings: { "better-tailwindcss": settings }
   });

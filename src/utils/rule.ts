@@ -30,7 +30,7 @@ import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { withCache } from "better-tailwindcss:utils/cache.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
-import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
+import { removeDefaults, toLooseSchema } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -85,7 +85,10 @@ const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, (
 });
 
 // defaults are removed so that settings don't override the defaults of rule options, see `propertiesSchema`
-const SETTINGS_SCHEMA = strictObject(removeDefaults(COMMON_OPTIONS.entries));
+const SETTINGS_ENTRIES = removeDefaults(COMMON_OPTIONS.entries);
+
+// unknown keys are allowed, because settings are shared by all rules, so a key that is unknown here can still be an option of another rule
+const SETTINGS_SCHEMA = toLooseSchema(strictObject(SETTINGS_ENTRIES));
 
 const parsedSettingsCache = new WeakMap<object, Settings>();
 
@@ -115,7 +118,7 @@ function parseValidSettings(settings: object): Settings {
   const result = safeParse(SETTINGS_SCHEMA, settings);
 
   if(result.success){
-    return result.output;
+    return result.output as Settings;
   }
 
   const invalidKeys = new Set(result.issues.map(issue => issue.path?.[0]?.key));
@@ -128,7 +131,7 @@ function parseValidSettings(settings: object): Settings {
 
   const validResult = safeParse(SETTINGS_SCHEMA, validSettings);
 
-  return validResult.success ? validResult.output : {};
+  return validResult.success ? validResult.output as Settings : {};
 }
 
 export function createRule<
@@ -152,7 +155,7 @@ export function createRule<
     // 2. defaults from option
     // 3. configs from settings
     // 4. configs from option
-    ...SETTINGS_SCHEMA.entries,
+    ...SETTINGS_ENTRIES,
     ...schema?.entries
   });
 

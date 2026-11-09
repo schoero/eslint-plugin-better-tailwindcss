@@ -1,5 +1,13 @@
-import { statSync, unlinkSync, utimesSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import {
+  mkdirSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  unlinkSync,
+  utimesSync,
+  writeFileSync
+} from "node:fs";
+import { dirname, join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -262,6 +270,52 @@ describe("config path invalidation", () => {
     cache.refresh();
 
     expect(getTailwindPackage(directory.directory)?.version).toMatchObject({ major: 4, minor: 1 });
+  });
+
+  it("should resolve tailwind again when pnpm replaces the installed version", () => {
+    const directory = createDirectory({ "node_modules/.pnpm/tailwindcss@4.0.0/node_modules/tailwindcss/package.json": JSON.stringify({ version: "4.0.0" }) });
+    const link = join(directory.directory, "node_modules/tailwindcss");
+
+    symlinkSync(".pnpm/tailwindcss@4.0.0/node_modules/tailwindcss", link, "dir");
+
+    expect(getTailwindPackage(directory.directory)?.version).toMatchObject({ major: 4, minor: 0 });
+
+    const upgraded = join(directory.directory, "node_modules/.pnpm/tailwindcss@4.1.0/node_modules/tailwindcss");
+
+    mkdirSync(upgraded, { recursive: true });
+    writeFileSync(join(upgraded, "package.json"), JSON.stringify({ version: "4.1.0" }));
+    unlinkSync(link);
+    symlinkSync(".pnpm/tailwindcss@4.1.0/node_modules/tailwindcss", link, "dir");
+    rmSync(join(directory.directory, "node_modules/.pnpm/tailwindcss@4.0.0"), { recursive: true });
+    cache.refresh();
+
+    expect(getTailwindPackage(directory.directory)?.version).toMatchObject({ major: 4, minor: 1 });
+  });
+
+  it("should find tailwind when it is installed after it was not found", () => {
+    const directory = new TestDirectory({}, true);
+    directories.push(directory);
+
+    expect(getTailwindPackage(directory.directory)).toBeUndefined();
+
+    mkdirSync(join(directory.directory, "node_modules/tailwindcss"), { recursive: true });
+    writeFileSync(join(directory.directory, "node_modules/tailwindcss/package.json"), JSON.stringify({ version: "4.1.0" }));
+    cache.refresh();
+
+    expect(getTailwindPackage(directory.directory)?.version).toMatchObject({ major: 4, minor: 1 });
+  });
+
+  it("should resolve tailwind again when it is installed closer to the cwd", () => {
+    const directory = createDirectory({ "packages/app/index.ts": "" });
+    const cwd = join(directory.directory, "packages/app");
+
+    expect(getTailwindPackage(cwd)?.installation).not.toContain(directory.directory);
+
+    mkdirSync(join(cwd, "node_modules/tailwindcss"), { recursive: true });
+    writeFileSync(join(cwd, "node_modules/tailwindcss/package.json"), JSON.stringify({ version: "4.1.0" }));
+    cache.refresh();
+
+    expect(getTailwindPackage(cwd)?.installation).toBe(join(cwd, "node_modules/tailwindcss"));
   });
 
 });

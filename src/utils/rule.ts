@@ -62,7 +62,6 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
-  Selectors,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
@@ -301,7 +300,7 @@ export function createRule<
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
-  const selectors = context.options.selectors as Selectors;
+  const { selectors } = context.options;
 
   const attributes: AttributeSelector[] = [];
   const callees: CalleeSelector[] = [];

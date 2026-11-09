@@ -15,6 +15,7 @@ import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { Node as ESNode } from "estree";
 
+import type { Settings } from "better-tailwindcss:options/descriptions.js";
 import type { Selector } from "better-tailwindcss:options/schemas/selectors.js";
 
 
@@ -846,6 +847,24 @@ describe("matchers", () => {
           }
         ]
       });
+    });
+
+    it("should fall back to the default selectors when the selectors in the settings are malformed", () => {
+      const malformedSelectors = [null, {}, { extend: [testStyles] }] as unknown as Settings["selectors"][];
+
+      for(const selectors of malformedSelectors){
+        lint(noUnnecessaryWhitespace, {
+          invalid: [
+            {
+              jsx: `<img class=" lint " testStyles=" ignore " />`,
+              jsxOutput: `<img class="lint" testStyles=" ignore " />`,
+
+              errors: 2,
+              settings: { "better-tailwindcss": { selectors } }
+            }
+          ]
+        });
+      }
     });
 
   });

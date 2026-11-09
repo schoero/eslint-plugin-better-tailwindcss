@@ -139,12 +139,13 @@ export function createRule<
 
     const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce(
       (resolvedSelectors, configuredSelectors) => {
-        if(configuredSelectors === undefined){
-          return resolvedSelectors;
-        }
-
         if(Array.isArray(configuredSelectors)){
           return { baseSelectors: configuredSelectors, extendedSelectors: [] };
+        }
+
+        // settings are not validated, so they can contain anything
+        if(!Array.isArray(configuredSelectors?.extends)){
+          return resolvedSelectors;
         }
 
         return {

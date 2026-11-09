@@ -1,17 +1,21 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { Linter } from "eslint";
 import { validate } from "json-schema";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { AttributesOptions } from "better-tailwindcss:options/schemas/attributes.js";
 import type { CalleesOptions } from "better-tailwindcss:options/schemas/callees.js";
 import type { VariablesOptions } from "better-tailwindcss:options/schemas/variables.js";
+
+
+vi.mock("better-tailwindcss:utils/warn.js", () => ({ warnOnce: vi.fn() }));
 
 
 describe("descriptions", () => {
@@ -275,14 +279,35 @@ describe("descriptions", () => {
       name: "^classNames$"
     };
 
-    expect(() => validateSettings({ selectors: { extend: [selector] } })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ selectors: {} })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ selectors: null })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ selectors: { extends: [selector], extra: true } })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ unknown: true })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ rootFontSize: "16px" })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ messageStyle: "fancy" })).toThrow(/Invalid settings/);
-    expect(() => validateSettings({ attributes: "^class$" })).toThrow(/Invalid settings/);
+    const invalidSettings = [
+      { selectors: { extend: [selector] } },
+      { selectors: {} },
+      { selectors: null },
+      { selectors: { extends: [selector], extra: true } },
+      { unknown: true },
+      { rootFontSize: "16px" },
+      { messageStyle: "fancy" },
+      { attributes: "^class$" }
+    ];
+
+    for(const settings of invalidSettings){
+      vi.mocked(warnOnce).mockClear();
+      expect(() => validateSettings(settings)).not.toThrow();
+      expect(warnOnce).toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
+    }
+
+  });
+
+  test("null settings are treated as empty settings", () => {
+    expect(() => validateSettings(null)).not.toThrow();
+  });
+
+  test("valid settings are kept when other settings are invalid", () => {
+
+    const code = "<div className=\"  a  \" />";
+
+    expect(lintWithSettings(code, { invalidKey: true })).toHaveLength(2);
+    expect(lintWithSettings(code, { attributes: [], invalidKey: true })).toHaveLength(0);
 
   });
 
@@ -335,9 +360,18 @@ describe("descriptions", () => {
 });
 
 function validateRuleOptions(options: Record<string, unknown>, settings: Record<string, unknown> = {}) {
+  lintWithSettings("", settings, options);
+}
+
+function validateSettings(settings: Record<string, unknown> | null) {
+  lintWithSettings("<div className=\"a\" />", settings);
+}
+
+function lintWithSettings(code: string, settings: Record<string, unknown> | null, options: Record<string, unknown> = {}) {
   const linter = new Linter({ configType: "flat" });
 
-  linter.verify("", {
+  return linter.verify(code, {
+    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
     plugins: {
       "better-tailwindcss": {
         rules: { [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule }
@@ -348,8 +382,4 @@ function validateRuleOptions(options: Record<string, unknown>, settings: Record<
     },
     settings: { "better-tailwindcss": settings }
   });
-}
-
-function validateSettings(settings: Record<string, unknown>) {
-  validateRuleOptions({}, settings);
 }

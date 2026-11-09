@@ -91,23 +91,44 @@ const parsedSettingsCache = new WeakMap<object, Partial<Settings>>();
 
 // settings are not validated by eslint, unlike rule options
 function parseSettings(settings: unknown): Partial<Settings> {
-  if(settings === undefined){
+  if(settings === undefined || settings === null){
     return {};
   }
 
-  if(typeof settings === "object" && settings !== null && parsedSettingsCache.has(settings)){
+  if(typeof settings !== "object"){
+    warnOnce("Invalid settings for eslint-plugin-better-tailwindcss: expected an object. The settings will be ignored.");
+    return {};
+  }
+
+  if(parsedSettingsCache.has(settings)){
     return parsedSettingsCache.get(settings)!;
   }
 
+  const parsedSettings = parseValidSettings(settings);
+
+  parsedSettingsCache.set(settings, parsedSettings);
+
+  return parsedSettings;
+}
+
+function parseValidSettings(settings: object): Partial<Settings> {
   const result = safeParse(SETTINGS_SCHEMA, settings);
 
-  if(!result.success){
-    throw new Error(`Invalid settings for eslint-plugin-better-tailwindcss:\n${summarize(result.issues)}`);
+  if(result.success){
+    return result.output;
   }
 
-  parsedSettingsCache.set(settings as object, result.output);
+  const invalidKeys = new Set(result.issues.map(issue => issue.path?.[0]?.key));
 
-  return result.output;
+  warnOnce(`Invalid settings for eslint-plugin-better-tailwindcss. The following settings will be ignored:\n${summarize(result.issues)}`);
+
+  const validSettings = Object.fromEntries(
+    Object.entries(settings).filter(([key]) => !invalidKeys.has(key))
+  );
+
+  const validResult = safeParse(SETTINGS_SCHEMA, validSettings);
+
+  return validResult.success ? validResult.output : {};
 }
 
 export function createRule<

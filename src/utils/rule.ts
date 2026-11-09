@@ -48,10 +48,9 @@ import type {
 } from "estree";
 import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
-import type { InferOutput } from "valibot";
 import type { AST } from "vue-eslint-parser";
 
-import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { CommonOptions, Settings } from "better-tailwindcss:options/descriptions.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -88,12 +87,10 @@ const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, (
 // defaults are removed so that settings don't override the defaults of rule options, see `propertiesSchema`
 const SETTINGS_SCHEMA = strictObject(removeDefaults(COMMON_OPTIONS.entries));
 
-type ParsedSettings = Partial<InferOutput<typeof COMMON_OPTIONS>>;
-
-const parsedSettingsCache = new WeakMap<object, ParsedSettings>();
+const parsedSettingsCache = new WeakMap<object, Settings>();
 
 // settings are not validated by eslint, unlike rule options
-function parseSettings(settings: unknown): ParsedSettings {
+function parseSettings(settings: unknown): Settings {
   if(settings === undefined || settings === null){
     return {};
   }
@@ -114,7 +111,7 @@ function parseSettings(settings: unknown): ParsedSettings {
   return parsedSettings;
 }
 
-function parseValidSettings(settings: object): ParsedSettings {
+function parseValidSettings(settings: object): Settings {
   const result = safeParse(SETTINGS_SCHEMA, settings);
 
   if(result.success){

@@ -1,21 +1,17 @@
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { Linter } from "eslint";
 import { validate } from "json-schema";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { ATTRIBUTES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/attributes.js";
 import { CALLEES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/callees.js";
 import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/variables.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { MatcherType } from "better-tailwindcss:types/rule.js";
-import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
 import type { AttributesOptions } from "better-tailwindcss:options/schemas/attributes.js";
 import type { CalleesOptions } from "better-tailwindcss:options/schemas/callees.js";
 import type { VariablesOptions } from "better-tailwindcss:options/schemas/variables.js";
-
-
-vi.mock("better-tailwindcss:utils/warn.js", () => ({ warnOnce: vi.fn() }));
 
 
 describe("descriptions", () => {
@@ -256,132 +252,6 @@ describe("descriptions", () => {
 
   });
 
-  test("settings", () => {
-
-    const selector = {
-      kind: "attribute",
-      match: [{ type: MatcherType.ObjectValue }],
-      name: "^classNames$"
-    };
-
-    expect(() => validateSettings({})).not.toThrow();
-    expect(() => validateSettings({ selectors: [selector] })).not.toThrow();
-    expect(() => validateSettings({ selectors: { extends: [selector] } })).not.toThrow();
-    expect(() => validateSettings({ attributes: ["^class$"], cwd: ".", entryPoint: "src/global.css", messageStyle: "compact", rootFontSize: 16 })).not.toThrow();
-
-  });
-
-  test("invalid settings", () => {
-
-    const selector = {
-      kind: "attribute",
-      match: [{ type: MatcherType.ObjectValue }],
-      name: "^classNames$"
-    };
-
-    const invalidSettings = [
-      { selectors: { extend: [selector] } },
-      { selectors: {} },
-      { selectors: null },
-      { rootFontSize: "16px" },
-      { messageStyle: "fancy" },
-      { attributes: "^class$" }
-    ];
-
-    for(const settings of invalidSettings){
-      vi.mocked(warnOnce).mockClear();
-      expect(() => validateSettings(settings)).not.toThrow();
-      expect(warnOnce).toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
-    }
-
-  });
-
-  test("null settings are treated as empty settings", () => {
-    expect(() => validateSettings(null)).not.toThrow();
-  });
-
-  test("valid settings are kept when other settings are invalid", () => {
-
-    const code = "<div className=\"  a  \" />";
-
-    expect(lintWithSettings(code, { rootFontSize: "16px" })).toHaveLength(2);
-    expect(lintWithSettings(code, { attributes: [], rootFontSize: "16px" })).toHaveLength(0);
-
-  });
-
-  test("options of other rules are allowed in the settings", () => {
-
-    const code = "<div className=\"a\n  b\" />";
-
-    vi.mocked(warnOnce).mockClear();
-
-    expect(lintWithSettings(code, {}, undefined)).toHaveLength(0);
-    expect(lintWithSettings(code, { allowMultiline: false }, undefined)).toHaveLength(1);
-    expect(warnOnce).not.toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
-
-  });
-
-  test("unknown keys in the settings are neither reported nor removed", () => {
-
-    const selector = { extra: true, kind: "attribute", match: [{ extra: true, type: MatcherType.String }], name: "^classNames$" };
-    const code = "<div className=\"  a  \" classNames=\"  a  \" />";
-
-    vi.mocked(warnOnce).mockClear();
-
-    expect(lintWithSettings(code, { selectors: [selector], unknown: true })).toHaveLength(2);
-    expect(lintWithSettings(code, { selectors: { extends: [selector], extra: true } })).toHaveLength(4);
-    expect(warnOnce).not.toHaveBeenCalledWith(expect.stringMatching(/Invalid settings/));
-
-  });
-
-  test("values without invalid keys are kept as they are", () => {
-
-    const value = /regex/;
-
-    lintWithSettings("", { other: { value }, rootFontSize: "16px" });
-
-    expect((noUnnecessaryWhitespace.options as { other?: { value?: unknown; }; }).other?.value).toBe(value);
-
-  });
-
-  test("non-object settings are ignored", () => {
-
-    vi.mocked(warnOnce).mockClear();
-
-    expect(() => validateSettings([])).not.toThrow();
-    expect(warnOnce).toHaveBeenCalledWith(expect.stringMatching(/expected an object/));
-
-  });
-
-  test("only the invalid entries of an array are ignored", () => {
-
-    const selector = { kind: "attribute", name: "^classNames$" };
-    const invalidSelector = { kind: "attribute", name: 1 };
-    const code = "<div className=\"  a  \" classNames=\"  a  \" invalid=\"  a  \" />";
-
-    expect(lintWithSettings(code, { selectors: [selector, invalidSelector] })).toHaveLength(2);
-    expect(lintWithSettings(code, { selectors: { extends: [selector, invalidSelector] } })).toHaveLength(4);
-
-  });
-
-  test("the warning names the invalid part of the selectors", () => {
-
-    const selector = { kind: "attribute", name: "^classNames$" };
-
-    vi.mocked(warnOnce).mockClear();
-    validateSettings({ selectors: { extend: [selector] } });
-    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.extends"));
-
-    vi.mocked(warnOnce).mockClear();
-    validateSettings({ selectors: [selector, { kind: "attribute", name: 1 }] });
-    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.1"));
-
-    vi.mocked(warnOnce).mockClear();
-    validateSettings({ selectors: { extends: [{ kind: "attribute", name: 1 }] } });
-    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.extends.0"));
-
-  });
-
   test("selectors targetCall and targetArgument config", () => {
 
     const selectors = {
@@ -430,27 +300,17 @@ describe("descriptions", () => {
 
 });
 
-function validateRuleOptions(options: Record<string, unknown>, settings: Record<string, unknown> = {}) {
-  lintWithSettings("", settings, options);
-}
-
-function validateSettings(settings: Record<string, unknown> | unknown[] | null) {
-  lintWithSettings("<div className=\"a\" />", settings);
-}
-
-function lintWithSettings(code: string, settings: Record<string, unknown> | unknown[] | null, ...[options]: [options?: Record<string, unknown>]) {
+function validateRuleOptions(options: Record<string, unknown>) {
   const linter = new Linter({ configType: "flat" });
 
-  return linter.verify(code, {
-    languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+  linter.verify("", {
     plugins: {
       "better-tailwindcss": {
         rules: { [noUnnecessaryWhitespace.name]: noUnnecessaryWhitespace.rule }
       }
     },
     rules: {
-      [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: options ? ["error", options] : "error"
-    },
-    settings: { "better-tailwindcss": settings }
+      [`better-tailwindcss/${noUnnecessaryWhitespace.name}`]: ["error", options]
+    }
   });
 }

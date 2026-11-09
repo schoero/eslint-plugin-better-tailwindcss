@@ -2,12 +2,11 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, lazy, optional, safeParse, strictObject, summarize } from "valibot";
+import { getDefaults, strictObject } from "valibot";
 
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
-import { EXTENDS_SELECTORS_SCHEMA, SELECTORS_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -31,7 +30,7 @@ import { getLocByRange } from "better-tailwindcss:utils/ast.js";
 import { withCache } from "better-tailwindcss:utils/cache.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { augmentMessageWithWarnings, escapeMessage } from "better-tailwindcss:utils/utils.js";
-import { removeDefaults, toLooseSchema } from "better-tailwindcss:utils/valibot.js";
+import { removeDefaults } from "better-tailwindcss:utils/valibot.js";
 import { parseSemanticVersion } from "better-tailwindcss:utils/version.js";
 import { warnOnce } from "better-tailwindcss:utils/warn.js";
 
@@ -51,7 +50,8 @@ import type { JSXOpeningElement } from "estree-jsx";
 import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
-import type { CommonOptions, Settings } from "better-tailwindcss:options/descriptions.js";
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -85,87 +85,6 @@ const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, (
   };
 });
 
-// defaults are removed so that settings don't override the defaults of rule options, see `propertiesSchema`
-const SETTINGS_ENTRIES = removeDefaults(COMMON_OPTIONS.entries);
-
-const LOOSE_SELECTORS_SCHEMA = toLooseSchema(SELECTORS_SCHEMA);
-const LOOSE_EXTENDS_SELECTORS_SCHEMA = toLooseSchema(EXTENDS_SELECTORS_SCHEMA);
-
-// unknown keys are allowed, because settings are shared by all rules, so a key that is unknown here can still be an option of another rule
-const SETTINGS_SCHEMA = toLooseSchema(strictObject({
-  ...SETTINGS_ENTRIES,
-  // a union would report only a generic type mismatch instead of the issues of the form that was used
-  selectors: optional(lazy(input => Array.isArray(input) ? LOOSE_SELECTORS_SCHEMA : LOOSE_EXTENDS_SELECTORS_SCHEMA))
-}));
-
-const parsedSettingsCache = new WeakMap<object, Settings>();
-
-// settings are not validated by eslint, unlike rule options
-function parseSettings(settings: unknown): Settings {
-  if(settings === undefined || settings === null){
-    return {};
-  }
-
-  if(typeof settings !== "object" || Array.isArray(settings)){
-    warnOnce("Invalid settings for eslint-plugin-better-tailwindcss: expected an object. The settings will be ignored.");
-    return {};
-  }
-
-  if(parsedSettingsCache.has(settings)){
-    return parsedSettingsCache.get(settings)!;
-  }
-
-  const parsedSettings = parseValidSettings(settings);
-
-  parsedSettingsCache.set(settings, parsedSettings);
-
-  return parsedSettings;
-}
-
-function parseValidSettings(settings: object): Settings {
-  const result = safeParse(SETTINGS_SCHEMA, settings);
-
-  if(result.success){
-    return result.output as Settings;
-  }
-
-  warnOnce(`Invalid settings for eslint-plugin-better-tailwindcss. The following settings will be ignored:\n${summarize(result.issues)}`);
-
-  const invalidKeys = new Map<unknown, Set<unknown>>();
-
-  for(const { path = [] } of result.issues){
-    const arrayIndex = path.findIndex(item => item.type === "array");
-    const invalidPath = path.slice(0, arrayIndex === -1 ? 1 : arrayIndex + 1);
-
-    for(const { input } of invalidPath){
-      invalidKeys.set(input, invalidKeys.get(input) ?? new Set());
-    }
-
-    const invalidItem = invalidPath.at(-1);
-    invalidKeys.get(invalidItem?.input)?.add(invalidItem?.key);
-  }
-
-  return removeInvalidKeys(settings, invalidKeys) as Settings;
-}
-
-function removeInvalidKeys(value: unknown, invalidKeys: Map<unknown, Set<unknown>>): unknown {
-  const invalid = invalidKeys.get(value);
-
-  if(!invalid){
-    return value;
-  }
-
-  if(Array.isArray(value)){
-    return value.filter((_, index) => !invalid.has(index));
-  }
-
-  return Object.fromEntries(
-    Object.entries(value as object)
-      .filter(([key]) => !invalid.has(key))
-      .map(([key, entry]) => [key, removeInvalidKeys(entry, invalidKeys)])
-  );
-}
-
 export function createRule<
   const Name extends string,
   const Messages extends Record<string, string>,
@@ -187,7 +106,7 @@ export function createRule<
     // 2. defaults from option
     // 3. configs from settings
     // 4. configs from option
-    ...SETTINGS_ENTRIES,
+    ...removeDefaults(COMMON_OPTIONS.entries),
     ...schema?.entries
   });
 
@@ -196,7 +115,7 @@ export function createRule<
   const getOptions = (): Options => {
     const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
-    const settings = parseSettings(eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"]);
+    const settings: Partial<SelectorsOptions> = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
     const mergedOptions = {

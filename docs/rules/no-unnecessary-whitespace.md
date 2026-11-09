@@ -29,9 +29,13 @@ Disallow unnecessary whitespace in between and around tailwind classes.
 
 ### `selectors`
 
-  Flat list of selectors that determines where Tailwind class strings are linted.
+  Selectors that determine where Tailwind class strings are linted.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)
+  By default, a rule uses the selectors from the [settings](../settings/settings.md#selectors), or the [default selectors](../api/defaults.md) if the settings don't configure any.
+
+  Pass an array to replace these selectors with your own, or an object with an `extends` array to keep these selectors and lint additional ones.
+
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or an object with an `extends` array of [Selectors](../configuration/advanced.md#selectors)
   **Default**: See [defaults API](../api/defaults.md)
 
 </details>

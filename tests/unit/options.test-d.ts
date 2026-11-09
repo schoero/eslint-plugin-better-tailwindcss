@@ -1,5 +1,10 @@
 import { describe, expectTypeOf, it } from "vitest";
 
+import { SelectorKind } from "better-tailwindcss:types/rule.js";
+
+import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
+
 import type { Settings } from "../../src/api/types.js";
 
 
@@ -18,5 +23,14 @@ describe("settings", () => {
 
     expectTypeOf(settings).toExtend<Settings>();
     expectTypeOf(emptySettings).toExtend<Settings>();
+  });
+
+  it("should accept extended selectors in the settings but resolve them to a flat list in the options", () => {
+    const settings = {
+      selectors: { extends: [{ kind: SelectorKind.Attribute, name: "^classNames$" }] }
+    } satisfies Settings;
+
+    expectTypeOf(settings).toExtend<Settings>();
+    expectTypeOf<CommonOptions["selectors"]>().toEqualTypeOf<Selectors>();
   });
 });

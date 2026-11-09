@@ -334,6 +334,24 @@ describe("descriptions", () => {
 
   });
 
+  test("the warning names the invalid part of the selectors", () => {
+
+    const selector = { kind: "attribute", name: "^classNames$" };
+
+    vi.mocked(warnOnce).mockClear();
+    validateSettings({ selectors: { extend: [selector] } });
+    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.extends"));
+
+    vi.mocked(warnOnce).mockClear();
+    validateSettings({ selectors: [selector, { kind: "attribute", name: 1 }] });
+    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.1"));
+
+    vi.mocked(warnOnce).mockClear();
+    validateSettings({ selectors: { extends: [{ kind: "attribute", name: 1 }] } });
+    expect(warnOnce).toHaveBeenCalledWith(expect.stringContaining("selectors.extends.0"));
+
+  });
+
   test("selectors targetCall and targetArgument config", () => {
 
     const selectors = {

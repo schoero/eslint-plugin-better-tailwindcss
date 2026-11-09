@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, safeParse, strictObject, summarize } from "valibot";
+import { getDefaults, lazy, optional, safeParse, strictObject, summarize } from "valibot";
 
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import { EXTENDS_SELECTORS_SCHEMA, SELECTORS_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -87,8 +88,15 @@ const getTailwindPackage = (cwd: string) => withCache("tailwind-package", cwd, (
 // defaults are removed so that settings don't override the defaults of rule options, see `propertiesSchema`
 const SETTINGS_ENTRIES = removeDefaults(COMMON_OPTIONS.entries);
 
+const LOOSE_SELECTORS_SCHEMA = toLooseSchema(SELECTORS_SCHEMA);
+const LOOSE_EXTENDS_SELECTORS_SCHEMA = toLooseSchema(EXTENDS_SELECTORS_SCHEMA);
+
 // unknown keys are allowed, because settings are shared by all rules, so a key that is unknown here can still be an option of another rule
-const SETTINGS_SCHEMA = toLooseSchema(strictObject(SETTINGS_ENTRIES));
+const SETTINGS_SCHEMA = toLooseSchema(strictObject({
+  ...SETTINGS_ENTRIES,
+  // a union would report only a generic type mismatch instead of the issues of the form that was used
+  selectors: optional(lazy(input => Array.isArray(input) ? LOOSE_SELECTORS_SCHEMA : LOOSE_EXTENDS_SELECTORS_SCHEMA))
+}));
 
 const parsedSettingsCache = new WeakMap<object, Settings>();
 

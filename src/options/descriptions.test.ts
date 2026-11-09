@@ -218,11 +218,11 @@ describe("descriptions", () => {
 
   });
 
-  test("selectors extend config", () => {
+  test("selectors extends config", () => {
 
     const selectors = {
       selectors: {
-        extend: [
+        extends: [
           {
             kind: "attribute",
             match: [{ type: MatcherType.ObjectValue }],
@@ -236,7 +236,7 @@ describe("descriptions", () => {
 
   });
 
-  test("invalid selectors extend config", () => {
+  test("invalid selectors extends config", () => {
 
     const selector = {
       kind: "attribute",
@@ -244,9 +244,10 @@ describe("descriptions", () => {
       name: "^classNames$"
     };
 
-    expect(() => validateRuleOptions({ selectors: { extends: [selector] } })).toThrow();
-    expect(() => validateRuleOptions({ selectors: { extend: [selector], extra: true } })).toThrow();
-    expect(() => validateRuleOptions({ selectors: { extend: selector } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extend: [selector] } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extend: [selector], extends: [selector] } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extends: [selector], extra: true } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extends: selector } })).toThrow();
     expect(() => validateRuleOptions({ selectors: "^classNames$" })).toThrow();
 
   });

@@ -722,7 +722,7 @@ describe("matchers", () => {
     });
   });
 
-  describe("selectors extend", () => {
+  describe("selectors extends", () => {
 
     const testStyles: Selector = {
       kind: SelectorKind.Attribute,
@@ -748,7 +748,7 @@ describe("matchers", () => {
             vueOutput: `<template><img class="lint" testStyles="lint" /></template>`,
 
             errors: 4,
-            options: [{ selectors: { extend: [testStyles] } }]
+            options: [{ selectors: { extends: [testStyles] } }]
           }
         ]
       });
@@ -762,7 +762,7 @@ describe("matchers", () => {
             jsxOutput: `<img class="lint" testStyles="lint" />`,
 
             errors: 4,
-            settings: { "better-tailwindcss": { selectors: { extend: [testStyles] } } }
+            settings: { "better-tailwindcss": { selectors: { extends: [testStyles] } } }
           }
         ]
       });
@@ -797,8 +797,8 @@ describe("matchers", () => {
             jsxOutput: `<img class="lint" />; extra("lint"); other("lint");`,
 
             errors: 6,
-            options: [{ selectors: { extend: [callee("other")] } }],
-            settings: { "better-tailwindcss": { selectors: { extend: [callee("extra")] } } }
+            options: [{ selectors: { extends: [callee("other")] } }],
+            settings: { "better-tailwindcss": { selectors: { extends: [callee("extra")] } } }
           }
         ]
       });
@@ -812,7 +812,7 @@ describe("matchers", () => {
             jsxOutput: `<img class=" ignore " />; custom("lint"); other("lint");`,
 
             errors: 4,
-            options: [{ selectors: { extend: [callee("other")] } }],
+            options: [{ selectors: { extends: [callee("other")] } }],
             settings: { "better-tailwindcss": { selectors: [callee("custom")] } }
           }
         ]
@@ -827,7 +827,7 @@ describe("matchers", () => {
             jsxOutput: `<img class=" ignore " legacy="lint" testStyles="lint" />`,
 
             errors: 4,
-            settings: { "better-tailwindcss": { attributes: ["^legacy$"], selectors: { extend: [testStyles] } } }
+            settings: { "better-tailwindcss": { attributes: ["^legacy$"], selectors: { extends: [testStyles] } } }
           }
         ]
       });
@@ -842,7 +842,7 @@ describe("matchers", () => {
 
             errors: 2,
             options: [{ selectors: [callee("other")] }],
-            settings: { "better-tailwindcss": { selectors: { extend: [callee("extra")] } } }
+            settings: { "better-tailwindcss": { selectors: { extends: [callee("extra")] } } }
           }
         ]
       });

@@ -27,7 +27,7 @@ describe("settings", () => {
 
   it("should accept extended selectors in the settings but resolve them to a flat list in the options", () => {
     const settings = {
-      selectors: { extend: [{ kind: SelectorKind.Attribute, name: "^classNames$" }] }
+      selectors: { extends: [{ kind: SelectorKind.Attribute, name: "^classNames$" }] }
     } satisfies Settings;
 
     expectTypeOf(settings).toExtend<Settings>();

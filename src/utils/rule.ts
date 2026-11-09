@@ -150,7 +150,7 @@ export function createRule<
 
         return {
           baseSelectors: resolvedSelectors.baseSelectors,
-          extendedSelectors: [...resolvedSelectors.extendedSelectors, ...configuredSelectors.extend]
+          extendedSelectors: [...resolvedSelectors.extendedSelectors, ...configuredSelectors.extends]
         };
       },
       { baseSelectors: DEFAULT_SELECTORS, extendedSelectors: [] }

@@ -12,7 +12,7 @@ The plugin already ships with defaults that support [most popular tailwind utili
 - you want to narrow down linting behavior,
 - or you want to lint additional locations.
 
-To extend defaults instead of replacing them, pass your selectors as `selectors: { extend: [...] }`. In rule options, `extend` adds to the selectors from the [settings](../settings/settings.md#selectors) if there are any. To filter or reorder the defaults, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults` into a `selectors` array instead.
+To extend defaults instead of replacing them, pass your selectors as `selectors: { extends: [...] }`. In rule options, `extends` adds to the selectors from the [settings](../settings/settings.md#selectors) if there are any. To filter or reorder the defaults, import and spread `getDefaultSelectors()` from `eslint-plugin-better-tailwindcss/defaults` into a `selectors` array instead.
 
 You can find the default selectors in the [defaults documentation](../api/defaults.md).
 
@@ -491,7 +491,7 @@ export default defineConfig({
     "better-tailwindcss": {
       entryPoint: "app/globals.css",
       selectors: {
-        extend: [ // preserve default selectors
+        extends: [ // preserve default selectors
           {
             kind: SelectorKind.Attribute,
             match: [{ type: "objectValues" }],

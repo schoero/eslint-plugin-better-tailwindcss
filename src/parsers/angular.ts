@@ -6,9 +6,12 @@ import {
   createObjectPathElement,
   deduplicateLiterals,
   getIndentation,
+  getNoConcatenation,
+  getNoPriorLiterals,
   getQuotes,
   getWhitespace,
-  matchesName
+  matchesName,
+  once
 } from "better-tailwindcss:utils/utils.js";
 import { createVisitedNodes, visitNode } from "better-tailwindcss:utils/visitedNodes.js";
 
@@ -35,7 +38,7 @@ import type {
 import type { Rule } from "eslint";
 import type { SourceLocation } from "estree";
 
-import type { BracesMeta, ConcatenationMeta, Literal } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, Concatenation, Literal } from "better-tailwindcss:types/ast.js";
 import type { AttributeSelector, MatcherFunctions, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 // https://angular.dev/api/common/NgClass
@@ -308,16 +311,13 @@ function createLiteralsByAngularBoundAttributeName(ctx: Rule.RuleContext, attrib
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
   const supportsMultiline = false;
-  const concatenation = {
-    isConcatenatedLeft: false,
-    isConcatenatedRight: false
-  };
 
   return [{
     ...quotes,
     ...whitespaces,
-    ...concatenation,
     content,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     loc,
     range,
@@ -361,16 +361,13 @@ function createLiteralByLiteralMapKey(ctx: Rule.RuleContext, key: LiteralMapProp
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1] ?? "";
   const indentation = getIndentation(line);
-  const concatenation = {
-    isConcatenatedLeft: false,
-    isConcatenatedRight: false
-  };
 
   return [{
     ...quotes,
     ...whitespaces,
-    ...concatenation,
     content: keyContent,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     loc,
     range,
@@ -397,16 +394,13 @@ function createLiteralsByAngularTextAttribute(ctx: Rule.RuleContext, attribute: 
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
   const supportsMultiline = true;
-  const concatenation = {
-    isConcatenatedLeft: false,
-    isConcatenatedRight: false
-  };
 
   return [{
     ...quotes,
     ...whitespaces,
-    ...concatenation,
     content,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     loc,
     range,
@@ -436,14 +430,14 @@ function createLiteralByAngularLiteralPrimitiveInternal(ctx: Rule.RuleContext, l
   const loc = getLocByRange(ctx, range);
   const line = ctx.sourceCode.lines[loc.start.line - 1];
   const indentation = getIndentation(line);
-  const concatenation = getStringConcatenationMeta(ctx, literal, visitedNodes);
   const supportsMultiline = true;
 
   return [{
     ...quotes,
     ...whitespaces,
-    ...concatenation,
     content,
+    getConcatenation: getLazyConcatenation(ctx, literal, visitedNodes),
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     loc,
     range,
@@ -451,6 +445,13 @@ function createLiteralByAngularLiteralPrimitiveInternal(ctx: Rule.RuleContext, l
     supportsMultiline,
     type: "StringLiteral"
   }];
+}
+
+// The visited nodes are copied, because they are still modified after the literal is created,
+// for example when the neighbors on the other side are visited.
+function getLazyConcatenation(ctx: Rule.RuleContext, literal: AST, visitedNodes: Set<AST>) {
+  const visited = createVisitedNodes(visitedNodes);
+  return once(() => getStringConcatenationMeta(ctx, literal, visited));
 }
 
 function createLiteralByAngularTemplateLiteralElement(ctx: Rule.RuleContext, literal: TemplateLiteralElement): Literal[] {
@@ -482,14 +483,14 @@ function createLiteralByAngularTemplateLiteralElementInternal(ctx: Rule.RuleCont
   const parentLine = ctx.sourceCode.lines[parentLoc.start.line - 1];
   const indentation = getIndentation(parentLine);
   const supportsMultiline = true;
-  const concatenation = getStringConcatenationMeta(ctx, literal, visitedNodes);
 
   return [{
     ...quotes,
     ...whitespaces,
     ...braces,
-    ...concatenation,
     content,
+    getConcatenation: getLazyConcatenation(ctx, literal, visitedNodes),
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     isInterpolated,
     loc,
@@ -590,7 +591,7 @@ type ConcatenationLeafNodes<Node> = {
   nodes: Node[];
 };
 
-function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNodes?: Set<AST>): ConcatenationMeta {
+function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNodes?: Set<AST>): Concatenation {
 
   const { isConcatenatedLeft, isConcatenatedRight } = getStringConcatenationDirection(ctx, ast);
 
@@ -603,8 +604,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "left");
 
   const leftLiterals = isConcatenatedLeft
-    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited)
-    : undefined;
+    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited) ?? []
+    : [];
 
   const hasDynamicLeftNeighbor = isConcatenatedLeft && !!leftNodes?.hasDynamicValue;
 
@@ -614,8 +615,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, ast: AST, visitedNode
     findAdjacentPlusConcatenatedLiteralNodes(ctx, ast, "right");
 
   const rightLiterals = isConcatenatedRight
-    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited)
-    : undefined;
+    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited) ?? []
+    : [];
 
   const hasDynamicRightNeighbor = isConcatenatedRight && !!rightNodes?.hasDynamicValue;
 

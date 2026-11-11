@@ -51,13 +51,13 @@ export interface CSSMeta {
   trailingSemicolon?: string | undefined;
 }
 
-export interface ConcatenationMeta {
-  hasDynamicLeftNeighbor?: boolean | undefined;
-  hasDynamicRightNeighbor?: boolean | undefined;
-  isConcatenatedLeft?: boolean | undefined;
-  isConcatenatedRight?: boolean | undefined;
-  leftLiterals?: Literal[] | undefined;
-  rightLiterals?: Literal[] | undefined;
+export interface Concatenation {
+  readonly hasDynamicLeftNeighbor: boolean;
+  readonly hasDynamicRightNeighbor: boolean;
+  readonly isConcatenatedLeft: boolean;
+  readonly isConcatenatedRight: boolean;
+  readonly leftLiterals: readonly Literal[];
+  readonly rightLiterals: readonly Literal[];
 }
 
 
@@ -73,12 +73,15 @@ interface NodeBase extends Range, Loc {
   type: string;
 }
 
-interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, BindingMeta, WhitespaceMeta, CSSMeta, ConcatenationMeta, Indentation, Range, Loc {
+interface LiteralBase extends NodeBase, MultilineMeta, QuoteMeta, BracesMeta, BindingMeta, WhitespaceMeta, CSSMeta, Indentation, Range, Loc {
   content: string;
   raw: string;
+  /** How this literal is concatenated with its neighbors. Computed on the first call, because only some rules need it. */
+  getConcatenation: () => Concatenation;
+  /** Literals before this one in the same expression. Computed on the first call, because only some rules need it. */
+  getPriorLiterals: () => readonly Literal[];
   attribute?: string | undefined;
   isInterpolated?: boolean | undefined;
-  priorLiterals?: Literal[] | undefined;
 }
 
 export interface TemplateLiteral extends LiteralBase {

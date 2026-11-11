@@ -16,7 +16,8 @@ import {
   getQuotes,
   getWhitespace,
   isGenericNodeWithParent,
-  matchesName
+  matchesName,
+  once
 } from "better-tailwindcss:utils/utils.js";
 import { createVisitedNodes, visitNode } from "better-tailwindcss:utils/visitedNodes.js";
 
@@ -45,7 +46,7 @@ import type {
 
 import type {
   BracesMeta,
-  ConcatenationMeta,
+  Concatenation,
   Literal,
   LiteralValueQuotes,
   MultilineMeta,
@@ -274,24 +275,22 @@ function getStringLiteralByESStringLiteralInternal(ctx: Rule.RuleContext, node: 
   const line = ctx.sourceCode.lines[node.loc.start.line - 1];
 
   const quotes = getQuotes(raw);
-  const priorLiterals = findPriorLiterals(ctx, node, visitedNodes);
   const content = getContent(raw, quotes);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
   const supportsMultiline = !isESObjectKey(node);
-  const concatenation = getStringConcatenationMeta(ctx, node, visitedNodes);
+  const relatedLiterals = getRelatedLiterals(ctx, node, visitedNodes);
 
   return {
     ...quotes,
     ...whitespaces,
     ...multilineQuotes,
-    ...concatenation,
+    ...relatedLiterals,
     content,
     indentation,
     isInterpolated: false,
     loc: node.loc,
-    priorLiterals,
     range: node.range,
     raw,
     supportsMultiline,
@@ -317,30 +316,39 @@ function getLiteralByESTemplateElementInternal(ctx: Rule.RuleContext, node: ESTe
   const quotes = getQuotes(raw);
   const braces = getBracesByString(ctx, raw);
   const isInterpolated = getIsInterpolated(ctx, raw);
-  const priorLiterals = findPriorLiterals(ctx, node, visitedNodes);
   const content = getContent(raw, quotes, braces);
   const whitespaces = getWhitespace(content);
   const indentation = getIndentation(line);
   const multilineQuotes = getMultilineQuotes(node);
-  const concatenation = getStringConcatenationMeta(ctx, node, visitedNodes);
+  const relatedLiterals = getRelatedLiterals(ctx, node, visitedNodes);
 
   return {
     ...whitespaces,
     ...quotes,
     ...braces,
     ...multilineQuotes,
-    ...concatenation,
+    ...relatedLiterals,
     content,
     indentation,
     isInterpolated,
     loc: node.loc,
-    priorLiterals,
     range: node.range,
     raw,
     supportsMultiline: true,
     type: "TemplateLiteral"
   };
 
+}
+
+// The visited nodes are copied, because they are still modified after the literal is created,
+// for example when the remaining prior literals or the neighbors on the other side are visited.
+function getRelatedLiterals(ctx: Rule.RuleContext, node: ESNode, visitedNodes: Set<ESNode>) {
+  const visited = createVisitedNodes(visitedNodes);
+
+  return {
+    getConcatenation: once(() => getStringConcatenationMeta(ctx, node, visited)),
+    getPriorLiterals: once(() => findPriorLiterals(ctx, node, visited) ?? [])
+  };
 }
 
 function getMultilineQuotes(node: ESNode & Rule.NodeParentExtension): MultilineMeta {
@@ -843,7 +851,7 @@ type ConcatenationLeafNodes<Node> = {
   nodes: Node[];
 };
 
-function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visitedNodes?: Set<ESNode>): ConcatenationMeta {
+function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visitedNodes?: Set<ESNode>): Concatenation {
 
   const { isConcatenatedLeft, isConcatenatedRight } = getStringConcatenationDirection(node);
 
@@ -856,8 +864,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
     findAdjacentPlusConcatenatedLiteralNodes(node, "left");
 
   const leftLiterals = isConcatenatedLeft
-    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited)
-    : undefined;
+    ? buildConcatenationNeighborLiterals(ctx, leftNodes?.nodes, visited) ?? []
+    : [];
 
   const hasDynamicLeftNeighbor = isConcatenatedLeft && !!leftNodes?.hasDynamicValue;
 
@@ -867,8 +875,8 @@ function getStringConcatenationMeta(ctx: Rule.RuleContext, node: ESNode, visited
     findAdjacentPlusConcatenatedLiteralNodes(node, "right");
 
   const rightLiterals = isConcatenatedRight
-    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited)
-    : undefined;
+    ? buildConcatenationNeighborLiterals(ctx, rightNodes?.nodes, visited) ?? []
+    : [];
 
   const hasDynamicRightNeighbor = isConcatenatedRight && !!rightNodes?.hasDynamicValue;
 

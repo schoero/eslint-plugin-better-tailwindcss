@@ -49,10 +49,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
     const keepTrailingWhitespace = once(() => literal.getConcatenation().rightLiterals.some(rightLiteral => {
       return (
         rightLiteral.content.length &&
-        (
-          !rightLiteral.leadingWhitespace?.length && rightLiteral.closingBraces ||
-          !rightLiteral.closingBraces
-        )
+        !rightLiteral.leadingWhitespace?.length && rightLiteral.closingBraces ||
+        !rightLiteral.closingBraces
       );
     }));
 

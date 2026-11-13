@@ -47,16 +47,21 @@ function getTSConfigPath({ configPath, cwd }: {
   cwd: string;
 }) {
   return getOrResolveConfigPath(cacheKey("tsconfig-path", cwd, configPath), configPath, cwd, () => {
-    const potentialPaths = [
-      ...configPath ? [configPath] : [],
+    const defaultPaths = [
       "tsconfig.json",
       "jsconfig.json"
+    ];
+
+    const potentialPaths = [
+      ...configPath ? [configPath] : [],
+      ...defaultPaths
     ];
 
     const foundConfigPath = findPathRecursive(cwd, cwd, potentialPaths);
     const warning = getConfigPathWarning("tsconfig", configPath, foundConfigPath);
 
     return {
+      candidates: defaultPaths.map(path => resolve(cwd, path)),
       path: foundConfigPath,
       warnings: [warning]
     };
@@ -107,6 +112,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
       const warning = getConfigPathWarning("tailwindConfig", configPath, foundConfigPath);
 
       return {
+        candidates: defaultPaths.map(path => resolve(cwd, path)),
         path: foundConfigPath ?? foundDefaultPath ?? "default",
         warnings: [warning]
       };
@@ -116,7 +122,7 @@ export function getTailwindConfigPath({ configPath, cwd, version }: {
   });
 }
 
-function getOrResolveConfigPath<Path extends string | undefined>(key: string, configPath: string | undefined, cwd: string, resolveConfigPath: () => { path: Path; warnings: (Warning | undefined)[]; }) {
+function getOrResolveConfigPath<Path extends string | undefined>(key: string, configPath: string | undefined, cwd: string, resolveConfigPath: () => { path: Path; warnings: (Warning | undefined)[]; candidates?: string[]; }) {
   const cached = cache.get<ReturnType<typeof resolveConfigPath>>(key);
 
   if(cached){
@@ -125,11 +131,12 @@ function getOrResolveConfigPath<Path extends string | undefined>(key: string, co
 
   const resolved = resolveConfigPath();
 
-  // the configured file is picked up as soon as it is created, a found file is resolved again when it is deleted
+  // the configured file and the default files are picked up as soon as they are created, a found file is resolved again when it is deleted
   cache.set(key, resolved, {
     files: [
       ...configPath ? [resolve(cwd, configPath)] : [],
-      ...resolved.path && resolved.path !== "default" ? [resolved.path] : []
+      ...resolved.path && resolved.path !== "default" ? [resolved.path] : [],
+      ...resolved.candidates ?? []
     ]
   });
 

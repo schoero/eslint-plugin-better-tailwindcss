@@ -26,7 +26,7 @@ import { TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
-import { async } from "better-tailwindcss:utils/context.js";
+import { async, getTailwindConfigPath } from "better-tailwindcss:utils/context.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { getTailwindPackage } from "better-tailwindcss:utils/tailwindcss.js";
 
@@ -300,6 +300,30 @@ describe("config path invalidation", () => {
     expect(async(ctx).warnings).not.toContainEqual(expect.objectContaining({ option: "tsconfig" }));
   });
 
+
+  it("should pick up a default tailwind v3 config that is created later", () => {
+    const directory = createDirectory({});
+    const request = { configPath: undefined, cwd: directory.directory, version: { major: 3, minor: 4, patch: 0 } };
+
+    expect(getTailwindConfigPath(request).path).toBe("default");
+
+    writeFileSync(directory.files["tailwind.config.js"].path, "module.exports = {};");
+    cache.refresh();
+
+    expect(getTailwindConfigPath(request).path).toBe(directory.files["tailwind.config.js"].path);
+  });
+
+  it("should pick up a default tsconfig that is created later", () => {
+    const directory = createDirectory({});
+    const ctx = createContext(directory, "./tailwind.css");
+
+    expect(async(ctx).tsconfigPath).toBeUndefined();
+
+    writeFileSync(directory.files["tsconfig.json"].path, "{}");
+    cache.refresh();
+
+    expect(async(ctx).tsconfigPath).toBe(directory.files["tsconfig.json"].path);
+  });
 
   it("should resolve a configured tsconfig again when it is deleted", () => {
     const directory = createDirectory({ "tsconfig.app.json": "{}" });

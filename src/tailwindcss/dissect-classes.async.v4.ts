@@ -1,5 +1,3 @@
-import { escapeForRegex } from "../async-utils/escape.js";
-import { getCachedRegex } from "../async-utils/regex.js";
 import { segment } from "../async-utils/segment.js";
 import { getPrefix } from "./prefix.async.v4.js";
 
@@ -21,18 +19,37 @@ export function getDissectedClasses(tailwindContext: any, classes: string[]): Di
         return true;
       });
 
-    let base = className
-      .replace(getCachedRegex(`^${escapeForRegex(prefix + separator)}`), "")
-      .replace(getCachedRegex(`^${escapeForRegex((variants?.join(separator) ?? "") + separator)}`), "");
+    let base = className;
+
+    const prefixWithSeparator = prefix + separator;
+
+    if(base.startsWith(prefixWithSeparator)){
+      base = base.slice(prefixWithSeparator.length);
+    }
+
+    const variantsWithSeparator = variants.join(separator) + separator;
+
+    if(base.startsWith(variantsWithSeparator)){
+      base = base.slice(variantsWithSeparator.length);
+    }
 
     const isNegative = base.startsWith("-");
-    base = base.replace(/^-/, "");
+
+    if(isNegative){
+      base = base.slice(1);
+    }
 
     const isImportantAtStart = base.startsWith("!");
-    base = base.replace(/^!/, "");
+
+    if(isImportantAtStart){
+      base = base.slice(1);
+    }
 
     const isImportantAtEnd = base.endsWith("!");
-    base = base.replace(/!$/, "");
+
+    if(isImportantAtEnd){
+      base = base.slice(0, -1);
+    }
 
     acc[className] = {
       base,

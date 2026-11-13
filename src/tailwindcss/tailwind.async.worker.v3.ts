@@ -15,14 +15,8 @@ import type { ConflictingClasses } from "./conflicting-classes.js";
 
 
 const handlers: OperationHandlers = {
-  getCanonicalClasses: async (_ctx, classes, _options) => {
-    return classes.reduce<CanonicalClasses>((acc, className) => {
-      acc[className] = {
-        input: [className],
-        output: className
-      };
-      return acc;
-    }, {});
+  getCanonicalClasses: async (_ctx, _classes, _options) => {
+    return {} satisfies CanonicalClasses;
   },
   getClassOrder: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);

@@ -6,6 +6,7 @@ import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
 
+// only contains classes that change, a missing class is already canonical
 export type CanonicalClasses = {
   [originalClass: string]: {
     input: string[];
@@ -33,28 +34,10 @@ export function createGetCanonicalClasses(ctx: Context): GetCanonicalClasses {
     canonicalClasses: getOrRunOperation(
       ctx,
       cacheKey("canonical-classes", ctx.contextKey, options.collapse, options.logicalToPhysical, options.rem, ...classes),
-      () => {
-        const { context, result } = runOperation("getCanonicalClasses", ctx, classes, options);
-        return { context, result: withoutUnchangedClasses(result) };
-      }
+      () => runOperation("getCanonicalClasses", ctx, classes, options)
     ),
     warnings: ctx.warnings
   });
 
   return getCanonicalClasses;
-}
-
-// most classes are already canonical, only changed classes are kept to reduce the size of the cached result
-function withoutUnchangedClasses(canonicalClasses: CanonicalClasses): CanonicalClasses {
-  const changedClasses: CanonicalClasses = Object.create(null);
-
-  for(const className in canonicalClasses){
-    const { input, output } = canonicalClasses[className];
-
-    if(input.length !== 1 || input[0] !== className || output !== className){
-      changedClasses[className] = canonicalClasses[className];
-    }
-  }
-
-  return changedClasses;
 }

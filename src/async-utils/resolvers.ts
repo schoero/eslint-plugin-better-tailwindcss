@@ -1,7 +1,6 @@
 import fs from "node:fs";
 
 import enhancedResolve from "enhanced-resolve";
-import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 
 import { withCache } from "../async-utils/cache.js";
 
@@ -15,7 +14,7 @@ const getESMResolver = (ctx: AsyncContext | undefined) => withCache("esm-resolve
   extensions: [".mjs", ".js"],
   fileSystem,
   mainFields: ["module"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["module"] })] : [],
+  tsconfig: ctx?.tsconfigPath ?? false,
   useSyncFileSystemCalls: true
 }));
 
@@ -24,7 +23,7 @@ const getCJSResolver = (ctx: AsyncContext | undefined) => withCache("cjs-resolve
   extensions: [".js", ".cjs"],
   fileSystem,
   mainFields: ["main"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["main"] })] : [],
+  tsconfig: ctx?.tsconfigPath ?? false,
   useSyncFileSystemCalls: true
 }));
 
@@ -33,7 +32,7 @@ const getCSSResolver = (ctx: AsyncContext | undefined) => withCache("css-resolve
   extensions: [".css"],
   fileSystem,
   mainFields: ["style"],
-  plugins: ctx?.tsconfigPath ? [new TsconfigPathsPlugin({ configFile: ctx.tsconfigPath, mainFields: ["style"] })] : [],
+  tsconfig: ctx?.tsconfigPath ?? false,
   useSyncFileSystemCalls: true
 }));
 

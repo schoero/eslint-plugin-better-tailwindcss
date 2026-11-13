@@ -1418,4 +1418,58 @@ describe(noUnknownClasses.name, () => {
       }
     );
   });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should support tsconfig paths when extending a package config through `exports` in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="unknown custom-utility"/>`,
+            html: `<img class="unknown custom-utility" />`,
+            jsx: `() => <img class="unknown custom-utility" />`,
+            svelte: `<img class="unknown custom-utility" />`,
+            vue: `<template><img class="unknown custom-utility" /></template>`,
+
+            errors: 1,
+            files: {
+              "nested/utilities/custom-utilities.css": css`
+                @utility custom-utility {
+                  font-weight: bold;
+                }
+              `,
+              "node_modules/base-config/configs/tsconfig.json": ts`
+                {}
+              `,
+              "node_modules/base-config/package.json": ts`
+                {
+                  "name": "base-config",
+                  "exports": {
+                    "./tsconfig": "./configs/tsconfig.json"
+                  }
+                }
+              `,
+              "tailwind.css": css`
+                @import "tailwindcss";
+                @import "@utilities/custom-utilities.css";
+              `,
+              "tsconfig.json": ts`
+                {
+                  "extends": "base-config/tsconfig",
+                  "compilerOptions": {
+                    "paths": {
+                      "@utilities/*": ["./nested/utilities/*"]
+                    }
+                  }
+                }
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
 });

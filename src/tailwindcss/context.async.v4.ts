@@ -50,6 +50,14 @@ async function buildTailwindContext(ctx: AsyncContext, track: TrackFile) {
     loadStylesheet: async (id: string, base: string) => {
       try {
         const resolved = resolveCss(ctx, id, base);
+
+        if(!resolved){
+          return {
+            base: "",
+            content: ""
+          };
+        }
+
         track(resolved);
 
         return {

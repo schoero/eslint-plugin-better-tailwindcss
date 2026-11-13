@@ -29,16 +29,11 @@ interface CssFiles {
 const { findAll, generate, parse, walk } = fork(tailwind4);
 
 export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentClasses {
-  const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
-
-  if(!resolvedPath){
-    return [];
-  }
-
+  // the config path is resolved to an absolute path on the host
   // the host caches the result, the tailwind context tracks the same files
-  const files = parseCssFilesDeep(ctx, resolvedPath);
+  const files = parseCssFilesDeep(ctx, ctx.tailwindConfigPath);
 
-  return getCustomComponentUtilities(files, resolvedPath);
+  return getCustomComponentUtilities(files, ctx.tailwindConfigPath);
 }
 
 function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): CssFiles {

@@ -62,18 +62,16 @@ export function resolveJs(ctxOrPath: AsyncContext | string | undefined, pathOrCw
   }
 }
 
-export function resolveCss(path: string, cwd: string): string;
-export function resolveCss(ctx: AsyncContext, path: string, cwd?: string): string;
-export function resolveCss(ctxOrPath: AsyncContext | string | undefined, pathOrCwd: string, cwdOrUndefined?: string): string {
+export function resolveCss(path: string, cwd: string): string | undefined;
+export function resolveCss(ctx: AsyncContext, path: string, cwd?: string): string | undefined;
+export function resolveCss(ctxOrPath: AsyncContext | string | undefined, pathOrCwd: string, cwdOrUndefined?: string): string | undefined {
   const ctx = typeof ctxOrPath === "object" ? ctxOrPath : undefined;
   const path = typeof ctxOrPath === "string" ? ctxOrPath : pathOrCwd;
   const cwd = (typeof ctxOrPath === "object" ? cwdOrUndefined : pathOrCwd)!;
 
   try {
-    return getCSSResolver(ctx).resolveSync({}, cwd, path) || path;
-  } catch {
-    return path;
-  }
+    return getCSSResolver(ctx).resolveSync({}, cwd, path) || undefined;
+  } catch {}
 }
 
 export function resolveJson(path: string, cwd: string): string | undefined {

@@ -9,8 +9,10 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 
+import { loadESLint } from "eslint";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import eslintPluginBetterTailwindCSS from "better-tailwindcss:configs/config.js";
 import {
   getCustomComponentClasses as getCustomComponentClassesFromCss
 } from "better-tailwindcss:tailwindcss/custom-component-classes.async.v4.js";
@@ -20,6 +22,7 @@ import {
 } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
+import { TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
 import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
@@ -237,6 +240,45 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
 
     expect(getUnknownClasses(asyncCtx, ["utility-c"]).unknownClasses).toEqual([]);
     expect(cache.has(cacheKey("unknown-class", asyncCtx.contextKey, "utility-c"))).toBe(true);
+  });
+
+  it("should check the files again when eslint lints a file again", async () => {
+    const directory = createDirectory({
+      "index.jsx": `export default () => <div class="utility-a utility-b" />;`,
+      "tailwind.css": `@import "tailwindcss";\n${utility("utility-a")}`
+    });
+
+    const ESLint = await loadESLint();
+    const linter = new ESLint({
+      cwd: directory.directory,
+      overrideConfig: {
+        ...TEST_SYNTAXES.jsx,
+        files: ["**/*.jsx"],
+        plugins: {
+          "better-tailwindcss": eslintPluginBetterTailwindCSS
+        },
+        rules: {
+          "better-tailwindcss/no-unknown-classes": "warn"
+        },
+        settings: {
+          "better-tailwindcss": {
+            entryPoint: "./tailwind.css"
+          }
+        }
+      },
+      overrideConfigFile: true
+    });
+
+    const lint = async () => {
+      const [result] = await linter.lintFiles(directory.files["index.jsx"].path);
+      return result.messages.map(({ message }) => message);
+    };
+
+    expect(await lint()).toEqual([expect.stringContaining("utility-b")]);
+
+    changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-a")}\n${utility("utility-b")}`);
+
+    expect(await lint()).toEqual([]);
   });
 
 });

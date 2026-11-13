@@ -34,7 +34,7 @@ import { warnOnce } from "better-tailwindcss:utils/warn.js";
 import type { TmplAstElement } from "@angular/compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
-import type { Rule } from "eslint";
+import type { Rule, SourceCode } from "eslint";
 import type {
   CallExpression,
   ExportDefaultDeclaration,
@@ -64,6 +64,8 @@ import type {
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
 
+
+let lastSourceCode: SourceCode | undefined;
 
 export function createRule<
   const Name extends string,
@@ -159,8 +161,12 @@ export function createRule<
 
         eslintContext = ctx;
 
-        // files that cached values depend on are checked again once per linted file and rule
-        cache.refresh();
+        // files that cached values depend on are checked again once per linted file, all rules share the check
+        // eslint creates a new source code for every lint pass, so a file that is linted again is checked again
+        if(ctx.sourceCode !== lastSourceCode){
+          lastSourceCode = ctx.sourceCode;
+          cache.refresh();
+        }
 
         const options = getOptions();
 

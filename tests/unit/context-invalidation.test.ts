@@ -226,6 +226,19 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     expect(isCached(asyncCtx)).toBe(false);
   });
 
+  it("should cache results computed from a context the worker rebuilt after the host checked the files", () => {
+    const directory = createDirectory({ "tailwind.css": `@import "tailwindcss";\n${utility("utility-a")}` });
+    const asyncCtx = async(createContext(directory, "./tailwind.css"));
+
+    getUnknownClasses(asyncCtx, classes);
+
+    // no cache.refresh(), the host keeps the memoized modification time and only the worker sees the change
+    changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-c")}`);
+
+    expect(getUnknownClasses(asyncCtx, ["utility-c"]).unknownClasses).toEqual([]);
+    expect(cache.has(cacheKey("unknown-class", asyncCtx.contextKey, "utility-c"))).toBe(true);
+  });
+
 });
 
 describe("config path invalidation", () => {

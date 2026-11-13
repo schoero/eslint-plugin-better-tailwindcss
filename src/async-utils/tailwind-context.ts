@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { cache } from "./cache.js";
+import { cache, CAPACITY } from "./cache.js";
 
 import type { AsyncContext } from "../utils/context.js";
 import type { OperationHandlers, OperationResponse, Operations, TailwindContextInfo } from "./operations.js";
@@ -14,9 +14,9 @@ interface CachedTailwindContext<TailwindContext> {
   files: Record<string, number>;
 }
 
-// a context uses a few megabytes and grows with the classes it has seen, so only a few of them are kept
+// a context uses a few megabytes and grows with the classes it has seen, so only ten of them are kept
 // in a monorepo, the contexts of the least recently linted configs are dropped and built again when needed
-const CONTEXT_WEIGHT = 2000;
+const CONTEXT_WEIGHT = CAPACITY / 10;
 
 // the worker handles one operation at a time, this is the context the current operation used
 let usedContext: TailwindContextInfo | undefined;

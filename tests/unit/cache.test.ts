@@ -221,6 +221,20 @@ describe("cache", () => {
     expect(cache.has("dependent")).toBe(false);
   });
 
+  it("should keep dependencies of recently used entries", () => {
+    const cache = new Cache(3);
+
+    cache.set("dependency", 1);
+    cache.set("dependent", true, { dependencies: ["dependency"] });
+    cache.set("other", true);
+    cache.get("dependent");
+    cache.set("another", true);
+
+    expect(cache.has("other")).toBe(false);
+    expect(cache.has("dependency")).toBe(true);
+    expect(cache.has("dependent")).toBe(true);
+  });
+
   it("should invalidate dependents of evicted entries", () => {
     const cache = new Cache(2);
 

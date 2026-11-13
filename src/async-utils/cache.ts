@@ -34,7 +34,7 @@ interface Entry extends Snapshot {
 // modification time recorded for files that do not exist, so that their creation is detected.
 export const MISSING_FILE = -1;
 
-const CAPACITY = 20_000;
+export const CAPACITY = 100_000;
 const MAX_DEPENDENCY_DEPTH = 8;
 
 // most entries depend on nothing or only on the tailwind context, sharing the empty list saves an allocation per entry
@@ -71,6 +71,7 @@ export class Cache {
 
   constructor(private readonly capacity: number = CAPACITY) {}
 
+  // a cached `undefined` can not be told apart from a missing entry, callers that cache `undefined` have to use `has()`
   get<Value>(key: string): Value | undefined {
     return this.lookup(key)?.value as Value | undefined;
   }
@@ -181,6 +182,12 @@ export class Cache {
 
       if(!isCurrent){
         return false;
+      }
+
+      // a dependency is used whenever its dependents are, otherwise it is evicted first and takes all of them with it
+      if(target !== this.newest){
+        this.unlink(target);
+        this.link(target);
       }
     }
 

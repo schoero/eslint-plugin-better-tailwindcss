@@ -74,9 +74,17 @@ export function getOrRunOperationPerClass<Value>(
 // results computed from it become stale as soon as one of these files changes, without a round trip to the worker.
 // a context that the worker built again has a new version, which makes the results computed from the previous one stale.
 export function storeContext(ctx: AsyncContext, context: TailwindContextInfo | undefined): void {
-  if(context){
-    cache.set(ctx.contextKey, context.version, { files: context.files });
+  if(!context){
+    return;
   }
+
+  // the worker built the context again because a file changed, so the modification times
+  // memoized at the start of the linted file are outdated
+  if(cache.get<number>(ctx.contextKey) !== context.version){
+    cache.refresh();
+  }
+
+  cache.set(ctx.contextKey, context.version, { files: context.files });
 }
 
 export function storeResult(ctx: AsyncContext, key: string, result: unknown, context: TailwindContextInfo | undefined): void {

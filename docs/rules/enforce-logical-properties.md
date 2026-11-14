@@ -4,6 +4,8 @@ Enforce logical utility class names over physical directions for better RTL and 
 
 The rule reports physical classes and auto-fixes them to their logical equivalent when a direct Tailwind replacement exists.
 
+Physical classes for the inline axis (left and right) are not reported when they use the `rtl` variant, because they intentionally target a physical side in a right-to-left context.
+
 ## Physical to Logical Mappings
 
 | **Physical** | **Logical** |

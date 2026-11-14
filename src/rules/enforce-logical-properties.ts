@@ -9,6 +9,7 @@ import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
+import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 
@@ -47,58 +48,58 @@ export const enforceLogicalProperties = createRule({
 });
 
 const mappings = [
-  [/^pl-(.*)$/, "ps-$1"],
-  [/^pr-(.*)$/, "pe-$1"],
+  [/^pl-(.*)$/, "ps-$1", true],
+  [/^pr-(.*)$/, "pe-$1", true],
   [/^pt-(.*)$/, "pbs-$1"],
   [/^pb-(.*)$/, "pbe-$1"],
-  [/^ml-(.*)$/, "ms-$1"],
-  [/^mr-(.*)$/, "me-$1"],
+  [/^ml-(.*)$/, "ms-$1", true],
+  [/^mr-(.*)$/, "me-$1", true],
   [/^mt-(.*)$/, "mbs-$1"],
   [/^mb-(.*)$/, "mbe-$1"],
-  [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
-  [/^scroll-mr-(.*)$/, "scroll-me-$1"],
-  [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
-  [/^scroll-pr-(.*)$/, "scroll-pe-$1"],
+  [/^scroll-ml-(.*)$/, "scroll-ms-$1", true],
+  [/^scroll-mr-(.*)$/, "scroll-me-$1", true],
+  [/^scroll-pl-(.*)$/, "scroll-ps-$1", true],
+  [/^scroll-pr-(.*)$/, "scroll-pe-$1", true],
   [/^scroll-mt-(.*)$/, "scroll-mbs-$1"],
   [/^scroll-mb-(.*)$/, "scroll-mbe-$1"],
   [/^scroll-pt-(.*)$/, "scroll-pbs-$1"],
   [/^scroll-pb-(.*)$/, "scroll-pbe-$1"],
 
-  [/^left-(.*)$/, "inset-s-$1"],
-  [/^right-(.*)$/, "inset-e-$1"],
+  [/^left-(.*)$/, "inset-s-$1", true],
+  [/^right-(.*)$/, "inset-e-$1", true],
   [/^top-(.*)$/, "inset-bs-$1"],
   [/^bottom-(.*)$/, "inset-be-$1"],
 
-  [/^border-l$/, "border-s"],
-  [/^border-l-(.*)$/, "border-s-$1"],
-  [/^border-r$/, "border-e"],
-  [/^border-r-(.*)$/, "border-e-$1"],
+  [/^border-l$/, "border-s", true],
+  [/^border-l-(.*)$/, "border-s-$1", true],
+  [/^border-r$/, "border-e", true],
+  [/^border-r-(.*)$/, "border-e-$1", true],
   [/^border-t$/, "border-bs"],
   [/^border-t-(.*)$/, "border-bs-$1"],
   [/^border-b$/, "border-be"],
   [/^border-b-(.*)$/, "border-be-$1"],
 
-  [/^rounded-l$/, "rounded-s"],
-  [/^rounded-l-(.*)$/, "rounded-s-$1"],
-  [/^rounded-r$/, "rounded-e"],
-  [/^rounded-r-(.*)$/, "rounded-e-$1"],
+  [/^rounded-l$/, "rounded-s", true],
+  [/^rounded-l-(.*)$/, "rounded-s-$1", true],
+  [/^rounded-r$/, "rounded-e", true],
+  [/^rounded-r-(.*)$/, "rounded-e-$1", true],
 
-  [/^rounded-tl$/, "rounded-ss"],
-  [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
-  [/^rounded-tr$/, "rounded-se"],
-  [/^rounded-tr-(.*)$/, "rounded-se-$1"],
-  [/^rounded-br$/, "rounded-ee"],
-  [/^rounded-br-(.*)$/, "rounded-ee-$1"],
-  [/^rounded-bl$/, "rounded-es"],
-  [/^rounded-bl-(.*)$/, "rounded-es-$1"],
+  [/^rounded-tl$/, "rounded-ss", true],
+  [/^rounded-tl-(.*)$/, "rounded-ss-$1", true],
+  [/^rounded-tr$/, "rounded-se", true],
+  [/^rounded-tr-(.*)$/, "rounded-se-$1", true],
+  [/^rounded-br$/, "rounded-ee", true],
+  [/^rounded-br-(.*)$/, "rounded-ee-$1", true],
+  [/^rounded-bl$/, "rounded-es", true],
+  [/^rounded-bl-(.*)$/, "rounded-es-$1", true],
 
-  [/^text-left$/, "text-start"],
-  [/^text-right$/, "text-end"],
+  [/^text-left$/, "text-start", true],
+  [/^text-right$/, "text-end", true],
 
-  [/^float-left$/, "float-start"],
-  [/^float-right$/, "float-end"],
-  [/^clear-left$/, "clear-start"],
-  [/^clear-right$/, "clear-end"],
+  [/^float-left$/, "float-start", true],
+  [/^float-right$/, "float-end", true],
+  [/^clear-left$/, "clear-start", true],
+  [/^clear-right$/, "clear-end", true],
 
   [/^h-(.*)$/, "block-$1"],
   [/^w-(.*)$/, "inline-$1"],
@@ -107,7 +108,7 @@ const mappings = [
   [/^max-h-(.*)$/, "max-block-$1"],
   [/^max-w-(.*)$/, "max-inline-$1"],
   [/^size-(.*)$/, ["block-$1", "inline-$1"]]
-] satisfies [before: RegExp, after: string[] | string][];
+] satisfies [before: RegExp, after: string[] | string, inline?: true][];
 
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
@@ -122,7 +123,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
     const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
-      const replacementBases = getReplacementBases(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass);
 
       if(!replacementBases){
         return [];
@@ -144,7 +145,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
         return;
       }
 
-      const replacementBases = getReplacementBases(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass);
 
       if(!replacementBases){
         return;
@@ -173,12 +174,18 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
   }
 }
 
-function getReplacementBases(base: string): string[] | undefined {
-  for(const [pattern, replacement] of mappings){
+function getReplacementBases({ base, variants }: DissectedClass): string[] | undefined {
+  const isRtl = variants?.includes("rtl") ?? false;
+
+  for(const [pattern, replacement, inline] of mappings){
     const match = base.match(pattern);
 
     if(!match){
       continue;
+    }
+
+    if(inline && isRtl){
+      return;
     }
 
     return Array.isArray(replacement)

@@ -112,6 +112,47 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
     );
   });
 
+  it("should not report inline physical classes with the rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4" />`,
+            html: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4" />`,
+            jsx: `() => <img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4" />`,
+            svelte: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4" />`,
+            vue: `<template><img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should fix non-inline physical classes with the rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="rtl:pt-2 rtl:w-4" />`,
+            angularOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            html: `<img class="rtl:pt-2 rtl:w-4" />`,
+            htmlOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            jsx: `() => <img class="rtl:pt-2 rtl:w-4" />`,
+            jsxOutput: `() => <img class="rtl:pbs-2 rtl:inline-4" />`,
+            svelte: `<img class="rtl:pt-2 rtl:w-4" />`,
+            svelteOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            vue: `<template><img class="rtl:pt-2 rtl:w-4" /></template>`,
+            vueOutput: `<template><img class="rtl:pbs-2 rtl:inline-4" /></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
+
   it("should keep the important modifier", () => {
     lint(
       enforceLogicalProperties,

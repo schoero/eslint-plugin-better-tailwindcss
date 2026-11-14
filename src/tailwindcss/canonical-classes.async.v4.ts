@@ -7,12 +7,6 @@ export function getCanonicalClasses(tailwindContext: any, classes: string[], opt
   const result: CanonicalClasses = Object.create(null);
 
   if(typeof tailwindContext?.canonicalizeCandidates !== "function"){
-    for(const className of classes){
-      result[className] = {
-        input: [className],
-        output: className
-      };
-    }
     return result;
   }
 
@@ -30,22 +24,7 @@ export function getCanonicalClasses(tailwindContext: any, classes: string[], opt
   const inputClassSet = new Set(classes);
 
   const removedClasses = knownClasses.filter(className => !canonicalizedClassSet.has(className));
-  const originalClasses = knownClasses.filter(className => canonicalizedClassSet.has(className));
   const canonicalClasses = canonicalizedClasses.filter(className => !inputClassSet.has(className));
-
-  for(const originalClass of originalClasses){
-    result[originalClass] = {
-      input: [originalClass],
-      output: originalClass
-    };
-  }
-
-  for(const unknownClass of unknownClasses){
-    result[unknownClass] = {
-      input: [unknownClass],
-      output: unknownClass
-    };
-  }
 
   if(canonicalClasses.length === 0){
     return result;

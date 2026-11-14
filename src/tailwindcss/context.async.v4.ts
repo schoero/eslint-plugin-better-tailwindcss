@@ -4,14 +4,17 @@ import { pathToFileURL } from "node:url";
 
 import { createJiti } from "jiti";
 
-import { withCache } from "../async-utils/cache.js";
 import { normalize } from "../async-utils/path.js";
 import { resolveCss, resolveJs } from "../async-utils/resolvers.js";
+import { loadTailwindContext } from "../async-utils/tailwind-context.js";
 
+import type { TrackFile } from "../async-utils/tailwind-context.js";
 import type { AsyncContext } from "../utils/context.js";
 
 
-export const createTailwindContext = async (ctx: AsyncContext) => withCache("tailwind-context", ctx.tailwindConfigPath, async () => {
+export const createTailwindContext = async (ctx: AsyncContext) => loadTailwindContext(ctx, buildTailwindContext);
+
+async function buildTailwindContext(ctx: AsyncContext, track: TrackFile) {
   const jiti = createJiti(getCurrentFilename(), {
     fsCache: false,
     moduleCache: false
@@ -23,13 +26,14 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
   // eslint-disable-next-line eslint-plugin-typescript/naming-convention
   const { __unstable__loadDesignSystem } = await import(normalize(tailwindPath));
 
+  track(ctx.tailwindConfigPath);
   const css = await readFile(ctx.tailwindConfigPath, "utf-8");
 
   // Load the design system and set up a compatible context object that is
   // usable by the rest of the plugin
   const design = await __unstable__loadDesignSystem(css, {
     base: importBasePath,
-    loadModule: createLoader(ctx, jiti, {
+    loadModule: createLoader(ctx, jiti, track, {
       filepath: ctx.tailwindConfigPath,
       legacy: false,
       onError: (id, err, resourceType) => {
@@ -47,6 +51,15 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
       try {
         const resolved = resolveCss(ctx, id, base);
 
+        if(!resolved){
+          return {
+            base: "",
+            content: ""
+          };
+        }
+
+        track(resolved);
+
         return {
           base: dirname(resolved),
           content: await readFile(resolved, "utf-8")
@@ -61,9 +74,9 @@ export const createTailwindContext = async (ctx: AsyncContext) => withCache("tai
   });
 
   return design;
-});
+}
 
-function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, {
+function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>, track: TrackFile, {
   filepath,
   legacy,
   onError
@@ -77,6 +90,7 @@ function createLoader<T>(ctx: AsyncContext, jiti: ReturnType<typeof createJiti>,
   async function loadFile(id: string, base: string, resourceType: string) {
     try {
       const resolved = resolveJs(ctx, id, base);
+      track(resolved);
 
       const url = pathToFileURL(resolved);
       url.searchParams.append("t", cacheKey);

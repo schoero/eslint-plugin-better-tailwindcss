@@ -65,12 +65,14 @@ The plugin is built around a strict separation between parsing and linting:
 - `splitClasses(classes)` / `splitWhitespaces(classes)` from `src/utils/utils.ts`: split a class string into class chunks or whitespace chunks (aligned by index).
 - `buildClass(ctx, parts)` from `src/utils/class.ts`: reassembles a class string from dissected parts (`variants`, `prefix`, `negative`, `base`, `important`), placing the prefix correctly for Tailwind v3 vs v4.
 - `replacePlaceholders(template, match)` from `src/utils/utils.ts`: substitutes `$1…$n` placeholders with regex capture groups (used to build fix strings).
-- `getCachedRegex(pattern, flags?)` from `src/async-utils/regex.ts`: cached `RegExp` factory; prefer it over `new RegExp` for option-derived patterns.
+- `getCachedRegex(pattern, flags?)` from `src/async-utils/regex.ts`: cached `RegExp` for patterns that are only known at runtime, for example from options. Use regex literals for static patterns.
 - `display(messageStyle, classes)`, `deduplicateClasses(classes)`, `isClassSticky(literal, classIndex)`, `augmentMessageWithWarnings(message, docs, warnings)` from `src/utils/utils.ts`: message formatting, deduping (first occurrence wins), interpolation-safety check before reordering/removing a class, and prepending warning links to messages.
 
 ### Tailwind worker helpers
 
 Helpers under `src/tailwindcss/*.ts` come in `createGetX` / `getX` pairs backed by a synckit worker. Call `createGetX(ctx)` once in the rule's `initialize`, then call `getX(async(ctx), ...)` inside `lintLiterals` (`async()` from `src/utils/context.ts` builds the serializable worker context). Every getter returns `{ ..., warnings }` — forward `warnings` into `ctx.report` so misconfiguration is surfaced.
+
+There is only one cache: `cache` from `src/async-utils/cache.ts`. The ESLint thread and the worker each have their own instance. Entries can depend on files and on other entries and are invalidated when those change. Don't add other caches. Getters cache worker results with `getOrRunOperation(ctx, cacheKey(name, ctx.contextKey, ...args), () => runOperation(...))` from `src/tailwindcss/operation.ts`. The worker reports the files the Tailwind context was built from, so cached results become stale when the config or one of its imports changes, without a round trip to the worker. Every config has its own context, identified by `ctx.contextKey`.
 
 - `createGetDissectedClasses` / `getDissectedClasses(ctx, classes)` from `src/tailwindcss/dissect-classes.ts`: dissects tailwind classes into their individual parts (variants, modifiers etc.). Returns `{ dissectedClasses }` mapping each class to a `DissectedClass` (see `src/tailwindcss/dissect-classes.ts`; `variants` is `undefined` in Tailwind v4 for non-tailwind classes).
 - `createGetClassOrder` / `getClassOrder(ctx, classes)` from `src/tailwindcss/class-order.ts`: Tailwind's internal sort weight per class.
@@ -86,6 +88,7 @@ Rules that only need pure string checks (for example `no-unnecessary-whitespace`
 ## Testing rules
 
 - Use the `lint(...)` helper from `tests/utils/lint.ts`.
+- Use `TestDirectory` from `tests/utils/tmp.ts` to create and clean up temporary files and directories in tests.
 - Supported parser keys in tests: `angular`, `astro`, `css`, `html`, `jsx`, `svelte`, `vue`.
 - Use `invalid` cases only where syntax is valid for that parser.
 - Include `errors` assertions for invalid cases.

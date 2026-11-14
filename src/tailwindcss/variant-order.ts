@@ -1,9 +1,5 @@
-import { resolve } from "node:path";
-
-import { createSyncFn } from "synckit";
-
-import { withOperationCache } from "better-tailwindcss:utils/cache.js";
-import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
+import { createRunOperation, getOrRunOperation } from "better-tailwindcss:tailwindcss/operation.js";
+import { cacheKey } from "better-tailwindcss:utils/cache.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -20,15 +16,12 @@ export type GetVariantOrder = (ctx: AsyncContext, classes: string[]) => {
 export let getVariantOrder: GetVariantOrder = () => { throw new Error("getVariantOrder() called before being initialized"); };
 
 export function createGetVariantOrder(ctx: Context): GetVariantOrder {
-  const workerPath = getWorkerPath(ctx);
-  const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions);
+  const runOperation = createRunOperation(ctx);
 
-  getVariantOrder = withOperationCache<GetVariantOrder>("getVariantOrder", (ctx, classes) => runWorker("getVariantOrder", ctx, classes));
+  getVariantOrder = (ctx, classes) => ({
+    variantOrder: getOrRunOperation(ctx, cacheKey("variant-order", ctx.contextKey, ...classes), () => runOperation("getVariantOrder", ctx, classes)),
+    warnings: ctx.warnings
+  });
 
   return getVariantOrder;
-}
-
-function getWorkerPath(ctx: Context) {
-  return resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
 }

@@ -1,8 +1,5 @@
-import { resolve } from "node:path";
-
-import { createSyncFn } from "synckit";
-
-import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
+import { createRunOperation, getOrRunOperation } from "better-tailwindcss:tailwindcss/operation.js";
+import { cacheKey } from "better-tailwindcss:utils/cache.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -21,15 +18,12 @@ export type GetPrefix = (ctx: AsyncContext) => {
 export let getPrefix: GetPrefix = () => { throw new Error("getPrefix() called before being initialized"); };
 
 export function createGetPrefix(ctx: Context): GetPrefix {
-  const workerPath = getWorkerPath(ctx);
-  const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions);
+  const runOperation = createRunOperation(ctx);
 
-  getPrefix = ctx => runWorker("getPrefix", ctx);
+  getPrefix = ctx => ({
+    ...getOrRunOperation(ctx, cacheKey("prefix", ctx.contextKey), () => runOperation("getPrefix", ctx)),
+    warnings: ctx.warnings
+  });
 
   return getPrefix;
-}
-
-function getWorkerPath(ctx: Context) {
-  return resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
 }

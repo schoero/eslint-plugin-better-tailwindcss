@@ -1,10 +1,9 @@
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { fork } from "@eslint/css-tree";
 import { tailwind4 } from "tailwind-csstree";
 
-import { withCache } from "../async-utils/cache.js";
 import { resolveCss } from "../async-utils/resolvers.js";
 
 import type { CssNode } from "@eslint/css-tree";
@@ -29,22 +28,20 @@ interface CssFiles {
 
 const { findAll, generate, parse, walk } = fork(tailwind4);
 
-export async function getCustomComponentClasses(ctx: AsyncContext): Promise<CustomComponentClasses> {
-  const resolvedPath = resolveCss(ctx, ctx.tailwindConfigPath);
+export function getCustomComponentClasses(ctx: AsyncContext): CustomComponentClasses {
+  // the config path is resolved to an absolute path on the host
+  // the host caches the result, the tailwind context tracks the same files
+  const files = parseCssFilesDeep(ctx, ctx.tailwindConfigPath);
 
-  if(!resolvedPath){
-    return [];
-  }
-
-  const files = await parseCssFilesDeep(ctx, resolvedPath);
-
-  return getCustomComponentUtilities(files, resolvedPath);
+  return getCustomComponentUtilities(files, ctx.tailwindConfigPath);
 }
 
-async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promise<CssFiles> {
-  const cssFiles: CssFiles = {};
+function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string, cssFiles: CssFiles = {}): CssFiles {
+  if(resolvedPath in cssFiles){
+    return cssFiles;
+  }
 
-  const cssFile = await parseCssFile(ctx, resolvedPath);
+  const cssFile = parseCssFile(ctx, resolvedPath);
 
   if(!cssFile){
     return cssFiles;
@@ -53,18 +50,15 @@ async function parseCssFilesDeep(ctx: AsyncContext, resolvedPath: string): Promi
   cssFiles[resolvedPath] = cssFile;
 
   for(const { path } of cssFile.imports){
-    const importedFiles = await parseCssFilesDeep(ctx, path);
-
-    for(const importedFile in importedFiles){
-      cssFiles[importedFile] = importedFiles[importedFile];
-    }
+    parseCssFilesDeep(ctx, path, cssFiles);
   }
+
   return cssFiles;
 }
 
-const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<CssFile | undefined> => withCache("css-file", resolvedPath, async () => {
+const parseCssFile = (ctx: AsyncContext, resolvedPath: string): CssFile | undefined => {
   try {
-    const content = await readFile(resolvedPath, "utf-8");
+    const content = readFileSync(resolvedPath, "utf-8");
     const ast = parse(content);
 
     const importNodes = findAll(ast, node => node.type === "Atrule" &&
@@ -104,15 +98,19 @@ const parseCssFile = async (ctx: AsyncContext, resolvedPath: string): Promise<Cs
     } satisfies CssFile;
 
   } catch {}
-});
+};
 
-function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = []): string[] {
+// files that are already part of the current import chain are skipped to stop circular imports
+// the same file imported through different chains is visited again, because its layer may differ
+function getCustomComponentUtilities(files: CssFiles, filePath: string, currentLayer: string[] = [], importChain: ReadonlySet<string> = new Set()): string[] {
   const classes = new Set<string>();
   const file = files[filePath];
 
-  if(!file){
+  if(!file || importChain.has(filePath)){
     return [];
   }
+
+  const nextImportChain = new Set(importChain).add(filePath);
 
   for(const { layer, path } of file.imports){
     const nextLayer = [...currentLayer];
@@ -121,7 +119,7 @@ function getCustomComponentUtilities(files: CssFiles, filePath: string, currentL
       nextLayer.push(layer);
     }
 
-    const importedClasses = getCustomComponentUtilities(files, path, nextLayer);
+    const importedClasses = getCustomComponentUtilities(files, path, nextLayer, nextImportChain);
 
     for(const importedClass of importedClasses){
       classes.add(importedClass);

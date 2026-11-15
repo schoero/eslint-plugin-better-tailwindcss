@@ -146,6 +146,66 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
     );
   });
 
+  it("should not report remaining inline physical mappings with the ltr or rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            html: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            jsx: `() => <img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            svelte: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            vue: `<template><img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report inline physical classes next to an override of the same property on another side", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            html: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            jsx: `() => <img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            svelte: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            vue: `<template><img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report prefixed inline physical classes with the ltr or rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            html: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            jsx: `() => <img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            svelte: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            vue: `<template><img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it("should fix physical classes whose property has no ltr or rtl override", () => {
     lint(
       enforceLogicalProperties,

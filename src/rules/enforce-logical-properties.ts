@@ -144,15 +144,15 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
 
     const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
-    const rtlOverriddenGroups = new Set(
+    const directionOverriddenGroups = new Set(
       Object.values(dissectedClasses)
-        .filter(dissectedClass => dissectedClass.variants?.includes("rtl"))
+        .filter(dissectedClass => dissectedClass.variants?.some(variant => variant === "ltr" || variant === "rtl"))
         .map(dissectedClass => getDirectionalGroup(dissectedClass.base))
         .filter(group => group !== undefined)
     );
 
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
-      const replacementBases = getReplacementBases(dissectedClass.base, rtlOverriddenGroups);
+      const replacementBases = getReplacementBases(dissectedClass.base, directionOverriddenGroups);
 
       if(!replacementBases){
         return [];
@@ -174,7 +174,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
         return;
       }
 
-      const replacementBases = getReplacementBases(dissectedClass.base, rtlOverriddenGroups);
+      const replacementBases = getReplacementBases(dissectedClass.base, directionOverriddenGroups);
 
       if(!replacementBases){
         return;

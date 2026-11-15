@@ -34,7 +34,6 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 import eslintParserAngular from "angular-eslint";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { angular, clsx } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 import { parser as eslintParserTypeScript } from "typescript-eslint";
 
@@ -54,10 +53,11 @@ export default defineConfig([
       "better-tailwindcss": {
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         entryPoint: "src/global.css",
-        // the presets of your framework and the utilities you use
-        selectors: [...angular, ...clsx],
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        tailwindConfig: "tailwind.config.js"
+        tailwindConfig: "tailwind.config.js",
+
+        // the presets of your framework and the utilities you use
+        selectors: ["angular", "clsx"]
       }
     }
   },
@@ -119,7 +119,10 @@ export default defineConfig([
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of your framework and the utilities you use
+        "selectors": ["angular", "clsx"]
       }
     },
 

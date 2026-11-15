@@ -1,10 +1,10 @@
 # Presets
 
-Presets are the recommended way to tell the plugin where your Tailwind classes are. Compose your `selectors` from the presets of your framework and the [utilities](../../README.md#2-choose-your-utilities) you use, exported from `eslint-plugin-better-tailwindcss/presets`. This way, only the strings your project actually uses get linted, which avoids false positives.
+Presets are the recommended way to tell the plugin where your Tailwind classes are. List the presets of your framework and the [utilities](../../README.md#2-choose-your-utilities) you use by name in the `selectors` setting. This way, only the strings your project actually uses get linted, which avoids false positives.
 
 Without `selectors`, the plugin falls back to a broad set of [selectors](../configuration/advanced.md#selectors) that covers all supported frameworks and utilities at once. See the [defaults documentation](./defaults.md) for the full list.
 
-Each preset is an array of selectors that can be spread into the `selectors` option. Presets can be freely combined with each other and with your own custom selectors.
+Each preset name stands for a set of selectors. Presets can be freely combined with each other and with your own custom selectors, and since they are plain strings, they work in JSON configs such as `.eslintrc.json` or `.oxlintrc.json` as well. Unknown names are ignored with a warning.
 
 > [!NOTE]
 > Providing `selectors` as an array **replaces** the defaults. Only the presets and selectors you list will be linted.
@@ -17,13 +17,11 @@ The defaults only contain the syntaxes that are safe to lint in every framework.
 To keep the defaults and add the syntaxes of a preset, pass it to [`extends`](../settings/settings.md#selectors) instead:
 
 ```js
-import { svelte } from "eslint-plugin-better-tailwindcss/presets";
-
 export default {
   settings: {
     "better-tailwindcss": {
       selectors: {
-        extends: [...svelte]
+        extends: ["svelte"]
       }
     }
   }
@@ -38,7 +36,6 @@ export default {
 ```js
 // eslint.config.js
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { clsx, cn, cva, react, variables } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig({
@@ -48,13 +45,7 @@ export default defineConfig({
   settings: {
     "better-tailwindcss": {
       entryPoint: "app/globals.css",
-      selectors: [
-        ...react,
-        ...cn,
-        ...clsx,
-        ...cva,
-        ...variables
-      ]
+      selectors: ["react", "cn", "clsx", "cva", "variables"]
     }
   }
 });
@@ -87,14 +78,13 @@ Some frameworks give the same attribute different meanings. For example, Svelte 
 
 ```js
 // eslint.config.js
-import { react, svelte } from "eslint-plugin-better-tailwindcss/presets";
 
 export default [
   {
     files: ["**/*.svelte"],
     settings: {
       "better-tailwindcss": {
-        selectors: [...svelte]
+        selectors: ["svelte"]
       }
     }
   },
@@ -102,7 +92,7 @@ export default [
     files: ["**/*.{jsx,tsx}"],
     settings: {
       "better-tailwindcss": {
-        selectors: [...react]
+        selectors: ["react"]
       }
     }
   }
@@ -146,21 +136,18 @@ The `variables` preset contains the default [variable selectors](../configuratio
 
 ## Combining with custom selectors
 
-Presets are plain arrays of selectors, so they can be combined with your own selectors:
+Presets can be combined with your own selectors:
 
 ```js
-import { cn, react } from "eslint-plugin-better-tailwindcss/presets";
-import { MatcherType, SelectorKind } from "eslint-plugin-better-tailwindcss/types";
-
 export default {
   settings: {
     "better-tailwindcss": {
       selectors: [
-        ...react,
-        ...cn,
+        "react",
+        "cn",
         {
-          kind: SelectorKind.Callee,
-          match: [{ type: MatcherType.String }],
+          kind: "callee",
+          match: [{ type: "strings" }],
           name: "^myFunction$"
         }
       ]

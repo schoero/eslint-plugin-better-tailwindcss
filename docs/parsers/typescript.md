@@ -32,7 +32,6 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 // eslint.config.js
 
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { clsx, variables } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 import { parser as eslintParserTypeScript } from "typescript-eslint";
 
@@ -51,10 +50,11 @@ export default defineConfig({
     "better-tailwindcss": {
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
-      // the presets of the utilities you use
-      selectors: [...clsx, ...variables],
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-      tailwindConfig: "tailwind.config.js"
+      tailwindConfig: "tailwind.config.js",
+
+      // the presets of the utilities you use
+      selectors: ["clsx", "variables"]
     }
   },
 
@@ -110,7 +110,10 @@ export default defineConfig({
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of the utilities you use
+        "selectors": ["clsx", "variables"]
       }
     },
 
@@ -140,7 +143,6 @@ To lint Tailwind CSS classes in TypeScript files, ensure that:
 // oxlint.config.ts
 
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { clsx, variables } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "oxlint";
 
 export default defineConfig({
@@ -160,8 +162,9 @@ export default defineConfig({
   settings: {
     "better-tailwindcss": {
       entryPoint: "src/global.css",
+
       // the presets of the utilities you use
-      selectors: [...clsx, ...variables]
+      selectors: ["clsx", "variables"]
     }
   }
 });

@@ -205,7 +205,6 @@ Combine the presets of your framework and utilities in the `selectors` setting, 
 ```js
 // eslint.config.js
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { clsx, cva, react, variables } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig({
@@ -217,13 +216,14 @@ export default defineConfig({
     "better-tailwindcss": {
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
+
       selectors: [
         // 1. choose your flavor
-        ...react,
+        "react",
         // 2. choose your utilities
-        ...clsx,
-        ...cva,
-        ...variables
+        "clsx",
+        "cva",
+        "variables"
       ]
     }
   }

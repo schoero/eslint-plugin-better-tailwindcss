@@ -32,7 +32,6 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 // eslint.config.js
 
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { clsx, svelte } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 import eslintParserSvelte from "svelte-eslint-parser";
 
@@ -51,10 +50,11 @@ export default defineConfig({
     "better-tailwindcss": {
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
-      // the presets of your framework and the utilities you use
-      selectors: [...svelte, ...clsx],
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-      tailwindConfig: "tailwind.config.js"
+      tailwindConfig: "tailwind.config.js",
+
+      // the presets of your framework and the utilities you use
+      selectors: ["svelte", "clsx"]
     }
   },
 
@@ -92,7 +92,10 @@ export default defineConfig({
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of your framework and the utilities you use
+        "selectors": ["svelte", "clsx"]
       }
     },
 

@@ -16,7 +16,7 @@ In rule options, `extends` adds in addition to the selectors from the [settings]
 
 You can find the default selectors in the [defaults documentation](../api/defaults.md).
 
-To narrow down the selectors to the frameworks and utilities you actually use, compose them from the [presets](../api/presets.md) exported from `eslint-plugin-better-tailwindcss/presets`.
+To narrow down the selectors to the frameworks and utilities you actually use, list the [presets](../api/presets.md) by name.
 
 <br/>
 <br/>

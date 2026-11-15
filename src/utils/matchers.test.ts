@@ -11,9 +11,12 @@ import {
 } from "better-tailwindcss:parsers/es.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { findNode, lint, withParentNodeExtension } from "better-tailwindcss:tests/utils/lint.js";
-import { MatcherType } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { Node as ESNode } from "estree";
+
+import type { Settings } from "better-tailwindcss:options/descriptions.js";
+import type { Selector } from "better-tailwindcss:options/schemas/selectors.js";
 
 
 describe("matchers", () => {
@@ -718,6 +721,168 @@ describe("matchers", () => {
 
       ]
     });
+  });
+
+  describe("selectors extends", () => {
+
+    const testStyles: Selector = {
+      kind: SelectorKind.Attribute,
+      match: [{ type: MatcherType.String }],
+      name: "^testStyles$"
+    };
+
+    const callee = (name: string): Selector => ({
+      kind: SelectorKind.Callee,
+      match: [{ type: MatcherType.String }],
+      name: `^${name}$`
+    });
+
+    it("should lint extended selectors on top of the default selectors", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+            svelte: `<img class=" lint " testStyles=" lint " />`,
+            svelteOutput: `<img class="lint" testStyles="lint" />`,
+            vue: `<template><img class=" lint " testStyles=" lint " /></template>`,
+            vueOutput: `<template><img class="lint" testStyles="lint" /></template>`,
+
+            errors: 4,
+            options: [{ selectors: { extends: [testStyles] } }]
+          }
+        ]
+      });
+    });
+
+    it("should read extended selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { selectors: { extends: [testStyles] } } }
+          }
+        ]
+      });
+    });
+
+    it("should still replace the default selectors when selectors is an array", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `defined(" lint ");`,
+            jsxOutput: `defined("lint");`,
+
+            errors: 2,
+            options: [{ selectors: [callee("defined")] }]
+          }
+        ],
+        valid: [
+          {
+            jsx: `<img class=" ignore " />`,
+
+            options: [{ selectors: [callee("defined")] }]
+          }
+        ]
+      });
+    });
+
+    it("should let rule options extend the extended selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " />; extra(" lint "); other(" lint ");`,
+            jsxOutput: `<img class="lint" />; extra("lint"); other("lint");`,
+
+            errors: 6,
+            options: [{ selectors: { extends: [callee("other")] } }],
+            settings: { "better-tailwindcss": { selectors: { extends: [callee("extra")] } } }
+          }
+        ]
+      });
+    });
+
+    it("should let rule options extend the selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " />; custom(" lint "); other(" lint ");`,
+            jsxOutput: `<img class=" ignore " />; custom("lint"); other("lint");`,
+
+            errors: 4,
+            options: [{ selectors: { extends: [callee("other")] } }],
+            settings: { "better-tailwindcss": { selectors: [callee("custom")] } }
+          }
+        ]
+      });
+    });
+
+    it("should keep extended selectors when legacy options replace the default selectors", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " legacy=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class=" ignore " legacy="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { attributes: ["^legacy$"], selectors: { extends: [testStyles] } } }
+          }
+        ]
+      });
+    });
+
+    it("should let rule options replace the selectors from the settings", () => {
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" ignore " />; extra(" ignore "); other(" lint ");`,
+            jsxOutput: `<img class=" ignore " />; extra(" ignore "); other("lint");`,
+
+            errors: 2,
+            options: [{ selectors: [callee("other")] }],
+            settings: { "better-tailwindcss": { selectors: { extends: [callee("extra")] } } }
+          }
+        ]
+      });
+    });
+
+    it("should fall back to the default selectors when the selectors in the settings are malformed", () => {
+      const malformedSelectors = [null, {}, { extend: [testStyles] }] as unknown as Settings["selectors"][];
+
+      for(const selectors of malformedSelectors){
+        lint(noUnnecessaryWhitespace, {
+          invalid: [
+            {
+              jsx: `<img class=" lint " testStyles=" ignore " />`,
+              jsxOutput: `<img class="lint" testStyles=" ignore " />`,
+
+              errors: 2,
+              settings: { "better-tailwindcss": { selectors } }
+            }
+          ]
+        });
+      }
+    });
+
+    it("should ignore malformed entries in the `extends` selectors of the settings", () => {
+      const selectors = { extends: [null, "testStyles", { kind: SelectorKind.Attribute }, testStyles] } as unknown as Settings["selectors"];
+
+      lint(noUnnecessaryWhitespace, {
+        invalid: [
+          {
+            jsx: `<img class=" lint " testStyles=" lint " />`,
+            jsxOutput: `<img class="lint" testStyles="lint" />`,
+
+            errors: 4,
+            settings: { "better-tailwindcss": { selectors } }
+          }
+        ]
+      });
+    });
+
   });
 
 });

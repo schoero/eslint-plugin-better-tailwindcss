@@ -1,5 +1,29 @@
 # Changelog
 
+## v4.11.0
+
+[compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.10.0...v4.11.0)
+
+### Features
+
+- Allow `selectors` to extend the default selectors ([#412](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/412))
+
+### Fixes
+
+- Update descriptions for unknown class ordering and positioning ([204071b](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/204071b))
+- **enforce-consistent-class-order:** Update descriptions for unknown class ordering and positioning ([#432](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/432))
+- Update documentation and improve warning messages for rules ([d5701ba](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/d5701ba))
+- Build config ([#433](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/433))
+- Improve strict sorting order handling for duplicate and numeric classes ([#431](https://github.com/schoero/eslint-plugin-better-tailwindcss/pull/431))
+
+### Tests
+
+- Fix ci test options ([54451e7](https://github.com/schoero/eslint-plugin-better-tailwindcss/commit/54451e7))
+
+### ❤️ Contributors
+
+- Simon.b ([@gamegee](https://github.com/gamegee))
+
 ## v4.10.0
 
 [compare changes](https://github.com/schoero/eslint-plugin-better-tailwindcss/compare/v4.9.1...v4.10.0)

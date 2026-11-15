@@ -1,0 +1,13 @@
+{
+  "version": "4.11.0",
+  "type": "module",
+  "name": "eslint-plugin-better-tailwindcss",
+  "private": true,
+  "exports": {
+    ".": "./index.js",
+    "./api/defaults": "./defaults.js",
+    "./api/types": "./types.js",
+    "./defaults": "./defaults.js",
+    "./types": "./types.js"
+  }
+}

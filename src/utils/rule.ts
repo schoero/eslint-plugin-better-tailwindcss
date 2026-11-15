@@ -65,7 +65,7 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
-  Selectors,
+  Selector,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
@@ -140,7 +140,7 @@ export function createRule<
     const hasTagOverride = mergedOptions.tags !== undefined;
     const hasVariableOverride = mergedOptions.variables !== undefined;
 
-    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce<{ baseSelectors: Selectors; extendedSelectors: Selectors; }>(
+    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce<{ baseSelectors: Selector[]; extendedSelectors: Selector[]; }>(
       (resolvedSelectors, configuredSelectors) => {
         if(Array.isArray(configuredSelectors)){
           return { baseSelectors: resolvePresetNames(configuredSelectors), extendedSelectors: [] };
@@ -281,8 +281,8 @@ export function createRule<
 }
 
 // settings are not validated, so invalid entries would otherwise be dropped silently or crash the selector matching
-function resolvePresetNames(entries: unknown[]): Selectors {
-  return entries.flatMap<Selectors[number]>(entry => {
+function resolvePresetNames(entries: unknown[]): Selector[] {
+  return entries.flatMap<Selector>(entry => {
     if(typeof entry === "string"){
       if(Object.hasOwn(presets, entry)){
         return presets[entry as PresetName];

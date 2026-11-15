@@ -4,7 +4,7 @@ import type { Attributes } from "better-tailwindcss:options/schemas/attributes.j
 import type { Callees } from "better-tailwindcss:options/schemas/callees.js";
 import type { Tags } from "better-tailwindcss:options/schemas/tags.js";
 import type { Variables } from "better-tailwindcss:options/schemas/variables.js";
-import type { Matcher, Selector, SelectorMatcher, Selectors } from "better-tailwindcss:types/rule.js";
+import type { Matcher, Selector, SelectorMatcher } from "better-tailwindcss:types/rule.js";
 
 
 type LegacySelector = Attributes[number] | Callees[number] | Tags[number] | Variables[number];
@@ -16,8 +16,8 @@ type LegacySelectorsByKind = {
   variables?: Variables | undefined;
 };
 
-export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByKind): Selectors {
-  const selectors: Selectors = [];
+export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByKind): Selector[] {
+  const selectors: Selector[] = [];
 
   if(legacy.attributes){
     for(const attributeSelector of legacy.attributes){
@@ -43,7 +43,7 @@ export function migrateLegacySelectorsToFlatSelectors(legacy: LegacySelectorsByK
   return selectors;
 }
 
-export function migrateFlatSelectorsToLegacySelectors(selectors: Selectors): LegacySelectorsByKind {
+export function migrateFlatSelectorsToLegacySelectors(selectors: Selector[]): LegacySelectorsByKind {
   return selectors.reduce<LegacySelectorsByKind>((legacy, selector) => {
     const migratedSelector = migrateFlatSelector(selector);
 

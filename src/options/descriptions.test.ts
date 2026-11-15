@@ -252,6 +252,27 @@ describe("descriptions", () => {
 
   });
 
+  test("selectors preset names config", () => {
+
+    const selector = {
+      kind: "callee",
+      name: "^myFn$"
+    };
+
+    expect(() => validateRuleOptions({ selectors: ["svelte", "clsx"] })).not.toThrow();
+    expect(() => validateRuleOptions({ selectors: ["react", selector] })).not.toThrow();
+    expect(() => validateRuleOptions({ selectors: { extends: ["svelte"] } })).not.toThrow();
+
+  });
+
+  test("invalid selectors preset names config", () => {
+
+    expect(() => validateRuleOptions({ selectors: ["notAPreset"] })).toThrow();
+    expect(() => validateRuleOptions({ selectors: { extends: ["notAPreset"] } })).toThrow();
+    expect(() => validateRuleOptions({ selectors: "svelte" })).toThrow();
+
+  });
+
   test("selectors targetCall and targetArgument config", () => {
 
     const selectors = {

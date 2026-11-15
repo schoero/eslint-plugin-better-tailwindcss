@@ -4,12 +4,14 @@ import {
   literal,
   number,
   optional,
+  picklist,
   pipe,
   strictObject,
   string,
   union
 } from "valibot";
 
+import * as presets from "better-tailwindcss:api/presets.js";
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
@@ -196,17 +198,27 @@ export const SELECTOR_SCHEMA = union([
 
 export type Selector = InferOutput<typeof SELECTOR_SCHEMA>;
 
-export const SELECTORS_SCHEMA = pipe(
-  array(SELECTOR_SCHEMA),
-  description("Selectors that replace the default selectors.")
+export type PresetName = keyof typeof presets;
+
+export const PRESET_NAME_SCHEMA = pipe(
+  picklist(Object.keys(presets) as PresetName[]),
+  description("Name of a preset whose selectors are used in its place.")
 );
 
-export type Selectors = InferOutput<typeof SELECTORS_SCHEMA>;
+const SELECTOR_OR_PRESET_NAME_SCHEMA = union([SELECTOR_SCHEMA, PRESET_NAME_SCHEMA]);
+
+export const SELECTORS_SCHEMA = pipe(
+  array(SELECTOR_OR_PRESET_NAME_SCHEMA),
+  description("Selectors or preset names that replace the default selectors.")
+);
+
+/** Selectors after preset names have been resolved. */
+export type Selectors = Selector[];
 
 export const EXTENDS_SELECTORS_SCHEMA = strictObject({
   extends: pipe(
-    array(SELECTOR_SCHEMA),
-    description("Selectors that are added to the default selectors. In rule options, they are added to the selectors from the settings instead.")
+    array(SELECTOR_OR_PRESET_NAME_SCHEMA),
+    description("Selectors or preset names that are added to the default selectors. In rule options, they are added to the selectors from the settings instead.")
   )
 });
 
@@ -214,7 +226,7 @@ export const SELECTORS_OPTION_SCHEMA = strictObject({
   selectors: optional(
     pipe(
       union([SELECTORS_SCHEMA, EXTENDS_SELECTORS_SCHEMA]),
-      description("Either an array of selectors that replaces the default selectors, or an object whose `extends` selectors are added to them. In rule options, both apply to the selectors from the settings instead of the defaults.")
+      description("Either an array of selectors or preset names that replaces the default selectors, or an object whose `extends` selectors or preset names are added to them. In rule options, both apply to the selectors from the settings instead of the defaults.")
     ),
     DEFAULT_SELECTORS
   )

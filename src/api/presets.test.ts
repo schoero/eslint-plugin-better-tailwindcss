@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { getFilesInDirectory, lint } from "better-tailwindcss:tests/utils/lint.js";
-import { SelectorKind } from "better-tailwindcss:types/rule.js";
+import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import {
   angular,
@@ -277,6 +277,83 @@ describe("presets", () => {
         }
       ]
     });
+  });
+
+  it("should resolve preset names", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          svelte: `<img class={{ " lint ": true }} />`,
+          svelteOutput: `<img class={{ "lint": true }} />`,
+
+          errors: 2,
+          options: [{ selectors: ["svelte"] }]
+        },
+        {
+          svelte: `<img class={{ " lint ": true }} />`,
+          svelteOutput: `<img class={{ "lint": true }} />`,
+
+          errors: 2,
+          settings: { "better-tailwindcss": { selectors: ["svelte"] } }
+        },
+        {
+          svelte: `<img class={{ " lint ": true }} />`,
+          svelteOutput: `<img class={{ "lint": true }} />`,
+
+          errors: 2,
+          options: [{ selectors: { extends: ["svelte"] } }]
+        },
+        {
+          svelte: `<img class={{ " lint ": true }} />`,
+          svelteOutput: `<img class={{ "lint": true }} />`,
+
+          errors: 2,
+          settings: { "better-tailwindcss": { selectors: { extends: ["svelte"] } } }
+        },
+        {
+          jsx: `<img className=" lint " />; clsx(" lint "); cn(" ignore ");`,
+          jsxOutput: `<img className="lint" />; clsx("lint"); cn(" ignore ");`,
+
+          errors: 4,
+          options: [{ selectors: { extends: ["clsx"] } }],
+          settings: { "better-tailwindcss": { selectors: ["react"] } }
+        },
+        {
+          jsx: `<img className={cn(" lint ")} />; myFn(" lint "); clsx(" ignore ");`,
+          jsxOutput: `<img className={cn("lint")} />; myFn("lint"); clsx(" ignore ");`,
+
+          errors: 4,
+          options: [{
+            selectors: [
+              "react",
+              "cn",
+              { kind: SelectorKind.Callee, match: [{ type: MatcherType.String }], name: "^myFn$" }
+            ]
+          }]
+        }
+      ]
+    });
+  });
+
+  it("should ignore and warn about unknown preset names in the settings", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `<img className=" lint " />; clsx(" ignore ");`,
+          jsxOutput: `<img className="lint" />; clsx(" ignore ");`,
+
+          errors: 2,
+          // @ts-expect-error - settings are not validated, so misspelled preset names can reach the plugin
+          settings: { "better-tailwindcss": { selectors: ["react", "notAPreset"] } }
+        }
+      ]
+    });
+
+    expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("\"notAPreset\""));
+
+    warn.mockRestore();
   });
 
   it("should be combinable", () => {

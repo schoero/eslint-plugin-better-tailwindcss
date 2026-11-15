@@ -155,7 +155,7 @@ export function createRule<
           baseSelectors: resolvedSelectors.baseSelectors,
           extendedSelectors: [
             ...resolvedSelectors.extendedSelectors,
-            ...resolvePresetNames(configuredSelectors.extends).filter(selector => is(SELECTOR_SCHEMA, selector))
+            ...resolvePresetNames(configuredSelectors.extends.filter(entry => typeof entry === "string" || is(SELECTOR_SCHEMA, entry)))
           ]
         };
       },

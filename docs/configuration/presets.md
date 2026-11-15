@@ -1,10 +1,10 @@
 # Presets
 
-Presets are the recommended way to tell the plugin where your Tailwind classes are. List the presets of your framework and the [utilities](../../README.md#2-choose-your-utilities) you use by name in the `selectors` setting. This way, only the strings your project actually uses get linted, which avoids false positives.
+Presets are the recommended way to tell the plugin where your Tailwind classes are. List the presets of your framework and the [utilities](../../README.md#utilities) you use by name in the `selectors` setting. This way, only the strings your project actually uses get linted, which avoids false positives.
 
 Without `selectors`, the plugin falls back to a broad set of [selectors](./advanced.md#selectors) that covers all supported frameworks and utilities at once. See the [defaults documentation](../api/defaults.md) for the full list.
 
-Each preset name stands for a set of selectors. Presets can be freely combined with each other and with your own custom selectors, and since they are plain strings, they work in JSON configs such as `.eslintrc.json` or `.oxlintrc.json` as well. Unknown names are ignored with a warning.
+Each preset name stands for a set of selectors. Presets can be freely combined with each other and with your own custom selectors, and since they are plain strings, they work in JSON configs such as `.eslintrc.json` or `.oxlintrc.json` as well. Unknown names in rule options are rejected by ESLint's option validation, while unknown names in the settings are ignored with a warning.
 
 > [!NOTE]
 > Providing `selectors` as an array **replaces** the defaults. Only the presets and selectors you list will be linted.

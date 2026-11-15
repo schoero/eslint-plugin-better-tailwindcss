@@ -1,12 +1,12 @@
 # Advanced Configuration
 
-The [rules](../../README.md#3-choose-your-rules) in this plugin lint Tailwind classes inside string literals.
+The [rules](../../README.md#rules) in this plugin lint Tailwind classes inside string literals.
 
 To do that safely, the plugin must know **which strings are expected to contain Tailwind classes**. If it would lint every string literal in your codebase, it would produce many false positives and potentially unsafe fixes.
 
 To configure this, you can provide [selectors](#selectors) that specify where the plugin should look for class strings and how to extract them. Pass them as an array to replace the default selectors, or as `selectors: { extends: [...] }` to add them in addition to the defaults.
 
-The plugin already ships with defaults that support [most popular tailwind utilities](../../README.md#2-choose-your-utilities). You only need advanced configuration when:
+The plugin already ships with defaults that support [most popular tailwind utilities](../../README.md#utilities). You only need advanced configuration when:
 
 - you use custom utilities/APIs not covered by defaults,
 - you want to narrow down linting behavior,

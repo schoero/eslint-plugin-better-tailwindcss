@@ -75,19 +75,19 @@ npm i -D eslint-plugin-better-tailwindcss
 
 Getting started takes three steps:
 
-1. [Choose your flavor](#1-choose-your-flavor)
-2. [Choose your utilities](#2-choose-your-utilities)
-3. [Choose your rules](#3-choose-your-rules)
+1. Choose your [flavor](#flavor)
+2. Choose your [utilities](#utilities)
+3. Choose your [rules](#rules)
 
 At the end, the three choices come together in a single [config](#putting-it-together).
 
 > [!TIP]
-> The presets in steps 1 and 2 are optional. Without presets, the plugin lints the common class syntaxes of all supported frameworks and utilities at once. To get started right away, set up the [parser](#1-choose-your-flavor) for your files and skip to [choosing a recommended config](#3-choose-your-rules). You can narrow things down with presets later.
+> The presets in steps 1 and 2 are optional. Without presets, the plugin lints the common class syntaxes of all supported frameworks and utilities at once. To get started right away, set up the [parser](#flavor) for your files and skip to [choosing a recommended config](#rules). You can narrow things down with presets later.
 
 <br/>
 <br/>
 
-### 1. Choose your flavor
+### Flavor
 
 Install and configure the parser for the files you want to lint, then pick the matching [preset](./docs/configuration/presets.md#frameworks). The preset tells the plugin which attributes contain Tailwind classes, for example `className` in React or `class:list` in Astro.
 
@@ -111,7 +111,7 @@ CSS, JavaScript and TypeScript don't need a preset in this step. In CSS, `@apply
 <br/>
 <br/>
 
-### 2. Choose your utilities
+### Utilities
 
 Pick the [presets](./docs/configuration/presets.md#utilities) for the class name utilities you use. The plugin then lints the Tailwind classes passed to them:
 
@@ -134,7 +134,7 @@ The [`variables`](./docs/configuration/presets.md#variables) preset also lints s
 <br/>
 <br/>
 
-### 3. Choose your rules
+### Rules
 
 The rules are categorized into two types: `stylistic` and `correctness`.
 
@@ -230,7 +230,7 @@ export default defineConfig({
 });
 ```
 
-See the [parser documentation](#1-choose-your-flavor) of your flavor for a complete config, including the parser setup.
+See the [parser documentation](#flavor) of your flavor for a complete config, including the parser setup.
 
 If you don't configure `selectors`, the plugin falls back to a broad set of [defaults](./docs/api/defaults.md) that covers all frameworks and utilities at once. Presets are recommended because they only lint what your project actually uses and therefore avoid false positives.
 

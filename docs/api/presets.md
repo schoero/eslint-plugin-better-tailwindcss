@@ -1,8 +1,8 @@
 # Presets
 
-By default, the plugin uses a broad set of [selectors](../configuration/advanced.md#selectors) that covers all supported frameworks and [utilities](../../README.md#utilities) at once. See the [defaults documentation](./defaults.md) for the full list.
+Presets are the recommended way to tell the plugin where your Tailwind classes are. Compose your `selectors` from the presets of your framework and the [utilities](../../README.md#2-choose-your-utilities) you use, exported from `eslint-plugin-better-tailwindcss/presets`. This way, only the strings your project actually uses get linted, which avoids false positives.
 
-If your project only uses a specific framework or a few utilities, you can compose your own `selectors` from the presets exported from `eslint-plugin-better-tailwindcss/presets`. This narrows down which strings get linted and reduces false positives.
+Without `selectors`, the plugin falls back to a broad set of [selectors](../configuration/advanced.md#selectors) that covers all supported frameworks and utilities at once. See the [defaults documentation](./defaults.md) for the full list.
 
 Each preset is an array of selectors that can be spread into the `selectors` option. Presets can be freely combined with each other and with your own custom selectors.
 

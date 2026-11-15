@@ -73,24 +73,68 @@ npm i -D eslint-plugin-better-tailwindcss
 
 ## Quick start
 
-Depending on the flavor you are using, you need to install and configure the corresponding parser:
+Getting started takes three steps:
 
-- React: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
-- SolidJS: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
-- Qwik: [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md)  
-- Svelte: [.svelte](docs/parsers/svelte.md)  
-- Vue: [.vue](docs/parsers/vue.md)  
-- Astro: [.astro](docs/parsers/astro.md)  
-- Angular: [.html, .ts](docs/parsers/angular.md)  
-- HTML: [.html](docs/parsers/html.md)  
-- CSS: [.css](docs/parsers/css.md)  
-- JavaScript: [.js](docs/parsers/javascript.md)  
-- TypeScript: [.ts](docs/parsers/typescript.md)  
+1. [Choose your flavor](#1-choose-your-flavor)
+2. [Choose your utilities](#2-choose-your-utilities)
+3. [Choose your rules](#3-choose-your-rules)
+
+At the end, the three choices come together in a single [config](#putting-it-together).
+
+> [!TIP]
+> The presets in steps 1 and 2 are optional. Without presets, the plugin lints the common class syntaxes of all supported frameworks and utilities at once. To get started right away, set up the [parser](#1-choose-your-flavor) for your files and skip to [choosing a recommended config](#3-choose-your-rules). You can narrow things down with presets later.
 
 <br/>
 <br/>
 
-### Rules
+### 1. Choose your flavor
+
+Install and configure the parser for the files you want to lint, then pick the matching [preset](./docs/api/presets.md#frameworks). The preset tells the plugin which attributes contain Tailwind classes, for example `className` in React or `class:list` in Astro.
+
+| Flavor     | Parser                                                    | Preset    |
+| :--------- | :-------------------------------------------------------- | :-------- |
+| React      | [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md) | `react`   |
+| Preact     | [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md) | `preact`  |
+| SolidJS    | [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md) | `solid`   |
+| Qwik       | [.jsx](docs/parsers/jsx.md) · [.tsx](docs/parsers/tsx.md) | `qwik`    |
+| Svelte     | [.svelte](docs/parsers/svelte.md)                         | `svelte`  |
+| Vue        | [.vue](docs/parsers/vue.md)                               | `vue`     |
+| Astro      | [.astro](docs/parsers/astro.md)                           | `astro`   |
+| Angular    | [.html, .ts](docs/parsers/angular.md)                     | `angular` |
+| HTML       | [.html](docs/parsers/html.md)                             | `html`    |
+| CSS        | [.css](docs/parsers/css.md)                               | none      |
+| JavaScript | [.js](docs/parsers/javascript.md)                         | none      |
+| TypeScript | [.ts](docs/parsers/typescript.md)                         | none      |
+
+CSS, JavaScript and TypeScript don't need a preset in this step. In CSS, `@apply` directives are linted without any preset. In JavaScript and TypeScript, the classes are found through the utility presets from the next step.
+
+<br/>
+<br/>
+
+### 2. Choose your utilities
+
+Pick the [presets](./docs/api/presets.md#utilities) for the class name utilities you use. The plugin then lints the Tailwind classes passed to them:
+
+| Utility                                                                                   | Preset                  |
+| :---------------------------------------------------------------------------------------- | :---------------------- |
+| [tailwind merge](https://github.com/dcastil/tailwind-merge)                               | `twMerge` · `twJoin`    |
+| [class variance authority](https://github.com/joe-bell/cva)                               | `cva` · `cx`            |
+| [tailwind variants](https://github.com/nextui-org/tailwind-variants)                      | `tv`                    |
+| [shadcn](https://ui.shadcn.com/docs/installation/manual)                                  | `cn`                    |
+| [classcat](https://github.com/jorgebucaran/classcat)                                      | `cc`                    |
+| [class list builder](https://github.com/crswll/clb)                                       | `clb`                   |
+| [clsx](https://github.com/lukeed/clsx)                                                    | `clsx`                  |
+| [cnbuilder](https://github.com/xobotyi/cnbuilder)                                         | `cnb` · `dcnb`          |
+| [classnames template literals](https://github.com/netlify/classnames-template-literals)  | `ctl`                   |
+| [obj str](https://github.com/lukeed/obj-str)                                              | `objstr`                |
+| [react-twc](https://github.com/gregberge/twc)                                             | `twc` · `twx`           |
+
+The [`variables`](./docs/api/presets.md#variables) preset also lints strings assigned to variables named `className`, `classNames`, `classes`, `style` and `styles`.
+
+<br/>
+<br/>
+
+### 3. Choose your rules
 
 The rules are categorized into two types: `stylistic` and `correctness`.
 
@@ -151,30 +195,51 @@ The table below lists all available rules, the Tailwind CSS versions they suppor
 <br/>
 <br/>
 
-### Utilities
+<br/>
+<br/>
 
-This plugin is pre-configured to lint tailwind classes for the most popular utilities:
+### Putting it together
 
-- [tailwind merge](https://github.com/dcastil/tailwind-merge): `twMerge` · `twJoin`
-- [class variance authority](https://github.com/joe-bell/cva): `cva`
-- [tailwind variants](https://github.com/nextui-org/tailwind-variants?tab=readme-ov-file): `tv`
-- [shadcn](https://ui.shadcn.com/docs/installation/manual): `cn`
-- [classcat](https://github.com/jorgebucaran/classcat): `cc`
-- [class list builder](https://github.com/crswll/clb): `clb`
-- [clsx](https://github.com/lukeed/clsx): `clsx`
-- [cnbuilder](https://github.com/xobotyi/cnbuilder): `cnb`
-- [classnames template literals](https://github.com/netlify/classnames-template-literals): `ctl`
-- [obj str](https://github.com/lukeed/obj-str): `objstr`
-- [react-twc](https://github.com/gregberge/twc): `twc` · `twx`
+Combine the presets of your framework and utilities in the `selectors` setting, and enable a config:
 
-If you only use some of these utilities or a single framework, you can narrow down what gets linted with the [presets](./docs/api/presets.md).
+```js
+// eslint.config.js
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { clsx, cva, react, variables } from "eslint-plugin-better-tailwindcss/presets";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig({
+  // 3. choose your rules
+  extends: [
+    eslintPluginBetterTailwindcss.configs.recommended
+  ],
+  settings: {
+    "better-tailwindcss": {
+      // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
+      entryPoint: "src/global.css",
+      selectors: [
+        // 1. choose your flavor
+        ...react,
+        // 2. choose your utilities
+        ...clsx,
+        ...cva,
+        ...variables
+      ]
+    }
+  }
+});
+```
+
+See the [parser documentation](#1-choose-your-flavor) of your flavor for a complete config, including the parser setup.
+
+If you don't configure `selectors`, the plugin falls back to a broad set of [defaults](./docs/api/defaults.md) that covers all frameworks and utilities at once. Presets are recommended because they only lint what your project actually uses and therefore avoid false positives.
 
 <br/>
 <br/>
 
 ### Advanced configuration
 
-If an utility is not supported by default, or you want to customize the configuration, you can define which [attributes](./docs/configuration/advanced.md#attribute), [callees](./docs/configuration/advanced.md#callee), [variables](./docs/configuration/advanced.md#variable), and [tags](./docs/configuration/advanced.md#tag) should get linted.  
+If a utility has no preset, or you want to customize the configuration, you can define which [attributes](./docs/configuration/advanced.md#attribute), [callees](./docs/configuration/advanced.md#callee), [variables](./docs/configuration/advanced.md#variable), and [tags](./docs/configuration/advanced.md#tag) should get linted. Custom selectors can be [combined with presets](./docs/api/presets.md#combining-with-custom-selectors).  
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>

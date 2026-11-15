@@ -18,6 +18,7 @@ To lint Tailwind CSS classes in HTML files, ensure that:
 - The `@html-eslint/parser` is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
+- The `selectors` setting contains the [preset](../api/presets.md) for your framework.
 
 <br/>
 
@@ -32,6 +33,7 @@ Read more about the [ESLint flat config format](https://eslint.org/docs/latest/u
 
 import eslintParserHTML from "@html-eslint/parser";
 import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
+import { html } from "eslint-plugin-better-tailwindcss/presets";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig({
@@ -49,6 +51,8 @@ export default defineConfig({
     "better-tailwindcss": {
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
+      // the preset of your framework
+      selectors: [...html],
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
       tailwindConfig: "tailwind.config.js"
     }

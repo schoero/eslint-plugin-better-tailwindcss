@@ -17,7 +17,7 @@ import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/vari
 
 import type { InferInput, InferOutput } from "valibot";
 
-import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
+import type { Selectors } from "better-tailwindcss:types/rule.js";
 
 
 export const COMMON_OPTIONS = strictObject({

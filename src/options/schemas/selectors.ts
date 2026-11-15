@@ -212,9 +212,6 @@ export const SELECTORS_SCHEMA = pipe(
   description("Selectors or preset names that replace the default selectors.")
 );
 
-/** Selectors after preset names have been resolved. */
-export type Selectors = Selector[];
-
 export const EXTENDS_SELECTORS_SCHEMA = strictObject({
   extends: pipe(
     array(SELECTOR_OR_PRESET_NAME_SCHEMA),

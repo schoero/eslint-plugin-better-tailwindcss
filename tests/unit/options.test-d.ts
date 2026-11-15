@@ -3,7 +3,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import { SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
-import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
+import type { Selectors } from "better-tailwindcss:types/rule.js";
 
 import type { Settings } from "../../src/api/types.js";
 

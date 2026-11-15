@@ -53,7 +53,7 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
-import type { PresetName, Selectors, SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
+import type { PresetName, SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -65,6 +65,7 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
+  Selectors,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { matchesName } from "better-tailwindcss:utils/utils.js";
+import { matchesName, once } from "better-tailwindcss:utils/utils.js";
 
 import { escapeForRegex } from "../async-utils/escape";
 
@@ -30,5 +30,17 @@ describe("escapeForRegex", () => {
     expect(escapeForRegex("[abc]")).toBe("\\[abc\\]");
     expect(escapeForRegex("a+b*c")).toBe("a\\+b\\*c");
     expect(escapeForRegex("class$")).toBe("class\\$");
+  });
+});
+
+describe("once", () => {
+  it("should call the function on the first call only", () => {
+    let calls = 0;
+    const getValue = once(() => ++calls);
+
+    expect(calls).toBe(0);
+    expect(getValue()).toBe(1);
+    expect(getValue()).toBe(1);
+    expect(calls).toBe(1);
   });
 });

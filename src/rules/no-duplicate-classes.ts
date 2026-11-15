@@ -1,6 +1,6 @@
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { isClassSticky, splitClasses } from "better-tailwindcss:utils/utils.js";
+import { isClassSticky, once, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -25,9 +25,7 @@ export const noDuplicateClasses = createRule({
 function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal[]) {
   for(const literal of literals){
 
-    const parentClasses = literal.priorLiterals
-      ? getClassesFromLiteralNodes(literal.priorLiterals)
-      : [];
+    const getParentClasses = once(() => getClassesFromLiteralNodes(literal.getPriorLiterals()));
 
     lintClasses(ctx, literal, (className, index, _, after) => {
 
@@ -38,7 +36,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
         return;
       }
 
-      if(parentClasses.includes(className) || duplicateClassIndex !== -1){
+      if(duplicateClassIndex !== -1 || getParentClasses().includes(className)){
         return {
           data: { className },
           fix: "",
@@ -49,7 +47,7 @@ function lintLiterals(ctx: Context<typeof noDuplicateClasses>, literals: Literal
   }
 }
 
-function getClassesFromLiteralNodes(literals: Literal[]) {
+function getClassesFromLiteralNodes(literals: readonly Literal[]) {
   return literals.reduce<string[]>((combinedClasses, literal) => {
     if(!literal){ return combinedClasses; }
 

@@ -1,7 +1,7 @@
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 
 import type { MessageStyleOption } from "better-tailwindcss:options/schemas/common.js";
-import type { BracesMeta, Indentation, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
+import type { BracesMeta, Concatenation, Indentation, Literal, QuoteMeta } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
@@ -126,7 +126,9 @@ export function isClassSticky(literal: Literal, classIndex: number): boolean {
 }
 
 export function isConcatenatedLeft(literal: Literal): boolean {
-  if(!literal.isConcatenatedLeft && !literal.closingBraces){
+  const concatenation = literal.getConcatenation();
+
+  if(!concatenation.isConcatenatedLeft && !literal.closingBraces){
     return false;
   }
 
@@ -134,15 +136,15 @@ export function isConcatenatedLeft(literal: Literal): boolean {
     return false;
   }
 
-  if(literal.hasDynamicLeftNeighbor){
+  if(concatenation.hasDynamicLeftNeighbor){
     return true;
   }
 
-  if(literal.leftLiterals === undefined || literal.leftLiterals.length === 0){
+  if(concatenation.leftLiterals.length === 0){
     return true;
   }
 
-  return literal.leftLiterals.some(leftLiteral => {
+  return concatenation.leftLiterals.some(leftLiteral => {
     if(!leftLiteral.content.length){
       return isConcatenatedLeft(leftLiteral);
     }
@@ -156,7 +158,9 @@ export function isConcatenatedLeft(literal: Literal): boolean {
 }
 
 export function isConcatenatedRight(literal: Literal): boolean {
-  if(!literal.isConcatenatedRight && !literal.openingBraces){
+  const concatenation = literal.getConcatenation();
+
+  if(!concatenation.isConcatenatedRight && !literal.openingBraces){
     return false;
   }
 
@@ -164,15 +168,15 @@ export function isConcatenatedRight(literal: Literal): boolean {
     return false;
   }
 
-  if(literal.hasDynamicRightNeighbor){
+  if(concatenation.hasDynamicRightNeighbor){
     return true;
   }
 
-  if(literal.rightLiterals === undefined || literal.rightLiterals.length === 0){
+  if(concatenation.rightLiterals.length === 0){
     return true;
   }
 
-  return literal.rightLiterals.some(rightLiteral => {
+  return concatenation.rightLiterals.some(rightLiteral => {
     if(!rightLiteral.content.length){
       return isConcatenatedRight(rightLiteral);
     }
@@ -193,11 +197,13 @@ export function isConcatenatedLiteral(literal: Literal) {
       literal.closingBraces !== undefined
     );
 
-  const isStringConcatenation =
-    literal.isConcatenatedLeft === true ||
-    literal.isConcatenatedRight === true;
+  if(isTemplateInterpolation){
+    return true;
+  }
 
-  return isTemplateInterpolation || isStringConcatenation;
+  const concatenation = literal.getConcatenation();
+
+  return concatenation.isConcatenatedLeft || concatenation.isConcatenatedRight;
 }
 
 export function getExactClassLocation(literal: Literal, startIndex: number, endIndex: number) {
@@ -277,4 +283,36 @@ export function isGenericNodeWithParent(node: unknown): node is GenericNodeWithP
     node.parent !== null &&
     typeof node.parent === "object"
   );
+}
+
+export function once<Value>(fn: () => Value): () => Value {
+  let called = false;
+  let value: Value;
+
+  return () => {
+    if(!called){
+      value = fn();
+      called = true;
+    }
+    return value;
+  };
+}
+
+const NO_CONCATENATION: Concatenation = Object.freeze({
+  hasDynamicLeftNeighbor: false,
+  hasDynamicRightNeighbor: false,
+  isConcatenatedLeft: false,
+  isConcatenatedRight: false,
+  leftLiterals: Object.freeze([]),
+  rightLiterals: Object.freeze([])
+});
+
+const NO_PRIOR_LITERALS: readonly Literal[] = Object.freeze([]);
+
+export function getNoConcatenation(): Concatenation {
+  return NO_CONCATENATION;
+}
+
+export function getNoPriorLiterals(): readonly Literal[] {
+  return NO_PRIOR_LITERALS;
 }

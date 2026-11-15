@@ -1,4 +1,9 @@
-import { getIndentation, getWhitespace } from "better-tailwindcss:utils/utils.js";
+import {
+  getIndentation,
+  getNoConcatenation,
+  getNoPriorLiterals,
+  getWhitespace
+} from "better-tailwindcss:utils/utils.js";
 
 import type { Atrule } from "@eslint/css-tree";
 import type { Rule } from "eslint";
@@ -55,6 +60,8 @@ function getLiteralsByAtrule(ctx: Rule.RuleContext, node: Atrule): CSSClassListL
   return {
     ...whitespaces,
     content,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     isInterpolated: false,
     leadingApply,

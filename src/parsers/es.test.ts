@@ -1,13 +1,17 @@
 import { Linter } from "eslint";
 import { describe, expect, it } from "vitest";
 
-import { getStringConcatenationDirection } from "better-tailwindcss:parsers/es.js";
+import { getLiteralsByESLiteralNode, getStringConcatenationDirection } from "better-tailwindcss:parsers/es.js";
+import { getLiteralsByJSXAttribute } from "better-tailwindcss:parsers/jsx.js";
 import { noUnnecessaryWhitespace } from "better-tailwindcss:rules/no-unnecessary-whitespace.js";
 import { lint } from "better-tailwindcss:tests/utils/lint.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
-import type { SourceCode } from "eslint";
+import type { Rule, SourceCode } from "eslint";
 import type { Node as ESNode } from "estree";
+import type { JSXAttribute } from "estree-jsx";
+
+import type { Literal } from "better-tailwindcss:types/ast.js";
 
 
 describe("es", () => {
@@ -1143,6 +1147,70 @@ describe("getStringConcatenationDirection", () => {
     const node = findTargetNode(sourceCode, target);
 
     expect(getStringConcatenationDirection(node)).toEqual(expected);
+  });
+
+});
+
+describe("related literals", () => {
+
+  function getLiterals(code: string): Literal[] {
+    const linter = new Linter();
+    const result = linter.verify(code, { languageOptions: { ecmaVersion: "latest", parserOptions: { ecmaFeatures: { jsx: true } } } });
+    expect(result).toEqual([]);
+
+    const sourceCode = linter.getSourceCode();
+    const name = sourceCode.getNodeByRangeIndex(code.indexOf("className")) as unknown as { parent: JSXAttribute; };
+    const ctx = { sourceCode } as unknown as Rule.RuleContext;
+
+    return getLiteralsByJSXAttribute(ctx, name.parent, [{ kind: SelectorKind.Attribute, name: "^className$" }]);
+  }
+
+  it("should compute the concatenation of string literals", () => {
+    const [literal] = getLiterals(`<div className=" a " />`);
+
+    expect(literal.getConcatenation()).toEqual({
+      hasDynamicLeftNeighbor: false,
+      hasDynamicRightNeighbor: false,
+      isConcatenatedLeft: false,
+      isConcatenatedRight: false,
+      leftLiterals: [],
+      rightLiterals: []
+    });
+    expect(literal.getPriorLiterals()).toEqual([]);
+  });
+
+  it("should compute the concatenation of template literals", () => {
+    const [first, second] = getLiterals("<div className={` a ${b} c `} />");
+
+    expect(first.getConcatenation()).toMatchObject({ hasDynamicRightNeighbor: true, isConcatenatedLeft: false, isConcatenatedRight: true });
+    expect(second.getConcatenation()).toMatchObject({ hasDynamicLeftNeighbor: true, isConcatenatedLeft: true, isConcatenatedRight: false });
+    expect(second.getPriorLiterals().map(literal => literal.content)).toEqual([" a "]);
+  });
+
+  it("should compute the results once and keep them when the literal is spread", () => {
+    const [literal] = getLiterals("<div className={` a ${b} c `} />");
+    const copy = { ...literal };
+
+    expect(literal.getConcatenation()).toBe(literal.getConcatenation());
+    expect(copy.getConcatenation()).toBe(literal.getConcatenation());
+  });
+
+  it("should not be affected by nodes that were visited after the literal was created", () => {
+    const code = "const classes = ` a ${` b ${c} d `} e `;";
+    const linter = new Linter();
+    expect(linter.verify(code, { languageOptions: { ecmaVersion: "latest" } })).toEqual([]);
+
+    const sourceCode = linter.getSourceCode();
+    const ctx = { sourceCode } as unknown as Rule.RuleContext;
+    const getLiteral = (content: string) => getLiteralsByESLiteralNode(ctx, sourceCode.getNodeByRangeIndex(code.indexOf(content) + 1)!)[0];
+
+    const b = getLiteral(" b ");
+    const d = getLiteral(" d ");
+    const priorB = d.getPriorLiterals().find(literal => literal.content === " b ");
+
+    expect(priorB).toBeDefined();
+    expect(priorB!.getPriorLiterals().map(literal => literal.content))
+      .toEqual(b.getPriorLiterals().map(literal => literal.content));
   });
 
 });

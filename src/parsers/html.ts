@@ -3,6 +3,8 @@ import {
   deduplicateLiterals,
   getContent,
   getIndentation,
+  getNoConcatenation,
+  getNoPriorLiterals,
   getWhitespace,
   matchesName
 } from "better-tailwindcss:utils/utils.js";
@@ -60,6 +62,8 @@ export function getLiteralsByHTMLAttributeNode(ctx: Rule.RuleContext, attribute:
   return [{
     ...quotes,
     content,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     isInterpolated: false,
     loc: value.loc,
@@ -191,6 +195,8 @@ function getLiteralByHTMLAttributeValuePart(
     ...quotes,
     ...braces,
     content,
+    getConcatenation: getNoConcatenation,
+    getPriorLiterals: getNoPriorLiterals,
     indentation,
     isInterpolated,
     loc: partLoc,

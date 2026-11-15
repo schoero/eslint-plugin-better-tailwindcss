@@ -1,7 +1,7 @@
 import { boolean, description, optional, pipe, strictObject } from "valibot";
 
 import { createRule } from "better-tailwindcss:utils/rule.js";
-import { splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
+import { once, splitClasses, splitWhitespaces } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -38,6 +38,22 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
     const classChunks = splitClasses(literal.content);
     const whitespaceChunks = splitWhitespaces(literal.content);
 
+    const keepLeadingWhitespace = once(() => literal.getConcatenation().leftLiterals.some(leftLiteral => {
+      return (
+        leftLiteral.content.length &&
+        !leftLiteral.trailingWhitespace?.length && leftLiteral.openingBraces ||
+        !leftLiteral.openingBraces
+      );
+    }));
+
+    const keepTrailingWhitespace = once(() => literal.getConcatenation().rightLiterals.some(rightLiteral => {
+      return (
+        rightLiteral.content.length &&
+        !rightLiteral.leadingWhitespace?.length && rightLiteral.closingBraces ||
+        !rightLiteral.closingBraces
+      );
+    }));
+
     for(let whitespaceIndex = 0, stringIndex = 0; whitespaceIndex < whitespaceChunks.length; whitespaceIndex++){
 
       const isFirstChunk = whitespaceIndex === 0;
@@ -57,24 +73,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
 
       const [literalStart] = literal.range;
 
-      const keepLeadingWhitespace = literal.leftLiterals?.some(leftLiteral => {
-        return (
-          leftLiteral.content.length &&
-          !leftLiteral.trailingWhitespace?.length && leftLiteral.openingBraces ||
-          !leftLiteral.openingBraces
-        );
-      });
-
-      const keepTrailingWhitespace = literal.rightLiterals?.some(rightLiteral => {
-        return (
-          rightLiteral.content.length &&
-          !rightLiteral.leadingWhitespace?.length && rightLiteral.closingBraces ||
-          !rightLiteral.closingBraces
-        );
-      });
-
       if(classChunks.length === 0 && !literal.closingBraces && !literal.openingBraces){
-        if(keepLeadingWhitespace || keepTrailingWhitespace){
+        if(keepLeadingWhitespace() || keepTrailingWhitespace()){
           if(whitespace.length <= 1){
             continue;
           }
@@ -155,8 +155,8 @@ function lintLiterals(ctx: Context<typeof noUnnecessaryWhitespace>, literals: Li
         const keepCurrentWhitespace =
           classChunks.length > 0 &&
           (
-            isFirstChunk && keepLeadingWhitespace ||
-            isLastChunk && keepTrailingWhitespace
+            isFirstChunk && keepLeadingWhitespace() ||
+            isLastChunk && keepTrailingWhitespace()
           );
 
         if(keepCurrentWhitespace){

@@ -83,14 +83,14 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       const isFirstClass = classIndex === 0;
       const isLastClass = classIndex === classes.length - 1;
 
+      if(!unknownClasses.includes(className)){
+        return;
+      }
+
       if(
         isFirstClass && isConcatenatedLeft(literal) ||
         isLastClass && isConcatenatedRight(literal)
       ){
-        return;
-      }
-
-      if(!unknownClasses.includes(className)){
         return;
       }
 

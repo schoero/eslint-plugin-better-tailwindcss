@@ -47,6 +47,8 @@ export const enforceLogicalProperties = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
+type Mapping = [pattern: RegExp, replacement: string[] | string];
+
 const mappings = [
   [/^pt-(.*)$/, "pbs-$1"],
   [/^pb-(.*)$/, "pbe-$1"],
@@ -72,50 +74,64 @@ const mappings = [
   [/^max-h-(.*)$/, "max-block-$1"],
   [/^max-w-(.*)$/, "max-inline-$1"],
   [/^size-(.*)$/, ["block-$1", "inline-$1"]]
-] satisfies [pattern: RegExp, replacement: string[] | string][];
+] satisfies Mapping[];
 
 const directionalMappings = [
-  [/^pl-(.*)$/, "ps-$1"],
-  [/^pr-(.*)$/, "pe-$1"],
-  [/^ml-(.*)$/, "ms-$1"],
-  [/^mr-(.*)$/, "me-$1"],
-  [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
-  [/^scroll-mr-(.*)$/, "scroll-me-$1"],
-  [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
-  [/^scroll-pr-(.*)$/, "scroll-pe-$1"],
+  [
+    [/^pl-(.*)$/, "ps-$1"],
+    [/^pr-(.*)$/, "pe-$1"]
+  ],
+  [
+    [/^ml-(.*)$/, "ms-$1"],
+    [/^mr-(.*)$/, "me-$1"]
+  ],
+  [
+    [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
+    [/^scroll-mr-(.*)$/, "scroll-me-$1"]
+  ],
+  [
+    [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
+    [/^scroll-pr-(.*)$/, "scroll-pe-$1"]
+  ],
+  [
+    [/^left-(.*)$/, "inset-s-$1"],
+    [/^right-(.*)$/, "inset-e-$1"]
+  ],
+  [
+    [/^border-l$/, "border-s"],
+    [/^border-l-(.*)$/, "border-s-$1"],
+    [/^border-r$/, "border-e"],
+    [/^border-r-(.*)$/, "border-e-$1"]
+  ],
+  [
+    [/^rounded-l$/, "rounded-s"],
+    [/^rounded-l-(.*)$/, "rounded-s-$1"],
+    [/^rounded-r$/, "rounded-e"],
+    [/^rounded-r-(.*)$/, "rounded-e-$1"],
+    [/^rounded-tl$/, "rounded-ss"],
+    [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
+    [/^rounded-tr$/, "rounded-se"],
+    [/^rounded-tr-(.*)$/, "rounded-se-$1"],
+    [/^rounded-br$/, "rounded-ee"],
+    [/^rounded-br-(.*)$/, "rounded-ee-$1"],
+    [/^rounded-bl$/, "rounded-es"],
+    [/^rounded-bl-(.*)$/, "rounded-es-$1"]
+  ],
+  [
+    [/^text-left$/, "text-start"],
+    [/^text-right$/, "text-end"]
+  ],
+  [
+    [/^float-left$/, "float-start"],
+    [/^float-right$/, "float-end"]
+  ],
+  [
+    [/^clear-left$/, "clear-start"],
+    [/^clear-right$/, "clear-end"]
+  ]
+] satisfies Mapping[][];
 
-  [/^left-(.*)$/, "inset-s-$1"],
-  [/^right-(.*)$/, "inset-e-$1"],
-
-  [/^border-l$/, "border-s"],
-  [/^border-l-(.*)$/, "border-s-$1"],
-  [/^border-r$/, "border-e"],
-  [/^border-r-(.*)$/, "border-e-$1"],
-
-  [/^rounded-l$/, "rounded-s"],
-  [/^rounded-l-(.*)$/, "rounded-s-$1"],
-  [/^rounded-r$/, "rounded-e"],
-  [/^rounded-r-(.*)$/, "rounded-e-$1"],
-
-  [/^rounded-tl$/, "rounded-ss"],
-  [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
-  [/^rounded-tr$/, "rounded-se"],
-  [/^rounded-tr-(.*)$/, "rounded-se-$1"],
-  [/^rounded-br$/, "rounded-ee"],
-  [/^rounded-br-(.*)$/, "rounded-ee-$1"],
-  [/^rounded-bl$/, "rounded-es"],
-  [/^rounded-bl-(.*)$/, "rounded-es-$1"],
-
-  [/^text-left$/, "text-start"],
-  [/^text-right$/, "text-end"],
-
-  [/^float-left$/, "float-start"],
-  [/^float-right$/, "float-end"],
-  [/^clear-left$/, "clear-start"],
-  [/^clear-right$/, "clear-end"]
-] satisfies [pattern: RegExp, replacement: string[] | string][];
-
-const allMappings = [...directionalMappings, ...mappings];
+const allMappings = [...directionalMappings.flat(), ...mappings];
 
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {

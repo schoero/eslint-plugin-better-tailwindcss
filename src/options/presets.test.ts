@@ -20,6 +20,13 @@ import {
 import * as presets from "./presets.js";
 
 
+const frameworkNames = getFilesInDirectory("./src/options/frameworks/")
+  .map(file => file.replace(".ts", ""));
+
+const frameworkPresets = Object.entries(presets)
+  .filter(([name]) => frameworkNames.includes(name))
+  .map(([, preset]) => preset);
+
 describe("presets", () => {
 
   it("should export a preset for every utility", () => {
@@ -34,17 +41,13 @@ describe("presets", () => {
   });
 
   it("should export a preset for every framework", () => {
-    const frameworks = getFilesInDirectory("./src/options/frameworks/")
-      .map(file => file.replace(".ts", ""));
-
-    for(const framework of frameworks){
+    for(const framework of frameworkNames){
       expect(presets).toHaveProperty(framework);
     }
   });
 
   it("should only contain utility and variable selectors that are also part of the defaults", () => {
-    const frameworks: unknown[] = [angular, astro, html, preact, qwik, react, solid, svelte, vue];
-    const others = Object.values(presets).filter(preset => !frameworks.includes(preset));
+    const others = Object.values(presets).filter(preset => !frameworkPresets.includes(preset));
 
     for(const selector of others.flat()){
       expect(DEFAULT_SELECTORS).toContainEqual(selector);
@@ -52,7 +55,7 @@ describe("presets", () => {
   });
 
   it("should only contain attribute selectors in framework presets", () => {
-    for(const selector of [angular, astro, html, preact, qwik, react, solid, svelte, vue].flat()){
+    for(const selector of frameworkPresets.flat()){
       expect(selector.kind).toBe(SelectorKind.Attribute);
     }
   });

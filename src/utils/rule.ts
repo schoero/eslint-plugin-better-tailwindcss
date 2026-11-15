@@ -155,7 +155,7 @@ export function createRule<
           baseSelectors: resolvedSelectors.baseSelectors,
           extendedSelectors: [
             ...resolvedSelectors.extendedSelectors,
-            ...resolvePresetNames(configuredSelectors.extends.filter(entry => typeof entry === "string" || is(SELECTOR_SCHEMA, entry)))
+            ...resolvePresetNames(configuredSelectors.extends)
           ]
         };
       },
@@ -280,18 +280,23 @@ export function createRule<
   } satisfies ESLintRule<Name, Messages, Options, Category, Recommended>;
 }
 
+// settings are not validated, so invalid entries would otherwise be dropped silently or crash the selector matching
 function resolvePresetNames(entries: unknown[]): Selectors {
   return entries.flatMap<Selectors[number]>(entry => {
-    if(typeof entry !== "string"){
-      return [entry as Selectors[number]];
+    if(typeof entry === "string"){
+      if(Object.hasOwn(presets, entry)){
+        return presets[entry as PresetName];
+      }
+
+      warnOnce(`Unknown preset "${entry}" in \`selectors\`. It will be ignored.`);
+      return [];
     }
 
-    if(Object.hasOwn(presets, entry)){
-      return presets[entry as PresetName];
+    if(is(SELECTOR_SCHEMA, entry)){
+      return [entry];
     }
 
-    // settings are not validated, so a misspelled preset name would otherwise be dropped silently
-    warnOnce(`Unknown preset "${entry}" in \`selectors\`. It will be ignored.`);
+    warnOnce(`Invalid selector ${JSON.stringify(entry)} in \`selectors\`. It will be ignored.`);
     return [];
   });
 }

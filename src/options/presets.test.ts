@@ -359,6 +359,36 @@ describe("presets", () => {
     warn.mockRestore();
   });
 
+  it("should ignore and warn about invalid selectors in the settings", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          jsx: `<img className=" lint " />; clsx(" ignore ");`,
+          jsxOutput: `<img className="lint" />; clsx(" ignore ");`,
+
+          errors: 2,
+          // @ts-expect-error - settings are not validated, so invalid selectors can reach the plugin
+          settings: { "better-tailwindcss": { selectors: ["react", null, { kind: "atribute", name: "^class$" }] } }
+        },
+        {
+          jsx: `<img className=" lint " />;`,
+          jsxOutput: `<img className="lint" />;`,
+
+          errors: 2,
+          // @ts-expect-error - settings are not validated, so invalid selectors can reach the plugin
+          settings: { "better-tailwindcss": { selectors: { extends: [null] } } }
+        }
+      ]
+    });
+
+    expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("Invalid selector null"));
+    expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("\"atribute\""));
+
+    warn.mockRestore();
+  });
+
   it("should be combinable", () => {
     lint(noUnnecessaryWhitespace, {
       invalid: [

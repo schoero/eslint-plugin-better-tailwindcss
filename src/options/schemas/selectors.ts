@@ -11,8 +11,8 @@ import {
   union
 } from "valibot";
 
-import * as presets from "better-tailwindcss:api/presets.js";
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
+import * as presets from "better-tailwindcss:options/presets.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
 
 import type { InferOutput } from "valibot";

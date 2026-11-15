@@ -4,10 +4,10 @@ import { dirname, resolve } from "node:path";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { getDefaults, is, strictObject } from "valibot";
 
-import * as presets from "better-tailwindcss:api/presets.js";
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import * as presets from "better-tailwindcss:options/presets.js";
 import { SELECTOR_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";

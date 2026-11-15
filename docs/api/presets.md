@@ -7,7 +7,28 @@ If your project only uses a specific framework or a few utilities, you can compo
 Each preset is an array of selectors that can be spread into the `selectors` option. Presets can be freely combined with each other and with your own custom selectors.
 
 > [!NOTE]
-> Providing `selectors` **replaces** the defaults. Only the presets and selectors you list will be linted.
+> Providing `selectors` as an array **replaces** the defaults. Only the presets and selectors you list will be linted.
+
+The defaults only contain the syntaxes that are safe to lint in every framework. Some syntaxes are only part of a framework preset, because their meaning differs between frameworks:
+
+- `svelte` and `qwik`: object keys in `class={{ ... }}`
+- `solid`: strings in `classList="..."`
+
+To keep the defaults and add the syntaxes of a preset, pass it to [`extends`](../settings/settings.md#selectors) instead:
+
+```js
+import { svelte } from "eslint-plugin-better-tailwindcss/presets";
+
+export default {
+  settings: {
+    "better-tailwindcss": {
+      selectors: {
+        extends: [...svelte]
+      }
+    }
+  }
+};
+```
 
 <br/>
 <br/>
@@ -51,14 +72,42 @@ Framework presets contain [attribute selectors](../configuration/advanced.md#att
 | `html`    | `class="..."`, `class={...}`                                                           |
 | `react`   | `className="..."`, `className={...}`                                                   |
 | `preact`  | everything in `html` and `react`                                                       |
-| `qwik`    | everything in `html`                                                                   |
-| `solid`   | everything in `html`, `classList={{ ... }}`                                            |
+| `qwik`    | everything in `html`, `class={{ ... }}`, `class={[...]}`                               |
+| `solid`   | everything in `html`, `classList="..."`, `classList={{ ... }}`                         |
 | `vue`     | everything in `html`, `:class="..."`, `v-bind:class="..."`                             |
-| `svelte`  | everything in `html`, `class:name={...}`                                               |
+| `svelte`  | everything in `html`, `class={{ ... }}`, `class={[...]}`, `class:name={...}`           |
 | `astro`   | everything in `html`, `class:list={...}`                                               |
 | `angular` | everything in `html`, `[class]="..."`, `[ngClass]="..."`, `[class.name]="..."`         |
 
 Frameworks that are not listed and use the plain `class` attribute can use the `html` preset.
+
+### Multiple frameworks
+
+Some frameworks give the same attribute different meanings. For example, Svelte and Qwik treat the object keys in `class={{ ... }}` as classes, while in other frameworks they are not classes. If your project uses more than one framework, apply each preset only to the files of its framework so that each file is linted with the right selectors:
+
+```js
+// eslint.config.js
+import { react, svelte } from "eslint-plugin-better-tailwindcss/presets";
+
+export default [
+  {
+    files: ["**/*.svelte"],
+    settings: {
+      "better-tailwindcss": {
+        selectors: [...svelte]
+      }
+    }
+  },
+  {
+    files: ["**/*.{jsx,tsx}"],
+    settings: {
+      "better-tailwindcss": {
+        selectors: [...react]
+      }
+    }
+  }
+];
+```
 
 <br/>
 <br/>

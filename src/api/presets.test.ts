@@ -67,6 +67,18 @@ describe("presets", () => {
           errors: 2,
           options: [{ selectors: html }]
         }
+      ],
+      valid: [
+        {
+          jsx: `<img class={{ " ignore ": true }} />`,
+
+          options: [{ selectors: html }]
+        },
+        {
+          svelte: `<img class={{ " ignore ": true }} />`,
+
+          options: [{ selectors: html }]
+        }
       ]
     });
   });
@@ -86,6 +98,13 @@ describe("presets", () => {
           jsxOutput: `<img className={"lint"} />`,
 
           errors: 2,
+          options: [{ selectors: react }]
+        }
+      ],
+      valid: [
+        {
+          jsx: `<img className={{ " ignore ": true }} />`,
+
           options: [{ selectors: react }]
         }
       ]
@@ -115,6 +134,13 @@ describe("presets", () => {
 
           errors: 4,
           options: [{ selectors: qwik }]
+        },
+        {
+          jsx: `<img class={[" lint ", { " lint ": true, "a": " ignore " }]} />`,
+          jsxOutput: `<img class={["lint", { "lint": true, "a": " ignore " }]} />`,
+
+          errors: 4,
+          options: [{ selectors: qwik }]
         }
       ]
     });
@@ -128,6 +154,13 @@ describe("presets", () => {
           jsxOutput: `<img class="lint" classList={{ "lint": true }} className=" ignore " />`,
 
           errors: 4,
+          options: [{ selectors: solid }]
+        },
+        {
+          jsx: `<img classList=" lint " />`,
+          jsxOutput: `<img classList="lint" />`,
+
+          errors: 2,
           options: [{ selectors: solid }]
         }
       ]
@@ -164,6 +197,20 @@ describe("presets", () => {
 
           errors: 2,
           options: [{ selectors: svelte }]
+        },
+        {
+          svelte: `<img class={{ " lint ": true, "a": " ignore " }} />`,
+          svelteOutput: `<img class={{ "lint": true, "a": " ignore " }} />`,
+
+          errors: 2,
+          options: [{ selectors: svelte }]
+        },
+        {
+          svelte: `<img class={[" lint ", { " lint ": true }]} />`,
+          svelteOutput: `<img class={["lint", { "lint": true }]} />`,
+
+          errors: 4,
+          options: [{ selectors: svelte }]
         }
       ]
     });
@@ -192,6 +239,41 @@ describe("presets", () => {
 
           errors: 6,
           options: [{ selectors: angular }]
+        }
+      ]
+    });
+  });
+
+  it("should extend the defaults without duplicate reports", () => {
+    lint(noUnnecessaryWhitespace, {
+      invalid: [
+        {
+          svelte: `<img class=" lint " />`,
+          svelteOutput: `<img class="lint" />`,
+
+          errors: 2,
+          options: [{ selectors: { extends: svelte } }]
+        },
+        {
+          svelte: `<img class={{ " lint ": true }} />`,
+          svelteOutput: `<img class={{ "lint": true }} />`,
+
+          errors: 2,
+          options: [{ selectors: { extends: svelte } }]
+        },
+        {
+          jsx: `<img class={{ " lint ": true }} className=" lint " />`,
+          jsxOutput: `<img class={{ "lint": true }} className="lint" />`,
+
+          errors: 4,
+          options: [{ selectors: { extends: qwik } }]
+        },
+        {
+          jsx: `<img classList=" lint " />`,
+          jsxOutput: `<img classList="lint" />`,
+
+          errors: 2,
+          options: [{ selectors: { extends: solid } }]
         }
       ]
     });

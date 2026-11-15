@@ -89,7 +89,7 @@ At the end, the three choices come together in a single [config](#putting-it-tog
 
 ### 1. Choose your flavor
 
-Install and configure the parser for the files you want to lint, then pick the matching [preset](./docs/api/presets.md#frameworks). The preset tells the plugin which attributes contain Tailwind classes, for example `className` in React or `class:list` in Astro.
+Install and configure the parser for the files you want to lint, then pick the matching [preset](./docs/configuration/presets.md#frameworks). The preset tells the plugin which attributes contain Tailwind classes, for example `className` in React or `class:list` in Astro.
 
 | Flavor     | Parser                                                    | Preset    |
 | :--------- | :-------------------------------------------------------- | :-------- |
@@ -113,7 +113,7 @@ CSS, JavaScript and TypeScript don't need a preset in this step. In CSS, `@apply
 
 ### 2. Choose your utilities
 
-Pick the [presets](./docs/api/presets.md#utilities) for the class name utilities you use. The plugin then lints the Tailwind classes passed to them:
+Pick the [presets](./docs/configuration/presets.md#utilities) for the class name utilities you use. The plugin then lints the Tailwind classes passed to them:
 
 | Utility                                                                                   | Preset                  |
 | :---------------------------------------------------------------------------------------- | :---------------------- |
@@ -129,7 +129,7 @@ Pick the [presets](./docs/api/presets.md#utilities) for the class name utilities
 | [obj str](https://github.com/lukeed/obj-str)                                              | `objstr`                |
 | [react-twc](https://github.com/gregberge/twc)                                             | `twc` · `twx`           |
 
-The [`variables`](./docs/api/presets.md#variables) preset also lints strings assigned to variables named `className`, `classNames`, `classes`, `style` and `styles`.
+The [`variables`](./docs/configuration/presets.md#variables) preset also lints strings assigned to variables named `className`, `classNames`, `classes`, `style` and `styles`.
 
 <br/>
 <br/>
@@ -239,7 +239,7 @@ If you don't configure `selectors`, the plugin falls back to a broad set of [def
 
 ### Advanced configuration
 
-If a utility has no preset, or you want to customize the configuration, you can define which [attributes](./docs/configuration/advanced.md#attribute), [callees](./docs/configuration/advanced.md#callee), [variables](./docs/configuration/advanced.md#variable), and [tags](./docs/configuration/advanced.md#tag) should get linted. Custom selectors can be [combined with presets](./docs/api/presets.md#combining-with-custom-selectors).  
+If a utility has no preset, or you want to customize the configuration, you can define which [attributes](./docs/configuration/advanced.md#attribute), [callees](./docs/configuration/advanced.md#callee), [variables](./docs/configuration/advanced.md#variable), and [tags](./docs/configuration/advanced.md#tag) should get linted. Custom selectors can be [combined with presets](./docs/configuration/presets.md#combining-with-custom-selectors).  
 See the [Advanced configuration guide](./docs/configuration/advanced.md) to learn how to override or extend the default settings.
 
 <br/>

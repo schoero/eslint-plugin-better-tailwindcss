@@ -20,7 +20,7 @@ To lint Tailwind CSS classes in CSS files, ensure that:
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
 
-CSS files don't need [presets](../api/presets.md). `@apply` directives are always linted, regardless of the configured `selectors`.
+CSS files don't need [presets](../configuration/presets.md). `@apply` directives are always linted, regardless of the configured `selectors`.
 
 <br/>
 

@@ -18,7 +18,7 @@ To lint Tailwind CSS classes in Svelte files, ensure that:
 - The `svelte-eslint-parser` is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
-- The `selectors` setting contains the [presets](../api/presets.md) for your framework and the utilities you use.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for your framework and the utilities you use.
 
 <br/>
 

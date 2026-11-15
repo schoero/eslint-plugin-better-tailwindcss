@@ -18,7 +18,7 @@ To lint Tailwind CSS classes in TypeScript files, ensure that:
 - The `typescript-eslint` package is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
-- The `selectors` setting contains the [presets](../api/presets.md) for the utilities you use.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for the utilities you use.
 
 <br/>
 
@@ -134,7 +134,7 @@ To lint Tailwind CSS classes in TypeScript files, ensure that:
 
 - The plugin is added to the `jsPlugins` array.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
-- The `selectors` setting contains the [presets](../api/presets.md) for the utilities you use.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for the utilities you use.
 - All relevant rules are added to the `rules` object.
 
 <br/>

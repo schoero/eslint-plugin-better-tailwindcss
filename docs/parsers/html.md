@@ -18,7 +18,7 @@ To lint Tailwind CSS classes in HTML files, ensure that:
 - The `@html-eslint/parser` is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
-- The `selectors` setting contains the [preset](../api/presets.md) for your framework.
+- The `selectors` setting contains the [preset](../configuration/presets.md) for your framework.
 
 <br/>
 

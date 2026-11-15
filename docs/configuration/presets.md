@@ -2,7 +2,7 @@
 
 Presets are the recommended way to tell the plugin where your Tailwind classes are. List the presets of your framework and the [utilities](../../README.md#2-choose-your-utilities) you use by name in the `selectors` setting. This way, only the strings your project actually uses get linted, which avoids false positives.
 
-Without `selectors`, the plugin falls back to a broad set of [selectors](../configuration/advanced.md#selectors) that covers all supported frameworks and utilities at once. See the [defaults documentation](./defaults.md) for the full list.
+Without `selectors`, the plugin falls back to a broad set of [selectors](./advanced.md#selectors) that covers all supported frameworks and utilities at once. See the [defaults documentation](../api/defaults.md) for the full list.
 
 Each preset name stands for a set of selectors. Presets can be freely combined with each other and with your own custom selectors, and since they are plain strings, they work in JSON configs such as `.eslintrc.json` or `.oxlintrc.json` as well. Unknown names are ignored with a warning.
 
@@ -56,7 +56,7 @@ export default defineConfig({
 
 ## Frameworks
 
-Framework presets contain [attribute selectors](../configuration/advanced.md#attribute) only.
+Framework presets contain [attribute selectors](./advanced.md#attribute) only.
 
 | Preset    | Lints                                                                                  |
 | --------- | -------------------------------------------------------------------------------------- |
@@ -104,7 +104,7 @@ export default [
 
 ## Utilities
 
-Utility presets contain [callee](../configuration/advanced.md#callee) and [tag](../configuration/advanced.md#tag) selectors.
+Utility presets contain [callee](./advanced.md#callee) and [tag](./advanced.md#tag) selectors.
 
 | Preset    | Utility                                                                                  |
 | --------- | ---------------------------------------------------------------------------------------- |
@@ -129,7 +129,7 @@ Utility presets contain [callee](../configuration/advanced.md#callee) and [tag](
 
 ## Variables
 
-The `variables` preset contains the default [variable selectors](../configuration/advanced.md#variable). It lints string values of variables named `className`, `classNames`, `classes`, `style` and `styles`.
+The `variables` preset contains the default [variable selectors](./advanced.md#variable). It lints string values of variables named `className`, `classNames`, `classes`, `style` and `styles`.
 
 <br/>
 <br/>

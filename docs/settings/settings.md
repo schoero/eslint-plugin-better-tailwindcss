@@ -156,7 +156,7 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
   Pass an array to replace the [default selectors](../api/defaults.md) with your own, or an object with an `extends` array to keep the default selectors and lint additional ones. Unlike spreading `getDefaultSelectors()` into an array, `extends` also works in configs that cannot import JavaScript, such as JSON configs.
 
-  Both forms also accept [preset names](../api/presets.md) like `"svelte"` or `"clsx"` in place of selectors. A name stands for the selectors of the preset with the same name, so presets can be used in JSON configs as well. Unknown names are ignored with a warning.
+  Both forms also accept [preset names](../configuration/presets.md) like `"svelte"` or `"clsx"` in place of selectors. A name stands for the selectors of the preset with the same name, so presets can be used in JSON configs as well. Unknown names are ignored with a warning.
 
   Rules use the selectors configured here unless they set their own `selectors` option. In a rule's options, an array replaces the selectors configured here, and an `extends` array keeps them and lints additional ones.
 
@@ -173,5 +173,5 @@ If provided, this will be used to determine if arbitrary values can be replaced 
   }
   ```
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) and [preset names](../api/presets.md), or an object with an `extends` array of them  
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) and [preset names](../configuration/presets.md), or an object with an `extends` array of them  
   **Default**: See [defaults API](../api/defaults.md)

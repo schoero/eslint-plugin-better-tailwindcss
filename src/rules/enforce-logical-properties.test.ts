@@ -129,6 +129,47 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
     );
   });
 
+  it("should not report inline physical classes next to an rtl override", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0" />`,
+            html: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0" />`,
+            jsx: `() => <img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0" />`,
+            svelte: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0" />`,
+            vue: `<template><img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should fix physical classes whose property has no rtl override", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            angularOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            html: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            htmlOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            jsx: `() => <img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            jsxOutput: `() => <img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            svelte: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            svelteOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            vue: `<template><img class="pl-4 mr-2 pt-2 rtl:pl-0" /></template>`,
+            vueOutput: `<template><img class="pl-4 me-2 pbs-2 rtl:pl-0" /></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
+
   it("should fix non-inline physical classes with the rtl variant", () => {
     lint(
       enforceLogicalProperties,

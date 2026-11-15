@@ -9,7 +9,6 @@ import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
 import { replacePlaceholders, splitClasses } from "better-tailwindcss:utils/utils.js";
 
-import type { DissectedClass } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 
@@ -145,8 +144,15 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
 
     const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
+    const rtlOverriddenGroups = new Set(
+      Object.values(dissectedClasses)
+        .filter(dissectedClass => dissectedClass.variants?.includes("rtl"))
+        .map(dissectedClass => getDirectionalGroup(dissectedClass.base))
+        .filter(group => group !== undefined)
+    );
+
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
-      const replacementBases = getReplacementBases(dissectedClass);
+      const replacementBases = getReplacementBases(dissectedClass.base, rtlOverriddenGroups);
 
       if(!replacementBases){
         return [];
@@ -168,7 +174,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
         return;
       }
 
-      const replacementBases = getReplacementBases(dissectedClass);
+      const replacementBases = getReplacementBases(dissectedClass.base, rtlOverriddenGroups);
 
       if(!replacementBases){
         return;
@@ -197,10 +203,18 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
   }
 }
 
-function getReplacementBases({ base, variants }: DissectedClass): string[] | undefined {
-  const isRtl = variants?.includes("rtl") ?? false;
+function getDirectionalGroup(base: string) {
+  return directionalMappings.find(group => group.some(([pattern]) => pattern.test(base)));
+}
 
-  for(const [pattern, replacement] of isRtl ? mappings : allMappings){
+function getReplacementBases(base: string, skippedGroups: Set<Mapping[]>): string[] | undefined {
+  const group = getDirectionalGroup(base);
+
+  if(group && skippedGroups.has(group)){
+    return;
+  }
+
+  for(const [pattern, replacement] of allMappings){
     const match = base.match(pattern);
 
     if(!match){

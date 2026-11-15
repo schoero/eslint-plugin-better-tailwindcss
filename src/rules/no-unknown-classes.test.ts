@@ -271,6 +271,102 @@ describe(noUnknownClasses.name, () => {
     );
   });
 
+  it("should be possible to use variants on whitelisted classes", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img class="hover:ignored-unknown dark:lg:before:ignored-unknown" />`,
+            html: `<img class="hover:ignored-unknown dark:lg:before:ignored-unknown" />`,
+            jsx: `() => <img class="hover:ignored-unknown dark:lg:before:ignored-unknown" />`,
+            svelte: `<img class="hover:ignored-unknown dark:lg:before:ignored-unknown" />`,
+            vue: `<template><img class="hover:ignored-unknown dark:lg:before:ignored-unknown" /></template>`,
+
+            options: [{ ignore: ["^ignored-.*$"] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should still report whitelisted classes that are used with unknown variants", () => {
+    lint(
+      noUnknownClasses,
+      {
+        invalid: [
+          {
+            angular: `<img class="unknown:ignored-unknown dark:unknown:before:ignored-unknown" />`,
+            html: `<img class="unknown:ignored-unknown dark:unknown:before:ignored-unknown" />`,
+            jsx: `() => <img class="unknown:ignored-unknown dark:unknown:before:ignored-unknown" />`,
+            svelte: `<img class="unknown:ignored-unknown dark:unknown:before:ignored-unknown" />`,
+            vue: `<template><img class="unknown:ignored-unknown dark:unknown:before:ignored-unknown" /></template>`,
+
+            errors: 2,
+            options: [{ ignore: ["^ignored-.*$"] }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major <= 3)("should be possible to use variants on whitelisted classes with a custom separator in tailwind <= 3", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img class="hover_ignored-unknown dark_lg_ignored-unknown" />`,
+            html: `<img class="hover_ignored-unknown dark_lg_ignored-unknown" />`,
+            jsx: `() => <img class="hover_ignored-unknown dark_lg_ignored-unknown" />`,
+            svelte: `<img class="hover_ignored-unknown dark_lg_ignored-unknown" />`,
+            vue: `<template><img class="hover_ignored-unknown dark_lg_ignored-unknown" /></template>`,
+
+            files: {
+              "tailwind.config.separator.js": ts`
+                export default {
+                  prefix: 'tw-',
+                  separator: '_',
+                };
+              `
+            },
+            options: [{
+              ignore: ["^ignored-.*$"],
+              tailwindConfig: "./tailwind.config.separator.js"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it.runIf(getTailwindCSSVersion().major >= 4)("should be possible to use variants on whitelisted classes with a prefix in tailwind >= 4", () => {
+    lint(
+      noUnknownClasses,
+      {
+        valid: [
+          {
+            angular: `<img class="tw:ignored-unknown tw:hover:ignored-unknown" />`,
+            html: `<img class="tw:ignored-unknown tw:hover:ignored-unknown" />`,
+            jsx: `() => <img class="tw:ignored-unknown tw:hover:ignored-unknown" />`,
+            svelte: `<img class="tw:ignored-unknown tw:hover:ignored-unknown" />`,
+            vue: `<template><img class="tw:ignored-unknown tw:hover:ignored-unknown" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css",
+              ignore: ["^ignored-.*$"]
+            }]
+          }
+        ]
+      }
+    );
+  });
+
   it.runIf(getTailwindCSSVersion().major <= 3)("should not report on registered utility classes in tailwind <= 3", () => {
     lint(
       noUnknownClasses,

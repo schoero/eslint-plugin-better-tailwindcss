@@ -112,6 +112,148 @@ describe.runIf(getTailwindCSSVersion().major >= 4)(enforceLogicalProperties.name
     );
   });
 
+  it("should not report inline physical classes with the ltr or rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4 ltr:pl-4 ltr:hover:right-0" />`,
+            html: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4 ltr:pl-4 ltr:hover:right-0" />`,
+            jsx: `() => <img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4 ltr:pl-4 ltr:hover:right-0" />`,
+            svelte: `<img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4 ltr:pl-4 ltr:hover:right-0" />`,
+            vue: `<template><img class="rtl:pr-4 rtl:mr-2 rtl:text-right rtl:right-0 rtl:rounded-tr-md rtl:float-left rtl:border-l rtl:scroll-ml-2 rtl:hover:pr-4 ltr:pl-4 ltr:hover:right-0" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report inline physical classes next to an ltr or rtl override", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0 pr-2 ltr:pr-0" />`,
+            html: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0 pr-2 ltr:pr-0" />`,
+            jsx: `() => <img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0 pr-2 ltr:pr-0" />`,
+            svelte: `<img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0 pr-2 ltr:pr-0" />`,
+            vue: `<template><img class="pl-4 rtl:pl-0 ml-2 rtl:mr-2 left-0 rtl:hover:right-0 pr-2 ltr:pr-0" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report remaining inline physical mappings with the ltr or rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            html: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            jsx: `() => <img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            svelte: `<img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" />`,
+            vue: `<template><img class="rtl:-mr-2 rtl:-left-1 rtl:border-l-2 rtl:border-r rtl:border-r-red-500 rtl:rounded-l rtl:rounded-r-lg rtl:rounded-bl-md rtl:rounded-br ltr:scroll-pl-2 ltr:scroll-pr-2 ltr:clear-left ltr:-ml-2" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report inline physical classes next to an override of the same property on another side", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            html: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            jsx: `() => <img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            svelte: `<img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" />`,
+            vue: `<template><img class="border-l-2 rtl:border-r-2 rounded-tl-md rtl:rounded-tr-md rounded-bl ltr:rounded-r-none" /></template>`
+          }
+        ]
+      }
+    );
+  });
+
+  it("should not report prefixed inline physical classes with the ltr or rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        valid: [
+          {
+            angular: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            html: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            jsx: `() => <img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            svelte: `<img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" />`,
+            vue: `<template><img class="tw:rtl:pr-4 tw:ltr:-ml-2 tw:pl-4 tw:rtl:pl-0" /></template>`,
+
+            files: {
+              "tailwind.css": css`
+                @import "tailwindcss" prefix(tw);
+              `
+            },
+            options: [{
+              entryPoint: "./tailwind.css"
+            }]
+          }
+        ]
+      }
+    );
+  });
+
+  it("should fix physical classes whose property has no ltr or rtl override", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            angularOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            html: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            htmlOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            jsx: `() => <img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            jsxOutput: `() => <img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            svelte: `<img class="pl-4 mr-2 pt-2 rtl:pl-0" />`,
+            svelteOutput: `<img class="pl-4 me-2 pbs-2 rtl:pl-0" />`,
+            vue: `<template><img class="pl-4 mr-2 pt-2 rtl:pl-0" /></template>`,
+            vueOutput: `<template><img class="pl-4 me-2 pbs-2 rtl:pl-0" /></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
+
+  it("should fix non-inline physical classes with the rtl variant", () => {
+    lint(
+      enforceLogicalProperties,
+      {
+        invalid: [
+          {
+            angular: `<img class="rtl:pt-2 rtl:w-4" />`,
+            angularOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            html: `<img class="rtl:pt-2 rtl:w-4" />`,
+            htmlOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            jsx: `() => <img class="rtl:pt-2 rtl:w-4" />`,
+            jsxOutput: `() => <img class="rtl:pbs-2 rtl:inline-4" />`,
+            svelte: `<img class="rtl:pt-2 rtl:w-4" />`,
+            svelteOutput: `<img class="rtl:pbs-2 rtl:inline-4" />`,
+            vue: `<template><img class="rtl:pt-2 rtl:w-4" /></template>`,
+            vueOutput: `<template><img class="rtl:pbs-2 rtl:inline-4" /></template>`,
+
+            errors: 2
+          }
+        ]
+      }
+    );
+  });
+
   it("should keep the important modifier", () => {
     lint(
       enforceLogicalProperties,

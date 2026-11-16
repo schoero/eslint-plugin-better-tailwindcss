@@ -46,59 +46,25 @@ export const enforceLogicalProperties = createRule({
   lintLiterals: (ctx, literals) => lintLiterals(ctx, literals)
 });
 
+type Mapping = [pattern: RegExp, replacement: string[] | string];
+
 const mappings = [
-  [/^pl-(.*)$/, "ps-$1"],
-  [/^pr-(.*)$/, "pe-$1"],
   [/^pt-(.*)$/, "pbs-$1"],
   [/^pb-(.*)$/, "pbe-$1"],
-  [/^ml-(.*)$/, "ms-$1"],
-  [/^mr-(.*)$/, "me-$1"],
   [/^mt-(.*)$/, "mbs-$1"],
   [/^mb-(.*)$/, "mbe-$1"],
-  [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
-  [/^scroll-mr-(.*)$/, "scroll-me-$1"],
-  [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
-  [/^scroll-pr-(.*)$/, "scroll-pe-$1"],
   [/^scroll-mt-(.*)$/, "scroll-mbs-$1"],
   [/^scroll-mb-(.*)$/, "scroll-mbe-$1"],
   [/^scroll-pt-(.*)$/, "scroll-pbs-$1"],
   [/^scroll-pb-(.*)$/, "scroll-pbe-$1"],
 
-  [/^left-(.*)$/, "inset-s-$1"],
-  [/^right-(.*)$/, "inset-e-$1"],
   [/^top-(.*)$/, "inset-bs-$1"],
   [/^bottom-(.*)$/, "inset-be-$1"],
 
-  [/^border-l$/, "border-s"],
-  [/^border-l-(.*)$/, "border-s-$1"],
-  [/^border-r$/, "border-e"],
-  [/^border-r-(.*)$/, "border-e-$1"],
   [/^border-t$/, "border-bs"],
   [/^border-t-(.*)$/, "border-bs-$1"],
   [/^border-b$/, "border-be"],
   [/^border-b-(.*)$/, "border-be-$1"],
-
-  [/^rounded-l$/, "rounded-s"],
-  [/^rounded-l-(.*)$/, "rounded-s-$1"],
-  [/^rounded-r$/, "rounded-e"],
-  [/^rounded-r-(.*)$/, "rounded-e-$1"],
-
-  [/^rounded-tl$/, "rounded-ss"],
-  [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
-  [/^rounded-tr$/, "rounded-se"],
-  [/^rounded-tr-(.*)$/, "rounded-se-$1"],
-  [/^rounded-br$/, "rounded-ee"],
-  [/^rounded-br-(.*)$/, "rounded-ee-$1"],
-  [/^rounded-bl$/, "rounded-es"],
-  [/^rounded-bl-(.*)$/, "rounded-es-$1"],
-
-  [/^text-left$/, "text-start"],
-  [/^text-right$/, "text-end"],
-
-  [/^float-left$/, "float-start"],
-  [/^float-right$/, "float-end"],
-  [/^clear-left$/, "clear-start"],
-  [/^clear-right$/, "clear-end"],
 
   [/^h-(.*)$/, "block-$1"],
   [/^w-(.*)$/, "inline-$1"],
@@ -107,7 +73,64 @@ const mappings = [
   [/^max-h-(.*)$/, "max-block-$1"],
   [/^max-w-(.*)$/, "max-inline-$1"],
   [/^size-(.*)$/, ["block-$1", "inline-$1"]]
-] satisfies [before: RegExp, after: string[] | string][];
+] satisfies Mapping[];
+
+const directionalMappings = [
+  [
+    [/^pl-(.*)$/, "ps-$1"],
+    [/^pr-(.*)$/, "pe-$1"]
+  ],
+  [
+    [/^ml-(.*)$/, "ms-$1"],
+    [/^mr-(.*)$/, "me-$1"]
+  ],
+  [
+    [/^scroll-ml-(.*)$/, "scroll-ms-$1"],
+    [/^scroll-mr-(.*)$/, "scroll-me-$1"]
+  ],
+  [
+    [/^scroll-pl-(.*)$/, "scroll-ps-$1"],
+    [/^scroll-pr-(.*)$/, "scroll-pe-$1"]
+  ],
+  [
+    [/^left-(.*)$/, "inset-s-$1"],
+    [/^right-(.*)$/, "inset-e-$1"]
+  ],
+  [
+    [/^border-l$/, "border-s"],
+    [/^border-l-(.*)$/, "border-s-$1"],
+    [/^border-r$/, "border-e"],
+    [/^border-r-(.*)$/, "border-e-$1"]
+  ],
+  [
+    [/^rounded-l$/, "rounded-s"],
+    [/^rounded-l-(.*)$/, "rounded-s-$1"],
+    [/^rounded-r$/, "rounded-e"],
+    [/^rounded-r-(.*)$/, "rounded-e-$1"],
+    [/^rounded-tl$/, "rounded-ss"],
+    [/^rounded-tl-(.*)$/, "rounded-ss-$1"],
+    [/^rounded-tr$/, "rounded-se"],
+    [/^rounded-tr-(.*)$/, "rounded-se-$1"],
+    [/^rounded-br$/, "rounded-ee"],
+    [/^rounded-br-(.*)$/, "rounded-ee-$1"],
+    [/^rounded-bl$/, "rounded-es"],
+    [/^rounded-bl-(.*)$/, "rounded-es-$1"]
+  ],
+  [
+    [/^text-left$/, "text-start"],
+    [/^text-right$/, "text-end"]
+  ],
+  [
+    [/^float-left$/, "float-start"],
+    [/^float-right$/, "float-end"]
+  ],
+  [
+    [/^clear-left$/, "clear-start"],
+    [/^clear-right$/, "clear-end"]
+  ]
+] satisfies Mapping[][];
+
+const allMappings = [...directionalMappings.flat(), ...mappings];
 
 
 function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: Literal[]) {
@@ -121,8 +144,15 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
 
     const { dissectedClasses, warnings } = getDissectedClasses(asyncCtx, classes);
 
+    const directionOverriddenGroups = new Set(
+      Object.values(dissectedClasses)
+        .filter(dissectedClass => dissectedClass.variants?.some(variant => variant === "ltr" || variant === "rtl"))
+        .map(dissectedClass => getDirectionalGroup(dissectedClass.base))
+        .filter(group => group !== undefined)
+    );
+
     const possibleFixes = Object.values(dissectedClasses).flatMap(dissectedClass => {
-      const replacementBases = getReplacementBases(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass.base, directionOverriddenGroups);
 
       if(!replacementBases){
         return [];
@@ -144,7 +174,7 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
         return;
       }
 
-      const replacementBases = getReplacementBases(dissectedClass.base);
+      const replacementBases = getReplacementBases(dissectedClass.base, directionOverriddenGroups);
 
       if(!replacementBases){
         return;
@@ -173,8 +203,18 @@ function lintLiterals(ctx: Context<typeof enforceLogicalProperties>, literals: L
   }
 }
 
-function getReplacementBases(base: string): string[] | undefined {
-  for(const [pattern, replacement] of mappings){
+function getDirectionalGroup(base: string) {
+  return directionalMappings.find(group => group.some(([pattern]) => pattern.test(base)));
+}
+
+function getReplacementBases(base: string, skippedGroups: Set<Mapping[]>): string[] | undefined {
+  const group = getDirectionalGroup(base);
+
+  if(group && skippedGroups.has(group)){
+    return;
+  }
+
+  for(const [pattern, replacement] of allMappings){
     const match = base.match(pattern);
 
     if(!match){

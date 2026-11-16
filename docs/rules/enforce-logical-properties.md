@@ -4,6 +4,8 @@ Enforce logical utility class names over physical directions for better RTL and 
 
 The rule reports physical classes and auto-fixes them to their logical equivalent when a direct Tailwind replacement exists.
 
+Physical classes for the inline axis (left and right) are not reported when they use the `ltr` or `rtl` variant, because they intentionally target a physical side for one text direction. These variants also match when any ancestor has the matching `dir` attribute, so the element itself can have the opposite direction, and a logical class would then apply to the other side. Other left and right classes for the same property in that class list are not reported either, because converting them would change which side the override applies to (for example `pl-4 rtl:pl-0` or `pl-4 ltr:pl-0`).
+
 ## Physical to Logical Mappings
 
 | **Physical** | **Logical** |
@@ -80,9 +82,13 @@ This can be useful for classes that intentionally use physical directions.
 
 ### `selectors`
 
-  Flat list of selectors that determines where Tailwind class strings are linted.
+  Selectors that determine where Tailwind class strings are linted.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
+  By default, a rule uses the selectors from the [settings](../settings/settings.md#selectors), or the [default selectors](../api/defaults.md) if the settings don't configure any.
+
+  Pass an array to replace these selectors with your own, or an object with an `extends` array to keep these selectors and lint additional ones.
+
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or an object with an `extends` array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)
 
   <br/>

@@ -1,10 +1,12 @@
 import { resolve } from "node:path";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { getDefaults, strictObject } from "valibot";
+import { getDefaults, is, strictObject } from "valibot";
 
+import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import { SELECTOR_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
 import {
@@ -48,6 +50,7 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -59,7 +62,6 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
-  Selectors,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
@@ -97,7 +99,7 @@ export function createRule<
   const getOptions = (): Options => {
     const defaultSettings = getDefaults(COMMON_OPTIONS);
     const defaultOptions = schema ? getDefaults(schema) : {};
-    const settings = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
+    const settings: Partial<SelectorsOptions> = eslintContext?.settings?.["eslint-plugin-better-tailwindcss"] ?? eslintContext?.settings?.["better-tailwindcss"] ?? {};
     const options = eslintContext?.options[0] ?? {};
 
     const mergedOptions = {
@@ -119,7 +121,29 @@ export function createRule<
     const hasTagOverride = mergedOptions.tags !== undefined;
     const hasVariableOverride = mergedOptions.variables !== undefined;
 
-    const preservedSelectors = (mergedOptions.selectors ?? []).filter(selector => {
+    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce(
+      (resolvedSelectors, configuredSelectors) => {
+        if(Array.isArray(configuredSelectors)){
+          return { baseSelectors: configuredSelectors, extendedSelectors: [] };
+        }
+
+        // settings are not validated, so they can contain anything
+        if(!Array.isArray(configuredSelectors?.extends)){
+          return resolvedSelectors;
+        }
+
+        return {
+          baseSelectors: resolvedSelectors.baseSelectors,
+          extendedSelectors: [
+            ...resolvedSelectors.extendedSelectors,
+            ...configuredSelectors.extends.filter(selector => is(SELECTOR_SCHEMA, selector))
+          ]
+        };
+      },
+      { baseSelectors: DEFAULT_SELECTORS, extendedSelectors: [] }
+    );
+
+    const preservedSelectors = baseSelectors.filter(selector => {
       if(hasAttributeOverride && selector.kind === SelectorKind.Attribute){
         return false;
       }
@@ -141,7 +165,8 @@ export function createRule<
 
     const selectors = [
       ...migratedSelectors,
-      ...preservedSelectors
+      ...preservedSelectors,
+      ...extendedSelectors
     ];
 
     return {
@@ -245,7 +270,7 @@ export function createRule<
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {
 
-  const selectors = context.options.selectors as Selectors;
+  const { selectors } = context.options;
 
   const attributes: AttributeSelector[] = [];
   const callees: CalleeSelector[] = [];

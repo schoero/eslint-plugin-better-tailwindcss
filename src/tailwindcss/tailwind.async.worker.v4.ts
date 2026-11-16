@@ -1,6 +1,6 @@
 import { runAsWorker } from "synckit";
 
-import { createOperationRunner } from "../async-utils/tailwind-context.js";
+import { createOperationRunner, releaseTailwindContext } from "../async-utils/tailwind-context.js";
 import { getCanonicalClasses } from "./canonical-classes.async.v4.js";
 import { getClassOrder } from "./class-order.async.v4.js";
 import { getConflictingClasses } from "./conflicting-classes.async.v4.js";
@@ -47,6 +47,9 @@ const handlers: OperationHandlers = {
   getVariantOrder: async (ctx, classes) => {
     const tailwindContext = await createTailwindContext(ctx);
     return getVariantOrder(tailwindContext, classes);
+  },
+  releaseTailwindContext: async contextKey => {
+    return releaseTailwindContext(contextKey);
   }
 };
 

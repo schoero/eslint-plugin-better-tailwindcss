@@ -52,6 +52,11 @@ export async function loadTailwindContext<TailwindContext>(
   return cached.context;
 }
 
+// drops a context that is no longer used because its config resolves to a different context.
+export function releaseTailwindContext(contextKey: string): boolean {
+  return cache.delete(contextKey);
+}
+
 // runs an operation in the worker and reports the context it used, so that the ESLint thread can cache the result.
 export function createOperationRunner(handlers: OperationHandlers) {
   return async <Operation extends keyof Operations>(operation: Operation, ...args: Parameters<Operations[Operation]>): Promise<OperationResponse<ReturnType<Operations[Operation]>>> => {

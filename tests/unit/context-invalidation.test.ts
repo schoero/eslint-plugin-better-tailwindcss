@@ -28,6 +28,7 @@ import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
 import { async, getTailwindConfigPath } from "better-tailwindcss:utils/context.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
+import { loadTailwindContext, releaseTailwindContext } from "better-tailwindcss:utils/tailwind-context.js";
 import { getTailwindPackage } from "better-tailwindcss:utils/tailwindcss.js";
 
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -242,6 +243,25 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     expect(cache.has(cacheKey("unknown-class", asyncCtx.contextKey, "utility-c"))).toBe(true);
   });
 
+  it("should release the previous context when the config resolves to a different context", () => {
+    const directory = createDirectory({ "tailwind.css": `@import "tailwindcss";\n${utility("utility-a")}` });
+    const previous = async(createContext(directory, "./tailwind.css"));
+
+    getUnknownClasses(previous, classes);
+
+    expect(cache.has(previous.contextKey)).toBe(true);
+    expect(isCached(previous)).toBe(true);
+
+    // a tsconfig that is created later changes how the config is resolved, which results in a different context
+    writeFileSync(directory.files["tsconfig.json"].path, "{}");
+
+    const current = async(createContext(directory, "./tailwind.css"));
+
+    expect(current.contextKey).not.toBe(previous.contextKey);
+    expect(cache.has(previous.contextKey)).toBe(false);
+    expect(isCached(previous)).toBe(false);
+  });
+
   it("should check the files again when eslint lints a file again", async () => {
     const directory = createDirectory({
       "index.jsx": `export default () => <div class="utility-a utility-b" />;`,
@@ -284,6 +304,22 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
 });
 
 describe("config path invalidation", () => {
+
+  it("should build a released tailwind context again", async () => {
+    const asyncCtx = { contextKey: "tailwind-context:released" } as AsyncContext;
+    let builds = 0;
+    const build = async () => ({ build: ++builds });
+
+    await loadTailwindContext(asyncCtx, build);
+    await loadTailwindContext(asyncCtx, build);
+
+    expect(builds).toBe(1);
+    expect(releaseTailwindContext(asyncCtx.contextKey)).toBe(true);
+
+    await loadTailwindContext(asyncCtx, build);
+
+    expect(builds).toBe(2);
+  });
 
   it("should pick up a configured tsconfig that is created later", () => {
     const directory = createDirectory({});

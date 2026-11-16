@@ -18,6 +18,7 @@ export interface Operations {
   getPrefix: (ctx: AsyncContext) => { prefix: Prefix; suffix: Suffix; };
   getUnknownClasses: (ctx: AsyncContext, classes: string[]) => UnknownClass[];
   getVariantOrder: (ctx: AsyncContext, classes: string[]) => VariantOrder;
+  releaseTailwindContext: (contextKey: string) => boolean;
 }
 
 // the Tailwind CSS context an operation was computed from.

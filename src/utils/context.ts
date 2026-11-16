@@ -1,6 +1,7 @@
 import { hash } from "node:crypto";
 import { resolve } from "node:path";
 
+import { createRunOperation } from "better-tailwindcss:tailwindcss/operation.js";
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
 import { findPathRecursive } from "better-tailwindcss:utils/fs.js";
 import { resolveCss } from "better-tailwindcss:utils/resolvers.js";
@@ -23,9 +24,12 @@ export interface AsyncContext {
 export function async(ctx: Context): AsyncContext {
   const { path: resolvedTailwindPath, warnings: tailwindConfigWarnings } = getTailwindConfigPath({ configPath: ctx.options.entryPoint ?? ctx.options.tailwindConfig, cwd: ctx.cwd, version: ctx.version });
   const { path: resolvedTSConfigPath, warnings: tsconfigWarnings } = getTSConfigPath({ configPath: ctx.options.tsconfig, cwd: ctx.cwd });
+  const contextKey = getContextKey(ctx.installation, resolvedTailwindPath, resolvedTSConfigPath);
+
+  releaseReplacedContext(ctx, contextKey);
 
   return {
-    contextKey: getContextKey(ctx.installation, resolvedTailwindPath, resolvedTSConfigPath),
+    contextKey,
     cwd: ctx.cwd,
     installation: ctx.installation,
     tailwindConfigPath: resolvedTailwindPath,
@@ -39,6 +43,27 @@ export function async(ctx: Context): AsyncContext {
 function getContextKey(installation: string, tailwindConfigPath: string, tsconfigPath: string | undefined) {
   const paths = cacheKey(installation, tailwindConfigPath, tsconfigPath);
   return cache.getOrCreate(cacheKey("context-key", paths), () => `tailwind-context:${hash("sha256", paths, "base64url").slice(0, 16)}`);
+}
+
+// when the same cwd and options resolve to a different context, the config, the tsconfig or the tailwind installation moved
+// and the previous context is never used again. It is released instead of being kept until the process ends.
+// a released context that other directories still share is built again on their next use.
+function releaseReplacedContext(ctx: Context, contextKey: string) {
+  const sourceKey = cacheKey("context-source", ctx.cwd, ctx.options.entryPoint ?? ctx.options.tailwindConfig, ctx.options.tsconfig);
+  const previousContextKey = cache.get<string>(sourceKey);
+
+  if(previousContextKey === contextKey){
+    return;
+  }
+
+  cache.set(sourceKey, contextKey);
+
+  if(previousContextKey === undefined){
+    return;
+  }
+
+  cache.delete(previousContextKey);
+  createRunOperation(ctx)("releaseTailwindContext", previousContextKey);
 }
 
 // resolved again when the configured file is created or deleted

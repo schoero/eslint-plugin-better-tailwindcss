@@ -114,6 +114,18 @@ describe("cache", () => {
     expect(cache.has("another")).toBe(true);
   });
 
+  it("should not count entries with a weight of 0 against the capacity", () => {
+    const cache = new Cache(2);
+
+    cache.set("a", 1);
+    cache.set("weightless", 2, { weight: 0 });
+    cache.set("b", 3);
+
+    expect(cache.has("a")).toBe(true);
+    expect(cache.has("weightless")).toBe(true);
+    expect(cache.has("b")).toBe(true);
+  });
+
   it("should invalidate entries when a file changes, but only after a refresh", () => {
     const directory = createDirectory({ "file.txt": "" });
     const path = directory.files["file.txt"].path;

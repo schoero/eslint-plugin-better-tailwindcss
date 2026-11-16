@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { cache, CAPACITY } from "./cache.js";
+import { cache } from "./cache.js";
 
 import type { AsyncContext } from "../utils/context.js";
 import type { OperationHandlers, OperationResponse, Operations, TailwindContextInfo } from "./operations.js";
@@ -13,10 +13,6 @@ interface CachedTailwindContext<TailwindContext> {
   context: TailwindContext;
   files: Record<string, number>;
 }
-
-// a context uses a few megabytes and grows with the classes it has seen, so only ten of them are kept
-// in a monorepo, the contexts of the least recently linted configs are dropped and built again when needed
-const CONTEXT_WEIGHT = CAPACITY / 10;
 
 // the worker handles one operation at a time, this is the context the current operation used
 let usedContext: TailwindContextInfo | undefined;
@@ -44,7 +40,10 @@ export async function loadTailwindContext<TailwindContext>(
     const context = await build(ctx, track);
 
     cached = { context, files };
-    cache.set(ctx.contextKey, cached, { files, weight: CONTEXT_WEIGHT });
+
+    // most rules use the context, counting it against the capacity would only evict it and force a rebuild.
+    // it is released instead when the config resolves to a different context, see `releaseTailwindContext()`
+    cache.set(ctx.contextKey, cached, { files, weight: 0 });
   }
 
   usedContext = { files: cached.files, version: cache.version(ctx.contextKey) ?? -1 };

@@ -9,7 +9,7 @@ export interface CacheOptions {
   dependencies?: readonly string[];
   // files the value is derived from, optionally with the modification time they had when they were read. The value becomes stale when one of them changes.
   files?: readonly string[] | Readonly<Record<string, number>>;
-  // how much of the capacity the entry uses, defaults to 1. Large values like the Tailwind CSS context use more.
+  // how much of the capacity the entry uses, defaults to 1. Large values can use more.
   weight?: number;
 }
 

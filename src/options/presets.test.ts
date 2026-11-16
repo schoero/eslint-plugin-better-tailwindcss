@@ -370,7 +370,7 @@ describe("presets", () => {
 
           errors: 2,
           // @ts-expect-error - settings are not validated, so invalid selectors can reach the plugin
-          settings: { "better-tailwindcss": { selectors: ["react", null, { kind: "atribute", name: "^class$" }] } }
+          settings: { "better-tailwindcss": { selectors: ["react", null, { kind: "unknown", name: "^class$" }] } }
         },
         {
           jsx: `<img className=" lint " />;`,
@@ -384,7 +384,7 @@ describe("presets", () => {
     });
 
     expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("Invalid selector null"));
-    expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("\"atribute\""));
+    expect(warn).toHaveBeenCalledWith(expect.anything(), expect.stringContaining("\"unknown\""));
 
     warn.mockRestore();
   });

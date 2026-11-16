@@ -2,6 +2,7 @@ import type { JSRuleDefinition } from "eslint";
 import type { BaseIssue, BaseSchema, Default, InferOutput, OptionalSchema, StrictObjectSchema } from "valibot";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
+import type { PresetName } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Warning } from "better-tailwindcss:types/async.js";
 
@@ -113,7 +114,7 @@ export type TagSelector = {
 export type VariableSelector = BaseSelector<SelectorKind.Variable>;
 
 export type Selector = AttributeSelector | CalleeSelector | TagSelector | VariableSelector;
-export type Selectors = Selector[];
+export type Selectors = (PresetName | Selector)[];
 
 export type SelectorByKind<Kind extends SelectorKind> = Extract<Selector, { kind: Kind; }>;
 

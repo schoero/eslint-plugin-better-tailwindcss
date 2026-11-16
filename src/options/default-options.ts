@@ -11,6 +11,14 @@ import { OBJSTR } from "better-tailwindcss:options/callees/objstr.js";
 import { TV } from "better-tailwindcss:options/callees/tv.js";
 import { TW_JOIN } from "better-tailwindcss:options/callees/twJoin.js";
 import { TW_MERGE } from "better-tailwindcss:options/callees/twMerge.js";
+import {
+  ANGULAR_CLASS_BINDING_ATTRIBUTE,
+  ANGULAR_CLASS_BINDING_ATTRIBUTE_STRINGS_AND_OBJECT_KEYS,
+  ANGULAR_SINGLE_CLASS_BINDING_ATTRIBUTE
+} from "better-tailwindcss:options/frameworks/angular.js";
+import { ASTRO_CLASS_LIST_ATTRIBUTE } from "better-tailwindcss:options/frameworks/astro.js";
+import { SVELTE_CLASS_DIRECTIVE_ATTRIBUTE } from "better-tailwindcss:options/frameworks/svelte.js";
+import { VUE_CLASS_BINDING_ATTRIBUTE } from "better-tailwindcss:options/frameworks/vue.js";
 import { TWC } from "better-tailwindcss:options/tags/twc.js";
 import { TWX } from "better-tailwindcss:options/tags/twx.js";
 import { MatcherType, SelectorKind } from "better-tailwindcss:types/rule.js";
@@ -49,64 +57,12 @@ export const DEFAULT_ATTRIBUTE_SELECTORS = [
     ],
     name: "^class(?:Name)?$"
   },
-  {
-    kind: SelectorKind.Attribute,
-    match: [
-      {
-        type: MatcherType.String
-      }
-    ],
-    name: "^class:.*$"
-  },
-  {
-    kind: SelectorKind.Attribute,
-    name: "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)"
-  },
-  {
-    kind: SelectorKind.Attribute,
-    match: [
-      {
-        type: MatcherType.String
-      }
-    ],
-    name: "(?:^\\[class\\..*\\]$)"
-  },
-  {
-    kind: SelectorKind.Attribute,
-    match: [
-      {
-        type: MatcherType.String
-      },
-      {
-        type: MatcherType.ObjectKey
-      }
-    ],
-    name: "(?:^\\[class\\]$)|(?:^\\[ngClass\\]$)"
-  },
-  {
-    kind: SelectorKind.Attribute,
-    match: [
-      {
-        type: MatcherType.String
-      },
-      {
-        type: MatcherType.ObjectKey
-      }
-    ],
-    name: "^v-bind:class$"
-  },
-  {
-    kind: SelectorKind.Attribute,
-    match: [
-      {
-        type: MatcherType.String
-      },
-      {
-        type: MatcherType.ObjectKey
-      }
-    ],
-    name: "^class:list$"
-  },
+  SVELTE_CLASS_DIRECTIVE_ATTRIBUTE,
+  ANGULAR_CLASS_BINDING_ATTRIBUTE,
+  ANGULAR_SINGLE_CLASS_BINDING_ATTRIBUTE,
+  ANGULAR_CLASS_BINDING_ATTRIBUTE_STRINGS_AND_OBJECT_KEYS,
+  VUE_CLASS_BINDING_ATTRIBUTE,
+  ASTRO_CLASS_LIST_ATTRIBUTE,
   {
     kind: SelectorKind.Attribute,
     match: [

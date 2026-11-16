@@ -12,6 +12,7 @@ To lint Tailwind CSS classes in JSX files, ensure that:
 - `jsx` parsing is enabled in language options.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for your framework and the utilities you use.
 
 <br/>
 
@@ -43,7 +44,10 @@ export default defineConfig({
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-      tailwindConfig: "tailwind.config.js"
+      tailwindConfig: "tailwind.config.js",
+
+      // the presets of your framework (`react`, `preact`, `solid` or `qwik`) and the utilities you use
+      selectors: ["react", "clsx"]
     }
   },
 
@@ -84,7 +88,10 @@ export default defineConfig({
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of your framework (`react`, `preact`, `solid` or `qwik`) and the utilities you use
+        "selectors": ["react", "clsx"]
       }
     },
 
@@ -110,6 +117,7 @@ To lint Tailwind CSS classes in JSX files, ensure that:
 
 - The plugin is added to the `jsPlugins` array.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for your framework and the utilities you use.
 - All relevant rules are added to the `rules` object.
 
 <br/>
@@ -136,7 +144,10 @@ export default defineConfig({
   }],
   settings: {
     "better-tailwindcss": {
-      entryPoint: "src/global.css"
+      entryPoint: "src/global.css",
+
+      // the presets of your framework (`react`, `preact`, `solid` or `qwik`) and the utilities you use
+      selectors: ["react", "clsx"]
     }
   }
 });

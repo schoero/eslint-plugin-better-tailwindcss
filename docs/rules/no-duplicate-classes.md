@@ -25,7 +25,7 @@ Disallow duplicate classes in Tailwind CSS class strings.
 
   Pass an array to replace these selectors with your own, or an object with an `extends` array to keep these selectors and lint additional ones.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or an object with an `extends` array of [Selectors](../configuration/advanced.md#selectors)
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) and [preset names](../configuration/presets.md), or an object with an `extends` array of them
   **Default**: See [defaults API](../api/defaults.md)
 
 </details>

@@ -18,6 +18,7 @@ To lint Tailwind CSS classes in Vue files, ensure that:
 - The `vue-eslint-parser` is installed and configured.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for your framework and the utilities you use.
 
 <br/>
 
@@ -50,7 +51,10 @@ export default defineConfig({
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-      tailwindConfig: "tailwind.config.js"
+      tailwindConfig: "tailwind.config.js",
+
+      // the presets of your framework and the utilities you use
+      selectors: ["vue", "clsx"]
     }
   },
 
@@ -88,7 +92,10 @@ export default defineConfig({
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of your framework and the utilities you use
+        "selectors": ["vue", "clsx"]
       }
     },
 

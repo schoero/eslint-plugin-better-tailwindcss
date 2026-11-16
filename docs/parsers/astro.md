@@ -19,6 +19,7 @@ To lint Tailwind CSS classes in Astro files, ensure that:
 - The `typescript-eslint` package is installed if you want to lint TypeScript within Astro files.
 - The plugin is added to your configuration.
 - The `settings` object contains the correct Tailwind CSS configuration paths.
+- The `selectors` setting contains the [presets](../configuration/presets.md) for your framework and the utilities you use.
 
 <br/>
 
@@ -52,7 +53,10 @@ export default defineConfig({
       // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
       entryPoint: "src/global.css",
       // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-      tailwindConfig: "tailwind.config.js"
+      tailwindConfig: "tailwind.config.js",
+
+      // the presets of your framework and the utilities you use
+      selectors: ["astro", "clsx"]
     }
   },
 
@@ -109,7 +113,10 @@ export default defineConfig({
         // tailwindcss 4: the path to the entry file of the css based tailwind config (eg: `src/global.css`)
         "entryPoint": "src/global.css",
         // tailwindcss 3: the path to the tailwind config file (eg: `tailwind.config.js`)
-        "tailwindConfig": "tailwind.config.js"
+        "tailwindConfig": "tailwind.config.js",
+
+        // the presets of your framework and the utilities you use
+        "selectors": ["astro", "clsx"]
       }
     },
 

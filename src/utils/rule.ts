@@ -7,6 +7,7 @@ import { getDefaults, is, strictObject } from "valibot";
 import { DEFAULT_SELECTORS } from "better-tailwindcss:options/default-options.js";
 import { COMMON_OPTIONS } from "better-tailwindcss:options/descriptions.js";
 import { migrateLegacySelectorsToFlatSelectors } from "better-tailwindcss:options/migrate.js";
+import * as presets from "better-tailwindcss:options/presets.js";
 import { SELECTOR_SCHEMA } from "better-tailwindcss:options/schemas/selectors.js";
 import { getAttributesByAngularElement, getLiteralsByAngularAttribute } from "better-tailwindcss:parsers/angular.js";
 import { getLiteralsByCSSAtRule } from "better-tailwindcss:parsers/css.js";
@@ -52,7 +53,7 @@ import type { SvelteStartTag } from "svelte-eslint-parser/lib/ast/index.js";
 import type { AST } from "vue-eslint-parser";
 
 import type { CommonOptions } from "better-tailwindcss:options/descriptions.js";
-import type { SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
+import type { PresetName, SelectorsOptions } from "better-tailwindcss:options/schemas/selectors.js";
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type {
   AttributeSelector,
@@ -64,6 +65,7 @@ import type {
   RuleCategory,
   RuleContext,
   Schema,
+  Selector,
   TagSelector,
   VariableSelector
 } from "better-tailwindcss:types/rule.js";
@@ -138,10 +140,10 @@ export function createRule<
     const hasTagOverride = mergedOptions.tags !== undefined;
     const hasVariableOverride = mergedOptions.variables !== undefined;
 
-    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce(
+    const { baseSelectors, extendedSelectors } = [settings.selectors, options.selectors].reduce<{ baseSelectors: Selector[]; extendedSelectors: Selector[]; }>(
       (resolvedSelectors, configuredSelectors) => {
         if(Array.isArray(configuredSelectors)){
-          return { baseSelectors: configuredSelectors, extendedSelectors: [] };
+          return { baseSelectors: resolvePresetNames(configuredSelectors), extendedSelectors: [] };
         }
 
         // settings are not validated, so they can contain anything
@@ -153,7 +155,7 @@ export function createRule<
           baseSelectors: resolvedSelectors.baseSelectors,
           extendedSelectors: [
             ...resolvedSelectors.extendedSelectors,
-            ...configuredSelectors.extends.filter(selector => is(SELECTOR_SCHEMA, selector))
+            ...resolvePresetNames(configuredSelectors.extends)
           ]
         };
       },
@@ -276,6 +278,27 @@ export function createRule<
       }
     }
   } satisfies ESLintRule<Name, Messages, Options, Category, Recommended>;
+}
+
+// settings are not validated, so invalid entries would otherwise be dropped silently or crash the selector matching
+function resolvePresetNames(entries: unknown[]): Selector[] {
+  return entries.flatMap<Selector>(entry => {
+    if(typeof entry === "string"){
+      if(Object.hasOwn(presets, entry)){
+        return presets[entry as PresetName];
+      }
+
+      warnOnce(`Unknown preset "${entry}" in \`selectors\`. It will be ignored.`);
+      return [];
+    }
+
+    if(is(SELECTOR_SCHEMA, entry)){
+      return [entry];
+    }
+
+    warnOnce(`Invalid selector ${JSON.stringify(entry)} in \`selectors\`. It will be ignored.`);
+    return [];
+  });
 }
 
 export function createRuleListener<Ctx extends Context>(ctx: Rule.RuleContext, context: Ctx, lintLiterals: (ctx: Ctx, literals: Literal[]) => void): Rule.RuleListener {

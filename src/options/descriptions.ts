@@ -17,7 +17,7 @@ import { VARIABLES_OPTION_SCHEMA } from "better-tailwindcss:options/schemas/vari
 
 import type { InferInput, InferOutput } from "valibot";
 
-import type { Selectors } from "better-tailwindcss:options/schemas/selectors.js";
+import type { Selector } from "better-tailwindcss:types/rule.js";
 
 
 export const COMMON_OPTIONS = strictObject({
@@ -37,7 +37,7 @@ export const COMMON_OPTIONS = strictObject({
 
 /** Options after the configured selectors have been resolved to a flat list of selectors. */
 export type CommonOptions = Omit<InferOutput<typeof COMMON_OPTIONS>, "selectors"> & {
-  selectors: Selectors;
+  selectors: Selector[];
 };
 
 /** User-provided settings before default values are applied. */

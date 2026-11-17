@@ -36,7 +36,7 @@ import { warnOnce } from "better-tailwindcss:utils/warn.js";
 import type { TmplAstElement } from "@angular/compiler";
 import type { Atrule } from "@eslint/css-tree";
 import type { TagNode } from "es-html-parser";
-import type { Rule, SourceCode } from "eslint";
+import type { Rule } from "eslint";
 import type {
   CallExpression,
   ExportDefaultDeclaration,
@@ -67,7 +67,7 @@ import type {
 } from "better-tailwindcss:types/rule.js";
 
 
-let lastSourceCode: SourceCode | undefined;
+const checkedFiles = new WeakSet<object>();
 
 export function createRule<
   const Name extends string,
@@ -186,10 +186,10 @@ export function createRule<
 
         eslintContext = ctx;
 
-        // files that cached values depend on are checked again once per linted file, all rules share the check
-        // eslint creates a new source code for every lint pass, so a file that is linted again is checked again
-        if(ctx.sourceCode !== lastSourceCode){
-          lastSourceCode = ctx.sourceCode;
+        // files that cached values depend on are checked again once per linted file, all rules share the check.
+        // keyed by the ast because oxlint reuses one source code object for every file, but parses a new ast for every lint pass
+        if(!checkedFiles.has(ctx.sourceCode.ast)){
+          checkedFiles.add(ctx.sourceCode.ast);
           cache.refresh();
         }
 

@@ -10,9 +10,11 @@ import {
 import { dirname, join } from "node:path";
 
 import { loadESLint } from "eslint";
+import { RuleTester as OxlintRuleTester } from "oxlint/plugins-dev";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import eslintPluginBetterTailwindCSS from "better-tailwindcss:configs/config.js";
+import { noUnknownClasses } from "better-tailwindcss:rules/no-unknown-classes.js";
 import {
   getCustomComponentClasses as getCustomComponentClassesFromCss
 } from "better-tailwindcss:tailwindcss/custom-component-classes.async.v4.js";
@@ -24,12 +26,14 @@ import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefi
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { TEST_SYNTAXES } from "better-tailwindcss:tests/utils/lint.js";
 import { TestDirectory } from "better-tailwindcss:tests/utils/tmp.js";
-import { getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
+import { getNodeVersion, getTailwindCSSVersion } from "better-tailwindcss:tests/utils/version.js";
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
 import { async, getTailwindConfigPath } from "better-tailwindcss:utils/context.js";
 import { resolveJson } from "better-tailwindcss:utils/resolvers.js";
 import { loadTailwindContext, releaseTailwindContext } from "better-tailwindcss:utils/tailwind-context.js";
 import { getTailwindPackage } from "better-tailwindcss:utils/tailwindcss.js";
+
+import type { RuleTester as ESLintRuleTester } from "eslint";
 
 import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
@@ -305,6 +309,29 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-a")}\n${utility("utility-b")}`);
 
     expect(await lint()).toEqual([]);
+  });
+
+  it.runIf(getNodeVersion().major >= 22)("should check the files again when oxlint lints a file again", () => {
+    const directory = createDirectory({ "tailwind.css": `@import "tailwindcss";\n${utility("utility-a")}` });
+
+    const ruleTester = new OxlintRuleTester(TEST_SYNTAXES.jsx) as unknown as ESLintRuleTester;
+    const testCase = {
+      code: `export default () => <div class="utility-a utility-b" />;`,
+      cwd: process.cwd(),
+      settings: { "better-tailwindcss": { entryPoint: "./tailwind.css" } }
+    };
+
+    ruleTester.run(noUnknownClasses.name, noUnknownClasses.rule, {
+      invalid: [{ ...testCase, errors: 1 }],
+      valid: []
+    });
+
+    changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-a")}\n${utility("utility-b")}`);
+
+    ruleTester.run(noUnknownClasses.name, noUnknownClasses.rule, {
+      invalid: [],
+      valid: [testCase]
+    });
   });
 
 });

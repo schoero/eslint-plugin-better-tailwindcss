@@ -4,6 +4,7 @@ import {
   createGetCustomComponentClasses,
   getCustomComponentClasses
 } from "better-tailwindcss:tailwindcss/custom-component-classes.js";
+import { createGetDissectedClasses, getDissectedClasses } from "better-tailwindcss:tailwindcss/dissect-classes.js";
 import { createGetPrefix, getPrefix } from "better-tailwindcss:tailwindcss/prefix.js";
 import { createGetUnknownClasses, getUnknownClasses } from "better-tailwindcss:tailwindcss/unknown-classes.js";
 import { async } from "better-tailwindcss:utils/context.js";
@@ -11,12 +12,16 @@ import { escapeForRegex } from "better-tailwindcss:utils/escape.js";
 import { lintClasses } from "better-tailwindcss:utils/lint.js";
 import { getCachedRegex } from "better-tailwindcss:utils/regex.js";
 import { createRule } from "better-tailwindcss:utils/rule.js";
+import { segment } from "better-tailwindcss:utils/segment.js";
 import { isConcatenatedLeft, isConcatenatedRight, splitClasses } from "better-tailwindcss:utils/utils.js";
 
 import type { Literal } from "better-tailwindcss:types/ast.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 
+
+// arbitrary property that is valid in every configuration, used to check if variants are known
+const VARIANT_PROBE = "[color:red]";
 
 export const noUnknownClasses = createRule({
   autofix: false,
@@ -45,6 +50,7 @@ export const noUnknownClasses = createRule({
   initialize: ctx => {
     const { detectComponentClasses } = ctx.options;
 
+    createGetDissectedClasses(ctx);
     createGetPrefix(ctx);
     createGetUnknownClasses(ctx);
 
@@ -78,6 +84,10 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       continue;
     }
 
+    const dissectedClasses = ignore.length > 0
+      ? getDissectedClasses(asyncCtx, unknownClasses).dissectedClasses
+      : undefined;
+
     lintClasses(ctx, literal, (className, classIndex) => {
 
       const isFirstClass = classIndex === 0;
@@ -96,6 +106,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
       if(
         ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(className)) ||
+        isIgnoredWithKnownVariants(asyncCtx, ignore, className, dissectedClasses?.[className]?.separator) ||
         customComponentClassRegexes?.some(customComponentClassesRegex => customComponentClassesRegex.test(className)) ||
         ignoredGroups.test(className) ||
         ignoredPeers.test(className)
@@ -113,6 +124,17 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
     });
   }
+}
+
+function isIgnoredWithKnownVariants(ctx: AsyncContext, ignore: string[], className: string, separator: string = ":"): boolean {
+  const utility = segment(className, separator).at(-1) ?? "";
+  const variants = className.slice(0, className.length - utility.length);
+
+  if(variants.length === 0 || !ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(utility))){
+    return false;
+  }
+
+  return getUnknownClasses(ctx, [`${variants}${VARIANT_PROBE}`]).unknownClasses.length === 0;
 }
 
 function getCustomComponentClassRegexes(ctx: Context<typeof noUnknownClasses>, asyncCtx: AsyncContext): RegExp[] | undefined {

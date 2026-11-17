@@ -9,6 +9,8 @@ Disallow unknown classes in Tailwind CSS class strings. Unknown classes are clas
 ### `ignore`
 
   List of List of regex patterns for classes that should not report an error.
+
+  The patterns are also tested against the class name without its variants, so `^my-class$` ignores `hover:my-class` and `lg:my-class` as well. Unknown variants are still reported.
   
   **Type**: `string[]`  
   **Default**: `[]`

@@ -109,7 +109,7 @@ export const enforceConsistentClassOrder = createRule({
           literal("desc"),
           literal("preserve")
         ]),
-        description("Defines how component classes should be ordered among themselves.")
+        description("Defines how unknown classes should be ordered among themselves.")
       ),
       "preserve"
     ),
@@ -119,7 +119,7 @@ export const enforceConsistentClassOrder = createRule({
           literal("start"),
           literal("end")
         ]),
-        description("Defines where component classes should be placed in relation to the whole string literal.")
+        description("Defines where unknown classes should be placed in relation to the whole string literal.")
       ),
       "start"
     )

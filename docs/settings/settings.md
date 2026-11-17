@@ -150,9 +150,25 @@ If provided, this will be used to determine if arbitrary values can be replaced 
 
 ### `selectors`
 
-  Flat list of selectors that determines where Tailwind class strings are linted.
+  Selectors that determine where Tailwind class strings are linted.
 
   This controls what gets linted globally: only string literals matched by these selectors are treated as Tailwind class candidates.
 
-  **Type**: Array of [Selectors](../configuration/advanced.md#selectors)  
+  Pass an array to replace the [default selectors](../api/defaults.md) with your own, or an object with an `extends` array to keep the default selectors and lint additional ones. Unlike spreading `getDefaultSelectors()` into an array, `extends` also works in configs that cannot import JavaScript, such as JSON configs.
+
+  Rules use the selectors configured here unless they set their own `selectors` option. In a rule's options, an array replaces the selectors configured here, and an `extends` array keeps them and lints additional ones.
+
+  `extends` only adds selectors on top of the defaults or of the settings, not on top of the `extends` from another config object. ESLint merges `settings` across config objects by replacing arrays, so if a shared config and your own config both set `selectors: { extends: [...] }`, only the last one is used. To keep the selectors from the shared config, repeat them in your own `extends` array.
+
+  ```jsonc
+  {
+    "selectors": {
+      "extends": [
+        { "kind": "attribute", "match": [{ "type": "objectValues" }], "name": "^classNames$" }
+      ]
+    }
+  }
+  ```
+
+  **Type**: Array of [Selectors](../configuration/advanced.md#selectors) or an object with an `extends` array of [Selectors](../configuration/advanced.md#selectors)  
   **Default**: See [defaults API](../api/defaults.md)

@@ -68,6 +68,18 @@ describe(noUnnecessaryWhitespace.name, () => {
           jsx: `() => <img class={"a " + " b " + " c"} />`,
           svelte: `<img class={"a " + " b " + " c"} />`,
           vue: `<template><img :class="'a ' + ' b ' + ' c'" /></template>`
+        },
+        {
+          angular: `<img [class]="'a ' + '' + 'b'" />`,
+          jsx: `() => <img class={"a " + "" + "b"} />`,
+          svelte: `<img class={"a " + "" + "b"} />`,
+          vue: `<template><img :class="'a ' + '' + 'b'" /></template>`
+        },
+        {
+          angular: `<img [class]="'a' + '' + ' b'" />`,
+          jsx: `() => <img class={"a" + "" + " b"} />`,
+          svelte: `<img class={"a" + "" + " b"} />`,
+          vue: `<template><img :class="'a' + '' + ' b'" /></template>`
         }
       ]
     });

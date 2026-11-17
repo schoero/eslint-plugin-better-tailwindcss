@@ -66,6 +66,8 @@ export class Cache {
   // advances with every change that can turn a valid entry stale, a validation stays valid until then
   private generation = 0;
 
+  private refreshes = 0;
+
   // the summed weight of all entries
   private weight = 0;
 
@@ -104,6 +106,15 @@ export class Cache {
     this.store(key, value, this.snapshot(options));
   }
 
+  // values derived from the same entries share one snapshot, instead of resolving the dependencies for each of them
+  setMany(values: Iterable<readonly [key: string, value: unknown]>, options?: CacheOptions): void {
+    const snapshot = this.snapshot(options);
+
+    for(const [key, value] of values){
+      this.store(key, value, snapshot);
+    }
+  }
+
   delete(key: string): boolean {
     const entry = this.entries.get(key);
 
@@ -118,6 +129,12 @@ export class Cache {
   refresh(): void {
     this.modifiedTimes.clear();
     this.generation++;
+    this.refreshes++;
+  }
+
+  // lets the worker check its files again only when the ESLint thread did
+  get refreshCount(): number {
+    return this.refreshes;
   }
 
   clear(): void {

@@ -41,3 +41,6 @@ export type OperationHandlers = {
 };
 
 export type RunOperation = <Operation extends keyof Operations>(operation: Operation, ...args: Parameters<Operations[Operation]>) => OperationResponse<ReturnType<Operations[Operation]>>;
+
+// what is sent to the worker. `refreshCount` is the refresh count of the ESLint thread's cache when the operation was sent.
+export type SendOperation = <Operation extends keyof Operations>(refreshCount: number, operation: Operation, ...args: Parameters<Operations[Operation]>) => OperationResponse<ReturnType<Operations[Operation]>>;

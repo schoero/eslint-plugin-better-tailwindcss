@@ -17,6 +17,8 @@ interface CachedTailwindContext<TailwindContext> {
 // the worker handles one operation at a time, this is the context the current operation used
 let usedContext: TailwindContextInfo | undefined;
 
+let lastRefreshCount: number | undefined;
+
 // returns the Tailwind CSS context for the config of `ctx`, every config has its own context.
 // the context is built again when one of the files it was built from changes.
 export async function loadTailwindContext<TailwindContext>(
@@ -58,9 +60,13 @@ export function releaseTailwindContext(contextKey: string): boolean {
 
 // runs an operation in the worker and reports the context it used, so that the ESLint thread can cache the result.
 export function createOperationRunner(handlers: OperationHandlers) {
-  return async <Operation extends keyof Operations>(operation: Operation, ...args: Parameters<Operations[Operation]>): Promise<OperationResponse<ReturnType<Operations[Operation]>>> => {
-    // files may have changed since the previous operation
-    cache.refresh();
+  return async <Operation extends keyof Operations>(refreshCount: number, operation: Operation, ...args: Parameters<Operations[Operation]>): Promise<OperationResponse<ReturnType<Operations[Operation]>>> => {
+    // the ESLint thread checks the files once per linted file, checking them on every operation would stat every tracked file again
+    if(refreshCount !== lastRefreshCount){
+      lastRefreshCount = refreshCount;
+      cache.refresh();
+    }
+
     usedContext = undefined;
 
     const result = await (handlers[operation] as (...args: Parameters<Operations[Operation]>) => Promise<ReturnType<Operations[Operation]>>)(...args);

@@ -220,11 +220,14 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
     const asyncCtx = async(createContext(directory, "./tailwind.css"));
 
     getUnknownClasses(asyncCtx, classes);
+
+    // the host checks the files of the next linted file before the change and keeps the memoized modification time
+    cache.refresh();
     expect(isCached(asyncCtx)).toBe(true);
 
     changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-b")}`);
 
-    // the host does not check the files again, only the worker notices the change and rebuilds the context
+    // only the worker notices the change and rebuilds the context
     getPrefix(asyncCtx);
 
     expect(isCached(asyncCtx)).toBe(false);
@@ -236,7 +239,10 @@ describe.runIf(getTailwindCSSVersion().major >= 4)("tailwind context invalidatio
 
     getUnknownClasses(asyncCtx, classes);
 
-    // no cache.refresh(), the host keeps the memoized modification time and only the worker sees the change
+    // the host checks the files of the next linted file before the change and keeps the memoized modification time
+    cache.refresh();
+    expect(cache.has(asyncCtx.contextKey)).toBe(true);
+
     changeFile(directory.files["tailwind.css"].path, `@import "tailwindcss";\n${utility("utility-c")}`);
 
     expect(getUnknownClasses(asyncCtx, ["utility-c"]).unknownClasses).toEqual([]);

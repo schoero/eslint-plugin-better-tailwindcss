@@ -289,4 +289,34 @@ describe("cache", () => {
     expect(cache.has("c")).toBe(true);
   });
 
+  it("should count refreshes, including the one of a clear", () => {
+    const cache = new Cache();
+    const initial = cache.refreshCount;
+
+    cache.refresh();
+    cache.clear();
+
+    expect(cache.refreshCount).toBe(initial + 2);
+  });
+
+  it("should store many values with the same dependencies", () => {
+    const cache = new Cache();
+
+    cache.set("dependency", 1);
+    cache.setMany([["a", 1], ["b", 2]], { dependencies: ["dependency"] });
+
+    expect(cache.get("a")).toBe(1);
+    expect(cache.get("b")).toBe(2);
+
+    cache.set("dependency", 2);
+
+    expect(cache.has("a")).toBe(false);
+    expect(cache.has("b")).toBe(false);
+
+    cache.setMany([["c", 3], ["d", 4]], { dependencies: ["missing"] });
+
+    expect(cache.has("c")).toBe(false);
+    expect(cache.has("d")).toBe(false);
+  });
+
 });

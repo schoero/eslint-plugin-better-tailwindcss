@@ -7,15 +7,21 @@ import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
 import type { Context } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
-import type { OperationResponse, RunOperation, TailwindContextInfo } from "better-tailwindcss:utils/operations.js";
+import type {
+  OperationResponse,
+  RunOperation,
+  SendOperation,
+  TailwindContextInfo
+} from "better-tailwindcss:utils/operations.js";
 
 
 export function createRunOperation(ctx: Context): RunOperation {
   const workerPath = resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
-  return createSyncFn(workerPath, getWorkerOptions()) as RunOperation;
+  const send = createSyncFn(workerPath, getWorkerOptions()) as SendOperation;
+
+  return (operation, ...args) => send(cache.refreshCount, operation, ...args);
 }
 
-// returns the cached result of an operation or runs it in the worker.
 export function getOrRunOperation<Result>(ctx: AsyncContext, key: string, run: () => OperationResponse<Result>): Result {
   const cached = cache.get<Result>(key);
 
@@ -40,31 +46,36 @@ export function getOrRunOperationPerClass<Value>(
   run: (uncachedClasses: string[]) => OperationResponse<Record<string, Value>>
 ): Record<string, Value> {
   const values: Record<string, Value> = Object.create(null);
-  const uncachedClasses = new Set<string>();
+  const uncachedKeys = new Map<string, string>();
 
   for(const className of classes){
-    if(className in values || uncachedClasses.has(className)){
+    if(className in values || uncachedKeys.has(className)){
       continue;
     }
 
-    const value = cache.get<Value>(cacheKey(name, ctx.contextKey, className));
+    const key = cacheKey(name, ctx.contextKey, className);
+    const value = cache.get<Value>(key);
 
     if(value === undefined){
-      uncachedClasses.add(className);
+      uncachedKeys.set(className, key);
     } else {
       values[className] = value;
     }
   }
 
-  if(uncachedClasses.size > 0){
-    const { context, result } = run([...uncachedClasses]);
+  if(uncachedKeys.size > 0){
+    const { context, result } = run([...uncachedKeys.keys()]);
 
     storeContext(ctx, context);
 
-    for(const className of uncachedClasses){
+    const entries: [key: string, value: Value][] = [];
+
+    for(const [className, key] of uncachedKeys){
       values[className] = result[className];
-      storeResult(ctx, cacheKey(name, ctx.contextKey, className), result[className], context);
+      entries.push([key, result[className]]);
     }
+
+    cache.setMany(entries, { dependencies: context ? [ctx.contextKey] : [] });
   }
 
   return values;
@@ -74,16 +85,13 @@ export function getOrRunOperationPerClass<Value>(
 // results computed from it become stale as soon as one of these files changes, without a round trip to the worker.
 // a context that the worker built again has a new version, which makes the results computed from the previous one stale.
 export function storeContext(ctx: AsyncContext, context: TailwindContextInfo | undefined): void {
-  if(!context){
+  if(!context || cache.get<number>(ctx.contextKey) === context.version){
     return;
   }
 
   // the worker built the context again because a file changed, so the modification times
   // memoized at the start of the linted file are outdated
-  if(cache.get<number>(ctx.contextKey) !== context.version){
-    cache.refresh();
-  }
-
+  cache.refresh();
   cache.set(ctx.contextKey, context.version, { files: context.files });
 }
 

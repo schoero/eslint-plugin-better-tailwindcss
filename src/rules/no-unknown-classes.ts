@@ -84,7 +84,9 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
       continue;
     }
 
-    const { dissectedClasses } = getDissectedClasses(asyncCtx, unknownClasses);
+    const dissectedClasses = ignore.length > 0
+      ? getDissectedClasses(asyncCtx, unknownClasses).dissectedClasses
+      : undefined;
 
     lintClasses(ctx, literal, (className, classIndex) => {
 
@@ -104,7 +106,7 @@ function lintLiterals(ctx: Context<typeof noUnknownClasses>, literals: Literal[]
 
       if(
         ignore.some(ignoredClass => getCachedRegex(ignoredClass).test(className)) ||
-        isIgnoredWithKnownVariants(asyncCtx, ignore, className, dissectedClasses[className]?.separator) ||
+        isIgnoredWithKnownVariants(asyncCtx, ignore, className, dissectedClasses?.[className]?.separator) ||
         customComponentClassRegexes?.some(customComponentClassesRegex => customComponentClassesRegex.test(className)) ||
         ignoredGroups.test(className) ||
         ignoredPeers.test(className)

@@ -156,12 +156,29 @@ export class Cache {
       return;
     }
 
+    this.use(entry, 0);
+
+    return entry;
+  }
+
+  // dependencies are moved after their dependents, so that eviction never removes a dependency before the entries that depend on it
+  private use(entry: Entry, depth: number): void {
     if(entry !== this.newest){
       this.unlink(entry);
       this.link(entry);
     }
 
-    return entry;
+    if(depth >= MAX_DEPENDENCY_DEPTH){
+      return;
+    }
+
+    for(const dependency of entry.dependencies){
+      const target = this.entries.get(dependency.key);
+
+      if(target){
+        this.use(target, depth + 1);
+      }
+    }
   }
 
   private isValid(entry: Entry, depth: number): boolean {
@@ -182,12 +199,6 @@ export class Cache {
 
       if(!isCurrent){
         return false;
-      }
-
-      // a dependency is used whenever its dependents are, otherwise it is evicted first and takes all of them with it
-      if(target !== this.newest){
-        this.unlink(target);
-        this.link(target);
       }
     }
 
@@ -257,11 +268,21 @@ export class Cache {
 
     this.entries.set(key, entry);
     this.link(entry);
+    this.use(entry, 0);
     this.weight += snapshot.weight;
 
-    // the entry that was just written is never evicted, even if it exceeds the capacity on its own
-    while(this.weight > this.capacity && this.oldest && this.oldest !== entry){
-      this.remove(this.oldest);
+    // the entry that was just written is never evicted, even if it exceeds the capacity on its own.
+    // weightless entries free no capacity, they are only removed explicitly or when they become stale
+    let candidate = this.oldest;
+
+    while(this.weight > this.capacity && candidate){
+      const next = candidate.newer;
+
+      if(candidate !== entry && candidate.weight > 0){
+        this.remove(candidate);
+      }
+
+      candidate = next;
     }
   }
 
@@ -276,7 +297,6 @@ export class Cache {
     }
   }
 
-  // appends the entry as the most recently used one
   private link(entry: Entry): void {
     entry.older = this.newest;
     entry.newer = undefined;

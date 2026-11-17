@@ -247,15 +247,46 @@ describe("cache", () => {
     expect(cache.has("dependent")).toBe(true);
   });
 
-  it("should invalidate dependents of evicted entries", () => {
+  it("should evict dependents before their dependencies", () => {
     const cache = new Cache(2);
 
     cache.set("dependency", 1);
     cache.set("dependent", true, { dependencies: ["dependency"] });
     cache.set("other", true);
 
-    expect(cache.has("dependency")).toBe(false);
     expect(cache.has("dependent")).toBe(false);
+    expect(cache.has("dependency")).toBe(true);
+    expect(cache.has("other")).toBe(true);
+  });
+
+  it("should keep the dependency of an entry that is used repeatedly without a refresh", () => {
+    const cache = new Cache(3);
+
+    cache.set("dependency", 1);
+    cache.set("dependent", true, { dependencies: ["dependency"] });
+    cache.get("dependent");
+    cache.set("x", true);
+    cache.get("dependent");
+    cache.set("y", true);
+
+    expect(cache.has("x")).toBe(false);
+    expect(cache.has("dependency")).toBe(true);
+    expect(cache.has("dependent")).toBe(true);
+    expect(cache.has("y")).toBe(true);
+  });
+
+  it("should not evict entries with a weight of 0, even if they are the least recently used", () => {
+    const cache = new Cache(2);
+
+    cache.set("weightless", 0, { weight: 0 });
+    cache.set("a", 1);
+    cache.set("b", 2);
+    cache.set("c", 3);
+
+    expect(cache.has("weightless")).toBe(true);
+    expect(cache.has("a")).toBe(false);
+    expect(cache.has("b")).toBe(true);
+    expect(cache.has("c")).toBe(true);
   });
 
 });

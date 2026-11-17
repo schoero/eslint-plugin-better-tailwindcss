@@ -1,9 +1,5 @@
-import { resolve } from "node:path";
-
-import { createSyncFn } from "synckit";
-
-import { withOperationCache } from "better-tailwindcss:utils/cache.js";
-import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
+import { createRunOperation, getOrRunOperation } from "better-tailwindcss:tailwindcss/operation.js";
+import { cacheKey } from "better-tailwindcss:utils/cache.js";
 
 import type { Warning } from "better-tailwindcss:types/async.js";
 import type { Context } from "better-tailwindcss:types/rule.js";
@@ -20,15 +16,21 @@ export type GetClassOrder = (ctx: AsyncContext, classes: string[]) => {
 export let getClassOrder: GetClassOrder = () => { throw new Error("getClassOrder() called before being initialized"); };
 
 export function createGetClassOrder(ctx: Context): GetClassOrder {
-  const workerPath = getWorkerPath(ctx);
-  const workerOptions = getWorkerOptions();
-  const runWorker = createSyncFn(workerPath, workerOptions);
+  const runOperation = createRunOperation(ctx);
 
-  getClassOrder = withOperationCache<GetClassOrder>("getClassOrder", (ctx, classes) => runWorker("getClassOrder", ctx, classes));
+  getClassOrder = (ctx, classes) => {
+    // only the order is cached, the class names are already part of the key and are taken from the input
+    const order = getOrRunOperation(ctx, cacheKey("class-order", ctx.contextKey, ...classes), () => {
+      const { context, result } = runOperation("getClassOrder", ctx, classes);
+      const orderByClass = new Map(result);
+      return { context, result: classes.map(className => orderByClass.get(className) ?? null) };
+    });
+
+    return {
+      classOrder: classes.map((className, index) => [className, order[index]]),
+      warnings: ctx.warnings
+    };
+  };
 
   return getClassOrder;
-}
-
-function getWorkerPath(ctx: Context) {
-  return resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
 }

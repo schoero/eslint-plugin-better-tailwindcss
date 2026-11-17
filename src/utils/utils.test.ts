@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { matchesName } from "better-tailwindcss:utils/utils.js";
+import { getWhitespace, matchesName } from "better-tailwindcss:utils/utils.js";
 
 import { escapeForRegex } from "../async-utils/escape";
 
@@ -31,4 +31,19 @@ describe("escapeForRegex", () => {
     expect(escapeForRegex("a+b*c")).toBe("a\\+b\\*c");
     expect(escapeForRegex("class$")).toBe("class\\$");
   });
+});
+
+describe("getWhitespace", () => {
+
+  it("should return the same whitespace as the \\s regex", () => {
+    const inputs = ["", "   ", "a", " a ", "\n\t a b \u00A0\r\n", "\u2028a\uFEFF", "a  \n  b"];
+
+    for(const input of inputs){
+      expect(getWhitespace(input)).toEqual({
+        leadingWhitespace: input.match(/^\s*/)?.[0],
+        trailingWhitespace: input.match(/\s*$/)?.[0]
+      });
+    }
+  });
+
 });

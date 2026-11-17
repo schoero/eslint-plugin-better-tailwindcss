@@ -5,9 +5,10 @@ import type { BracesMeta, Indentation, Literal, QuoteMeta } from "better-tailwin
 import type { Warning } from "better-tailwindcss:types/async.js";
 
 
+// trimming removes the same characters as `\s`, but unlike `/\s*$/` it does not retry at every position of the string
 export function getWhitespace(classes: string) {
-  const leadingWhitespace = classes.match(/^\s*/)?.[0];
-  const trailingWhitespace = classes.match(/\s*$/)?.[0];
+  const leadingWhitespace = classes.slice(0, classes.length - classes.trimStart().length);
+  const trailingWhitespace = classes.slice(classes.trimEnd().length);
 
   return { leadingWhitespace, trailingWhitespace };
 }
@@ -232,7 +233,7 @@ export function matchesName(pattern: string, name: string | undefined): boolean 
 }
 
 export function replacePlaceholders(template: string, match: RegExpMatchArray | string[]): string {
-  return template.replace(getCachedRegex(/\$(\d+)/g), (_, groupIndex) => {
+  return template.replace(/\$(\d+)/g, (_, groupIndex) => {
     const index = Number(groupIndex);
     return match[index] ?? "";
   });
@@ -260,7 +261,7 @@ export function deduplicateLiterals(literal: Literal, index: number, literals: L
 export function createObjectPathElement(path?: string): string {
   if(!path){ return ""; }
 
-  return getCachedRegex(/^[A-Z_a-z]\w*$/).test(path)
+  return /^[A-Z_a-z]\w*$/.test(path)
     ? path
     : `["${path}"]`;
 }

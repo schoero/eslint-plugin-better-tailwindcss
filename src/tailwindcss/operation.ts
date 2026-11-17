@@ -5,7 +5,7 @@ import { createSyncFn } from "synckit";
 import { cache, cacheKey } from "better-tailwindcss:utils/cache.js";
 import { getWorkerOptions } from "better-tailwindcss:utils/worker.js";
 
-import type { Context } from "better-tailwindcss:types/rule.js";
+import type { Version } from "better-tailwindcss:types/rule.js";
 import type { AsyncContext } from "better-tailwindcss:utils/context.js";
 import type {
   OperationResponse,
@@ -15,7 +15,7 @@ import type {
 } from "better-tailwindcss:utils/operations.js";
 
 
-export function createRunOperation(ctx: Context): RunOperation {
+export function createRunOperation(ctx: { version: Pick<Version, "major">; }): RunOperation {
   const workerPath = resolve(import.meta.dirname, `./tailwind.async.worker.v${ctx.version.major}.js`);
   const send = createSyncFn(workerPath, getWorkerOptions()) as SendOperation;
 

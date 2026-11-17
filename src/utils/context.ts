@@ -50,20 +50,25 @@ function getContextKey(installation: string, tailwindConfigPath: string, tsconfi
 // a released context that other directories still share is built again on their next use.
 function releaseReplacedContext(ctx: Context, contextKey: string) {
   const sourceKey = cacheKey("context-source", ctx.cwd, ctx.options.entryPoint ?? ctx.options.tailwindConfig, ctx.options.tsconfig);
-  const previousContextKey = cache.get<string>(sourceKey);
+  const previous = cache.get<{ contextKey: string; major: number; }>(sourceKey);
 
-  if(previousContextKey === contextKey){
+  if(previous?.contextKey === contextKey && previous.major === ctx.version.major){
     return;
   }
 
-  cache.set(sourceKey, contextKey);
+  cache.set(sourceKey, { contextKey, major: ctx.version.major });
 
-  if(previousContextKey === undefined){
+  if(previous === undefined){
     return;
   }
 
-  cache.delete(previousContextKey);
-  createRunOperation(ctx)("releaseTailwindContext", previousContextKey);
+  cache.delete(previous.contextKey);
+
+  // the context lives in the worker of the tailwind version that built it.
+  // releasing it only frees memory, a worker that times out or a version that is no longer installed must not fail linting
+  try {
+    createRunOperation({ version: { major: previous.major } })("releaseTailwindContext", previous.contextKey);
+  } catch {}
 }
 
 // resolved again when the configured file is created or deleted

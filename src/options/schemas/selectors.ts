@@ -203,12 +203,12 @@ export const SELECTORS_SCHEMA = pipe(
 
 export type Selectors = InferOutput<typeof SELECTORS_SCHEMA>;
 
-export const EXTENDS_SELECTORS_SCHEMA = strictObject({
-  extends: pipe(
-    array(SELECTOR_SCHEMA),
-    description("Selectors that are added to the default selectors. In rule options, they are added to the selectors from the settings instead.")
-  )
-});
+export const EXTENDS_SELECTORS_SCHEMA = pipe(
+  strictObject({
+    extends: array(SELECTOR_SCHEMA)
+  }),
+  description("Selectors that are added to the default selectors. In rule options, they are added to the selectors from the settings instead.")
+);
 
 export const SELECTORS_OPTION_SCHEMA = strictObject({
   selectors: optional(
